@@ -1,0 +1,14 @@
+#s_2_sequence.txt
+#s_3_sequence.txt
+#s_4_sequence.txt
+#s_8_sequence.txt
+#run0128_lane3_read1_index21=100344-9050.fastq
+#run0128_lane3_read1_index22=101679-9050.fastq
+#run0128_lane3_read1_index23=500022-9050.fastq
+#run0131_lane3_read1_index1=Gfi1_KO_H3K4me3.fastq
+#run0131_lane3_read1_index7=wt_H3K4me3.fastq
+
+run0131_lane3_read1_index11=wt_H3K9ac.fastq
+run0131_lane3_read1_index2=Gfi1_KO_H3K4me2.fastq
+run0131_lane3_read1_index5=Gfi1_KO_H3K9ac.fastq
+run0131_lane3_read1_index8=wt_H3K4me2.fastq

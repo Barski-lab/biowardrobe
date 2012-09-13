@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bam2bedgraph", "bam2bedgraph.vcxproj", "{C7BFCE14-E787-3F6D-A290-725C3994E11D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{7581175C-9672-3E1E-8654-B06A0D4BBC7B} = {7581175C-9672-3E1E-8654-B06A0D4BBC7B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bamtools", "..\..\thirdparty\bamtools\bamtools.vcxproj", "{7581175C-9672-3E1E-8654-B06A0D4BBC7B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C7BFCE14-E787-3F6D-A290-725C3994E11D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7BFCE14-E787-3F6D-A290-725C3994E11D}.Debug|Win32.Build.0 = Debug|Win32
+		{C7BFCE14-E787-3F6D-A290-725C3994E11D}.Release|Win32.ActiveCfg = Release|Win32
+		{C7BFCE14-E787-3F6D-A290-725C3994E11D}.Release|Win32.Build.0 = Release|Win32
+		{7581175C-9672-3E1E-8654-B06A0D4BBC7B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7581175C-9672-3E1E-8654-B06A0D4BBC7B}.Debug|Win32.Build.0 = Debug|Win32
+		{7581175C-9672-3E1E-8654-B06A0D4BBC7B}.Release|Win32.ActiveCfg = Release|Win32
+		{7581175C-9672-3E1E-8654-B06A0D4BBC7B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

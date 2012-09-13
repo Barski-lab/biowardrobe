@@ -1,0 +1,9 @@
+#!/bin/bash
+
+declare -x CFLAGS="-I/usr/src/REPO/genomebrowser/thirdparty/samtools-0.1.18/"
+declare -x CPPLAGS="-I/usr/src/REPO/genomebrowser/thirdparty/samtools-0.1.18/"
+declare -x LDFLAGS="/usr/src/REPO/genomebrowser/thirdparty/samtools-0.1.18/libbam.a"
+#declare -x BAM_ROOT="/usr/src/REPO/genomebrowser/thirdparty/samtools-0.1.18/"
+#=/usr/src/REPO/genomebrowser/thirdparty/samtools-0.1.18
+./configure --prefix=/usr/local --without-bam --enable-intel64 
+#--with-boost=/usr/src/REPO/genomebrowser/thirdparty/boost 

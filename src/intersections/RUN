@@ -1,0 +1,2 @@
+#!/bin/bash
+./Intersections -out="result.csv" -log="logfile.log" -batch="batch" -in="/mnt/sf_G_DRIVE/FASTQ-DATA/b_indexes/hg19.fa"

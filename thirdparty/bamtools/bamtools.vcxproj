@@ -1,0 +1,349 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7581175C-9672-3E1E-8654-B06A0D4BBC7B}</ProjectGuid>
+    <RootNamespace>bamtools</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build\</IntermediateDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <OutputDirectory>release\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build\</IntermediateDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build\</IntermediateDirectory>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <OutputDirectory>debug\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>build\</IntermediateDirectory>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bamtools</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bamtools</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</IgnoreImportLibrary>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</IgnoreImportLibrary>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bamtools</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bamtools</TargetName>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</IgnoreImportLibrary>
+    <IgnoreImportLibrary Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>"$(QTDIR)\include\QtCore";"$(QTDIR)\include";".";"api";"jsoncpp";"toolkit";"utils";"Win";"$(QTDIR)\include\ActiveQt";"build";..\..\..\..\Qt\4.7.3\mkspecs\default;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>QT_NO_DEBUG;NDEBUG;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_NO_DEBUG;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(QTDIR)\lib\QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;g:\developing\Qt\4.7.3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>release\bamtools.exe</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl />
+    <ResourceCompile>
+      <PreprocessorDefinitions>QT_NO_DEBUG;NDEBUG;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_NO_DEBUG;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>"$(QTDIR)\include\QtCore";"$(QTDIR)\include";".";"api";"jsoncpp";"toolkit";"utils";"Win";"$(QTDIR)\include\ActiveQt";"build";..\..\..\..\Qt\4.7.3\mkspecs\default;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>QT_NO_DEBUG;NDEBUG;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_NO_DEBUG;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>$(QTDIR)\lib\QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;g:\developing\Qt\4.7.3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <LinkIncremental>false</LinkIncremental>
+      <OutputFile>release\bamtools.exe</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl />
+    <ResourceCompile>
+      <PreprocessorDefinitions>QT_NO_DEBUG;NDEBUG;UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_NO_DEBUG;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>"$(QTDIR)\include\QtCore";"$(QTDIR)\include";".";"api";"jsoncpp";"toolkit";"utils";"Win";"$(QTDIR)\include\ActiveQt";"build";..\..\..\..\Qt\4.7.3\mkspecs\default;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;g:\developing\Qt\4.7.3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>debug\bamtools.exe</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl />
+    <ResourceCompile>
+      <PreprocessorDefinitions>UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>"$(QTDIR)\include\QtCore";"$(QTDIR)\include";".";"api";"jsoncpp";"toolkit";"utils";"Win";"$(QTDIR)\include\ActiveQt";"build";..\..\..\..\Qt\4.7.3\mkspecs\default;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zm200 -w34100 -w34189 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>build\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion).pdb</ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TreatWChar_tAsBuiltInType>false</TreatWChar_tAsBuiltInType>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>QtCore4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(QTDIR)\lib;g:\developing\Qt\4.7.3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreImportLibrary>true</IgnoreImportLibrary>
+      <OutputFile>debug\bamtools.exe</OutputFile>
+      <SubSystem>Console</SubSystem>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Link>
+    <Midl />
+    <ResourceCompile>
+      <PreprocessorDefinitions>UNICODE;WIN32;QT_LARGEFILE_SUPPORT;QT_DLL;QT_CORE_LIB;QT_HAVE_MMX;QT_HAVE_3DNOW;QT_HAVE_SSE;QT_HAVE_MMXEXT;QT_HAVE_SSE2;QT_THREAD_SUPPORT;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="api\BamAlignment.cpp" />
+    <ClCompile Include="api\internal\io\BamDeviceFactory_p.cpp" />
+    <ClCompile Include="api\internal\utils\BamException_p.cpp" />
+    <ClCompile Include="api\internal\io\BamFile_p.cpp" />
+    <ClCompile Include="api\internal\io\BamFtp_p.cpp" />
+    <ClCompile Include="api\internal\bam\BamHeader_p.cpp" />
+    <ClCompile Include="api\internal\io\BamHttp_p.cpp" />
+    <ClCompile Include="api\internal\index\BamIndexFactory_p.cpp" />
+    <ClCompile Include="api\BamMultiReader.cpp" />
+    <ClCompile Include="api\internal\bam\BamMultiReader_p.cpp" />
+    <ClCompile Include="api\internal\io\BamPipe_p.cpp" />
+    <ClCompile Include="api\internal\bam\BamRandomAccessController_p.cpp" />
+    <ClCompile Include="api\BamReader.cpp" />
+    <ClCompile Include="api\internal\bam\BamReader_p.cpp" />
+    <ClCompile Include="api\internal\index\BamStandardIndex_p.cpp" />
+    <ClCompile Include="api\internal\index\BamToolsIndex_p.cpp" />
+    <ClCompile Include="api\BamWriter.cpp" />
+    <ClCompile Include="api\internal\bam\BamWriter_p.cpp" />
+    <ClCompile Include="api\internal\io\BgzfStream_p.cpp" />
+    <ClCompile Include="api\internal\io\ByteArray_p.cpp" />
+    <ClCompile Include="api\internal\io\HostAddress_p.cpp" />
+    <ClCompile Include="api\internal\io\HostInfo_p.cpp" />
+    <ClCompile Include="api\internal\io\HttpHeader_p.cpp" />
+    <ClCompile Include="api\internal\io\ILocalIODevice_p.cpp" />
+    <ClCompile Include="api\internal\io\RollingBuffer_p.cpp" />
+    <ClCompile Include="api\internal\sam\SamFormatParser_p.cpp" />
+    <ClCompile Include="api\internal\sam\SamFormatPrinter_p.cpp" />
+    <ClCompile Include="api\SamHeader.cpp" />
+    <ClCompile Include="api\internal\sam\SamHeaderValidator_p.cpp" />
+    <ClCompile Include="api\SamProgram.cpp" />
+    <ClCompile Include="api\SamProgramChain.cpp" />
+    <ClCompile Include="api\SamReadGroup.cpp" />
+    <ClCompile Include="api\SamReadGroupDictionary.cpp" />
+    <ClCompile Include="api\SamSequence.cpp" />
+    <ClCompile Include="api\SamSequenceDictionary.cpp" />
+    <ClCompile Include="api\internal\io\TcpSocketEngine_p.cpp" />
+    <ClCompile Include="api\internal\io\TcpSocketEngine_win_p.cpp" />
+    <ClCompile Include="api\internal\io\TcpSocket_p.cpp" />
+    <ClCompile Include="jsoncpp\json_reader.cpp" />
+    <ClCompile Include="jsoncpp\json_value.cpp" />
+    <ClCompile Include="jsoncpp\json_writer.cpp" />
+    <ClCompile Include="utils\bamtools_fasta.cpp" />
+    <ClCompile Include="utils\bamtools_options.cpp" />
+    <ClCompile Include="utils\bamtools_pileup_engine.cpp" />
+    <ClCompile Include="utils\bamtools_utilities.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="api\BamAlgorithms.h" />
+    <ClInclude Include="api\BamAlignment.h" />
+    <ClInclude Include="api\BamAux.h" />
+    <ClInclude Include="api\BamConstants.h" />
+    <ClInclude Include="api\internal\io\BamDeviceFactory_p.h" />
+    <ClInclude Include="api\internal\utils\BamException_p.h" />
+    <ClInclude Include="api\internal\io\BamFile_p.h" />
+    <ClInclude Include="api\internal\io\BamFtp_p.h" />
+    <ClInclude Include="api\internal\bam\BamHeader_p.h" />
+    <ClInclude Include="api\internal\io\BamHttp_p.h" />
+    <ClInclude Include="api\BamIndex.h" />
+    <ClInclude Include="api\internal\index\BamIndexFactory_p.h" />
+    <ClInclude Include="api\internal\bam\BamMultiMerger_p.h" />
+    <ClInclude Include="api\BamMultiReader.h" />
+    <ClInclude Include="api\internal\bam\BamMultiReader_p.h" />
+    <ClInclude Include="api\internal\io\BamPipe_p.h" />
+    <ClInclude Include="api\internal\bam\BamRandomAccessController_p.h" />
+    <ClInclude Include="api\BamReader.h" />
+    <ClInclude Include="api\internal\bam\BamReader_p.h" />
+    <ClInclude Include="api\internal\index\BamStandardIndex_p.h" />
+    <ClInclude Include="api\internal\index\BamToolsIndex_p.h" />
+    <ClInclude Include="api\BamWriter.h" />
+    <ClInclude Include="api\internal\bam\BamWriter_p.h" />
+    <ClInclude Include="api\internal\io\BgzfStream_p.h" />
+    <ClInclude Include="api\internal\io\ByteArray_p.h" />
+    <ClInclude Include="api\internal\io\HostAddress_p.h" />
+    <ClInclude Include="api\internal\io\HostInfo_p.h" />
+    <ClInclude Include="api\internal\io\HttpHeader_p.h" />
+    <ClInclude Include="api\IBamIODevice.h" />
+    <ClInclude Include="api\internal\io\ILocalIODevice_p.h" />
+    <ClInclude Include="api\internal\io\NetWin_p.h" />
+    <ClInclude Include="api\internal\io\RollingBuffer_p.h" />
+    <ClInclude Include="api\SamConstants.h" />
+    <ClInclude Include="api\internal\sam\SamFormatParser_p.h" />
+    <ClInclude Include="api\internal\sam\SamFormatPrinter_p.h" />
+    <ClInclude Include="api\SamHeader.h" />
+    <ClInclude Include="api\internal\sam\SamHeaderValidator_p.h" />
+    <ClInclude Include="api\internal\sam\SamHeaderVersion_p.h" />
+    <ClInclude Include="api\SamProgram.h" />
+    <ClInclude Include="api\SamProgramChain.h" />
+    <ClInclude Include="api\SamReadGroup.h" />
+    <ClInclude Include="api\SamReadGroupDictionary.h" />
+    <ClInclude Include="api\SamSequence.h" />
+    <ClInclude Include="api\SamSequenceDictionary.h" />
+    <ClInclude Include="api\algorithms\Sort.h" />
+    <ClInclude Include="api\internal\io\TcpSocketEngine_p.h" />
+    <ClInclude Include="api\internal\io\TcpSocket_p.h" />
+    <ClInclude Include="api\api_global.h" />
+    <ClInclude Include="jsoncpp\json.h" />
+    <ClInclude Include="jsoncpp\json_batchallocator.h" />
+    <ClInclude Include="jsoncpp\json_config.h" />
+    <ClInclude Include="jsoncpp\json_features.h" />
+    <ClInclude Include="jsoncpp\json_forwards.h" />
+    <ClInclude Include="jsoncpp\json_internalarray.inl" />
+    <ClInclude Include="jsoncpp\json_internalmap.inl" />
+    <ClInclude Include="jsoncpp\json_reader.h" />
+    <ClInclude Include="jsoncpp\json_tool.h" />
+    <ClInclude Include="jsoncpp\json_value.h" />
+    <ClInclude Include="jsoncpp\json_valueiterator.inl" />
+    <ClInclude Include="jsoncpp\json_writer.h" />
+    <ClInclude Include="utils\bamtools_fasta.h" />
+    <ClInclude Include="utils\bamtools_filter_engine.h" />
+    <ClInclude Include="utils\bamtools_filter_properties.h" />
+    <ClInclude Include="utils\bamtools_filter_ruleparser.h" />
+    <ClInclude Include="utils\bamtools_options.h" />
+    <ClInclude Include="utils\bamtools_pileup_engine.h" />
+    <ClInclude Include="utils\bamtools_utilities.h" />
+    <ClInclude Include="utils\bamtools_variant.h" />
+    <ClInclude Include="utils\utils_global.h" />
+    <ClInclude Include="Win\zconf.h" />
+    <ClInclude Include="Win\zlib.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties QtVersion_x0020_Win32="$(DefaultQtVersion)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" QtVersion_x0020_x64="$(DefaultQtVersion)" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>
