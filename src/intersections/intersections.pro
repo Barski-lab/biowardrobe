@@ -18,7 +18,8 @@ DEFINES      += _SQL_    \
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
 LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-QMAKE_CXXFLAGS += -Werror -std=c++0x
+QMAKE_CXXFLAGS += -Werror 
+#-std=c++0x
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools

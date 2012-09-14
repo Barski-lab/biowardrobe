@@ -2,13 +2,6 @@
 #include "Intersections.hpp"
 
 
-#include <boost/units/systems/si/energy.hpp>
-#include <boost/units/systems/si/force.hpp>
-#include <boost/units/systems/si/length.hpp>
-#include <boost/units/systems/si/electric_potential.hpp>
-#include <boost/units/systems/si/current.hpp>
-#include <boost/units/systems/si/resistance.hpp>
-#include <boost/units/systems/si/io.hpp>
 /*************************************************************************************************************
 **************************************************************************************************************/
 #define PRINT(a,b) \
@@ -120,6 +113,10 @@ void FSTM::loadBed(T & a,QString fname)
             }
         }
         bedFile.close();
+    }
+    else
+    {
+        qDebug()<<"file:"<<fname<<" does not exist.";
     }
 }
 /*************************************************************************************************************
@@ -244,9 +241,9 @@ void FSTM::start()
         QMap<QString, current_segment_type > chr_intervals_r_Q2;
 
         if(!q.exec(Q3)) 
-        { 
+        {
             qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text()); 
-        } 
+        }
 
         while(q.next())
         {
@@ -346,7 +343,7 @@ void FSTM::start()
     //_outFile.write(QString("NAME,N_E,N_C,E_C\n").toLocal8Bit() ); 
     int c=0;
     while(q.next())
-    {            
+    {
         _outFile.write(QString("\"%1\"").arg(q.value(2).toString()).toLocal8Bit() ); 
         for(int j=0; j<QL.size()/2;j++)
             _outFile.write(QString(",%1").arg(b_values[j]->at(c)).toLocal8Bit() ); 
@@ -367,11 +364,9 @@ void FSTM::start()
 **************************************************************************************************************/
 void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& chr_intervals_r_Q1,
     string_map_segments& chr_intervals_P2, string_map_segments& chr_intervals_r_Q2,int j)
-{    
+{
     QFile _outFile;
     int ajust_win=200;
-
-
 
     /*print result of uniq segments with peaks in A and B*/
 
@@ -379,9 +374,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.fasta").arg(j)); 
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
     foreach(const QString key, chr_intervals_P1.keys())
-    {            
+    {
         current_segment_type tmp;
         tmp=chr_intervals_P1[key] & chr_intervals_r_Q1[key];
+
         for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
         {
             //            int start=getFirst<current_segment_type::interval_type,current_segment_type::segment_type>(*it).lower();
@@ -403,11 +399,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     }
 
     foreach(const QString key, chr_intervals_P1.keys())
-    {            
-        current_segment_type tmp;
-        tmp=chr_intervals_r_Q1[key];
+    {
+//        current_segment_type &tmp = chr_intervals_r_Q1[key];
 
-        for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
+        for(current_segment_type::const_iterator it = chr_intervals_r_Q1[key].begin(); it != chr_intervals_r_Q1[key].end(); it++)
         {
             current_segment_type::interval_type itv  = getFirst(*it);
 
@@ -415,7 +410,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
             {
                 int start=itv.lower();
                 int end=itv.upper();
-                int mid=start+(start-end)/2;
+                int mid=start+(end-start)/2;
                 start=mid-ajust_win;
                 end=mid+ajust_win;
                 int len=end-start;
@@ -435,9 +430,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
 
     foreach(const QString key, chr_intervals_P2.keys())
-    {            
+    {
         current_segment_type tmp;
         tmp=chr_intervals_P2[key] & chr_intervals_r_Q2[key];
+//        tmp=chr_intervals_P2[key] & store2[key];
         for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
         {
             int start=getFirst(*it).lower()-ajust_win;
@@ -451,11 +447,12 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     }
 
     foreach(const QString key, chr_intervals_P2.keys())
-    {            
-        current_segment_type tmp;
-        tmp=chr_intervals_r_Q2[key];
+    {
+//        current_segment_type &tmp = chr_intervals_r_Q2[key];
+//        tmp=chr_intervals_r_Q2[key];
+//        tmp=store2[key];
 
-        for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
+        for(current_segment_type::const_iterator it = chr_intervals_r_Q2[key].begin(); it != chr_intervals_r_Q2[key].end(); it++)
         {
             current_segment_type::interval_type itv  = getFirst(*it);
 
@@ -463,7 +460,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
             {
                 int start=itv.lower();
                 int end=itv.upper();
-                int mid=start+(start-end)/2;
+                int mid=start+(end-start)/2;
                 start=mid-ajust_win;
                 end=mid+ajust_win;
                 int len=end-start;
@@ -486,10 +483,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
     foreach(const QString key, chr_intervals_P1.keys())
     {            
-        current_segment_type tmp;
-        tmp=chr_intervals_r_Q1[key];
+//        current_segment_type &tmp = chr_intervals_r_Q1[key];
+//        tmp=chr_intervals_r_Q1[key];
 
-        for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
+        for(current_segment_type::const_iterator it = chr_intervals_r_Q1[key].begin(); it != chr_intervals_r_Q1[key].end(); it++)
         {
             current_segment_type::interval_type itv  = getFirst(*it);
 
@@ -512,10 +509,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
     foreach(const QString key, chr_intervals_P1.keys())
     {            
-        current_segment_type tmp;
-        tmp=chr_intervals_r_Q2[key];
+//        current_segment_type &tmp = chr_intervals_r_Q2[key];
+//        tmp=chr_intervals_r_Q2[key];
 
-        for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
+        for(current_segment_type::const_iterator it = chr_intervals_r_Q2[key].begin(); it != chr_intervals_r_Q2[key].end(); it++)
         {
             current_segment_type::interval_type itv  = getFirst(*it);
 

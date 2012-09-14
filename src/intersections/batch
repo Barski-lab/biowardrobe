@@ -1,3 +1,5 @@
+Naive_H3K4me3_peaks.bed
+EM_H3K4me3_peaks.bed
 select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
 select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
