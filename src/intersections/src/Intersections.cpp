@@ -1,3 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the intersection module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
 #include "Intersections.hpp"
 
@@ -102,7 +123,7 @@ void FSTM::loadBed(T & a,QString fname)
         bedFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream bed_in(&bedFile);
 
-        while (!bed_in.atEnd()) 
+        while (!bed_in.atEnd())
         {
             QString Q=bed_in.readLine();
             if(Q.isEmpty() || Q.isNull() || Q.startsWith("track")) continue;
@@ -122,7 +143,7 @@ void FSTM::loadBed(T & a,QString fname)
 /*************************************************************************************************************
 **************************************************************************************************************/
 void FSTM::start()
-{  
+{
     QStringList QL;/*Query list*/
     QStringList PFL;/*Peaks file list*/
 
@@ -138,7 +159,7 @@ void FSTM::start()
         genomeFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream g_in(&genomeFile);
         QString g_key="";
-        while (!g_in.atEnd()) 
+        while (!g_in.atEnd())
         {
             QString Q=g_in.readLine();
             if(Q.isEmpty() || Q.isNull()) continue;
@@ -163,11 +184,11 @@ void FSTM::start()
     batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
 
     QTextStream in(&batchFile);
-    while (!in.atEnd()) 
+    while (!in.atEnd())
     {
         QString Q = in.readLine();
         if(Q.isEmpty() || Q.isNull() || Q.at(0)==QChar('#')) continue;
-        if(Q.startsWith("select")) 
+        if(Q.startsWith("select"))
         {
             QL<<Q;
         }
@@ -199,27 +220,27 @@ void FSTM::start()
         string_map_segments chr_intervals_Q1;//SQL, sicer segments ?
         string_map_segments chr_intervals_Q2;//SQL
 
-        if(!q.exec(QL.at(i))) 
-        { 
-            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text()); 
+        if(!q.exec(QL.at(i)))
+        {
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
         }
         else
         {
-            while (q.next())  
-            { 
-                chr_intervals_Q1 [q.value(0).toString()]+=make_pair(bicl::discrete_interval<int>::closed(q.value(1).toInt(),q.value(2).toInt()),q.value(3).toInt()); 
-            } 
+            while (q.next())
+            {
+                chr_intervals_Q1 [q.value(0).toString()]+=make_pair(bicl::discrete_interval<int>::closed(q.value(1).toInt(),q.value(2).toInt()),q.value(3).toInt());
+            }
         }
 
-        if(!q.exec(QL.at(i+1))) 
-        { 
-            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text()); 
-        } 
+        if(!q.exec(QL.at(i+1)))
+        {
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+        }
         else
         {
-            while (q.next())  
-            { 
-                chr_intervals_Q2 [q.value(0).toString()]+=make_pair(bicl::discrete_interval<int>::closed(q.value(1).toInt(),q.value(2).toInt()),q.value(3).toInt()); 
+            while (q.next())
+            {
+                chr_intervals_Q2 [q.value(0).toString()]+=make_pair(bicl::discrete_interval<int>::closed(q.value(1).toInt(),q.value(2).toInt()),q.value(3).toInt());
             }
         }
 
@@ -240,9 +261,9 @@ void FSTM::start()
         QMap<QString, current_segment_type > chr_intervals_r_Q1;
         QMap<QString, current_segment_type > chr_intervals_r_Q2;
 
-        if(!q.exec(Q3)) 
+        if(!q.exec(Q3))
         {
-            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text()); 
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
         }
 
         while(q.next())
@@ -281,7 +302,7 @@ void FSTM::start()
             else if(a1)
             {
                 int max=0;
-                current_segment_type tmp; 
+                current_segment_type tmp;
                 tmp= a & chr_intervals_f_Q1[chr];
 
                 for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
@@ -303,7 +324,7 @@ void FSTM::start()
             else if(a2)
             {
                 int max=0;
-                current_segment_type tmp; 
+                current_segment_type tmp;
                 tmp= a & chr_intervals_f_Q2[q.value(0).toString()];
 
                 for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
@@ -331,23 +352,23 @@ void FSTM::start()
         outData(chr_intervals_P1,chr_intervals_r_Q1,chr_intervals_P2,chr_intervals_r_Q2,j);
     }
 
-    if(!q.exec(Q3)) 
-    { 
-        qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text()); 
-    } 
+    if(!q.exec(Q3))
+    {
+        qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+    }
 
 
-    _outFile.setFileName(gArgs().getArgs("out").toString()); 
-    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
+    _outFile.setFileName(gArgs().getArgs("out").toString());
+    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
-    //_outFile.write(QString("NAME,N_E,N_C,E_C\n").toLocal8Bit() ); 
+    //_outFile.write(QString("NAME,N_E,N_C,E_C\n").toLocal8Bit() );
     int c=0;
     while(q.next())
     {
-        _outFile.write(QString("\"%1\"").arg(q.value(2).toString()).toLocal8Bit() ); 
+        _outFile.write(QString("\"%1\"").arg(q.value(2).toString()).toLocal8Bit() );
         for(int j=0; j<QL.size()/2;j++)
-            _outFile.write(QString(",%1").arg(b_values[j]->at(c)).toLocal8Bit() ); 
-        _outFile.write(QString("\n").toLocal8Bit() ); 
+            _outFile.write(QString(",%1").arg(b_values[j]->at(c)).toLocal8Bit() );
+        _outFile.write(QString("\n").toLocal8Bit() );
         c++;
     }
     _outFile.flush();
@@ -370,9 +391,9 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
 
     /*print result of uniq segments with peaks in A and B*/
 
-    //_outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.csv").arg(j)); 
-    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.fasta").arg(j)); 
-    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
+    //_outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.csv").arg(j));
+    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.fasta").arg(j));
+    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())
     {
         current_segment_type tmp;
@@ -389,12 +410,12 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
             //    arg(start).
             //    arg(end).
             //    arg(len).
-            //    arg(genome[key].mid(start,len).data()).toLocal8Bit() ); 
+            //    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             _outFile.write(QString(">%1:%2-%3\n%5\n").
                 arg(key).
                 arg(start).
                 arg(end).
-                arg(genome[key].mid(start,len).data()).toLocal8Bit() ); 
+                arg(genome[key].mid(start,len).data()).toLocal8Bit() );
         }
     }
 
@@ -417,7 +438,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                 _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
                     arg(start).
                     arg(end).
-                    arg(genome[key].mid(start,len).data()).toLocal8Bit() ); 
+                    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             }
         }
     }
@@ -425,9 +446,9 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.flush();
     _outFile.close();
 
-    //_outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_%1.csv").arg(j)); 
-    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_%1.fasta").arg(j)); 
-    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
+    //_outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_%1.csv").arg(j));
+    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_%1.fasta").arg(j));
+    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
     foreach(const QString key, chr_intervals_P2.keys())
     {
@@ -442,7 +463,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
             _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
                 arg(start).
                 arg(end).
-                arg(genome[key].mid(start,len).data()).toLocal8Bit() ); 
+                arg(genome[key].mid(start,len).data()).toLocal8Bit() );
         }
     }
 
@@ -467,7 +488,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                 _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
                     arg(start).
                     arg(end).
-                    arg(genome[key].mid(start,len).data()).toLocal8Bit() ); 
+                    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             }
         }
     }
@@ -479,10 +500,10 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
 
     /*print results of uniq segments in A and B that has no peaks in Quest*/
 
-    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_nopeaks_%1.csv").arg(j)); 
-    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
+    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_nopeaks_%1.csv").arg(j));
+    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())
-    {            
+    {
 //        current_segment_type &tmp = chr_intervals_r_Q1[key];
 //        tmp=chr_intervals_r_Q1[key];
 
@@ -498,17 +519,17 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                     arg(key).
                     arg(start).
                     arg(end).
-                    toLocal8Bit() ); 
+                    toLocal8Bit() );
             }
         }
     }
     _outFile.flush();
     _outFile.close();
 
-    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_nopeaks_%1.csv").arg(j)); 
-    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate); 
+    _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inB_nopeaks_%1.csv").arg(j));
+    _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())
-    {            
+    {
 //        current_segment_type &tmp = chr_intervals_r_Q2[key];
 //        tmp=chr_intervals_r_Q2[key];
 
@@ -524,7 +545,7 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                     arg(key).
                     arg(start).
                     arg(end).
-                    toLocal8Bit() ); 
+                    toLocal8Bit() );
             }
         }
     }

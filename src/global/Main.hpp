@@ -1,7 +1,7 @@
 #ifndef _MAIN_H_739213_
 #define _MAIN_H_739213_
 
-//================================================================== 
+//==================================================================
 #include <config.hpp>
 
 
@@ -17,7 +17,7 @@ void printMsgHandler(QtMsgType type, const char * _str)
     //	str1=str;
     QString str=QString("[%1]["+time+"] %2\n").arg(type).arg(_str);
 
-    switch (type) 
+    switch (type)
     {
     case QtDebugMsg:
         _logfile.write(str.toLocal8Bit());
@@ -49,9 +49,6 @@ int main( int _argc, char* _argv[] )
         QCoreApplication::setOrganizationName("genome-tools");
         QCoreApplication::setApplicationName(_APPNAME);
 
-        QSettings::setDefaultFormat(QSettings::IniFormat);
-        QSettings::setPath(QSettings::IniFormat,QSettings::UserScope,"./config");
-
         gArgs().Init(QCoreApplication::arguments());
 
 #ifdef _SQL_
@@ -68,12 +65,12 @@ int main( int _argc, char* _argv[] )
             db.setPort(gArgs().getArgs("sql_port").toInt());
             db.setUserName(gArgs().getArgs("sql_user").toString());
             db.setPassword(qUncompress(QByteArray::fromBase64(gArgs().getArgs("sql_pass").toByteArray())));
-            if (!db.open() ) 
-            {      
+            if (!db.open() )
+            {
                 QSqlError sqlErr = db.lastError();
                 qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
                 throw "Error connect to DB";
-            }      
+            }
         }
 #endif
 
@@ -85,7 +82,7 @@ int main( int _argc, char* _argv[] )
         FSTM *machine = new FSTM();
         QTimer::singleShot(0, machine, SLOT(start()));
         QObject::connect(machine,SIGNAL(finished()),QCoreApplication::instance(),SLOT(quit()));
-        return Application.exec();  
+        return Application.exec();
     }
     catch(char *str)
     {
