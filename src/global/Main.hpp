@@ -51,6 +51,9 @@ int main( int _argc, char* _argv[] )
 
         gArgs().Init(QCoreApplication::arguments());
 
+        _logfile.setFileName(gArgs().getArgs("log").toString());
+        _logfile.open(QIODevice::WriteOnly|QIODevice::Append);
+
 #ifdef _SQL_
         if (!QSqlDatabase::drivers().contains(gArgs().getArgs("sql_driver").toString()))
         {
@@ -73,9 +76,6 @@ int main( int _argc, char* _argv[] )
             }
         }
 #endif
-
-        _logfile.setFileName(gArgs().getArgs("log").toString());
-        _logfile.open(QIODevice::WriteOnly|QIODevice::Append);
 
         qInstallMsgHandler(printMsgHandler);
 
