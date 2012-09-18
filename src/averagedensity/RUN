@@ -1,0 +1,8 @@
+#!/bin/bash
+
+#rm *.log
+#rm *.csv
+
+./averagedensity -in=".bam" -out=".txt" -log=".log" -batch="batch.naive" -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 \
+-avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot"
+
