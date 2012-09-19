@@ -26,6 +26,8 @@
 #include <QtDebug>
 #include <QThread>
 #include <QMutex>
+#include <QRunnable>
+#include <QThreadPool>
 #include <QtGui/QtGui>
 #include <QtSvg/QtSvg>
 #include <QSharedPointer>
@@ -46,7 +48,7 @@ using namespace BamTools;
 #include <sstream>
 #include <string>
 #include <vector>
-using namespace std; 
+using namespace std;
 
 #ifndef Q_MOC_RUN
  #include <boost/icl/interval.hpp>
@@ -71,14 +73,14 @@ namespace bicl = boost::icl;
 #include <string.h>
 #include <syslog.h>
 #include <signal.h>
-#include <sys/stat.h> 
+#include <sys/stat.h>
 #include <assert.h>
-#endif 
+#endif
 
 #ifdef _WIN32
 #include <windows.h>
 #define sleep Sleep
-#endif 
+#endif
 
 #define _MAX_SQ_SN 255
 
@@ -90,13 +92,13 @@ class HandledData
   QMap<QString,QList< qreal > > _data;
 
   double **data;
-  
+
   HandledData():
   width(0),
   height(0),
   data(NULL)
   {};
-  
+
   HandledData(quint32 w, quint32 h)
    {
     SetSize(w,h);
@@ -118,12 +120,12 @@ class HandledData
       memset(data[h],0,sizeof(double)*w);
      }
    };
-  
+
   ~HandledData()
    {
     while(height--)
      delete [] data[height];
-    delete [] data;  
+    delete [] data;
     data=NULL;
    };
 };

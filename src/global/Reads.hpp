@@ -1,3 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the global module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 #ifndef _READS_29122011_HPP_
 #define _READS_29122011_HPP_
 
@@ -18,17 +39,22 @@ namespace genome {
 
 typedef unsigned int t_genome_coordinates;
 typedef unsigned int t_reads_count;
+typedef bicl::discrete_interval<t_genome_coordinates> interval_type;
 
 /**********************************************************************************
 
 **********************************************************************************/
-class Read 
+class Read
 {
-public: 
+public:
 
     Read():
       multiplying(1),
-          length(0)
+          length(0),
+        position(interval_type::closed(0,0)),
+        positions(make_pair(interval_type::closed(0,0),0)),
+        sentenceRepresentation(""),
+        qualityRepresentation("")
       {};
 
       Read(Read const &r):
@@ -42,7 +68,7 @@ public:
 
 
       Read(int start,int len,QString sr="",QString qr=""):
-      multiplying(1),   
+      multiplying(1),
           length(len),
           position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
           sentenceRepresentation(sr),
@@ -50,7 +76,7 @@ public:
       {};
 
       Read(int start,int len,int num,QString sr="",QString qr=""):
-      multiplying(num),   
+      multiplying(num),
           length(len),
           position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
           sentenceRepresentation(sr),
@@ -58,7 +84,7 @@ public:
       {};
 
       Read(bicl::interval_map<t_genome_coordinates,t_reads_count> p,int len,QString sr="",QString qr=""):
-      multiplying(1),   
+      multiplying(1),
           length(len),
           positions(p),
           sentenceRepresentation(sr),
@@ -69,12 +95,14 @@ public:
       void plusLevel()  {++multiplying;};
       int  getStart()   {return position.lower();};
       int&  getLength()  {return length;};
-      bicl::discrete_interval<t_genome_coordinates>& getInterval(){return position;};
+      interval_type& getInterval(){return position;};
+      Read& getMyself(void) {return *this;};
 
       void  operator+= (const int& c) {this->multiplying+=c;};
       bool  operator== (const Read& r) const {return this->position==r.position;};
       bool  operator!= (const Read& r) const {return this->position!=r.position;};
       void  operator++ (int) {this->multiplying++;};
+      Read & operator= (const Read &r);
 
 private:
     int multiplying;
@@ -96,31 +124,31 @@ class Cover
 {
  public:
   Cover():max_len(0),length(0){};
-  
+
   void add(Read&);
   int  getHeight(int);//not implemented yet. number of overlaped reads at coordinate
-  int  getHeight(int,int);//not implemented yet. number of overlaped reads between coordinates 
+  int  getHeight(int,int);//not implemented yet. number of overlaped reads between coordinates
   int  getStarts(int); //get number of reads starts at exact position
   int  getStarts(int,int); //get number of reads starts at segment between
   QList<int> getStarts(); //get set of coordinates where reads starts
   void setLength(int);
-  
+
   cover_map::iterator getBeginIterator(){return covering.begin();};
   cover_map::iterator getEndIterator(){return covering.end();};
 
   cover_map::iterator getUpperBound(int Key){return covering.upperBound(Key);};
-  
+
  bool  operator== (const Cover& c) const {return this==&c;};
 
  bool isEmpty(){return covering.size()==0;};
 
 // static Cover empty(){ return Cover();};
-   
+
  private:
-  cover_map covering; 
-  
+  cover_map covering;
+
   bicl::interval_map<t_genome_coordinates,t_reads_count> m_covering;
-  
+
   int max_len;
   int length;
 };
@@ -144,7 +172,7 @@ class Lines
   };
   /*
   */
-    
+
  protected:
   QMap<QString,Cover> lines;
   quint64 length;

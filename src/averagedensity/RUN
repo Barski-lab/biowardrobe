@@ -2,7 +2,35 @@
 
 #rm *.log
 #rm *.csv
+export OUT_DIR="./res1"
 
-./averagedensity -in=".bam" -out=".txt" -log=".log" -batch="batch.naive" -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 \
--avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot"
+#./averagedensity -in="run0134_lane8_read1_index4=TE7_2hr_control.fastq.bam" -out="run0134_lane8_read1_index4=TE7_2hr_control.txt" \
+#-log="run0134_lane8_read1_index4=TE7_2hr_control.log" -batch="batch" -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 \
+#-avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot"
+
+#./averagedensity -in="run0134_lane8_read1_index5=TE7_2hr_IL13.fastq.bam" -out="run0134_lane8_read1_index5=TE7_2hr_IL13.txt" \
+#-log="run0134_lane8_read1_index5=TE7_2hr_IL13.log" -batch="batch" -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 \
+#-avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot"
+
+export FNAME_BASE="run0134_lane8_read1_index4=TE7_2hr_control"
+/data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./${FNAME_BASE}.fastq.bam" \
+-out="${OUT_DIR}/${FNAME_BASE}.txt" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
+-sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
+
+export FNAME_BASE="run0134_lane8_read1_index5=TE7_2hr_IL13"
+/data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./${FNAME_BASE}.fastq.bam" \
+-out="${OUT_DIR}/${FNAME_BASE}.txt" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
+-sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
+
+
+export FNAME_BASE="run0140_lane7_read1_index6=TE7_6hr_control"
+/data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./${FNAME_BASE}.fastq.bam" \
+-out="${OUT_DIR}/${FNAME_BASE}.txt" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
+-sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
+
+export FNAME_BASE="run0140_lane7_read1_index12=TE7_6hr_IL13"
+/data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./${FNAME_BASE}.fastq.bam" \
+-out="${OUT_DIR}/${FNAME_BASE}.txt" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
+-sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=75 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
+
 

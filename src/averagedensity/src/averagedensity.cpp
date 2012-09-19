@@ -1,10 +1,31 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the averagedensity module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
 
 #include "averagedensity.hpp"
 
 
 AverageDensity::AverageDensity(QObject* parent):
-QThread(parent)
+QObject(parent)
 {
 }
 
@@ -13,7 +34,7 @@ T AverageDensity::mean(const QList<T>& list,const int& begin,const int& end)
 {
     assert(end<list.size());
     assert((end-begin)>0);
-    T tmp=0;    
+    T tmp=0;
     for(int i=begin;i<=end;i++)
         tmp+=list.at(i);
 
@@ -25,7 +46,7 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 {
     QList<T> result;
     int win=span;
-    if(win<3 || list.size()<win) return list;  
+    if(win<3 || list.size()<win) return list;
     if(win%2!=1) --win;
     int half_w=win/2;
     int size=list.size();
@@ -64,65 +85,89 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
     return result;
 }
 
-void AverageDensity::run()
+void AverageDensity::start()
 {
-    QSqlQuery q;
-    QFile batchFile;
 
-    batchFile.setFileName(gArgs().getArgs("batch").toString());
-    batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
 
     int total_plots=0;
 
-////--------------------------------------------------------------------------------------------------------------------
+    QThreadPool *t_pool=QThreadPool::globalInstance();
+
     try{
-        sam_reader_thread *srt1;
-        srt1=new sam_reader_thread(&sam_data);
-        srt1->start();
+        /*Reading bam file in thread
+         *TODO: incorrect working with QThread
+         *multi bam reader*/
+        QFile batchBamFiles;
+        batchBamFiles.setFileName(gArgs().getArgs("in").toString());
+        batchBamFiles.open(QIODevice::ReadOnly| QIODevice::Text);
+        QTextStream inFiles(&batchBamFiles);
+        while(!inFiles.atEnd())
+        {
+            QString label = inFiles.readLine();
+            if(label.isEmpty() || label.isNull()) break;
+            if(label.at(0)==QChar('#')) continue;
+            QString line = inFiles.readLine();
+            if(line.isEmpty() || line.isNull() || line.at(0)==QChar('#')) throw "Error in batch with files";
+            fileLabels.append(label);
+            sam_data.append(new gen_lines());
+            t_queue.append(new sam_reader_thread(sam_data.last(),line));
+            t_pool->start(t_queue.last());
+        }
+        batchBamFiles.close();
 
         QMap<QString,QList<double> > storage;
         QList<double> smooth_data;
 
+        /* SQL Query batch file format:
+         * - first line - grapht title
+         * - second line - sql query */
+        QFile batchFile;
+        batchFile.setFileName(gArgs().getArgs("batch").toString());
+        batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream in(&batchFile);
-        while (!in.atEnd()) 
+        while (!in.atEnd())
         {
-            QString fName,Q1;//,Q2;
-            gen_lines     sql_data;    
+            QString plotName,Q1;//,Q2;
+            gen_lines   sql_data;
             HandledData avd_data;
-            total_plots++;
 
-            fName = in.readLine();
-            if(fName.isEmpty() || fName.isNull()) break;
+            plotName = in.readLine();
+            if(plotName.isEmpty() || plotName.isNull()) break;
             Q1 = in.readLine();
-            qDebug()<<"processed:"<<fName;
+            qDebug()<<"processed:"<<plotName;
 
             if(!q.exec(Q1))
             {
                 qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
-            while (q.next()) 
+            while (q.next())
             {
 
                 sql_data.setGene(q.value(3).toString().at(0),q.value(0).toString(),q.value(1).toInt(),1, 1 );
                 sql_data.total++;
-            } 
-
-            if(srt1->isRunning())
-            {
-                qDebug()<<fName<<": waiting";
-                srt1->wait();
             }
 
-            s3  =new AVD_Handler(&sql_data,&sam_data,avd_data);
-            s3->AVD2();
+            if(t_pool->activeThreadCount()!=0)
+            {
+                qDebug()<<plotName<<": waiting";
+                t_pool->waitForDone();
+            }
 
-            for(quint32 w=0; w< avd_data.width; w++)
-                storage[fName]<<avd_data.data[0][w];
-            smooth_data=smooth<double>(storage[fName],gArgs().getArgs("avd_smooth").toInt());
-            storage[fName]=smooth_data;
-            delete s3;
+            for(int i=0;i<fileLabels.size();i++)
+            {
+                total_plots++;
+
+                s3  =new AVD_Handler(&sql_data,sam_data.at(i),avd_data);
+                s3->AVD2();
+
+                QString plt_name=fileLabels.at(i)+" "+plotName;
+                for(quint32 w=0; w< avd_data.width; w++)
+                    storage[plt_name]<<avd_data.data[0][w];
+                smooth_data=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
+                storage[plt_name]=smooth_data;
+                delete s3;
+            }
         }
-        delete srt1;
         batchFile.close();
 
         QList<QString> keys=storage.keys();
@@ -144,16 +189,16 @@ void AverageDensity::run()
             out=out+"\n";
         }
 
-        QFile _outFile;
-        _outFile.setFileName(gArgs().getArgs("out").toString());
-        _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        _outFile.write(out.toAscii());
-        _outFile.close();
+        QFile outFile;
+        outFile.setFileName(gArgs().getArgs("out").toString());
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.write(out.toAscii());
+        outFile.close();
 
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
         {
-            QString plt=QString("set output '%1."+gArgs().getArgs("plot_ext").toString()+"' \n"
-                "set terminal "+gArgs().getArgs("plot_ext").toString()+" enhanced size 1920,1080 \n"
+            QString plt=QString("set output '%1.%2' \n"
+                "set terminal %3 enhanced size 1920,1080 \n"
                 "set datafile separator ','\n"
                 "set autoscale\n"
                 "unset log\n"
@@ -164,23 +209,29 @@ void AverageDensity::run()
                 "set xlabel \"2000bp flanking TSS\"\n"
                 "set ylabel \"Tag density\"\n"
                 "set style fill transparent\n"
-                "set title \"%2\"\n"
+                "set title \"%4\"\n"
                 "set format y \"%.1e\"\n"
                 "set grid\n"
-                "plot \\\n").arg(gArgs().fileInfo("out").baseName()).arg(gArgs().fileInfo("out").baseName());
+                "plot \\\n").
+                    arg(gArgs().fileInfo("out").baseName()).
+                    arg(gArgs().getArgs("plot_ext").toString()).
+                    arg(gArgs().getArgs("plot_ext").toString()).
+                    arg(gArgs().fileInfo("out").baseName().replace('_',' '));
+
             QString _plots=QString("\"%1\" u 1:2 with lines").arg(gArgs().getArgs("out").toString());
             for(int i=1;i<total_plots;i++)
                 _plots+=QString(", \\\n\"%1\" u 1:%2 with lines").arg(gArgs().getArgs("out").toString()).arg(i+2);
-            _outFile.setFileName(gArgs().fileInfo("out").baseName()+".plt");
-            _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-            _outFile.write(plt.toAscii());
-            _outFile.write(_plots.toAscii());
-            _outFile.close();
+            outFile.setFileName(gArgs().fileInfo("out").baseName()+".plt");
+            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+            outFile.write(plt.toAscii());
+            outFile.write(_plots.toAscii());
+            outFile.close();
 
             QProcess myProcess;
             myProcess.start(gArgs().getArgs("gnuplot").toString()+" "+gArgs().fileInfo("out").baseName()+".plt");
             myProcess.waitForFinished(1000*120);
         }
+        emit finished();
     }
     catch(char*str)
     {

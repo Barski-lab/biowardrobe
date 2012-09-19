@@ -41,7 +41,7 @@ AVD2();
     /*           qDebug()<<"Line:"<<line<<"segm start"<<g_str_w<<" segm end:"<<g_str<<" x1:" << x1<<" x2:"<<x2<<" X:"<<__BP.key();*/ \
     iter; \
     continue;                                            \
-}                                                     
+}
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
@@ -121,7 +121,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
 
 
    QString line;
-   
+
 /*
  Calculate average window before StartSite and after EndSite
 */
@@ -140,7 +140,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
        a_window+=(s_b.value().getLength()/100);
        num++;
       }
-  }         
+  }
   a_window /= num;
   int total=sam_input->total-sam_input->notAligned;
 
@@ -151,7 +151,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
 
   numpos*=total;
   numneg*=total;
-    
+
   #define percent 100
   #define ajescent_window_len 10
 
@@ -164,7 +164,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
   hd->SetSize(ajescent_window_len*2+percent,1);
 #endif
   int seg=hd->width-1;
-  
+
   QString chrome;
   //going thru all chromosomes from SQL, positive and negative are separated
   foreach(line,sql_input->getLines())
@@ -181,7 +181,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
     /*qDebug()<<"line:"<<line<<" genes:"<<sql_input->getLineCover(line).getStarts().size()<<" chrome:"<<chrome;
     */
     /*
-    reads, end iterator,positive strand 
+    reads, end iterator,positive strand
     */
     genome::cover_map::iterator e_p=sam_input->getLineCover(chrome+QChar('+')).getEndIterator();
     /*
@@ -216,7 +216,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
 #ifdef _MANY_PLOTS
            c_i=c+1;
            positive_while(iterator,e_n,-shift,0+,numpos); //genes expression to positive direction, bam negative strand
-#else           
+#else
            positive_while(iterator,e_n,-shift,0+); //genes expression to positive direction, bam negative strand
 #endif
           }
@@ -237,14 +237,14 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD1(void)
 #endif
           }
          }
-       
+
      ++s_b;
-    }//while 
+    }//while
 
    }//end foreach
-    
-    
-#ifndef _MANY_PLOTS    
+
+
+#ifndef _MANY_PLOTS
 unsigned int j;
 for(j=0;j<hd->width;j++)
  {
@@ -333,10 +333,10 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD2(void)
   {
     if(line.endsWith("+")) { numpos+=sql_input->getLineCover(line).getStarts().size();}//calculate a number of positive genes
     if(line.endsWith("-")) { numneg+=sql_input->getLineCover(line).getStarts().size();}//calculate a number of negative genes
-  }         
+  }
 #else
   quint64 norma=0;
-#endif    
+#endif
   quint64 total=sam_input->total-sam_input->notAligned;
 
   #define percent 100
@@ -351,7 +351,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD2(void)
   hd->SetSize(window*2,1);
 #endif
   int seg=hd->width-1;
-  
+
   QString chrome;
   //going thru all chromosomes from SQL, positive and negative are separated
   foreach(line,sql_input->getLines())
@@ -373,7 +373,7 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD2(void)
     /*qDebug()<<"line:"<<line<<" genes:"<<sql_input->getLineCover(line).getStarts().size()<<" chrome:"<<chrome;
     */
     /*
-    reads, end iterator,positive strand 
+    reads, end iterator,positive strand
     */
     genome::cover_map::iterator e_p=sam_input->getLineCover(chrome+QChar('+')).getEndIterator();
     /*
@@ -384,54 +384,54 @@ void AVDHandler<StorageIn1,StorageIn2,Result>::AVD2(void)
 
     while(s_b!=s_e)//genes in chrom
     {
-     int g_str=s_b.value().getStart();
-     int g_str_w=g_str-window;
-     int g_end_w=g_str+window;
+        int g_str=s_b.value().getStart();
+        int g_str_w=g_str-window;
+        int g_end_w=g_str+window;
 #ifdef _MANY_PLOTS
-     int c_i=c;//iterator inside QMap separates strands and directions
+        int c_i=c;//iterator inside QMap separates strands and directions
 #else
-     int c_i=0;
+        int c_i=0;
 #endif
-//     double percent_average_window=((double)s_b.value().getLength()-1.0)/100.0;
+        //     double percent_average_window=((double)s_b.value().getLength()-1.0)/100.0;
 
-     genome::cover_map::iterator iterator;
+        genome::cover_map::iterator iterator;
         if(c==0)//if positive directions
-         {
-          if(!sam_input->getLineCover(chrome+QChar('+')).isEmpty()){
-           iterator=sam_input->getLineCover(chrome+QChar('+')).getUpperBound(g_str_w-1-shift);//reads
-           positive_while_avd(iterator,e_p,+shift,0+); //genes expression to positive direction, bam positive strand
-          }
-          if(!sam_input->getLineCover(chrome+QChar('-')).isEmpty()){
-//           qDebug()<<"notEmpty:"<<chrome+QChar('-')<<"line"<<line;
-           iterator=sam_input->getLineCover(chrome+QChar('-')).getUpperBound(g_str_w-1-shift);//reads
+        {
+            if(!sam_input->getLineCover(chrome+QChar('+')).isEmpty()){
+                iterator=sam_input->getLineCover(chrome+QChar('+')).getUpperBound(g_str_w-1-shift);//reads
+                positive_while_avd(iterator,e_p,+shift,0+); //genes expression to positive direction, bam positive strand
+            }
+            if(!sam_input->getLineCover(chrome+QChar('-')).isEmpty()){
+                //           qDebug()<<"notEmpty:"<<chrome+QChar('-')<<"line"<<line;
+                iterator=sam_input->getLineCover(chrome+QChar('-')).getUpperBound(g_str_w-1-shift);//reads
 #ifdef _MANY_PLOTS
-           c_i=c+1;
+                c_i=c+1;
 #endif
-           positive_while_avd(iterator,e_n,-shift,0+); //genes expression to positive direction, bam negative strand
-          }
-         }
-         else//else if negative diretion
-         {
-          if(!sam_input->getLineCover(chrome+QChar('+')).isEmpty()){
-           iterator=sam_input->getLineCover(chrome+QChar('+')).getUpperBound(g_str_w-1-shift);//reads
-           positive_while_avd(iterator,e_p,+shift,seg-); //genes expression to positive direction, bam positive strand
-          }
-          if(!sam_input->getLineCover(chrome+QChar('-')).isEmpty()){
-           iterator=sam_input->getLineCover(chrome+QChar('-')).getUpperBound(g_str_w-1-shift);//reads
+                positive_while_avd(iterator,e_n,-shift,0+); //genes expression to positive direction, bam negative strand
+            }
+        }
+        else//else if negative diretion
+        {
+            if(!sam_input->getLineCover(chrome+QChar('+')).isEmpty()){
+                iterator=sam_input->getLineCover(chrome+QChar('+')).getUpperBound(g_str_w-1-shift);//reads
+                positive_while_avd(iterator,e_p,+shift,seg-); //genes expression to positive direction, bam positive strand
+            }
+            if(!sam_input->getLineCover(chrome+QChar('-')).isEmpty()){
+                iterator=sam_input->getLineCover(chrome+QChar('-')).getUpperBound(g_str_w-1-shift);//reads
 #ifdef _MANY_PLOTS
-           c_i=c+1;
+                c_i=c+1;
 #endif
-           positive_while_avd(iterator,e_n,-shift,seg-); //genes expression to positive direction, bam negative strand
-          }
-         }
+                positive_while_avd(iterator,e_n,-shift,seg-); //genes expression to positive direction, bam negative strand
+            }
+        }
 
-     ++s_b;
-    }//while 
+        ++s_b;
+    }//while
 
    }//end foreach
-    
 
-#ifndef _MANY_PLOTS    
+
+#ifndef _MANY_PLOTS
 unsigned int j;
 for(j=0;j<hd->width;j++)
  {
@@ -444,7 +444,7 @@ for(i=0;i<hd->height;i++)
 for(j=0;j<hd->width;j++)
  {
   hd->data[i][j]/=total;
- } 
+ }
 #endif
 
 

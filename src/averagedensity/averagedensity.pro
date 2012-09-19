@@ -14,29 +14,27 @@ UI_DIR      = GeneratedFiles
 MOC_DIR     = GeneratedFiles
 RCC_DIR     = GeneratedFiles
 
-DEFINES     += D_USE_BAM
+DEFINES     += D_USE_BAM \
+               _SQL_
 
 HEADERS     += ../global/SamReader.hpp \
                ../global/AVDHandler.hpp \
                ../global/FileWriter.hpp \
-	       ../global/Arguments.hpp \
-               src/averagedensity.hpp 
+               ../global/Arguments.hpp \
+               src/averagedensity.hpp
 
-#               ../global/MGLWriter.hpp \
-#		../global/SqlReader.hpp \               
-#               ../global/PostHandler.hpp \
-               
+
 SOURCES     += ../global/FileWriter.cpp \
                ../global/Reads.cpp \
-	       ../global/Arguments.cpp \
+               ../global/Arguments.cpp \
                src/averagedensity.cpp \
-               src/main.cpp 
+               src/main.cpp
 
 INCLUDEPATH += . \
                ./src \
                ../global \
-               ../../thirdparty/boost \               
-               ../../thirdparty/bamtools 
+               ../../thirdparty/boost \
+               ../../thirdparty/bamtools
 
 DEPENDPATH  += .
 
@@ -44,8 +42,9 @@ DEPENDPATH  += .
 !win32{
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
-LIBS           += -lgsl -lpng -lgslcblas -lm -lz ../../thirdparty/bamtools/libbamtools.a
-QMAKE_CXXFLAGS += -Werror -std=c++0x
+LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
+QMAKE_CXXFLAGS += -Werror
+#-std=c++11
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools
@@ -60,5 +59,5 @@ LIBS           += -lbamtools
 
 }
 
-QMAKE_CLEAN += $${TARGET} logfile.log *~ *.txt ../global/*~
+QMAKE_CLEAN += $${TARGET} logfile.log *~ ./src/*~ *.txt ../global/*~
 
