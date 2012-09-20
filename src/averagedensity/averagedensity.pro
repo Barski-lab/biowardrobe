@@ -9,10 +9,6 @@ CONFIG   += console warn_on release
 QT       -= gui
 QT       += sql
 
-OBJECTS_DIR = GeneratedFiles
-UI_DIR      = GeneratedFiles
-MOC_DIR     = GeneratedFiles
-RCC_DIR     = GeneratedFiles
 
 DEFINES     += D_USE_BAM \
                _SQL_
@@ -41,10 +37,14 @@ DEPENDPATH  += .
 
 !win32{
 
+OBJECTS_DIR = GeneratedFiles
+UI_DIR      = GeneratedFiles
+MOC_DIR     = GeneratedFiles
+RCC_DIR     = GeneratedFiles
+
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
 LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-QMAKE_CXXFLAGS += -Werror
-#-std=c++11
+QMAKE_CXXFLAGS += -Werror -std=c++11
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools

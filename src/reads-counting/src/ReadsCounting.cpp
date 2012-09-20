@@ -1,3 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the ReadsCounting module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 #include <ReadsCounting.hpp>
 #include <Threads.hpp>
 
@@ -18,7 +39,7 @@ FSTM::~FSTM()
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 void FSTM::start()
- {  
+ {
      QStringList bam_names=gArgs().split("in",',');
      int num_bam=bam_names.size();
      m_ThreadNum=num_bam;
@@ -46,14 +67,14 @@ void FSTM::start()
      //        qDebug()<<"Total isos in chr("<<key<<") size:"<<isoforms[i][0][key].size();
      //    }
      //}
-     
+
      StartingThreads();
      WriteResult();
  }//end func
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
  void FSTM::FillUpData()
- {  
+ {
      QString sql_str;
      sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene where chrom not like '%\\_%'";
      //sql_str="select CONCAT_WS(',',CONCAT('\\\"',refsec,'\\\"'),CONCAT('\\\"',gene,'\\\"'),CONCAT('\\\"',CONVERT(txStart,CHAR),'\\\"')) as name,gene as name2,chrom,strand,txStart,txStart as txEnd from expirements.RNASEQ_CD4_CUFFLINKS";
@@ -81,8 +102,10 @@ void FSTM::start()
      int fieldName2 = q.record().indexOf("name2");
      int fieldChrom = q.record().indexOf("chrom");
      int fieldStrand = q.record().indexOf("strand");
-//     int fieldTxStart= q.record().indexOf("txStart");
-//     int fieldTxEnd= q.record().indexOf("txEnd");
+     int fieldTxStart= q.record().indexOf("txStart");
+     int fieldTxEnd= q.record().indexOf("txEnd");
+     int fieldCdsStart= q.record().indexOf("cdsStart");
+     int fieldCdsEnd= q.record().indexOf("cdsEnd");
 
 //     int frame=gArgs().getArgs("window").toInt();
      while(q.next())
@@ -111,6 +134,10 @@ void FSTM::start()
                  QString iso_name=q.value(fieldName).toString();
                  /*gene name*/
                  QString g_name=q.value(fieldName2).toString();
+                 quint64 txStart=q.value(fieldTxStart).toInt();
+                 quint64 txEnd=q.value(fieldTxEnd).toInt();
+                 quint64 cdsStart=q.value(fieldCdsStart).toInt();
+                 quint64 cdsEnd=q.value(fieldCdsEnd).toInt();
                  /*Variables to store start/end exon positions*/
                  bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
 
@@ -123,7 +150,7 @@ void FSTM::start()
                      iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s,e),1));
                  }
 
-                 QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,iso,len)   );
+                 QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,len)   );
                  isoforms[i][0][chr].append( p );
              }
          }
@@ -172,6 +199,7 @@ void FSTM::start()
 /*
 do intersections !!!
 */
+/*
      foreach(const QString key, isoforms[0][0].keys())
      {
          for(int i=0; i<isoforms[0][0][key].size();i++)
@@ -182,12 +210,13 @@ do intersections !!!
              }
          }
      }
+*/
  }
- 
+
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
  void FSTM::StartingThreads()
- {  
+ {
      int max_thr=gArgs().getArgs("threads").toInt();
      if(QThread::idealThreadCount()!=-1)
      {
@@ -212,13 +241,12 @@ do intersections !!!
          QCoreApplication::processEvents();
          sleep(10);
      }
-//     QTimer::singleShot(10, this, SLOT(WriteResult()));
  }
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
  void FSTM::ThreadCount()
- {  
+ {
      m_ThreadCount--;
      qDebug()<<"Thread count:"<<m_ThreadCount;
  }
@@ -226,19 +254,27 @@ do intersections !!!
 //------------------------------------------------------------------------------------
 
  void FSTM::WriteResult()
- {  
+ {
 
      qDebug()<<" Writing a result";
-     QFile _outFile;
-     _outFile.setFileName(gArgs().getArgs("out").toString());
-     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-//     _outFile.write((QString("%1\n").arg(sam_data.total-sam_data.notAligned)).toAscii());
-//
-//     foreach(const QString key,isoforms[0]->keys())
-     foreach(const QString chr,isoforms[0][0].keys())
+     QFile outFile;
+     outFile.setFileName(gArgs().getArgs("out").toString());
+     outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+     outFile.write(QString("refsec_id,gene_id,txStart,txEnd,strand,RPKM_control").toAscii());
+     for(int i=1;i<m_ThreadNum;i++)
+     {
+         outFile.write(QString(",RPKM_%1,log(2)_%2").arg(i).arg(i).toAscii());
+     }
+     outFile.write(QString("\n").toAscii());
+
+     foreach(const QString &chr,isoforms[0][0].keys())
      {
          for(int c=0; c<isoforms[0][0][chr].size(); c++)
          {
+             /* if in input controls list say 1,3,7 next loop will have i==list
+              * then this variable became equal to current value */
+             float control=0.0;
+
              for(int i=0;i<m_ThreadNum;i++)
              {
                  QSharedPointer<Isoform> current = isoforms[i][0][chr][c];
@@ -246,21 +282,39 @@ do intersections !!!
                  {
                      if(i==0)
                      {
-                         _outFile.write((QString("\"%1\",\"%2\",%3").arg(current.data()->name).arg(current.data()->name2).arg(current.data()->RPKM)).toAscii());
+                         control=current.data()->RPKM;
+                         if(control<0.5) control=0.5;
+                         outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6").
+                                        arg(current.data()->name).
+                                        arg(current.data()->name2).
+                                        arg(current.data()->txStart).
+                                        arg(current.data()->txEnd).
+                                        arg(current.data()->strand).
+                                        arg(current.data()->RPKM)).toAscii());
                      }
                      else
                      {
-                         _outFile.write((QString(",%1").arg(current.data()->RPKM)).toAscii());
+                         float log2_val=0.0;
+                         if(current.data()->RPKM==0.0)
+                         {
+                             log2_val=0.5/control;
+                         }
+                         else
+                         {
+                             log2_val=current.data()->RPKM/control;
+                         }
+
+                         outFile.write((QString(",%1,%2").arg(current.data()->RPKM)).arg(log2f(log2_val)).toAscii());
                      }
                  }
              }
-             _outFile.write(QString("\n").toAscii());
+             outFile.write(QString("\n").toAscii());
          }
 
      }
-     _outFile.close();
+     outFile.close();
      qDebug()<<"Complete";
      emit finished();
  }
- //------------------------------------------------------------------------------------
- //------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------

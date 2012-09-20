@@ -48,6 +48,7 @@ using namespace BamTools;
 #include <sstream>
 #include <string>
 #include <vector>
+#include <math.h>
 using namespace std;
 
 #ifndef Q_MOC_RUN

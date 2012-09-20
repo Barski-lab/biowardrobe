@@ -12,7 +12,7 @@ INCLUDEPATH += . \
               toolkit \
                ../../thirdparty/bamtools
 
-CONFIG   += console
+CONFIG   += console release
 QT       -= gui
 
 OBJECTS_DIR = GeneratedFiles
