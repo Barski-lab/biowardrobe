@@ -236,6 +236,7 @@ void Arguments::argsList(void)
     Arguments::addArg("bed_separatestrand","bed_separatestrand","BED/SEPARATESTRAND",QVariant::Bool,"",false);
     Arguments::addArg("bed_HeaderString","bed_HeaderString","BED/HEADERSTRING",QVariant::String,"",QString("track type=bedGraph name=%1"));
     Arguments::addArg("no-bed-file","no-bed-file","",QVariant::Bool,"Do not create bed file",false);
+    Arguments::addArg("no-sql-upload","no-sql-upload","",QVariant::Bool,"Do not upload to SQL",false);
 
     Arguments::addArg("sql_table","sql_table","",QVariant::String,"Sql table to create for bed graph","");
     Arguments::addArg("sql_grp","sql_grp","",QVariant::String,"Sql group for trackDb table","");

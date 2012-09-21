@@ -257,18 +257,58 @@ do intersections !!!
  {
 
      qDebug()<<" Writing a result";
-     QFile outFile;
+     QFile outFile,sqlFile;
      outFile.setFileName(gArgs().getArgs("out").toString());
      outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-     outFile.write(QString("refsec_id,gene_id,txStart,txEnd,strand,RPKM_control").toAscii());
+     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,RPKM_control").toAscii());
+
+//     sqlFile.setFileName(gArgs().fileInfo("out").baseName().toString()+".sql");
+//     sqlFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+
+
+     QString RPKM_FIELDS="";
+
      for(int i=1;i<m_ThreadNum;i++)
      {
          outFile.write(QString(",RPKM_%1,log(2)_%2").arg(i).arg(i).toAscii());
+         RPKM_FIELDS+=QString("RPKM_%1 float,log2_%2 float,").arg(i).arg(i);
      }
      outFile.write(QString("\n").toAscii());
 
+     QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `expirements`.`%1`; \
+             CREATE TABLE `expirements`.`%2` ( \
+             `refsec_id` VARCHAR(100) NOT NULL , \
+             `gene_id` VARCHAR(100) NOT NULL , \
+             `chrom` VARCHAR(45) NOT NULL, \
+             `txStart` INT NULL , \
+             `txEnd` INT NULL , \
+             `strand` char(1), \
+             RPKM_c   float, \
+             %3 \
+             INDEX refsec_id_idx (refsec_id) using btree, \
+             INDEX gene_id_idx (gene_id) using btree, \
+             INDEX chr_idx (chrom) using btree, \
+             INDEX txStart_idx (txStart) using btree, \
+             INDEX txEnd_idx (txEnd) using btree \
+             ) \
+             ENGINE = MyISAM \
+             COMMENT = 'created by readscounting';").
+             arg(gArgs().fileInfo("out").baseName()).
+             arg(gArgs().fileInfo("out").baseName()).
+             arg(RPKM_FIELDS);
+
+     if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
+     {
+         qDebug()<<"Query error: "<<q.lastError().text();
+     }
+
+     QString SQL_QUERY_BASE=QString("insert into `expirements`.`%1` values ").
+             arg(gArgs().fileInfo("out").baseName());
+
+
      foreach(const QString &chr,isoforms[0][0].keys())
      {
+         QString SQL_QUERY="";
          for(int c=0; c<isoforms[0][0][chr].size(); c++)
          {
              /* if in input controls list say 1,3,7 next loop will have i==list
@@ -284,13 +324,22 @@ do intersections !!!
                      {
                          control=current.data()->RPKM;
                          if(control<0.5) control=0.5;
-                         outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6").
+                         outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6,%7").
                                         arg(current.data()->name).
                                         arg(current.data()->name2).
+                                        arg(current.data()->chrom).
                                         arg(current.data()->txStart).
                                         arg(current.data()->txEnd).
                                         arg(current.data()->strand).
                                         arg(current.data()->RPKM)).toAscii());
+                         SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7").
+                                 arg(current.data()->name).
+                                 arg(current.data()->name2).
+                                 arg(current.data()->chrom).
+                                 arg(current.data()->txStart).
+                                 arg(current.data()->txEnd).
+                                 arg(current.data()->strand).
+                                 arg(current.data()->RPKM);
                      }
                      else
                      {
@@ -303,14 +352,20 @@ do intersections !!!
                          {
                              log2_val=current.data()->RPKM/control;
                          }
-
-                         outFile.write((QString(",%1,%2").arg(current.data()->RPKM)).arg(log2f(log2_val)).toAscii());
+                         QString tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(log2f(log2_val));
+                         outFile.write(tmp.toAscii());
+                         SQL_QUERY+=tmp;
                      }
                  }
              }
              outFile.write(QString("\n").toAscii());
+             SQL_QUERY+="),";
          }
-
+         SQL_QUERY.chop(1);
+         if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(SQL_QUERY_BASE+SQL_QUERY+";"))
+         {
+             qDebug()<<"Query error: "<<q.lastError().text();
+         }
      }
      outFile.close();
      qDebug()<<"Complete";

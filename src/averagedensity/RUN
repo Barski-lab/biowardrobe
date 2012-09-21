@@ -26,7 +26,7 @@
 #      DNAse does not need siteshifting 
 #
 
-export OUT_DIR="./res2"
+export OUT_DIR="./res4"
 
 mkdir ${OUT_DIR}
 
