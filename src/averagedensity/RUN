@@ -26,13 +26,13 @@
 #      DNAse does not need siteshifting 
 #
 
-export OUT_DIR="./res4"
+export OUT_DIR="./res3"
 
 mkdir ${OUT_DIR}
 
-export FNAME_BASE="TE7_IL13_2Hr_6hr"
+export FNAME_BASE="TE7_IL13_2hr_6hr"
 /data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./batch.f" \
--out="${OUT_DIR}/${FNAME_BASE}.txt" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
+-out="${OUT_DIR}/${FNAME_BASE}.csv" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
 -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=0 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
 
 

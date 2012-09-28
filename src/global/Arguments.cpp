@@ -244,7 +244,7 @@ void Arguments::argsList(void)
     Arguments::addArg("rna_seq","rna_seq","rnaseq",QVariant::String,"","");
 
     Arguments::addArg("avd_window","avd_window","AVD/WINDOW",QVariant::Int,"Average tag density window",2000);
-    Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",11);
+    Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));
@@ -284,7 +284,8 @@ void Arguments::usage(void)
     {
         if(getVarValStorage()[key]._cname!="")
         {
-            cout<<"--"<<getVarValStorage()[key]._cname.toStdString()<<"\t\t\t"<<getVarValStorage()[key]._descr.toStdString()<<endl;
+            cout<<QString("\t--%1%2").arg(getVarValStorage()[key]._cname).
+                  arg("",25-getVarValStorage()[key]._cname.length(),QChar(' ')).toStdString()<<"\t"<<getVarValStorage()[key]._descr.toStdString()<<endl;
         }
     }
 }

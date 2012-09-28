@@ -29,14 +29,10 @@
 #include <SamReader.hpp>
 #include <AVDHandler.hpp>
 
-#define _NORMAL
-
 #define FSTM AverageDensity
 
 typedef genome::GenomeDescription gen_lines;
 
-typedef SqlReader<gen_lines> sqlReader;
-typedef SamReader<gen_lines> sam_reader;
 typedef AVDHandler<gen_lines,gen_lines,HandledData> AVD_Handler;
 
 class sam_reader_thread;
@@ -47,21 +43,25 @@ class AverageDensity: public QObject
 private:
 
     //States
-    AVD_Handler   *s3;
-    QList<gen_lines*>  sam_data;
-    QList<sam_reader_thread*> t_queue;
-    QSqlQuery q;
-    QStringList fileLabels;
+    AVD_Handler                 *s3;
+    QList<gen_lines*>           sam_data;
+    QList<sam_reader_thread*>   t_queue;
+    QSqlQuery                   q;
+    QStringList                 fileLabels;
 
 public slots:
     void start(void);
+
 signals:
     void finished(void);
+
 public:
     template<typename T>
     static QList<T> smooth(const QList<T>&,const int &);
+
     template<typename T>
     static T mean(const QList<T>&,const int&,const int&);
+
     AverageDensity(QObject* parent=0);
     ~AverageDensity();
 };
@@ -69,19 +69,24 @@ public:
 
 class sam_reader_thread: public QRunnable
 {
- public:
 
-  sam_reader    *s;
-  gen_lines *sam_data;
-  QString fileName;
-  sam_reader_thread(gen_lines *sd,QString fn):sam_data(sd),fileName(fn){this->setAutoDelete(true);};
+public:
 
-  void run(void){
-   s  =new sam_reader(fileName,sam_data);
-   s->Load();
-  }
+    gen_lines               *sam_data;
+    QString                  fileName;
 
-  ~sam_reader_thread(){delete s;};
+    sam_reader_thread(gen_lines *sd,QString fn):
+        sam_data(sd),
+        fileName(fn)
+    {
+        this->setAutoDelete(true);
+    };
+
+    void run(void){
+        SamReader<gen_lines> s(fileName,sam_data);
+        s.Load();
+    }
+
 };
 
 

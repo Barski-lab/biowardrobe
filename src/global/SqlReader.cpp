@@ -1,5 +1,24 @@
-
-//#include "SqlReader.hpp"
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the global module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
 
 //---------------------------------------------------------------------------
@@ -11,38 +30,6 @@ SqlReader<Storage>::SqlReader(Storage *o,QString iqn,QString iqnns,QState *paren
  iniQueryNameSense(iqn),
  iniQueryNameNSense(iqnns)
 {
- // if(!setup.contains("SQL/DRIVER"))
- //     setup.setValue("SQL/DRIVER","QMYSQL");
- // if(!setup.contains("SQL/DBNAME"))
- //     setup.setValue("SQL/DBNAME","hg18");
- // if(!setup.contains("SQL/HOST"))
- //     setup.setValue("SQL/HOST","10.0.2.2");
- // if(!setup.contains("SQL/PORT"))
- //     setup.setValue("SQL/PORT",3306);
- // if(!setup.contains("SQL/USER"))
- //     setup.setValue("SQL/USER","root");    
- // if(!setup.contains("SQL/PASS"))
- //     setup.setValue("SQL/PASS",qCompress("").toBase64());
-
- // if (!QSqlDatabase::drivers().contains(setup.value("SQL/DRIVER").toString()))
-	//{
-	// qDebug()<<"No SQL driver. Drivers list:"<<QSqlDatabase::drivers();
-	// throw 1;
-	//}
- // else
-	//{
- //    db = QSqlDatabase::addDatabase(setup.value("SQL/DRIVER").toString());
- //    db.setDatabaseName(setup.value("SQL/DBNAME").toString());
- //    db.setHostName(setup.value("SQL/HOST").toString());
- //    db.setPort(setup.value("SQL/PORT").toInt());
- //    if (!db.open(setup.value("SQL/USER").toString(),
- //        qUncompress(QByteArray::fromBase64(setup.value("SQL/PASS").toByteArray())) ) ) 
-	//  {
- //       sqlErr = db.lastError();
- //       qDebug()<<qPrintable(tr("Error connect to DB:")+sqlErr.text());
- //       throw 1;
- //     }      
- //    }
 }
 
 //---------------------------------------------------------------------------
