@@ -6,9 +6,16 @@ export REPO_DIR="/data/DEVEL/REPO/genome-tools/src/reads-counting"
 #${REPO_DIR}/ReadsCounting -in="${FILE_LIST}" \
 #-out="RPKM.csv" -log="RPKM.log" -sam_ignorechr="chrM" -threads=8
 
-export FILE_LIST="run0140_lane5_read1_index10=ABYR14.fastq.bam,run0140_lane5_read1_index11=ABTR15.fastq.bam"
-export BASE_NAME="YRINA_14vs15"
-${REPO_DIR}/ReadsCounting -in=${FILE_LIST} \
+#export FILE_LIST="run0140_lane5_read1_index10=ABYR14.fastq.bam,run0140_lane5_read1_index11=ABTR15.fastq.bam"
+#export BASE_NAME="YRINA_14vs15"
+#${REPO_DIR}/ReadsCounting -in=${FILE_LIST} \
+#-out="${BASE_NAME}.csv" -log="${BASE_NAME}.log" -sam_ignorechr="chrM" -threads=8 -no-sql-upload &
+
+
+#run0140_lane7_read1_index6=TE7_6hr_control.fastq.bam,run0140_lane7_read1_index12=TE7_6hr_IL13.fastq.bam
+export FILE_LIST="run0134_lane8_read1_index4=TE7_2hr_control.fastq.bam,run0134_lane8_read1_index5=TE7_2hr_IL13.fastq.bam"
+export BASE_NAME="MARK_2Hvs6H_cont_IL13"
+${REPO_DIR}/ReadsCounting -in=${FILE_LIST} -batch="batch.sicer_queries" \
 -out="${BASE_NAME}.csv" -log="${BASE_NAME}.log" -sam_ignorechr="chrM" -threads=8 -no-sql-upload &
 
 

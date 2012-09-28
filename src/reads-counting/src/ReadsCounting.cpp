@@ -75,16 +75,6 @@ void FSTM::start()
 //------------------------------------------------------------------------------------
  void FSTM::FillUpData()
  {
-     QString sql_str;
-     sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene where chrom not like '%\\_%'";
-     //sql_str="select CONCAT_WS(',',CONCAT('\\\"',refsec,'\\\"'),CONCAT('\\\"',gene,'\\\"'),CONCAT('\\\"',CONVERT(txStart,CHAR),'\\\"')) as name,gene as name2,chrom,strand,txStart,txStart as txEnd from expirements.RNASEQ_CD4_CUFFLINKS";
-     if(!q.exec(sql_str))
-     {
-         qDebug()<<"Query error: "<<q.lastError().text();
-         emit finished();
-     }
-     //int tot_isoforms=q.size()+1;
-
      for(int i=0;i<m_ThreadNum;i++)
      {
          isoforms[i]=new IsoformsOnChromosome ();
@@ -93,28 +83,44 @@ void FSTM::start()
          sam_data[i]=new gen_lines();
          //dublicates[i]=0;
      }
-
-
-     int fieldExCount = q.record().indexOf("exonCount");
-     int fieldExStarts = q.record().indexOf("exonStarts");
-     int fieldExEnds = q.record().indexOf("exonEnds");
-     int fieldName = q.record().indexOf("name");
-     int fieldName2 = q.record().indexOf("name2");
-     int fieldChrom = q.record().indexOf("chrom");
-     int fieldStrand = q.record().indexOf("strand");
-     int fieldTxStart= q.record().indexOf("txStart");
-     int fieldTxEnd= q.record().indexOf("txEnd");
-     int fieldCdsStart= q.record().indexOf("cdsStart");
-     int fieldCdsEnd= q.record().indexOf("cdsEnd");
-
-//     int frame=gArgs().getArgs("window").toInt();
-     while(q.next())
+     /* fill from one sql or file
+      * or from sum of segments from sql queries or files*/
+     if(gArgs().getArgs("batch").toString().isEmpty() || !gArgs().fileInfo("batch").exists())
      {
-         //-------------------------------------------
-         // If counting exons
-         //-------------------------------------------
-         if(1)
+         QString sql_str;
+         if(gArgs().getArgs("sql_query1").toString().isEmpty())
          {
+             sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene where chrom not like '%\\_%'";
+             //sql_str="select CONCAT_WS(',',CONCAT('\\\"',refsec,'\\\"'),CONCAT('\\\"',gene,'\\\"'),CONCAT('\\\"',CONVERT(txStart,CHAR),'\\\"')) as name,gene as name2,chrom,strand,txStart,txStart as txEnd from expirements.RNASEQ_CD4_CUFFLINKS";
+         }
+         else
+         {
+             sql_str=gArgs().getArgs("sql_query1").toString();
+         }
+         if(!q.exec(sql_str))
+         {
+             qDebug()<<"Query error: "<<q.lastError().text();
+             emit finished();
+         }
+         //int tot_isoforms=q.size()+1;
+
+         int fieldExCount = q.record().indexOf("exonCount");
+         int fieldExStarts = q.record().indexOf("exonStarts");
+         int fieldExEnds = q.record().indexOf("exonEnds");
+         int fieldName = q.record().indexOf("name");
+         int fieldName2 = q.record().indexOf("name2");
+         int fieldChrom = q.record().indexOf("chrom");
+         int fieldStrand = q.record().indexOf("strand");
+         int fieldTxStart= q.record().indexOf("txStart");
+         int fieldTxEnd= q.record().indexOf("txEnd");
+         int fieldCdsStart= q.record().indexOf("cdsStart");
+         int fieldCdsEnd= q.record().indexOf("cdsEnd");
+
+         while(q.next())
+         {
+             //-------------------------------------------
+             // If counting exons
+             //-------------------------------------------
              /*
               Preparing data arrays for multi threading calculation
               each data set for each thread
@@ -154,52 +160,11 @@ void FSTM::start()
                  isoforms[i][0][chr].append( p );
              }
          }
-//         //-------------------------------------------
-//         // If counting around TSS
-//         //-------------------------------------------
-//         if(0)
-//         {
-//
-//             QString key=q.value(fieldName).toString();
-//             int tssStart=q.value(fieldTxStart).toInt();
-//             int tssEnd=q.value(fieldTxEnd).toInt();
-//             int exCount=1;
-//             quint64 len=frame*2;
-//             if(strand=='+')
-//             {
-//                 ExSt<<tssStart-frame;
-//                 ExEn<<tssStart+frame;
-//             }
-//             else if(strand == '-')
-//             {
-//                 ExSt<<tssEnd-frame;
-//                 ExEn<<tssEnd+frame;
-//             }
-//             else
-//             {
-//                 qDebug()<<"Unknown strand:"<<strand;
-//             }
-//             if(refsec.contains(key))
-//             {
-//                 key=key+QString("_%1").arg(++dublicates);
-//             }
-//             refsec.insert(key,
-//                 Isoform (
-//                 q.value(fieldName2).toString(),
-//                 q.value(fieldChrom).toString(),
-//                 q.value(fieldStrand).toChar(),
-//                 exCount,
-//                 ExSt,
-//                 ExEn,
-//                 len)
-//                 );
-//         }
-     }
 
-/*
-do intersections !!!
-*/
-/*
+         /*
+            do intersections !!!
+         */
+         /*
      foreach(const QString key, isoforms[0][0].keys())
      {
          for(int i=0; i<isoforms[0][0][key].size();i++)
@@ -210,7 +175,113 @@ do intersections !!!
              }
          }
      }
-*/
+    */
+     }//if not a batch
+     else
+     {
+         /* This type of reads count is just simple counting within segment and it is does not metter
+          * is this segment from + or - strand. If segments intersects then it become single segment that overlaps
+          * all intersets one
+          */
+
+         /* Working on batch file filling QL and PFL
+          * if line starts from "select" than it is query
+          * if other then it is bed file
+          */
+         QFile batchFile;
+         batchFile.setFileName(gArgs().getArgs("batch").toString());
+         batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
+         QStringList QL,PFL;
+         QTextStream in(&batchFile);
+         while (!in.atEnd())
+         {
+             QString Q = in.readLine();
+             if(Q.isEmpty() || Q.at(0)==QChar('#')) continue;
+             if(Q.startsWith("select"))
+             {
+                 QL<<Q;
+             }
+             else
+             {
+                 PFL<<Q;
+             }
+         }
+         batchFile.close();
+         QMap<QString,bicl::interval_set<t_genome_coordinates> >segments_lists;
+         if(QL.size()>0)
+         {
+             for(int i=0;i<QL.size();i++)
+             {
+                 if(!q.exec(QL.at(i)))
+                 {
+                     qDebug()<<"Query error batch: "<<q.lastError().text();
+                     emit finished();
+                 }
+                 int fieldChrom = q.record().indexOf("chrom");
+                 int fieldTxStart = q.record().indexOf("chromStart");
+                 int fieldTxEnd= q.record().indexOf("chromEnd");
+                 while(q.next())
+                 {
+                     /*chromosome name*/
+                     QString chr=q.value(fieldChrom).toString();
+                     quint64 txStart=q.value(fieldTxStart).toInt();
+                     quint64 txEnd=q.value(fieldTxEnd).toInt();
+                     segments_lists[chr]+=bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd);
+                 }
+             }
+         }
+         if(PFL.size()>0)
+         {
+             for(int i=0;i<PFL.size();i++)
+             {
+
+             }
+         }
+         /* Going through all the chromosomes and copying all segments into uniform struct Isoforms
+          */
+         foreach(const QString key, segments_lists.keys())
+         {
+             bicl::interval_set<t_genome_coordinates>::const_iterator it = (segments_lists[key]).begin();
+             while(it != (segments_lists[key]).end())
+             {
+                 /*Duplicate data for each multithreaded bam reader*/
+                 for(int i=0;i<m_ThreadNum;i++)
+                 {
+                     /*chromosome name*/
+                     QString chr=key;
+                     quint64 txStart=(*it).lower();
+                     quint64 txEnd=(*it).upper();
+                     quint64 cdsStart=txStart;
+                     quint64 cdsEnd=txEnd;
+                     /*iso name*/
+                     QString iso_name=QString("%1:%2-%3").arg(chr).arg(txStart).arg(txEnd);
+                     /*gene name*/
+                     QString g_name=iso_name;
+                     /*Variables to store start/end exon positions*/
+                     bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
+
+                     QChar strand='+';
+                     quint64 len=0;
+                     len+=(txEnd-txStart);
+                     iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd),1));
+
+                     QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,len)   );
+                     isoforms[i][0][chr].append( p );
+                 }
+                 it++;
+             }
+
+             //             {
+             //                 quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
+             //                 len+=(e-s);
+             //                 iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s,e),1));
+             //             }
+
+             //             QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,len)   );
+             //             isoforms[i][0][chr].append( p );
+
+         }
+     }
  }
 
 //------------------------------------------------------------------------------------
@@ -260,7 +331,7 @@ do intersections !!!
      QFile outFile,sqlFile;
      outFile.setFileName(gArgs().getArgs("out").toString());
      outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,RPKM_control").toAscii());
+     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_C,RPKM_control").toAscii());
 
 //     sqlFile.setFileName(gArgs().fileInfo("out").baseName().toString()+".sql");
 //     sqlFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
@@ -270,7 +341,7 @@ do intersections !!!
 
      for(int i=1;i<m_ThreadNum;i++)
      {
-         outFile.write(QString(",RPKM_%1,log(2)_%2").arg(i).arg(i).toAscii());
+         outFile.write(QString(",TOT_R_%1,RPKM_%2,log(2)_%3").arg(i).arg(i).arg(i).toAscii());
          RPKM_FIELDS+=QString("RPKM_%1 float,log2_%2 float,").arg(i).arg(i);
      }
      outFile.write(QString("\n").toAscii());
@@ -324,13 +395,14 @@ do intersections !!!
                      {
                          control=current.data()->RPKM;
                          if(control<0.5) control=0.5;
-                         outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6,%7").
+                         outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6,%7,%8").
                                         arg(current.data()->name).
                                         arg(current.data()->name2).
                                         arg(current.data()->chrom).
                                         arg(current.data()->txStart).
                                         arg(current.data()->txEnd).
                                         arg(current.data()->strand).
+                                        arg(current.data()->totReads).
                                         arg(current.data()->RPKM)).toAscii());
                          SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7").
                                  arg(current.data()->name).
@@ -352,7 +424,7 @@ do intersections !!!
                          {
                              log2_val=current.data()->RPKM/control;
                          }
-                         QString tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(log2f(log2_val));
+                         QString tmp=QString(",%1,%2,%3").arg(current.data()->RPKM).arg(current.data()->totReads).arg(log2f(log2_val));
                          outFile.write(tmp.toAscii());
                          SQL_QUERY+=tmp;
                      }

@@ -32,7 +32,7 @@ void sam_reader_thread::run(void)
     foreach(const QString key,isoforms[0].keys())
     for(int i=0; i< isoforms[0][key].size();i++)
     {
-//                bicl::interval_map<t_genome_coordinates,t_reads_count> tmp; 
+//                bicl::interval_map<t_genome_coordinates,t_reads_count> tmp;
         for(bicl::interval_map<t_genome_coordinates,t_reads_count>::iterator it = isoforms[0][key][i].data()->isoform.begin(); it != isoforms[0][key][i].data()->isoform.end(); it++)
         {
             bicl::discrete_interval<t_genome_coordinates> itv  = (*it).first;                                                                                                 \
@@ -40,6 +40,7 @@ void sam_reader_thread::run(void)
             tot+=sam_data->getLineCover(isoforms[0][key][i].data()->chrom+QChar('+')).getStarts(itv.lower(),itv.upper());
             tot+=sam_data->getLineCover(isoforms[0][key][i].data()->chrom+QChar('-')).getStarts(itv.lower(),itv.upper());
 
+            /*in a futurre i'm going to use interval_map<segment,reads>*/
             (*it).second=tot;
             ((*isoforms)[key])[i].data()->totReads+=tot;
             if(tot==0 && isoforms[0][key][i].data()->totReads !=0 )
@@ -48,7 +49,7 @@ void sam_reader_thread::run(void)
                 ((*isoforms)[key])[i].data()->testNeeded=true;
             }
         }
-                
+
         //for(int i=0; i<(*isoforms)[key].exCount;i++)
         //{
         //    quint64 tot=0;

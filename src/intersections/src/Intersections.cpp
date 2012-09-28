@@ -70,21 +70,40 @@ bicl::interval_set<int>::interval_type inline getFirst(bicl::interval_set<int>::
     return a;
 }
 
+template<class Type, class Iterator>
+inline typename boost::enable_if<bicl::is_set<Type>, const typename Type::key_type>::type&
+key_value(Iterator it_)
+{
+    return *it_;
+}
+
+template<class Type, class Iterator>
+inline typename boost::enable_if<bicl::is_map<Type>, const typename Type::key_type>::type&
+key_value(Iterator it_)
+{
+    return (*it_).first;
+}
+
 /*************************************************************************************************************
 **************************************************************************************************************/
-template<typename T>
+template<class T>
 void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
 {
-    typename T::iterator it1 = a.begin();
-    typename T::iterator it2 = b.begin();
+    typedef typename T::iterator Iterator;
+    typedef typename T::interval_type IntervalType;
+    Iterator it1 = a.begin();
+    Iterator it2 = b.begin();
     bool checking=true;
 
     while(it1 != a.end() && it2 != b.end())
     {
         //typename T::interval_type itv1  = getFirst<typename T::interval_type,typename T::segment_type>(*it1);
         //typename T::interval_type itv2  = getFirst<typename T::interval_type,typename T::segment_type>(*it2);
-        typename T::interval_type itv1  = getFirst(*it1);
-        typename T::interval_type itv2  = getFirst(*it2);
+//        typename T::interval_type itv1  = getFirst(*it1);
+//        typename T::interval_type itv2  = getFirst(*it2);
+        IntervalType itv1  = key_value<T>(it1);
+
+        IntervalType itv2  = key_vlaue<T>(it2);
 
         if(itv1.upper()>itv2.upper())
         {
@@ -147,7 +166,7 @@ void FSTM::start()
     QStringList QL;/*Query list*/
     QStringList PFL;/*Peaks file list*/
 
-    /*RNASEQ_CD4_CUFFLINKS - has unique TSS start positions and in addition to FPKM from CD4 experiments*/
+    /*RNASEQ_CD4_CUFFLINKS - has unique TSS start positions and in addition FPKMs from CD4 experiments*/
     QString Q3="select chrom,txStart,refsec,gene from expirements.RNASEQ_CD4_CUFFLINKS order by chrom,txStart";
     QSqlQuery q;
 
@@ -244,7 +263,7 @@ void FSTM::start()
             }
         }
 
-        /*Preparing chr_intervals_f_ QMap for later analizis, which includes only uniq segments in first Map that are not exist in second*/
+        /*Preparing chr_intervals_f_ QMap for later analysis, which includes only uniq segments in first Map that are not exist in second*/
         string_map_segments chr_intervals_f_Q1;
         string_map_segments chr_intervals_f_Q2;
 
