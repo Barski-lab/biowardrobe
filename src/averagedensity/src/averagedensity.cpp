@@ -198,7 +198,7 @@ void AverageDensity::start()
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
         {
             QString plt=QString("set output '%1.%2' \n"
-                "set terminal %3 enhanced size 1920,1080 \n"
+                "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
                 "set datafile separator ','\n"
                 "set autoscale\n"
                 "unset log\n"

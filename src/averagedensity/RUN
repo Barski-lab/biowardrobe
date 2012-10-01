@@ -30,10 +30,10 @@ export OUT_DIR="./res3"
 
 mkdir ${OUT_DIR}
 
-export FNAME_BASE="TE7_IL13_2hr_6hr"
+export FNAME_BASE="SRR089679"
 /data/DEVEL/REPO/genome-tools/src/averagedensity/averagedensity -in="./batch.f" \
 -out="${OUT_DIR}/${FNAME_BASE}.csv" -log="${OUT_DIR}/${FNAME_BASE}.log" -batch="./batch" \
--sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=0 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="gnuplot" &
+-sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -sam_siteshift=0 -avd_window=2000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" &
 
 
 #export FNAME_BASE="run0134_lane8_read1_index4=TE7_2hr_control"
