@@ -424,8 +424,9 @@ void FSTM::start()
                          {
                              log2_val=current.data()->RPKM/control;
                          }
-                         QString tmp=QString(",%1,%2,%3").arg(current.data()->RPKM).arg(current.data()->totReads).arg(log2f(log2_val));
+                         QString tmp=QString(",%1,%2,%3").arg(current.data()->totReads).arg(current.data()->RPKM).arg(log2f(log2_val));
                          outFile.write(tmp.toAscii());
+                         tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(log2f(log2_val));
                          SQL_QUERY+=tmp;
                      }
                  }

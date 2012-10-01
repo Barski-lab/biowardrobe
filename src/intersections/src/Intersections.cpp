@@ -61,28 +61,15 @@ FSTM::~FSTM()
 /*************************************************************************************************************
 **************************************************************************************************************/
 
-bicl::interval_map<int,int>::interval_type inline getFirst(bicl::interval_map<int,int>::segment_type a)
-{
-    return a.first;
-}
-bicl::interval_set<int>::interval_type inline getFirst(bicl::interval_set<int>::segment_type a)
-{
-    return a;
-}
+//bicl::interval_map<int,int>::interval_type inline getFirst(bicl::interval_map<int,int>::segment_type a)
+//{
+//    return a.first;
+//}
+//bicl::interval_set<int>::interval_type inline getFirst(bicl::interval_set<int>::segment_type a)
+//{
+//    return a;
+//}
 
-template<class Type, class Iterator>
-inline typename boost::enable_if<bicl::is_set<Type>, const typename Type::key_type>::type&
-key_value(Iterator it_)
-{
-    return *it_;
-}
-
-template<class Type, class Iterator>
-inline typename boost::enable_if<bicl::is_map<Type>, const typename Type::key_type>::type&
-key_value(Iterator it_)
-{
-    return (*it_).first;
-}
 
 /*************************************************************************************************************
 **************************************************************************************************************/
@@ -101,9 +88,8 @@ void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
         //typename T::interval_type itv2  = getFirst<typename T::interval_type,typename T::segment_type>(*it2);
 //        typename T::interval_type itv1  = getFirst(*it1);
 //        typename T::interval_type itv2  = getFirst(*it2);
-        IntervalType itv1  = key_value<T>(it1);
-
-        IntervalType itv2  = key_vlaue<T>(it2);
+        IntervalType itv1  = bicl::key_value<T>(it1);
+        IntervalType itv2  = bicl::key_value<T>(it2);
 
         if(itv1.upper()>itv2.upper())
         {

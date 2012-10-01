@@ -78,7 +78,8 @@ using namespace std;
  #include <boost/icl/interval_map.hpp>
  #include <boost/icl/interval_set.hpp>
  #include <boost/icl/separate_interval_set.hpp>
- //#include <boost/icl/concept/interval_associator.hpp>
+ #include <boost/icl/concept/set_value.hpp>
+ #include <boost/icl/concept/map_value.hpp>
  //#include <boost/shared_ptr.hpp>
 namespace bicl = boost::icl;
 #endif
