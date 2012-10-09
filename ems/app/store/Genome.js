@@ -17,7 +17,12 @@ Ext.define( 'EMS.store.Genome', {
             type: 'json',
             root: 'data',
             successProperty: 'success'
-           }
+           },
+           writer: {
+            type: 'json',
+            root: 'data',
+            writeAllFields: true
+            }
           }
 });
 

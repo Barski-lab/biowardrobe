@@ -48,7 +48,10 @@ Ext.application({
     controllers: [
         'EMS.controller.EMSMenu',
         'EMS.controller.ExperimentsWindow',
-        'EMS.controller.WorkersEdit'
+        'EMS.controller.WorkersEdit',
+        'EMS.controller.GenomeEdit',
+        'EMS.controller.ProtocolEdit',
+        'EMS.controller.ExperimentTypeEdit'
     ],
 
 
@@ -69,7 +72,7 @@ Ext.application({
         items: 
         [
          { region: 'north',
-           title: 'Allergy department experements management software (dr. Barski laboratory)',
+           title: 'Allergy department experiments management software (dr. Barski laboratory)',
            autoHeight: true
          },
 

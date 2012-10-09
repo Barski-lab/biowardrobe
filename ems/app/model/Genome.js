@@ -6,11 +6,12 @@ Ext.define( 'EMS.model.Genome', {
       { name: 'id', type: 'int' },
       { name: 'Genome', type: 'string' }
      ],
-    associations: [{
-        model: 'LabData',
-        type: 'hasMany',
-        autoLoad: true
-    }],
+//    associations: [{
+//        model: 'LabData',
+//        type: 'hasMany',
+//        autoLoad: true
+//    }],
+    hasMany: { model: 'LabData', foreignKey: 'genome_id' },
 
     proxy:{
            type: 'ajax',
@@ -22,7 +23,12 @@ Ext.define( 'EMS.model.Genome', {
             type: 'json',
             root: 'data',
             successProperty: 'success'
+           },
+           writer: {
+            type: 'json',
+            root: 'data',
+            writeAllFields: true
            }
+
           }
-     
 });

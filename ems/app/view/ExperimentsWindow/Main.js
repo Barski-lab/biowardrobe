@@ -26,7 +26,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
     width: 1200,
     minWidth: 900,
     height: 500,
-    iconCls: 'icon-grid',
+    iconCls: 'table2',
     layout: 'fit',
 
     initComponent: function() {
@@ -41,14 +41,13 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
           text:'New',
           tooltip:'Add a new experiment',
           action: 'Add',
-          iconCls:'add'
-      }, '-'/*, {
-                    text:'Options',
-                    tooltip:'Blah blah blah blaht',
-                    iconCls:'option'
-                },'-',{
-                    text:'Remove Something',
-                    tooltip:'Remove the selected item',
-                    iconCls:'remove'}*/
+          iconCls:'table-row-add'
+      }, '-',
+      { 
+          text:'Refresh',
+          tooltip:'Refresh data',
+          action: 'Refresh',
+          iconCls:'table-refresh'
+      }
     ]//tbar
 });

@@ -11,8 +11,10 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
 
 
     initComponent: function() {
-        EMS.store.Worker.load();
-        EMS.store.Genome.load();
+//        EMS.store.Worker.load();
+//        EMS.store.Genome.load();
+//        EMS.store.ExperimentType.load();
+
         Ext.apply(this, {
 
          //store: EMS.store.LabData,
@@ -36,14 +38,14 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                   return rec?rec.data.fname+', '+rec.data.lname:'';}},
 /*          {   header: "Run Index",              sortable: false,  width: 60,    dataIndex: 'IndexRun',     format: 0,  xtype: "numbercolumn",
                  editor: { xtype: 'numberfield',allowBlank: false,  minValue: 1,  maxValue: 150000 } },*/
-          {   header: "Genome",                 sortable: false,  width: 70,    dataIndex: 'genomeType',
+          {   header: "Genome",                 sortable: false,  width: 70,    dataIndex: 'genome_id',
                renderer: function(value,meta,record){
 //               var rec=genStor.findRecord('id',value);
                   var rec=EMS.store.Genome.findRecord('id',value);
                   return rec?rec.data.Genome:'';}
           },
           {   header: "Cells",                  sortable: false,  width: 150,   dataIndex: 'Cells',        flex: 1},
-          {   header: "Type",                   sortable: false,  width: 70,    dataIndex: 'Type', 
+          {   header: "Type",                   sortable: false,  width: 70,    dataIndex: 'experimenttype_id', 
                renderer: function(value,meta,record){
 //               var rec=reco.findRecord('id',value);
                   var rec=EMS.store.ExperimentType.findRecord('id',value);
@@ -59,6 +61,11 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
 //            lazyRender: true,
               listClass: 'x-combo-list-small'
           }*/},
+          {   header: "Protocol",               sortable: false,  width: 70,    dataIndex: 'protocol_id', 
+               renderer: function(value,meta,record){
+                  var rec=EMS.store.Protocol.findRecord('id',value);
+                  return rec?rec.data.protocol:'';}
+          },
           {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'Tags_total' },
           {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'Tags_mapped' },
           {   header: "Name for browser",       sortable: false,  width: 100,   dataIndex: 'Name4browser', flex: 1},

@@ -1,0 +1,182 @@
+.beforeload {
+            color: blue;
+}
+
+.afterload {
+            color: green;
+}
+
+.users3 {
+    background-image: url( images/users3.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.users3-edit {
+    background-image: url( images/users3_edit.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.users3-add {
+    background-image: url( images/users3_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.users3-delete {
+    background-image: url( images/users3_delete.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.users3-preferences {
+    background-image: url( images/users3_preferences.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+
+.user {
+    background-image: url( images/user.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+.user-add {
+    background-image: url( images/user_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+.user-information {
+    background-image: url( images/user_information.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.user-preferences {
+    background-image: url( images/user_preferences.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table2 {
+    background-image: url( images/table2.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table2-add {
+    background-image: url( images/table2_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table2-check {
+    background-image: url( images/table2_check.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table2-ok {
+    background-image: url( images/table2_ok.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table-refresh {
+    background-image: url( images/table_refresh.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table-row-add {
+    background-image: url( images/table_row_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.chart {
+    background-image: url( images/chart_area.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.chart-line {
+    background-image: url( images/chart_line.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.check {
+    background-image: url( images/check.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.clock {
+    background-image: url( images/clock.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.battery-red {
+    background-image: url( images/battery_red_10.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.battery-green {
+    background-image: url( images/battery_green_67.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.magazine-folder {
+    background-image: url( images/magazine_folder.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.form-blue {
+    background-image: url( images/form_blue.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.form-blue-add {
+    background-image: url( images/form_blue_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.form-blue-edit {
+    background-image: url( images/form_blue_edit.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder {
+    background-image: url( images/folder.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder2 {
+    background-image: url( images/folder2.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder3 {
+    background-image: url( images/folder3.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder-document {
+    background-image: url( images/folder-document.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+

@@ -2,6 +2,7 @@ Ext.define( 'EMS.model.LabData', {
     extend: 'Ext.data.Model',
     requires : [
       'EMS.model.ExperimentType',
+      'EMS.model.Genome',
       'EMS.model.Worker',
       'EMS.model.Protocol'
           ],
@@ -28,8 +29,13 @@ Ext.define( 'EMS.model.LabData', {
     { name: 'worker_id', type: 'int' },
     { name: 'antibodies_id', type: 'int' },
     { name: 'protocol_id', type: 'int' },
-    { name: 'experementtype_id', type: 'int' }
+    { name: 'experimenttype_id', type: 'int' }
      ],
+//    associations: [{
+//        model: 'Genome',
+//        type: 'hasMany',
+//        autoLoad: true
+//    }],
     proxy:{
            type: 'ajax',
            api: {

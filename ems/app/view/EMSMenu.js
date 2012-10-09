@@ -8,19 +8,19 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                text:'Forms',
                tooltip:'Laboratory data edit',
                menu: [
-                { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'icon-grid' },
-                { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'user' }
+                { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'form-blue-edit' },
+                { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit' }
                ],
-               iconCls:'notepad'
+               iconCls:'form-blue'
              },
              { xtype: 'button',
                text:'Reports',
                tooltip:'Some reports',
                menu: [
-                { text: 'Adaptor contamination', action: 'AdaptorCont', tooltip: '',iconCls: 'icon-grid' },
-                { text: 'Average Tag Density', action: 'ATD', tooltip: '',iconCls: 'icon-grid' }
+                { text: 'Adaptor contamination', action: 'AdaptorCont', tooltip: '',iconCls: 'chart' },
+                { text: 'Average Tag Density', action: 'ATD', tooltip: '',iconCls: 'chart-line' }
                ],
-               iconCls:'notepad'
+               iconCls:'magazine-folder'
              },
              { xtype: 'button',
                text:'Genome Browser',
@@ -36,7 +36,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                menu: [
                 { text: 'List', action: 'List', tooltip: '',iconCls: 'icon-grid' }
                ],
-               iconCls:'notepad'
+               iconCls:'users3'
              }
           ]
 });

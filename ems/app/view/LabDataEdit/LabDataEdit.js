@@ -1,17 +1,17 @@
-Ext.require('EMS.store.ExperimentTypes');
-Ext.require('EMS.store.Workers');
-Ext.require('EMS.store.Genome');
-Ext.require('EMS.store.Protocol');
-Ext.require('EMS.store.Antibodies');
-Ext.require('EMS.store.Crosslinking');
-Ext.require('EMS.store.Fragmentation');
+//Ext.require('EMS.store.ExperimentTypes');
+//Ext.require('EMS.store.Workers');
+//Ext.require('EMS.store.Genome');
+//Ext.require('EMS.store.Protocol');
+//Ext.require('EMS.store.Antibodies');
+//Ext.require('EMS.store.Crosslinking');
+//Ext.require('EMS.store.Fragmentation');
 
 Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
     extend: 'Ext.window.Window',
     alias : 'widget.LabDataEdit',
 
     requires: ['Ext.form.Panel'],
-    stores: ['Genome','Protocol','ExperimentTypes'],
+    stores: ['Genome','Protocol','ExperimentType'],
     title : 'Laboratory Data Edit',
     layout: 'fit',
     buttonAlign: 'center',
@@ -57,10 +57,19 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                       items:[
                       {
                           xtype: 'combobox',
-                          name : 'protocol',
-                          store: EMS.store.Protocol,
+                          name : 'protocol_id',
                           displayField: 'protocol',
                           fieldLabel: 'Protocol',
+//                          store: EMS.store.Protocol,
+                         store: {
+                                     autoLoad: true,
+                                     model: 'EMS.model.Protocol',
+                                     listeners: {
+                                             load: function() {
+                                                 Logger.log('Protocol data loaded');
+                                             }
+                                     }
+                                 },
 //                          hideTrigger: true,
                           mode: 'local',
                           typeAhead: false,
@@ -75,9 +84,18 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                           xtype: 'tbspacer', width: 50 
                        },{
                           xtype: 'combobox',
-                          name : 'Type',
+                          name : 'experimenttype_id',
 //                          store: (new EMS.store.ExperimentTypes).load(),
-                          store: EMS.store.ExperimentTypes,
+//                          store: EMS.store.ExperimentTypes,
+                         store: {
+                                     autoLoad: true,
+                                     model: 'EMS.model.ExperimentType',
+                                     listeners: {
+                                             load: function() {
+                                                 Logger.log('Experiment types data loaded');
+                                             }
+                                     }
+                                 },
                           displayField: 'Type',
                           fieldLabel: 'Experiment Type',
 //                          hideTrigger: true,
@@ -106,10 +124,19 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                           xtype: 'tbspacer', width: 50 
                        },{
                           xtype: 'combobox',
-                          name : 'genomeType',
-                          store: EMS.store.Genome,
+                          name : 'genome_id',
                           displayField: 'Genome',
                           fieldLabel: 'Genome Type',
+//                          store: EMS.store.Genome,
+                         store: {
+                                     autoLoad: true,
+                                     model: 'EMS.model.Genome',
+                                     listeners: {
+                                             load: function() {
+                                                 Logger.log('Genome data loaded');
+                                             }
+                                     }
+                                 },
                           mode: 'local',
                           typeAhead: false,
                           editable:false,

@@ -6,11 +6,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
     models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
     stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
-    views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid'],
+    views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEdit'],
 
     init: function() 
     {
-        console.log('Experiments Control Loaded.');
+//        Logger.log('Experiments Control Loaded.');
         this.control({
          'ExperimentsWindow': {
              render: this.onPanelRendered
@@ -21,6 +21,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
          },
          'ExperimentsWindow button[action=Add]': {
              click: this.onAdd
+         },
+         'ExperimentsWindow button[action=Refresh]': {
+             click: this.onRefresh
+         },
+         'LabDataEdit button[action=save]': {
+             click: this.onSave
          }
         });
     },
@@ -99,7 +105,25 @@ LabDataLoad: function() {
 //-----------------------------------------------------------------------
 
 onAdd: function() {
-        console.log('Add pressed');
+    Logger.log('Add pressed');
+    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
+},
+//-----------------------------------------------------------------------
+//
+//
+//-----------------------------------------------------------------------
+onRefresh: function() {
+    Logger.log('Refresh pressed');
+
+},
+//-----------------------------------------------------------------------
+//
+//
+//-----------------------------------------------------------------------
+onSave: function() {
+    Logger.log('Save pressed');
+
+
 },
 /*
 //-----------------------------------------------------------------------
@@ -116,13 +140,15 @@ onExperimentSelectionChanged: function() {
 //-----------------------------------------------------------------------
 onExperimentItemDblClick: function(grid,record) {
  
- console.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
+ Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
  
- var edit = Ext.create('EMS.view.LabDataEdit');
- edit.show();
+ var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
+// edit.show();
  form=edit.down('form');
 // edit.setTitle(edit.getTitle()+" Hi");
  form.loadRecord(record);
+ console.log('record:');
+ console.log(record);
 }
 
 });
