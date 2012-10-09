@@ -9,6 +9,33 @@ Ext.Loader.setConfig({enabled: true});
 //Ext.require('EMS.view.EMSMenu');
 //Ext.require('EMS.view.ExperimentsWindow');
 
+
+Logger = (function(){
+    var panel;
+    
+    return {
+        init: function(log){
+            panel = log;
+            panel.update({
+                now: new Date(),
+                cls: 'beforeload',
+                msg: 'Logging is on'
+            });
+            
+        },
+        
+        log: function(msg, isStart){
+            panel.update({
+                now: new Date(),
+                cls: isStart ? 'beforeload' : 'afterload',
+                msg: msg
+            });
+            panel.body.scroll('b', 100000, true);
+        }    
+    };
+})();
+
+
 Ext.application({
     name: 'EMS',
 
@@ -42,17 +69,23 @@ Ext.application({
         items: 
         [
          { region: 'north',
-           title: 'Experiments management software',
+           title: 'Allergy department experements management software (dr. Barski laboratory)',
            autoHeight: true
          },
 
          { region: 'south',
            title: '',
            collapsible: true,
-           html: '&nbsp; Logging is on',
-           split: true,
-           height: 100,
-           minHeight: 100
+           collapsed: true,
+           height: 60,
+           minHeight: 60,
+           overflowY : 'scroll',
+           tplWriteMode: 'append',
+           tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
+           bodyPadding: 5,
+           listeners: {
+                render: Logger.init
+            }
          },
          { xtype: 'EMSMenu',
            id: 'EMSMenu',

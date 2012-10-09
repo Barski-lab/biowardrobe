@@ -1,3 +1,10 @@
+//Ext.Loader.setPath('Ext.ux.DataView', '../ux/DataView/');
+Ext.Loader.setPath({'Ext.ux': 'ux/'});
+
+
+Ext.require([
+    'Ext.ux.IFrame'
+]);
 
 var ExperimentsWindow,WorkersEditWindow,FenceChartWindow;
 
@@ -36,6 +43,7 @@ Ext.define('EMS.controller.EMSMenu', {
     onEMSMenuForms: function(menuitem,e,opt) {
        
        console.log('Menuitem \''+menuitem.action+'\' choosed.');
+       Logger.log('Menuitem \''+menuitem.action+'\' choosed.', true);
 
        if(menuitem.action=="LabData"){
         if(!ExperimentsWindow){
@@ -72,32 +80,29 @@ Ext.define('EMS.controller.EMSMenu', {
        }
        if(menuitem.action=="ATD"){
 
-Ext.create('Ext.window.Window', {
-    width: 400,
+win=Ext.create('Ext.window.Window', {
+    width: 800,
     minWidth: 200,
-    height: 300,
+    height: 600,
     title: 'Average Tag Density',
     closable: true,
     maximizable: true,
 //    closeAction: 'hide',
     constrain: true,
-
     layout: 'fit',
     items: [{
-                xtype: 'html',
-//                itemId: 'imgCt',
-                layout: 'fit',
-                src: 'http://localhost/TE7_IL13_2hr_6hr.svg'
-//                margin: '0 20 0 0',
-//                width : 250,
-//                height: 308
+      xtype: 'uxiframe',
+      src: 'http://localhost/TE7_IL13_2hr_6hr.svg'
     }]
-}).show();
+});
 
-
-
+          Ext.getCmp('EMSMenu').add(win);
+          win.show();
        }
-    }
+  
+  Logger.log('Menuitem \''+menuitem.action+'\' loaded.', false);
+       
+  }
 //-----------------------------------------------------------------------
 //
 //
