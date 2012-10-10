@@ -1,106 +1,133 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the EMS web interface module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
 Ext.Loader.setConfig({enabled: true});
 
-//Ext.Loader.setPath('EMS', 'app');
-
-//Ext.require('EMS.model.LabData');
-//Ext.require('EMS.store.LabData');
-
-//Ext.require('EMS.view.EMSMenu');
-//Ext.require('EMS.view.ExperimentsWindow');
+Ext.Loader.setPath(
+            {'EMS': 'app'},
+            {'Ext.ux': 'ux/'}
+            );
 
 
-Logger = (function(){
+var Logger = (function(){
     var panel;
-    
+    var queue;
+
     return {
-        init: function(log){
-            panel = log;
-            panel.update({
-                now: new Date(),
-                cls: 'beforeload',
-                msg: 'Logging is on'
-            });
-            
+        log: function(msg, color){
+            color = typeof color !== 'undefined' ? color : "blue";
+            if(typeof panel !== 'undefined')
+            {
+                panel.update({
+                                 now: new Date(),
+                                 cls: color,
+                                 msg: msg
+                             });
+                panel.body.scroll('b', 100000, true);
+            }
+            else
+            {
+                console.log(msg);
+            }
         },
-        
-        log: function(msg, isStart){
+        init: function(logv){
+            panel = logv;
             panel.update({
-                now: new Date(),
-                cls: isStart ? 'beforeload' : 'afterload',
-                msg: msg
-            });
+                             now: new Date(),
+                             cls: 'blue',
+                             msg: 'Logging is on'
+                         });
             panel.body.scroll('b', 100000, true);
-        }    
+//            log('Logging is on');
+        }
     };
 })();
 
 
+
 Ext.application({
-    name: 'EMS',
+                    name: 'EMS',
 
-    appFolder: 'app',
-/*    requires: [
-        'EMS.view.EMSMenu'
-//        'EMS.view.ExperimentsWindow.ExperimentsWindow'
-    ],*/
-//EMS.controller.
-    controllers: [
-        'EMS.controller.EMSMenu',
-        'EMS.controller.ExperimentsWindow',
-        'EMS.controller.WorkersEdit',
-        'EMS.controller.GenomeEdit',
-        'EMS.controller.ProtocolEdit',
-        'EMS.controller.ExperimentTypeEdit'
-    ],
-
-
-    views: [
-        'EMSMenu'
-//        'EMS.view.ExperimentsWindow.Main',
-//        'EMS.view.ExperimentsWindow.Grid'
-    ],
+                    appFolder: 'app',
+                    /*    requires: [
+                            'EMS.view.EMSMenu'
+                            'EMS.view.ExperimentsWindow.ExperimentsWindow'
+                        ],*/
+                    controllers: [
+                        'EMS.controller.EMSMenu',
+                        'EMS.controller.ExperimentsWindow',
+                        'EMS.controller.WorkersEdit',
+                        'EMS.controller.GenomeEdit',
+                        'EMS.controller.ProtocolEdit',
+                        'EMS.controller.ExperimentTypeEdit'
+                    ],
 
 
+                    views: [
+                        'EMSMenu'
+                        //        'EMS.view.ExperimentsWindow.Main',
+                        //        'EMS.view.ExperimentsWindow.Grid'
+                    ],
 
-    launch: function() {
 
-      Ext.create('Ext.container.Viewport', {
 
-        layout: 'border',
+                    launch: function() {
 
-        items: 
-        [
-         { region: 'north',
-           title: 'Allergy department experiments management software (dr. Barski laboratory)',
-           autoHeight: true
-         },
+                        Ext.create('Ext.container.Viewport', {
 
-         { region: 'south',
-           title: '',
-           collapsible: true,
-           collapsed: true,
-           height: 60,
-           minHeight: 60,
-           overflowY : 'scroll',
-           tplWriteMode: 'append',
-           tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
-           bodyPadding: 5,
-           listeners: {
-                render: Logger.init
-            }
-         },
-         { xtype: 'EMSMenu',
-           id: 'EMSMenu',
-           region: 'center',
-           border: false,
-           layout: 'fit'
-         }
+                                       layout: 'border',
 
-        ]//items Viewport
+                                       items:
+                                           [
+                                           { region: 'north',
+                                               title: 'Allergy department experiments management software (dr. Barski laboratory)',
+                                               autoHeight: true
+                                           },
 
-        });//ext create
-    }//lunc func
+                                           { region: 'south',
+                                               title: '',
+                                               collapsible: true,
+                                               collapsed: true,
+                                               height: 60,
+                                               minHeight: 60,
+                                               overflowY : 'scroll',
+                                               tplWriteMode: 'append',
+                                               tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
+                                               bodyPadding: 5,
+                                               listeners: {
+                                                   render: Logger.init
+                                               }
+                                           },
+                                           { xtype: 'EMSMenu',
+                                               id: 'EMSMenu',
+                                               region: 'center',
+                                               border: false,
+                                               layout: 'fit'
+                                           }
 
-});//application
+                                       ]//items Viewport
+
+                                   });//ext create
+                    }//lunc func
+
+                });//application
 

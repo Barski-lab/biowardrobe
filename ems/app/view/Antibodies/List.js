@@ -20,23 +20,23 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.view.user.List' ,{
+Ext.define('EMS.view.Antibodies.List' ,{
                extend: 'Ext.grid.Panel',
-               alias : 'widget.userlist',
+               alias : 'widget.andibodieslist',
+
+               title : 'Antibodies list',
                store: {
                    autoLoad: true,
-                   model: 'EMS.model.Worker',
+                   model: 'EMS.model.Antibodies',
                    listeners: {
                        load: function() {
-                           Logger.log('Worker store loaded');
+                           Logger.log('Antibodies store loaded');
                        }
                    }
                },
 
                columns: [
                    Ext.create('Ext.grid.RowNumberer'),
-                   {header: 'Worker',  dataIndex: 'Worker',  flex: 1},
-                   {header: 'First name', dataIndex: 'fname', flex: 1},
-                   {header: 'Last name', dataIndex: 'lname', flex: 1}
+                   {header: 'Antibodie', dataIndex: 'Antibodie', flex: 1}
                ]
            });
