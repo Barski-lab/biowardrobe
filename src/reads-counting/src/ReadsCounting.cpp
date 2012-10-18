@@ -331,7 +331,7 @@ void FSTM::start()
      QFile outFile,sqlFile;
      outFile.setFileName(gArgs().getArgs("out").toString());
      outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_C,RPKM_control").toAscii());
+     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
 //     sqlFile.setFileName(gArgs().fileInfo("out").baseName().toString()+".sql");
 //     sqlFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
@@ -354,7 +354,7 @@ void FSTM::start()
              `txStart` INT NULL , \
              `txEnd` INT NULL , \
              `strand` char(1), \
-             RPKM_c   float, \
+             RPKM_0   float, \
              %3 \
              INDEX refsec_id_idx (refsec_id) using btree, \
              INDEX gene_id_idx (gene_id) using btree, \

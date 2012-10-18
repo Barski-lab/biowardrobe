@@ -1,154 +1,112 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the EMS web interface module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
-var count=0;
 
 Ext.define('EMS.controller.ExperimentsWindow', {
-    extend: 'Ext.app.Controller',
+               extend: 'Ext.app.Controller',
 
-    models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
-    stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
-    views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEdit'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
+               views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEdit'],
 
-    init: function() 
-    {
-//        Logger.log('Experiments Control Loaded.');
-        this.control({
-         'ExperimentsWindow': {
-             render: this.onPanelRendered
-         },
-         'ExperimentsWindow grid': {
-//             selectionchange: this.onExperimentSelectionChanged,
-             itemdblclick: this.onExperimentItemDblClick
-         },
-         'ExperimentsWindow button[action=Add]': {
-             click: this.onAdd
-         },
-         'ExperimentsWindow button[action=Refresh]': {
-             click: this.onRefresh
-         },
-         'LabDataEdit button[action=save]': {
-             click: this.onSave
-         }
-        });
-    },
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-onPanelRendered: function() {
-/*        workStore=this.getWorkerStore();
-        workStore.load();
+               init: function()
+               {
+                   Logger.log('Experiments Control Loaded.');
+                   this.control({
+                                    'ExperimentsWindow': {
+                                        render: this.onPanelRendered
+                                    },
+                                    'ExperimentsWindow grid': {
+                                        selectionchange: this.onExperimentSelectionChanged,
+                                        itemdblclick: this.onItemDblClick
+                                    },
+                                    'ExperimentsWindow button[action=Add]': {
+                                        click: this.onAdd
+                                    },
+                                    'ExperimentsWindow button[action=Refresh]': {
+                                        click: this.onRefresh
+                                    },
+                                    'LabDataEdit button[action=save]': {
+                                        click: this.onSave
+                                    }
+                                });
+               },
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onPanelRendered: function() {
+                   //Logger.log('The panel was rendered');
+               },
 
-/*        typeStore=this.getExperimentTypesStore();
-        typeStore.load();
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
 
-        protocolStore=this.getProtocolStore();
-        protocolStore.load();
+               onAdd: function() {
+                   Logger.log('Add pressed');
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
+               },
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onRefresh: function() {
+                   Logger.log('Refresh pressed');
+                   this.getLabDataStore().load();
+                   this.getLabDataStore().sync();
+               },
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onSave: function() {
+                   Logger.log('Save pressed');
+               },
 
-        genomeStore=this.getGenomeStore();
-        genomeStore.load();
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onSelectionChanged: function() {
+                   //Logger.log('onExperimentSelectionChanged');
+               },
 
-        antiStore=this.getAntibodiesStore();
-        antiStore.load();
-*/
-/*        workStore.on({
-        'load': {
-          fn: function(store,record,options){
-          this.LabDataLoad();
-         },
-         scope:this
-        }
-        });
-        typeStore.on({
-        'load': {
-          fn: function(store,record,options){
-          this.LabDataLoad();
-         },
-         scope:this
-        }
-        });
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onItemDblClick: function(grid,record) {
 
-        genomeStore.on({
-        'load': {
-          fn: function(store,record,options){
-          this.LabDataLoad();
-         },
-         scope:this
-        }
-        });
+                   Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
 
-        protocolStore.on({
-        'load': {
-          fn: function(store,record,options){
-          this.LabDataLoad();
-         },
-         scope:this
-        }
-        });
-*/
-        console.log('The panel was rendered');
-},
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit');
+                   edit.show();
+                   form=edit.down('form');
+                   // edit.setTitle(edit.getTitle()+" Hi");
+                   form.loadRecord(record);
+                   console.log('record:');
+                   console.log(record);
+               }
 
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-LabDataLoad: function() {
-
- if(count<2) {count++; return;}
-     labStore=this.getLabDataStore();
-     labStore.load();
-     console.log('LabStore loading '+count+' '+labStore.self.getName());
-},
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-
-onAdd: function() {
-    Logger.log('Add pressed');
-    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
-},
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-onRefresh: function() {
-    Logger.log('Refresh pressed');
-
-},
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-onSave: function() {
-    Logger.log('Save pressed');
-
-
-},
-/*
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-onExperimentSelectionChanged: function() {
-        console.log('onExperimentSelectionChanged');
-},
-*/
-//-----------------------------------------------------------------------
-//
-//
-//-----------------------------------------------------------------------
-onExperimentItemDblClick: function(grid,record) {
- 
- Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
- 
- var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
-// edit.show();
- form=edit.down('form');
-// edit.setTitle(edit.getTitle()+" Hi");
- form.loadRecord(record);
- console.log('record:');
- console.log(record);
-}
-
-});
+           });

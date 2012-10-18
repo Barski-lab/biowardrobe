@@ -22,21 +22,28 @@
 
 Ext.define('EMS.view.Antibodies.List' ,{
                extend: 'Ext.grid.Panel',
-               alias : 'widget.andibodieslist',
+               alias : 'widget.antibodieslist',
 
-               title : 'Antibodies list',
-               store: {
-                   autoLoad: true,
-                   model: 'EMS.model.Antibodies',
-                   listeners: {
-                       load: function() {
-                           Logger.log('Antibodies store loaded');
-                       }
-                   }
-               },
 
-               columns: [
-                   Ext.create('Ext.grid.RowNumberer'),
-                   {header: 'Antibodie', dataIndex: 'Antibodie', flex: 1}
-               ]
+               initComponent: function() {
+
+                   Ext.apply(this, {
+
+                                 store: {
+                                     autoLoad: true,
+                                     model: 'EMS.model.Antibodies',
+                                     listeners: {
+                                         load: function() {
+                                             Logger.log('Antibodies store loaded');
+                                         }
+                                     }
+                                 },
+
+                                 columns: [
+                                     Ext.create('Ext.grid.RowNumberer'),
+                                     {header: 'Antibody', dataIndex: 'Antibody', flex: 1}
+                                 ]
+                             });
+                   this.callParent(arguments);
+               }
            });

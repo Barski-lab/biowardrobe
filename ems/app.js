@@ -57,7 +57,6 @@ var Logger = (function(){
                              msg: 'Logging is on'
                          });
             panel.body.scroll('b', 100000, true);
-//            log('Logging is on');
         }
     };
 })();
@@ -77,6 +76,7 @@ Ext.application({
                         'EMS.controller.ExperimentsWindow',
                         'EMS.controller.WorkersEdit',
                         'EMS.controller.GenomeEdit',
+                        'EMS.controller.AntibodiesEdit',
                         'EMS.controller.ProtocolEdit',
                         'EMS.controller.ExperimentTypeEdit'
                     ],
@@ -107,7 +107,7 @@ Ext.application({
                                                title: '',
                                                collapsible: true,
                                                collapsed: true,
-                                               height: 60,
+                                               height: 100,
                                                minHeight: 60,
                                                overflowY : 'scroll',
                                                tplWriteMode: 'append',

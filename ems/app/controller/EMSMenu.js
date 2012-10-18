@@ -27,7 +27,7 @@ Ext.require([
                 'Ext.ux.IFrame'
             ]);
 
-var ExperimentsWindow,WorkersEditWindow,FenceChartWindow,AntibodiesEditWindow;
+var ExperimentsWindow,WorkersEditWindow,FenceChartWindow;//,AntibodiesEditWindow;
 
 //Ext.require('EMS.view.ExperimentsWindow');
 
@@ -39,9 +39,9 @@ Ext.define('EMS.controller.EMSMenu', {
                {
                    Logger.log('Menu Initialized!');
                    this.control({
-//                                    'viewport > EMSMenu': {
-//                                        render: this.onPanelRendered
-//                                    },
+                                    //                                    'viewport > EMSMenu': {
+                                    //                                        render: this.onPanelRendered
+                                    //                                    },
                                     'EMSMenu button > menuitem': {
                                         click: this.onEMSMenuForms
                                     }
@@ -63,7 +63,7 @@ Ext.define('EMS.controller.EMSMenu', {
                onEMSMenuForms: function(menuitem,e,opt) {
 
 
-                   Logger.log('Menuitem \''+menuitem.action+'\' choosed.');
+                   Logger.log('Menu item \''+menuitem.action+'\' choosed.');
 
                    if(menuitem.action === "LabData"){
                        if(!ExperimentsWindow){
@@ -94,15 +94,14 @@ Ext.define('EMS.controller.EMSMenu', {
                      Create window with antibodies list
                    */
                    if(menuitem.action === "Antibodies"){
-
-                       if(typeof AntibodiesEditWindow === 'undefined' || !AntibodiesEditWindow){
-                           AntibodiesEditWindow=Ext.create('EMS.view.Antibodies.Main',{});
-                           Ext.getCmp('EMSMenu').add(AntibodiesEditWindow);
+                       if(typeof this.AntibodiesEditWindow === 'undefined' || !this.AntibodiesEditWindow){
+                           this.AntibodiesEditWindow=Ext.create('EMS.view.Antibodies.Antibodies',{});
+                           Ext.getCmp('EMSMenu').add(this.AntibodiesEditWindow);
                        }
-                       if(AntibodiesEditWindow.isVisible()){
-                           AntibodiesEditWindow.hide(); }
+                       if(this.AntibodiesEditWindow.isVisible()){
+                           this.AntibodiesEditWindow.hide(); }
                        else {
-                           AntibodiesEditWindow.show(); }
+                           this.AntibodiesEditWindow.show(); }
                    }
 
                    /*
@@ -161,7 +160,7 @@ Ext.define('EMS.controller.EMSMenu', {
                                           layout: 'fit',
                                           items: [{
                                                   xtype: 'uxiframe',
-//                                                  src: 'http://genome.ucsc.edu/cgi-bin/hgTracks?bd=hg19&pix=1000&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
+                                                  //                                                  src: 'http://genome.ucsc.edu/cgi-bin/hgTracks?bd=hg19&pix=1000&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
                                                   src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=1000&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
                                               }]
                                       });
@@ -170,7 +169,7 @@ Ext.define('EMS.controller.EMSMenu', {
                        win.show();
                    }
 
-                   Logger.log('Menuitem \''+menuitem.action+'\' loaded.', 'green');
+                   Logger.log('Menu item \''+menuitem.action+'\' loaded.', 'green');
 
                }
                //-----------------------------------------------------------------------

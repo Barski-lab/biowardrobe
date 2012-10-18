@@ -8,9 +8,12 @@ export REPO_DIR="/data/DEVEL/REPO/genome-tools/src/reads-counting"
 
 
 #runs Yrina's data test and RPKM count with annotation from USCS genome browser
-export FILE_LIST="run0140_lane5_read1_index10=ABYR14.fastq.bam,run0140_lane5_read1_index11=ABTR15.fastq.bam"
-export BASE_NAME="YRINA_14vs15"
-${REPO_DIR}/ReadsCounting -in=${FILE_LIST} \
+
+
+#export FILE_LIST="run0140_lane5_read1_index10=ABYR14.fastq.bam,run0140_lane5_read1_index11=ABTR15.fastq.bam"
+export FILE_LIST="run0156_lane2_read1_index20=ABYR28.fastq.bam,run0156_lane2_read1_index21=ABYR29.fastq.bam,run0156_lane2_read1_index22=ABYR30.fastq.bam,run0156_lane2_read1_index23=ABYR31.fastq.bam"
+export BASE_NAME="YRINA_28_31"
+${REPO_DIR}/ReadsCounting -in="${FILE_LIST}" -sql_host="localhost" \
 -out="${BASE_NAME}.csv" -log="${BASE_NAME}.log" -sam_ignorechr="chrM" -threads=8 -no-sql-upload &
 
 

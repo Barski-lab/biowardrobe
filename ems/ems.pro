@@ -127,4 +127,6 @@ OTHER_FILES += \
     app/view/EMSMenu.js \
     ux/IFrame.js \
     app/view/Antibodies/List.js \
-    app/view/Antibodies/Edit.js
+    app/view/Antibodies/Edit.js \
+    app/controller/AntibodiesEdit.js \
+    app/view/Antibodies/Antibodies.js

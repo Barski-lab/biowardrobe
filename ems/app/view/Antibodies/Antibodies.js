@@ -20,41 +20,43 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
+Ext.define('EMS.view.Antibodies.Antibodies', {
                extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
+               alias : 'widget.AntibodiesWindow',
+               width: 350,
+               height: 250,
+               minWidth: 350,
+               minHeight: 250,
+               title: 'List of Antibodies',
                closable: true,
                maximizable: true,
-               maximized: true,
                closeAction: 'hide',
                constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
                overflowY : 'scroll',
-//               overflowX : 'scroll',
+               iconCls: 'battery-green',
+
+               layout: 'fit',
+
 
                initComponent: function() {
                    this.items = [
-                            Ext.create('EMS.view.ExperimentsWindow.Grid')
+                            Ext.create('EMS.view.Antibodies.List')
                         ];
                    this.tbar = [
                             {
                                 text:'New',
-                                tooltip:'Add a new experiment',
+                                tooltip:'Add a new antibody',
                                 action: 'Add',
                                 iconCls:'table-row-add'
                             }, '-',
                             Ext.create('Ext.PagingToolbar', {
                                            store: {
                                                autoLoad: true,
-                                               model: 'EMS.model.LabData',
+                                               model: 'EMS.model.Antibodies',
                                                pageSize: 30,
                                                listeners: {
                                                    load: function() {
-                                                       Logger.log('LabData store loaded');
+                                                       Logger.log('Antibodies store loaded');
                                                    }
                                                }
                                            }
@@ -64,4 +66,5 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
 
                    this.callParent(arguments);
                }
+
            });

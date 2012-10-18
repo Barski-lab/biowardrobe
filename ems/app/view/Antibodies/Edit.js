@@ -22,15 +22,17 @@
 
 Ext.define('EMS.view.Antibodies.Edit', {
                extend: 'Ext.window.Window',
-               //    alias : 'widget.useredit',
-
                requires: ['Ext.form.Panel'],
+               alias : 'widget.AntibodiesEdit',
 
                title : 'Edit antibodie information',
                layout: 'fit',
-               //    autoShow: true,
-               height: 210,
-               width: 280,
+               buttonAlign: 'center',
+               plain: true,
+               height: 100,
+               width: 350,
+               minHeight: 100,
+               minWidth: 350,
 
                initComponent: function() {
                    this.items = [
@@ -43,8 +45,9 @@ Ext.define('EMS.view.Antibodies.Edit', {
                                 items: [
                                     {
                                         xtype: 'textfield',
-                                        name : 'lname',
-                                        fieldLabel: 'Antibodie'
+                                        name : 'Antibody',
+                                        anchor: '100%',
+                                        fieldLabel: 'Antibody'
                                     }
                                 ]
                             }

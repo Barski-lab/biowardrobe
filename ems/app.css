@@ -174,9 +174,31 @@
 }
 
 .folder-document {
-    background-image: url( images/folder-document.png ) !important;
+    background-image: url( images/folder_document.png ) !important;
     width: 16px;
     height: 16px;
 }
 
+.army-knife {
+    background-image: url( images/army_knife.png ) !important;
+    width: 16px;
+    height: 16px;
+}
 
+.genome-browser {
+    background-image: url( images/genome_browser.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.atom {
+    background-image: url( images/atom.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.bottle-pills {
+    background-image: url( images/bottle_of_pills.png ) !important;
+    width: 16px;
+    height: 16px;
+}
