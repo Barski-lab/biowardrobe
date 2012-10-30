@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 ##
-## Fence creator, count frequence of of character at sequence
+## Fence creator, count frequency of nucleotides in sequence
 ##
 ##
 ##
@@ -34,7 +34,6 @@ for line in FP_N:
 
   if len(line)-1 != length:
    error_len=true
-   
    continue
   else:
 

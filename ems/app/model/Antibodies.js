@@ -32,22 +32,5 @@ Ext.define( 'EMS.model.Antibodies', {
 //                       type: 'hasMany',
 //                       autoLoad: true
 //                   }],
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/records.json?tablename=Antibodies',
-                       update: '/cgi-bin/barski/recordsUp.json'
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true
-                   }
-               },
                hasMany: { model: 'LabData', foreignKey: 'antibodies_id'}
            });

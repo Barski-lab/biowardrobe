@@ -20,29 +20,76 @@
 **
 ****************************************************************************/
 
+
 Ext.define('EMS.view.Antibodies.List' ,{
                extend: 'Ext.grid.Panel',
                alias : 'widget.antibodieslist',
-
+               frame: true,
 
                initComponent: function() {
 
-                   Ext.apply(this, {
+                   var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+                                                    clicksToEdit: 1
+                                                });
 
-                                 store: {
-                                     autoLoad: true,
-                                     model: 'EMS.model.Antibodies',
-                                     listeners: {
-                                         load: function() {
-                                             Logger.log('Antibodies store loaded');
-                                         }
-                                     }
-                                 },
+                   Ext.apply(this, {
+                                 store: EMS.store.Antibodies,
+                                 //                                 store: {
+                                 //                                     autoLoad: true,
+                                 //                                     model: 'EMS.model.Antibodies',
+                                 //                                     listeners: {
+                                 //                                         load: function() {
+                                 //                                             Logger.log('Antibodies store loaded');
+                                 //                                         }
+                                 //                                     }
+                                 //                                 },
 
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Antibody', dataIndex: 'Antibody', flex: 1}
-                                 ]
+                                     {header: 'Antibody', dataIndex: 'Antibody', flex: 1, editor: { allowBlank: false} },
+                                     {
+                                         xtype: 'actioncolumn',
+                                         width:40,
+                                         sortable: false,
+                                         items: [{
+                                                 iconCls: 'table-row-delete',
+                                                 tooltip: 'Delete Antibody',
+                                                 handler: function(grid, rowIndex, colIndex) {
+                                                     EMS.store.Antibodies.removeAt(rowIndex);
+                                                 }
+                                             }]
+                                     }
+                                 ],
+                                 plugins: [cellEditing],
+                                 tbar: [
+                                     {
+                                         text:'New',
+                                         tooltip:'Add a new antibody',
+                                         //                                action: 'Add',
+                                         handler : function(){
+                                             var r = Ext.create('EMS.model.Antibodies', {
+                                                                    Antibody: 'New Antibody'
+                                                                });
+                                             EMS.store.Antibodies.insert(0, r);
+                                             cellEditing.startEditByPosition({row: 0, column: 1});
+                                         },
+                                         iconCls:'table-row-add'
+                                     },
+                                     {
+                                         text:'Save',
+                                         tooltip:'Save changes',
+                                         //                                action: 'Add',
+                                         handler : function(){
+//                                             EMS.store.Antibodies.save();
+                                             EMS.store.Antibodies.sync();
+                                         },
+                                         iconCls:'table2-check'
+                                     }, '-',
+                                     Ext.create('Ext.PagingToolbar', {
+                                                    store: EMS.store.Antibodies
+                                                })
+                                 ]//tbar
+
                              });
                    this.callParent(arguments);
                }

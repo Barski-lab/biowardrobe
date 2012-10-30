@@ -28,7 +28,9 @@ AverageDensity::AverageDensity(QObject* parent):
 QObject(parent)
 {
 }
-
+/*
+ * calculating mean between end and begin in a QList of type T
+ */
 template<typename T>
 T AverageDensity::mean(const QList<T>& list,const int& begin,const int& end)
 {
@@ -41,6 +43,9 @@ T AverageDensity::mean(const QList<T>& list,const int& begin,const int& end)
     return (tmp/(end-begin+1));
 }
 
+/*
+ * Smooth data in a QList with span
+ */
 template<typename T>
 QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 {
@@ -104,8 +109,7 @@ void AverageDensity::start()
         while(!inFiles.atEnd())
         {
             QString label = inFiles.readLine();
-            if(label.isEmpty() || label.isNull()) break;
-            if(label.at(0)==QChar('#')) continue;
+            if(label.isEmpty() || label.isNull() || label.at(0)==QChar('#')) continue;
             QString line = inFiles.readLine();
             if(line.isEmpty() || line.isNull() || line.at(0)==QChar('#')) throw "Error in batch with files";
             fileLabels.append(label);
@@ -218,9 +222,9 @@ void AverageDensity::start()
                     arg(gArgs().getArgs("plot_ext").toString()).
                     arg(gArgs().fileInfo("out").baseName().replace('_',' '));
 
-            QString _plots=QString("\"%1\" u 1:2 with lines").arg(gArgs().getArgs("out").toString());
+            QString _plots=QString("\"%1\" u 1:2 with lines lc 2").arg(gArgs().getArgs("out").toString());
             for(int i=1;i<total_plots;i++)
-                _plots+=QString(", \\\n\"%1\" u 1:%2 with lines").arg(gArgs().getArgs("out").toString()).arg(i+2);
+                _plots+=QString(", \\\n\"%1\" u 1:%2 with lines lc %3").arg(gArgs().getArgs("out").toString()).arg(i+2).arg(i+2);
             outFile.setFileName(gArgs().fileInfo("out").baseName()+".plt");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
             outFile.write(plt.toAscii());

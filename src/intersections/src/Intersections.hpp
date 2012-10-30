@@ -56,6 +56,7 @@ public:
 
     void outData(string_map_segments&,string_map_segments&,string_map_segments&,string_map_segments&,int);
 
+
 signals:
     void finished(void);
 };

@@ -33,18 +33,16 @@ from optparse import OptionParser
 ##
 ##
 class Arguments:
-#    argv = None
-#    parser = None
-#    opt = None
-#    settings = None
+
     def __init__(self,a):
 	self.argv=a
 	self.parser = OptionParser()
 	self.parser.add_option("", "--in", action="store", type="string",
                   dest="infile", help="input file", metavar="<file>")
+	self.parser.add_option("", "--id", action="store", type="int",
+                  dest="id", help="record id", metavar="<int>")
 	(self.opt, args) = self.parser.parse_args(self.argv)
 	self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.UserScope,"genome-tools")
-	
 
 
 

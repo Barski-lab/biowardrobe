@@ -219,7 +219,7 @@ void Arguments::argsList(void)
     Arguments::addArg("log","log","logFileName",QVariant::String,"log file name (default is ./logfile_def.log)",QString("./logfile_def.log"));
 
     Arguments::addArg("sql_driver","","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));
-    Arguments::addArg("sql_dbname","","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));
+    Arguments::addArg("sql_dbname","sql_dbname","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));
     Arguments::addArg("sql_host","sql_host","SQL/HOST",QVariant::String,"Database hostname",QString("10.200.42.25"));
     Arguments::addArg("sql_port","sql_port","SQL/PORT",QVariant::Int,"Database port",3306);
     Arguments::addArg("sql_user","sql_user","SQL/USER",QVariant::String,"Database user",QString("root"));

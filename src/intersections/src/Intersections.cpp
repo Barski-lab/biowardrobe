@@ -38,8 +38,8 @@
     \
     _outFile.write( QString("%1\t%2\t%3\n").                                                                                                     \
     arg(chr).arg(itv.lower()).arg(itv.upper()).toLocal8Bit() );                                                                  \
-}                                                                                                                                                 \
-}                                                                                                                                                   \
+    }                                                                                                                                                 \
+    }                                                                                                                                                   \
     _outFile.flush();                                                                                                                                   \
     _outFile.close();
 
@@ -48,7 +48,7 @@
 /*************************************************************************************************************
 **************************************************************************************************************/
 FSTM::FSTM(QObject *parent):
-QObject(parent)
+    QObject(parent)
 {
 }
 
@@ -86,8 +86,8 @@ void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
     {
         //typename T::interval_type itv1  = getFirst<typename T::interval_type,typename T::segment_type>(*it1);
         //typename T::interval_type itv2  = getFirst<typename T::interval_type,typename T::segment_type>(*it2);
-//        typename T::interval_type itv1  = getFirst(*it1);
-//        typename T::interval_type itv2  = getFirst(*it2);
+        //        typename T::interval_type itv1  = getFirst(*it1);
+        //        typename T::interval_type itv2  = getFirst(*it2);
         IntervalType itv1  = bicl::key_value<T>(it1);
         IntervalType itv2  = bicl::key_value<T>(it2);
 
@@ -178,12 +178,19 @@ void FSTM::start()
                 g_key=Q;
                 continue;
             }
+            //save in map QMap[chromosome]
             genome[g_key].append(Q.toLocal8Bit());
         }
         genomeFile.close();
     }
 
     /*Working on batch file filling QL and PFL*/
+    if(!gArgs().fileInfo("batch").exists())
+    {
+        qDebug()<<"error opening batch:"<<gArgs().getArgs("batch").toString();
+        emit finished();
+        return;
+    }
     QFile batchFile;
     batchFile.setFileName(gArgs().getArgs("batch").toString());
     batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
@@ -206,7 +213,7 @@ void FSTM::start()
 
 
 
-    QFile _outFile;
+
 
     QList<int>** b_values;
     b_values=new QList<int>* [QL.size()/2];
@@ -217,11 +224,11 @@ void FSTM::start()
 
         string_map_segments chr_intervals_P1;//Peaks
         string_map_segments chr_intervals_P2;//Peaks
-
+        //loading bed files, names from batch file, ith and (i+1)th position
         loadBed< string_map_segments >(chr_intervals_P1,PFL.at(i));
         loadBed< string_map_segments >(chr_intervals_P2,PFL.at(i+1));
 
-        /*loading segments from database(SQL) queries sicer*/
+        /*loading segments from database(SQL) queries sicer, queries from batch file*/
         string_map_segments chr_intervals_Q1;//SQL, sicer segments ?
         string_map_segments chr_intervals_Q2;//SQL
 
@@ -362,20 +369,32 @@ void FSTM::start()
         qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
     }
 
-
+    QFile _outFile;
     _outFile.setFileName(gArgs().getArgs("out").toString());
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+
+    QFile TSSfile;
+    TSSfile.setFileName("TSS.fa");
+    TSSfile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
     //_outFile.write(QString("NAME,N_E,N_C,E_C\n").toLocal8Bit() );
     int c=0;
     while(q.next())
     {
+        int frame=2000;
+        int tss=q.value(1).toInt();
+        int left=tss-frame/2;
+        QString chr=q.value(0).toString();
+        TSSfile.write(QString(">%1\n%2\n").arg(q.value(2).toString()).arg(genome[chr].mid(left,frame).data()).toLocal8Bit());
+
         _outFile.write(QString("\"%1\"").arg(q.value(2).toString()).toLocal8Bit() );
         for(int j=0; j<QL.size()/2;j++)
             _outFile.write(QString(",%1").arg(b_values[j]->at(c)).toLocal8Bit() );
         _outFile.write(QString("\n").toLocal8Bit() );
         c++;
     }
+    TSSfile.flush();
+    TSSfile.close();
     _outFile.flush();
     _outFile.close();
 
@@ -385,11 +404,14 @@ void FSTM::start()
     emit finished();
 }
 
+/*************************************************************************************************************
+**************************************************************************************************************/
+
 
 /*************************************************************************************************************
 **************************************************************************************************************/
 void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& chr_intervals_r_Q1,
-    string_map_segments& chr_intervals_P2, string_map_segments& chr_intervals_r_Q2,int j)
+                   string_map_segments& chr_intervals_P2, string_map_segments& chr_intervals_r_Q2,int j)
 {
     QFile _outFile;
     int ajust_win=200;
@@ -406,10 +428,8 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
 
         for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
         {
-            //            int start=getFirst<current_segment_type::interval_type,current_segment_type::segment_type>(*it).lower();
-            //            int end=getFirst<current_segment_type::interval_type,current_segment_type::segment_type>(*it).upper();
-            int start=getFirst(*it).lower()-ajust_win;
-            int end=getFirst(*it).upper()+ajust_win;
+            int start=(bicl::key_value<current_segment_type>(it)).lower()-ajust_win;
+            int end=(bicl::key_value<current_segment_type>(it)).upper()+ajust_win;
             int len=end-start;
             //_outFile.write(QString("%1,%2,%3,%4,%5\n").arg(key).
             //    arg(start).
@@ -417,20 +437,20 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
             //    arg(len).
             //    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             _outFile.write(QString(">%1:%2-%3\n%5\n").
-                arg(key).
-                arg(start).
-                arg(end).
-                arg(genome[key].mid(start,len).data()).toLocal8Bit() );
+                           arg(key).
+                           arg(start).
+                           arg(end).
+                           arg(genome[key].mid(start,len).data()).toLocal8Bit() );
         }
     }
 
     foreach(const QString key, chr_intervals_P1.keys())
     {
-//        current_segment_type &tmp = chr_intervals_r_Q1[key];
+        //        current_segment_type &tmp = chr_intervals_r_Q1[key];
 
         for(current_segment_type::const_iterator it = chr_intervals_r_Q1[key].begin(); it != chr_intervals_r_Q1[key].end(); it++)
         {
-            current_segment_type::interval_type itv  = getFirst(*it);
+            current_segment_type::interval_type itv  = bicl::key_value<current_segment_type>(it);
 
             if(!intersects(chr_intervals_P1[key],itv) )
             {
@@ -441,9 +461,9 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                 end=mid+ajust_win;
                 int len=end-start;
                 _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
-                    arg(start).
-                    arg(end).
-                    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
+                               arg(start).
+                               arg(end).
+                               arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             }
         }
     }
@@ -459,28 +479,28 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     {
         current_segment_type tmp;
         tmp=chr_intervals_P2[key] & chr_intervals_r_Q2[key];
-//        tmp=chr_intervals_P2[key] & store2[key];
+        //        tmp=chr_intervals_P2[key] & store2[key];
         for(current_segment_type::const_iterator it = tmp.begin(); it != tmp.end(); it++)
         {
-            int start=getFirst(*it).lower()-ajust_win;
-            int end=getFirst(*it).upper()+ajust_win;
+            int start=(bicl::key_value<current_segment_type>(it)).lower()-ajust_win;
+            int end=(bicl::key_value<current_segment_type>(it)).upper()+ajust_win;
             int len=end-start;
             _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
-                arg(start).
-                arg(end).
-                arg(genome[key].mid(start,len).data()).toLocal8Bit() );
+                           arg(start).
+                           arg(end).
+                           arg(genome[key].mid(start,len).data()).toLocal8Bit() );
         }
     }
 
     foreach(const QString key, chr_intervals_P2.keys())
     {
-//        current_segment_type &tmp = chr_intervals_r_Q2[key];
-//        tmp=chr_intervals_r_Q2[key];
-//        tmp=store2[key];
+        //        current_segment_type &tmp = chr_intervals_r_Q2[key];
+        //        tmp=chr_intervals_r_Q2[key];
+        //        tmp=store2[key];
 
         for(current_segment_type::const_iterator it = chr_intervals_r_Q2[key].begin(); it != chr_intervals_r_Q2[key].end(); it++)
         {
-            current_segment_type::interval_type itv  = getFirst(*it);
+            current_segment_type::interval_type itv  = bicl::key_value<current_segment_type>(it);
 
             if(!intersects(chr_intervals_P2[key],itv) )
             {
@@ -491,9 +511,9 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
                 end=mid+ajust_win;
                 int len=end-start;
                 _outFile.write(QString(">%1:%2-%3\n%5\n").arg(key).
-                    arg(start).
-                    arg(end).
-                    arg(genome[key].mid(start,len).data()).toLocal8Bit() );
+                               arg(start).
+                               arg(end).
+                               arg(genome[key].mid(start,len).data()).toLocal8Bit() );
             }
         }
     }
@@ -509,22 +529,22 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())
     {
-//        current_segment_type &tmp = chr_intervals_r_Q1[key];
-//        tmp=chr_intervals_r_Q1[key];
+        //        current_segment_type &tmp = chr_intervals_r_Q1[key];
+        //        tmp=chr_intervals_r_Q1[key];
 
         for(current_segment_type::const_iterator it = chr_intervals_r_Q1[key].begin(); it != chr_intervals_r_Q1[key].end(); it++)
         {
-            current_segment_type::interval_type itv  = getFirst(*it);
+            current_segment_type::interval_type itv  = bicl::key_value<current_segment_type>(it);
 
             if(!intersects(chr_intervals_P1[key],itv) )
             {
                 int start=itv.lower();
                 int end=itv.upper();
                 _outFile.write(QString("%1,%2,%3\n").
-                    arg(key).
-                    arg(start).
-                    arg(end).
-                    toLocal8Bit() );
+                               arg(key).
+                               arg(start).
+                               arg(end).
+                               toLocal8Bit() );
             }
         }
     }
@@ -535,22 +555,22 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())
     {
-//        current_segment_type &tmp = chr_intervals_r_Q2[key];
-//        tmp=chr_intervals_r_Q2[key];
+        //        current_segment_type &tmp = chr_intervals_r_Q2[key];
+        //        tmp=chr_intervals_r_Q2[key];
 
         for(current_segment_type::const_iterator it = chr_intervals_r_Q2[key].begin(); it != chr_intervals_r_Q2[key].end(); it++)
         {
-            current_segment_type::interval_type itv  = getFirst(*it);
+            current_segment_type::interval_type itv  = bicl::key_value<current_segment_type>(it);
 
             if(!intersects(chr_intervals_P2[key],itv) )
             {
                 int start=itv.lower();
                 int end=itv.upper();
                 _outFile.write(QString("%1,%2,%3\n").
-                    arg(key).
-                    arg(start).
-                    arg(end).
-                    toLocal8Bit() );
+                               arg(key).
+                               arg(start).
+                               arg(end).
+                               toLocal8Bit() );
             }
         }
     }

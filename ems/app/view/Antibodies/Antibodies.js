@@ -20,50 +20,28 @@
 **
 ****************************************************************************/
 
+
 Ext.define('EMS.view.Antibodies.Antibodies', {
                extend: 'Ext.Window',
                alias : 'widget.AntibodiesWindow',
-               width: 350,
+               width: 400,
                height: 250,
-               minWidth: 350,
+               minWidth: 400,
                minHeight: 250,
                title: 'List of Antibodies',
                closable: true,
                maximizable: true,
                closeAction: 'hide',
-               constrain: true,
-               overflowY : 'scroll',
+               //               constrain: true,
+               //               overflowY : 'scroll',
                iconCls: 'battery-green',
 
                layout: 'fit',
 
 
                initComponent: function() {
-                   this.items = [
-                            Ext.create('EMS.view.Antibodies.List')
-                        ];
-                   this.tbar = [
-                            {
-                                text:'New',
-                                tooltip:'Add a new antibody',
-                                action: 'Add',
-                                iconCls:'table-row-add'
-                            }, '-',
-                            Ext.create('Ext.PagingToolbar', {
-                                           store: {
-                                               autoLoad: true,
-                                               model: 'EMS.model.Antibodies',
-                                               pageSize: 30,
-                                               listeners: {
-                                                   load: function() {
-                                                       Logger.log('Antibodies store loaded');
-                                                   }
-                                               }
-                                           }
-
-                                       })
-                        ];//tbar
-
+                   this.items =  Ext.create('EMS.view.Antibodies.List');
+                                              //Ext.getCmp('EMSMenu').add(ExperimentsWindow);
                    this.callParent(arguments);
                }
 
