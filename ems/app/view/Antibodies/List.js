@@ -24,7 +24,7 @@
 Ext.define('EMS.view.Antibodies.List' ,{
                extend: 'Ext.grid.Panel',
                alias : 'widget.antibodieslist',
-               frame: true,
+               //               frame: true,
 
                initComponent: function() {
 
@@ -49,7 +49,7 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                      {header: 'Antibody', dataIndex: 'Antibody', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
-                                         width:40,
+                                         width:35,
                                          sortable: false,
                                          items: [{
                                                  iconCls: 'table-row-delete',
@@ -80,8 +80,11 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                          tooltip:'Save changes',
                                          //                                action: 'Add',
                                          handler : function(){
-//                                             EMS.store.Antibodies.save();
-                                             EMS.store.Antibodies.sync();
+                                             EMS.store.Antibodies.sync({
+                                                                           success: function (batch, options) {
+                                                                               console.log('Sync successed' ,batch, options);
+                                                                               EMS.store.Antibodies.load();
+                                                                           }});
                                          },
                                          iconCls:'table2-check'
                                      }, '-',

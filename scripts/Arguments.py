@@ -43,6 +43,8 @@ class Arguments:
                   dest="id", help="record id", metavar="<int>")
 	(self.opt, args) = self.parser.parse_args(self.argv)
 	self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.UserScope,"genome-tools")
+	if not self.settings.isWritable():
+ 	 self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.SystemScope,"genome-tools")
 
 
 
@@ -53,6 +55,9 @@ class Arguments:
 
 
     def readPass(self,name):
-	return QtCore.qUncompress(QtCore.QByteArray.fromBase64(self.settings.value(name, QtCore.QVariant()).toByteArray()))
+	return str(QtCore.qUncompress(QtCore.QByteArray.fromBase64(self.settings.value(name, QtCore.QVariant()).toByteArray())))
+
+    def readString(self,name):
+	return str(self.settings.value(name, QtCore.QVariant()).toString())
 
 

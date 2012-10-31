@@ -27,8 +27,6 @@ Ext.define( 'EMS.store.Antibodies', {
                model:  'EMS.model.Antibodies',
                autoLoad: false,
                singleton: true,
-               success: function() { Ext.Msg.alert('Success'); },
-               failure: function() { Ext.Msg.alert('Fail'); },
                proxy:{
                    type: 'ajax',
                    api: {
@@ -42,12 +40,12 @@ Ext.define( 'EMS.store.Antibodies', {
                        //                               password: Ext.util.JSON.decode(window.localStorage.getItem('settings')).password
                        tablename:  'Antibodies'
                    },
-//                   actionMethods: {
-//                           create: 'GET',
-//                           read: 'GET',
-//                           update: 'GET',
-//                           destroy: 'GET'
-//                       },
+                   //                   actionMethods: {
+                   //                           create: 'GET',
+                   //                           read: 'GET',
+                   //                           update: 'GET',
+                   //                           destroy: 'GET'
+                   //                       },
                    reader: {
                        type: 'json',
                        root: 'data',
@@ -56,9 +54,60 @@ Ext.define( 'EMS.store.Antibodies', {
                    writer: {
                        type: 'json',
                        root: 'data',
-                       writeAllFields: true
-//                       encode: true
-                   }
-               },
+                       writeAllFields: true,
+                       encode: true
+                   },
+//                   afterRequest: function(request, success) {
+//                       if(request.action==='create' && typeof request.operation.response !== 'undefined')
+//                       {
+//                           console.log("", request.operation.response);
+//                           var string= request.operation.response.responseText;
+//                           var decodedString = Ext.decode(string);
+//                           console.log(decodedString);
+//                           Ext.Msg.alert('Success');
+//                       }
+//                       if(request.action==='create' && typeof request.operation.response === 'undefined')
+//                       {
+//                           Ext.Msg.alert('Failure');
+//                       }
+//                   },
+                   listeners: {
+                       exception: function(proxy, response, operation) {
+
+                           // response contains responseText, which has the message
+                           // but in unparsed Json (see below)
+                           console.log(proxy, response, operation);
+                           try{
+                               var json = Ext.decode(response.responseText);
+                               if (json) {
+                                   //detl.getForm().markInvalid(json.errors);
+                                   Ext.MessageBox.show({
+                                                           title: 'Save Failed',
+                                                           msg: json.message,
+                                                           icon: Ext.MessageBox.ERROR,
+                                                           buttons: Ext.Msg.OK
+                                                       });
+                                   console.log('Save failed:',json.message,' error:',json.errors);
+                               } else
+                               {
+                                   Ext.MessageBox.show({
+                                                           title: 'Save Failed',
+                                                           msg: operation.getError(),
+                                                           icon: Ext.MessageBox.ERROR,
+                                                           buttons: Ext.Msg.OK
+                                                       });
+                               }
+                           }
+                           catch(Error)
+                           {
+                               Ext.Msg.show({
+                                                       title: 'Save Failed',
+                                                       msg: 'Error in "'+operation.action+'" operation',
+                                                       icon: Ext.Msg.ERROR,
+                                                       buttons: Ext.Msg.OK
+                                                   });
+                           }
+                       }}
+               }
            });
 

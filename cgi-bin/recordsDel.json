@@ -1,0 +1,98 @@
+#! /usr/bin/env python
+
+import os
+import sys
+import MySQLdb
+#import warnings
+import cgitb; cgitb.enable()
+import cgi
+import urllib
+import urlparse
+import simplejson
+import Arguments
+
+
+def error_msg(msg):
+ print """
+   {"success": false, "message": "%s" }"""%(msg)
+ sys.exit()
+
+arguments = Arguments.Arguments(sys.argv)
+
+
+stdinbuf = sys.stdin.read()
+if stdinbuf is None:
+ error_msg("No data")
+
+url_parse = dict(urlparse.parse_qs(stdinbuf))
+if url_parse['tablename'][0] is None:
+ error_msg("Empty table name")
+if url_parse['data'][0] is None:
+ error_msg("No data")
+
+table_name=url_parse['tablename'][0]
+jsondata = simplejson.loads(url_parse['data'][0])
+
+if jsondata is None:
+ error_msg("No data")
+
+try:
+ conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
+ cursor = conn.cursor ()
+except Exception, e: 
+ error_msg("Error database connection")
+
+
+try:
+ SQL=str()
+ is_str=0
+ pair=str()
+
+ for rows in jsondata:
+
+  #if just one new record
+  if type(rows) is str:
+   if rows != 'id':
+    continue
+   pair+=str(rows).replace("'","").replace('"','').replace(';','')+"="+str(int(jsondata[rows]))
+   is_str=is_str+1
+   continue
+  else:
+  #if many records
+   for i in rows:
+    if str(i) != 'id':
+     continue
+
+    pair+=str(i).replace("'","").replace('"','').replace(';','')+"="+str(int(rows[i]))+" and "
+
+  #remove last [ or ]
+  pair=pair[:-4]
+  STR="""delete from `%s` where %s;"""%(table_name,pair)
+  SQL+=STR
+  pair=str()
+
+ if is_str > 0:
+  STR="""delete from `%s` where %s;"""%(table_name,pair)
+  SQL+=STR
+
+
+ cursor.execute(SQL)
+ cursor.close()
+ conn.commit()
+ conn.close()
+
+ print """
+  {"success": true, "message": "Data saved" }"""
+
+except Exception, e:
+ cursor.close()
+ conn.rollback()
+ conn.close()
+ Error_str=str(e).replace('"','')
+
+ if 'Duplicate' in Error_str:
+  error_msg(Error_str)
+
+ error_msg("Error inserting: " +Error_str+"<br>'"+SQL+"' ")
+
+

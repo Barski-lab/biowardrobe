@@ -1,0 +1,42 @@
+#! /usr/bin/env python
+
+#import os
+#import sys
+#import MySQLdb
+#import warnings
+import cgi
+
+form = cgi.FieldStorage()
+#table_name=str(form["tablename"].value)
+
+
+#FP_N=open(sys.argv[1],'r')
+FP_N=open('test.fence','r')
+
+FP_N.readline()
+
+CA=FP_N.readline().split()
+CC=FP_N.readline().split()
+CT=FP_N.readline().split()
+CG=FP_N.readline().split()
+FP_N.close()
+
+comma=""
+
+
+print """
+{"success":true, "data":[""",
+
+for i in range(1,len(CA)):
+
+ print """%s{"""%(comma),
+ print """ "id":"%d", """%(i),
+ print """ "A":"%s", """%(CA[i]),
+ print """ "C":"%s", """%(CC[i]),
+ print """ "T":"%s", """%(CT[i]),
+ print """ "G":"%s" """%(CG[i]),
+ print """}""",
+ comma=","
+
+print """]}"""
+
