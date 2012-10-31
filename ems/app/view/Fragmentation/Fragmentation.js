@@ -21,31 +21,25 @@
 ****************************************************************************/
 
 
-Ext.define( 'EMS.store.Genome', {
-    extend: 'Ext.data.Store',
+Ext.define('EMS.view.Fragmentation.Fragmentation', {
+               extend: 'Ext.Window',
+               alias : 'widget.Fragmentation',
+               width: 400,
+               height: 250,
+               minWidth: 400,
+               minHeight: 250,
+               title: 'List of Fragmentation Types',
+               closable: true,
+               maximizable: true,
+               closeAction: 'hide',
+               iconCls: 'army-knife',
 
-    requires: ['EMS.model.Genome'],
-    storeId: 'Genome',
-    model:  'EMS.model.Genome',
-    autoLoad: false,
-    singleton: true,
+               layout: 'fit',
 
-    proxy:{
-           type: 'ajax',
-           api: {
-            read : '/cgi-bin/barski/records.json?tablename=Genome',
-            update: '/cgi-bin/barski/recordsUp.json'
-           },
-           reader: {
-            type: 'json',
-            root: 'data',
-            successProperty: 'success'
-           },
-           writer: {
-            type: 'json',
-            root: 'data',
-            writeAllFields: true
-            }
-          }
-});
 
+               initComponent: function() {
+                   this.items =  Ext.create('EMS.view.Fragmentation.List');
+                   this.callParent(arguments);
+               }
+
+           });

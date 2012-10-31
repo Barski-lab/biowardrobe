@@ -129,4 +129,9 @@ OTHER_FILES += \
     app/view/Antibodies/List.js \
     app/view/Antibodies/Edit.js \
     app/controller/AntibodiesEdit.js \
-    app/view/Antibodies/Antibodies.js
+    app/view/Antibodies/Antibodies.js \
+    app/view/ExperimentType/List.js \
+    app/view/ExperimentType/ExperimentType.js \
+    app/view/Fragmentation/List.js \
+    app/view/Fragmentation/Fragmentation.js \
+    app/controller/FragmentationEdit.js

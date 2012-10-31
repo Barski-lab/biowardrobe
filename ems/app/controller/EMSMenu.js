@@ -27,7 +27,7 @@ Ext.require([
                 'Ext.ux.IFrame'
             ]);
 
-var ExperimentsWindow,WorkersEditWindow,FenceChartWindow;//,AntibodiesEditWindow;
+var ExperimentsWindow,WorkersEditWindow,FenceChartWindow;
 
 //Ext.require('EMS.view.ExperimentsWindow');
 
@@ -71,7 +71,7 @@ Ext.define('EMS.controller.EMSMenu', {
                            Ext.getCmp('EMSMenu').add(ExperimentsWindow);
                        }
                        if(ExperimentsWindow.isVisible()){
-                           ExperimentsWindow.hide(); }
+                           ExperimentsWindow.focus(); }
                        else {
                            ExperimentsWindow.show(); }
                    }
@@ -85,7 +85,7 @@ Ext.define('EMS.controller.EMSMenu', {
                            Ext.getCmp('EMSMenu').add(ExperimentsWindow);
                        }
                        if(WorkersEditWindow.isVisible()){
-                           WorkersEditWindow.hide(); }
+                           WorkersEditWindow.focus(); }
                        else {
                            WorkersEditWindow.show(); }
                    }
@@ -99,9 +99,35 @@ Ext.define('EMS.controller.EMSMenu', {
                            Ext.getCmp('EMSMenu').add(this.AntibodiesEditWindow);
                        }
                        if(this.AntibodiesEditWindow.isVisible()){
-                           this.AntibodiesEditWindow.hide(); }
+                           this.AntibodiesEditWindow.focus(); }
                        else {
                            this.AntibodiesEditWindow.show(); }
+                   }
+                   /*
+                     Create window with Experiment Type list
+                   */
+                   if(menuitem.action === "ExpType"){
+                       if(typeof this.ExpTypeEditWindow === 'undefined' || !this.ExpTypeEditWindow){
+                           this.ExpTypeEditWindow=Ext.create('EMS.view.ExperimentType.ExperimentType',{});
+                           Ext.getCmp('EMSMenu').add(this.ExpTypeEditWindow);
+                       }
+                       if(this.ExpTypeEditWindow.isVisible()){
+                           this.ExpTypeEditWindow.focus(); }
+                       else {
+                           this.ExpTypeEditWindow.show(); }
+                   }
+                   /*
+                     Create window with Fragmentation list
+                   */
+                   if(menuitem.action === "FragmentType"){
+                       if(typeof this.FragmentationEditWindow === 'undefined' || !this.FragmentationEditWindow){
+                           this.FragmentationEditWindow=Ext.create('EMS.view.Fragmentation.Fragmentation',{});
+                           Ext.getCmp('EMSMenu').add(this.FragmentationEditWindow);
+                       }
+                       if(this.FragmentationEditWindow.isVisible()){
+                           this.FragmentationEditWindow.focus(); }
+                       else {
+                           this.FragmentationEditWindow.show(); }
                    }
 
                    /*

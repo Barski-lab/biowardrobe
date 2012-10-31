@@ -78,7 +78,8 @@ Ext.application({
                         'EMS.controller.GenomeEdit',
                         'EMS.controller.AntibodiesEdit',
                         'EMS.controller.ProtocolEdit',
-                        'EMS.controller.ExperimentTypeEdit'
+                        'EMS.controller.ExperimentTypeEdit',
+                        'EMS.controller.FragmentationEdit'
                     ],
 
 

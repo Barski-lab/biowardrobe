@@ -24,33 +24,7 @@ Ext.define('EMS.controller.ExperimentTypeEdit', {
                extend: 'Ext.app.Controller',
                stores: ['ExperimentType'],
                models: ['ExperimentType'],
-
-               //    views: ['user.Edit', 'user.List'],
                init: function() {
-                   this.control({
-                                    'some grid': {
-                                        itemdblclick: this.edit
-                                    },
-                                    'some button[action=save]': {
-                                        click: this.update
-                                    }
-                                });
                    this.getExperimentTypeStore().load();
                },
-
-               edit: function(grid, record) {
-                   //        var edit = Ext.create('EMS.view.user.Edit').show();
-                   //        edit.down('form').loadRecord(record);
-               },
-
-               update: function(button) {
-//                   var win = button.up('window'),
-//                           form   = win.down('form'),
-//                           record = form.getRecord(),
-//                           values = form.getValues();
-
-//                   record.set(values);
-//                   win.close();
-//                   this.getExperimentTypeStore().sync();
-               }
            });

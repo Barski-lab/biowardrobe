@@ -34,22 +34,4 @@ Ext.define( 'EMS.model.ExperimentType', {
                //        autoLoad: true
                //    }],
                hasMany: { model: 'LabData', foreignKey: 'experimenttype_id' },
-
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/records.json?tablename=ExperimentType',
-                       update: '/cgi-bin/barski/recordsUp.json'
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true
-                   }
-               }
            });
