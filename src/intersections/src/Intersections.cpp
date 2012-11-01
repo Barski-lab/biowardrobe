@@ -418,7 +418,6 @@ void FSTM::outData(string_map_segments& chr_intervals_P1,string_map_segments& ch
 
     /*print result of uniq segments with peaks in A and B*/
 
-    //_outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.csv").arg(j));
     _outFile.setFileName(gArgs().fileInfo("out").baseName()+QString("_inA_%1.fasta").arg(j));
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     foreach(const QString key, chr_intervals_P1.keys())

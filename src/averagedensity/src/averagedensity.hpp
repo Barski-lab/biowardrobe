@@ -27,13 +27,13 @@
 #include <Reads.hpp>
 #include <SqlReader.hpp>
 #include <SamReader.hpp>
-#include <AVDHandler.hpp>
+//#include <AVDHandler.hpp>
 
 #define FSTM AverageDensity
 
 typedef genome::GenomeDescription gen_lines;
 
-typedef AVDHandler<gen_lines,gen_lines,HandledData> AVD_Handler;
+//typedef AVDHandler<gen_lines,gen_lines,HandledData> AVD_Handler;
 
 class sam_reader_thread;
 
@@ -43,7 +43,7 @@ class AverageDensity: public QObject
 private:
 
     //States
-    AVD_Handler                 *s3;
+//    AVD_Handler                 *s3;
     QList<gen_lines*>           sam_data;
     QList<sam_reader_thread*>   t_queue;
     QSqlQuery                   q;
@@ -88,6 +88,7 @@ public:
     }
 
 };
+
 
 
 #endif

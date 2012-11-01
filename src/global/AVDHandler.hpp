@@ -46,6 +46,7 @@ public:
 //    void onEntry1(QEvent* event);
     void AVD1(void);
     void AVD2(void);
+    //void AVD3(quint64 start,quint64 end,QString chrome ,bool reverse,quint64 shift,quint64 mapping,StorageIn2 input,Result result);
 
 protected:
 

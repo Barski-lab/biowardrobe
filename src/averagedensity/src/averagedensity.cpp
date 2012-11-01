@@ -24,8 +24,94 @@
 #include "averagedensity.hpp"
 
 
+
+//-------------------------------------------------------------
+//-------------------------------------------------------------
+
+
+template<class T>
+void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator& e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
+{
+    quint64 length=end-start;
+    float coef=(float)mapping/(float)length;
+    length--;//because start position is 0
+    /*if iterator points not to the begining of segment*/
+    while(i!=e && (int)((int)i.key()-start)<0) i++;
+    quint64 position;/*current point*/
+    //    qDebug()<<"start:"<<start<<" end:"<<end<<" position:"<<position<<" coef:"<<coef;
+    if(!reverse)
+    {
+        /*if coefficient less then one then data is compressed*/
+        if(coef<=1.0)
+        {
+            while(i!=e && (position=i.key()-start) <= length)
+            {
+                double value=i.value().getLevel();
+                //                qDebug()<<"shift:"<<shift<<" position:"<<position<<" coef:"<<coef<<" length:"<<length <<" index:"<< (shift+(int)(coef*position));
+                result[shift+(int)(coef*position)]+=value;
+                ++i;
+            }
+        }
+        /*if coefficient more then one data should be multiplied, when mapping is applied*/
+        else
+        {
+            while(i!=e && (position=i.key()-start) <= length)
+            {
+                double value=i.value().getLevel();
+                quint64 map_end=(quint64)(coef*(position+1));
+                if(map_end>mapping)
+                    map_end=mapping;
+                for(quint64 c=(quint64)(coef*position);c<=map_end;c++)
+                    result[shift+c]+=value;
+                ++i;
+            }
+        }
+    }
+    else
+    {
+        if(coef<=1.0)
+        {
+            while(i!=e && (position=i.key()-start) <= length)
+            {
+                double value=i.value().getLevel();
+                result[shift+length-(int)(coef*position)]+=value;
+                ++i;
+            }
+        }
+    }
+}
+//-------------------------------------------------------------
+//-------------------------------------------------------------
+template <class StorageIn,class Result>
+void AVD3(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,StorageIn* input,Result& result)
+{
+    genome::cover_map::iterator iterator;
+    /*
+    reads, end iterator,positive strand
+    */
+    genome::cover_map::iterator e_p=input->getLineCover(chrome+QChar('+')).getEndIterator();
+    /*
+    reads, end iterator, negative strand
+    */
+    genome::cover_map::iterator e_n=input->getLineCover(chrome+QChar('-')).getEndIterator();
+
+    if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
+        iterator=input->getLineCover(chrome+QChar('+')).getUpperBound(start-1);//getting left position of reads
+        getReadsAtPoint<Result>(iterator,e_p,start,end,reverse,shift,mapping,result);
+    }
+    if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
+        iterator=input->getLineCover(chrome+QChar('-')).getUpperBound(start-1);//reads
+        getReadsAtPoint<Result>(iterator,e_n,start,end,reverse,shift,mapping,result);
+    }
+}
+//-------------------------------------------------------------
+//-------------------------------------------------------------
+
+
+
+
 AverageDensity::AverageDensity(QObject* parent):
-QObject(parent)
+    QObject(parent)
 {
 }
 /*
@@ -119,6 +205,12 @@ void AverageDensity::start()
         }
         batchBamFiles.close();
 
+        if(t_pool->activeThreadCount()!=0)
+        {
+            qDebug()<<"waiting threads";
+            t_pool->waitForDone();
+        }
+
         QMap<QString,QList<double> > storage;
         QList<double> smooth_data;
 
@@ -132,8 +224,6 @@ void AverageDensity::start()
         while (!in.atEnd())
         {
             QString plotName,Q1;//,Q2;
-            gen_lines   sql_data;
-            HandledData avd_data;
 
             plotName = in.readLine();
             if(plotName.isEmpty() || plotName.isNull()) break;
@@ -144,33 +234,45 @@ void AverageDensity::start()
             {
                 qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
-            while (q.next())
-            {
-
-                sql_data.setGene(q.value(3).toString().at(0),q.value(0).toString(),q.value(1).toInt(),1, 1 );
-                sql_data.total++;
-            }
-
-            if(t_pool->activeThreadCount()!=0)
-            {
-                qDebug()<<plotName<<": waiting";
-                t_pool->waitForDone();
-            }
 
             for(int i=0;i<fileLabels.size();i++)
             {
+                q.first();
                 total_plots++;
-
-                s3  =new AVD_Handler(&sql_data,sam_data.at(i),avd_data);
-                s3->AVD2();
-
                 QString plt_name=fileLabels.at(i)+" "+plotName;
-                for(quint32 w=0; w< avd_data.width; w++)
-                    storage[plt_name]<<avd_data.data[0][w];
-                smooth_data=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
-                storage[plt_name]=smooth_data;
-                delete s3;
+                int columns=q.record().count()-2;
+                int blocks=columns/3;
+                quint64 length=0;
+                for(int tot_len=0;tot_len<blocks;tot_len++)
+                {
+                    length+=q.value(1+3*(tot_len+1)).toInt();
+                }
+
+
+                storage[plt_name].reserve(length);
+                for(quint64 w=0; w< length; w++)
+                    storage[plt_name]<<0.0;
+                do
+                {
+                    for(int tot_len=0;tot_len<blocks;tot_len++)
+                    {
+                        AVD3< gen_lines , QList<double> >(q.value(3*(tot_len+1)-1).toInt(),q.value(3*(tot_len+1)).toInt(),q.value(0).toString(),q.value(1).toString().at(0)==QChar('-'),
+                                                          tot_len*q.value(3*(tot_len+1)+1).toInt(),q.value(3*(tot_len+1)+1).toInt(),sam_data.at(i),storage[plt_name]);
+                    }
+                }while(q.next());
+
+                /*Normalization*/
+                int total=sam_data.at(i)->total-sam_data.at(i)->notAligned;
+                for(quint64 w=0; w< length; w++)
+                {
+                    storage[plt_name][w]/=total;
+                    storage[plt_name][w]/=q.size();
+                }
+
+                storage[plt_name]=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
+
             }
+
         }
         batchFile.close();
 
@@ -202,21 +304,21 @@ void AverageDensity::start()
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
         {
             QString plt=QString("set output '%1.%2' \n"
-                "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
-                "set datafile separator ','\n"
-                "set autoscale\n"
-                "unset log\n"
-                "unset label\n"
-                "set xtic auto\n"
-                "set ytic auto\n"
-                "set key autotitle columnhead\n"
-                "set xlabel \"2000bp flanking TSS\"\n"
-                "set ylabel \"Tag density\"\n"
-                "set style fill transparent\n"
-                "set title \"%4\"\n"
-                "set format y \"%.1e\"\n"
-                "set grid\n"
-                "plot \\\n").
+                                "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
+                                "set datafile separator ','\n"
+                                "set autoscale\n"
+                                "unset log\n"
+                                "unset label\n"
+                                "set xtic auto\n"
+                                "set ytic auto\n"
+                                "set key autotitle columnhead\n"
+                                "set xlabel \"2000bp flanking TSS\"\n"
+                                "set ylabel \"Tag density\"\n"
+                                "set style fill transparent\n"
+                                "set title \"%4\"\n"
+                                "set format y \"%.1e\"\n"
+                                "set grid\n"
+                                "plot \\\n").
                     arg(gArgs().fileInfo("out").baseName()).
                     arg(gArgs().getArgs("plot_ext").toString()).
                     arg(gArgs().getArgs("plot_ext").toString()).
