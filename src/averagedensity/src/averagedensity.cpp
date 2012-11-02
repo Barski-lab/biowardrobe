@@ -25,37 +25,57 @@
 
 
 
-//-------------------------------------------------------------
-//-------------------------------------------------------------
 
-
+/*
+ *  Help function iterates over genome::cover_map::iterator& i,
+ *  puts reads from current gene current segment to corresponding visual mapping
+ *
+ *  fills result of type T by selected data (from start till end)
+ */
 template<class T>
 void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator& e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
 {
-    quint64 length=end-start;
-    float coef=(float)mapping/(float)length;
-    length--;//because start position is 0
-    /*if iterator points not to the begining of segment*/
-    while(i!=e && (int)((int)i.key()-start)<0) i++;
-    quint64 position;/*current point*/
-    //    qDebug()<<"start:"<<start<<" end:"<<end<<" position:"<<position<<" coef:"<<coef;
+    /*if iterator points not to the begining of the segment shift to the start position*/
+    while(i!=e && (qint64)(i.key()-start)<0) i++;
+    /*checking border conditions*/
+    if(i==e || (quint64)i.key()>end) return;
+
+    qint64 length=end-start+1;
+    double coef=(double)(mapping)/(double)length;
+    mapping--;
+    /*current and old position*/
+    qint64 old_position,position=(old_position=i.key()-start);
+    double sum_val=0;
+
     if(!reverse)
     {
-        /*if coefficient less then one then data is compressed*/
-        if(coef<=1.0)
+        /* if coefficient less then one then data is compressed
+         * coefficient less then one when length of mapping is less then length of original segment
+         */
+        if(coef<1.0)
         {
-            while(i!=e && (position=i.key()-start) <= length)
+            while(i!=e && (position=i.key()-start) < length)
             {
-                double value=i.value().getLevel();
-                //                qDebug()<<"shift:"<<shift<<" position:"<<position<<" coef:"<<coef<<" length:"<<length <<" index:"<< (shift+(int)(coef*position));
-                result[shift+(int)(coef*position)]+=value;
+                /*
+                 * to make a density, need to calculate sum within length/mapp
+                 */
+                if((quint64)(old_position*coef) == (quint64)(position*coef))
+                {
+                    sum_val+=i.value().getLevel();
+                    ++i;
+                    continue;
+                }
+                result[shift+(quint64)(coef*old_position)]+=sum_val*coef;
+                sum_val=i.value().getLevel();
+                old_position=position;
                 ++i;
             }
+            result[shift+(quint64)(coef*old_position)]+=sum_val*coef;
         }
-        /*if coefficient more then one data should be multiplied, when mapping is applied*/
-        else
+        /*if coefficient bigger then one data should be multiplied, when mapping is applied*/
+        else if(coef>1.0)
         {
-            while(i!=e && (position=i.key()-start) <= length)
+            while(i!=e && (position=i.key()-start) < length)
             {
                 double value=i.value().getLevel();
                 quint64 map_end=(quint64)(coef*(position+1));
@@ -66,15 +86,58 @@ void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator&
                 ++i;
             }
         }
+        /*if coefficient equal to one*/
+        else
+        {
+            while(i!=e && (position=i.key()-start) < length)
+            {
+                double value=i.value().getLevel();
+                result[shift+position]+=value;
+                ++i;
+            }
+        }
+
     }
     else
     {
-        if(coef<=1.0)
+        if(coef<1.0)
         {
-            while(i!=e && (position=i.key()-start) <= length)
+            while(i!=e && (position=i.key()-start) < length)
+            {
+                /*to make a density, need to calculate sum within length/mapp*/
+                if((quint64)(old_position*coef) == (quint64)(position*coef))
+                {
+                    sum_val+=i.value().getLevel();
+                    ++i;
+                    continue;
+                }
+                result[shift+mapping-(quint64)(coef*old_position)]+=sum_val*coef;
+                sum_val=i.value().getLevel();
+                old_position=position;
+                ++i;
+            }
+            result[shift+mapping-(quint64)(coef*old_position)]+=sum_val*coef;
+        }
+        /*if coefficient bigger then one data should be multiplied, when mapping is applied*/
+        else if (coef>1.0)
+        {
+            while(i!=e && (position=i.key()-start) < length)
             {
                 double value=i.value().getLevel();
-                result[shift+length-(int)(coef*position)]+=value;
+                quint64 map_end=(quint64)(coef*(position+1));
+                if(map_end>mapping)
+                    map_end=mapping;
+                for(quint64 c=(quint64)(coef*position);c<=map_end;c++)
+                    result[shift+mapping-c]+=value;
+                ++i;
+            }
+        }
+        else
+        {
+            while(i!=e && (position=i.key()-start) < length)
+            {
+                double value=i.value().getLevel();
+                result[shift+mapping-position]+=value;
                 ++i;
             }
         }
@@ -82,8 +145,8 @@ void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator&
 }
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-template <class StorageIn,class Result>
-void AVD3(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,StorageIn* input,Result& result)
+template <class T>
+void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result)
 {
     genome::cover_map::iterator iterator;
     /*
@@ -97,11 +160,11 @@ void AVD3(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,qu
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
         iterator=input->getLineCover(chrome+QChar('+')).getUpperBound(start-1);//getting left position of reads
-        getReadsAtPoint<Result>(iterator,e_p,start,end,reverse,shift,mapping,result);
+        getReadsAtPoint<T>(iterator,e_p,start,end,reverse,shift,mapping,result);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
         iterator=input->getLineCover(chrome+QChar('-')).getUpperBound(start-1);//reads
-        getReadsAtPoint<Result>(iterator,e_n,start,end,reverse,shift,mapping,result);
+        getReadsAtPoint<T>(iterator,e_n,start,end,reverse,shift,mapping,result);
     }
 }
 //-------------------------------------------------------------
@@ -196,11 +259,13 @@ void AverageDensity::start()
         {
             QString label = inFiles.readLine();
             if(label.isEmpty() || label.isNull() || label.at(0)==QChar('#')) continue;
-            QString line = inFiles.readLine();
-            if(line.isEmpty() || line.isNull() || line.at(0)==QChar('#')) throw "Error in batch with files";
+            QString fname = inFiles.readLine();
+            if(fname.isEmpty() || fname.isNull() || fname.at(0)==QChar('#')) throw "Error in batch with files";
+
             fileLabels.append(label);
             sam_data.append(new gen_lines());
-            t_queue.append(new sam_reader_thread(sam_data.last(),line));
+
+            t_queue.append(new sam_reader_thread(sam_data.last(),fname));
             t_pool->start(t_queue.last());
         }
         batchBamFiles.close();
@@ -211,8 +276,9 @@ void AverageDensity::start()
             t_pool->waitForDone();
         }
 
+
         QMap<QString,QList<double> > storage;
-        QList<double> smooth_data;
+        //QList<double> smooth_data;
 
         /* SQL Query batch file format:
          * - first line - grapht title
@@ -221,13 +287,16 @@ void AverageDensity::start()
         batchFile.setFileName(gArgs().getArgs("batch").toString());
         batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream in(&batchFile);
+        int blocks=1;
+        QVector<int> mapping;
+
         while (!in.atEnd())
         {
-            QString plotName,Q1;//,Q2;
+            QString plotName,Q1;
 
             plotName = in.readLine();
             if(plotName.isEmpty() || plotName.isNull()) break;
-            Q1 = in.readLine();
+            Q1 = in.readLine();//Query
             qDebug()<<"processed:"<<plotName;
 
             if(!q.exec(Q1))
@@ -235,39 +304,40 @@ void AverageDensity::start()
                 qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
 
+            q.first();
+            int columns=q.record().count()-2;
+            blocks=columns/3;
+            quint64 length=0;
+            mapping.resize(blocks);
+            /*calculating total plot length, sum up mapping for all segments*/
+            for(int tot_len=0;tot_len<blocks;tot_len++)
+            {
+                length+=q.value(1+3*(tot_len+1)).toInt();
+                mapping[tot_len]=q.value(1+3*(tot_len+1)).toInt();
+            }
+
             for(int i=0;i<fileLabels.size();i++)
             {
                 q.first();
                 total_plots++;
                 QString plt_name=fileLabels.at(i)+" "+plotName;
-                int columns=q.record().count()-2;
-                int blocks=columns/3;
-                quint64 length=0;
-                for(int tot_len=0;tot_len<blocks;tot_len++)
-                {
-                    length+=q.value(1+3*(tot_len+1)).toInt();
-                }
 
-
-                storage[plt_name].reserve(length);
-                for(quint64 w=0; w< length; w++)
-                    storage[plt_name]<<0.0;
+                QVector<double> avd_raw_data(length,0);
                 do
                 {
                     for(int tot_len=0;tot_len<blocks;tot_len++)
                     {
-                        AVD3< gen_lines , QList<double> >(q.value(3*(tot_len+1)-1).toInt(),q.value(3*(tot_len+1)).toInt(),q.value(0).toString(),q.value(1).toString().at(0)==QChar('-'),
-                                                          tot_len*q.value(3*(tot_len+1)+1).toInt(),q.value(3*(tot_len+1)+1).toInt(),sam_data.at(i),storage[plt_name]);
+                        AVD<QVector<double> >(q.value(3*(tot_len+1)-1).toInt()/*start*/,q.value(3*(tot_len+1)).toInt()/*end*/,q.value(0).toString()/*chrom*/,
+                                              q.value(1).toString().at(0)==QChar('-')/*bool strand*/,
+                                              tot_len*q.value(3*(tot_len+1)+1).toInt()/*shift*/,q.value(3*(tot_len+1)+1).toInt()/*mapping*/,sam_data.at(i),avd_raw_data);
                     }
                 }while(q.next());
 
                 /*Normalization*/
                 int total=sam_data.at(i)->total-sam_data.at(i)->notAligned;
+
                 for(quint64 w=0; w< length; w++)
-                {
-                    storage[plt_name][w]/=total;
-                    storage[plt_name][w]/=q.size();
-                }
+                    storage[plt_name]<<(avd_raw_data[w]/total)/q.size();
 
                 storage[plt_name]=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
 
@@ -285,8 +355,10 @@ void AverageDensity::start()
         for(int j=0;j<column;j++)
             out+=QString(",%1").arg(keys.at(j));
         out=out+"\n";
+        //        int c=0;
         for(int i=0; i<rows;i++)
         {
+            //            if(i>mapping[c]*(c+1)) c++;
             out+=QString("%1").arg(i-rows/2);
             for(int j=0;j<column;j++)
             {
@@ -303,6 +375,15 @@ void AverageDensity::start()
 
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
         {
+            QString xlabel;
+            if(blocks==1)
+            {
+                xlabel=QString("set xlabel \"%1 bp flanking TSS\"\n").arg(mapping[0]);
+            }
+            else if(blocks==3)
+            {
+                xlabel=QString("set xlabel \"genes on center, +- %1 bp before/after\"\n").arg(mapping[0]);
+            }
             QString plt=QString("set output '%1.%2' \n"
                                 "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
                                 "set datafile separator ','\n"
@@ -312,7 +393,7 @@ void AverageDensity::start()
                                 "set xtic auto\n"
                                 "set ytic auto\n"
                                 "set key autotitle columnhead\n"
-                                "set xlabel \"2000bp flanking TSS\"\n"
+                                +xlabel+
                                 "set ylabel \"Tag density\"\n"
                                 "set style fill transparent\n"
                                 "set title \"%4\"\n"
