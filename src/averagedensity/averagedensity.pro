@@ -14,7 +14,6 @@ DEFINES     += D_USE_BAM \
                _SQL_
 
 HEADERS     += ../global/SamReader.hpp \
-               ../global/AVDHandler.hpp \
                ../global/FileWriter.hpp \
                ../global/Arguments.hpp \
                src/averagedensity.hpp

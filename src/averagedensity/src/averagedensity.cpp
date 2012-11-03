@@ -20,10 +20,7 @@
 **
 ****************************************************************************/
 
-
 #include "averagedensity.hpp"
-
-
 
 
 /*
@@ -167,16 +164,14 @@ void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,qui
         getReadsAtPoint<T>(iterator,e_n,start,end,reverse,shift,mapping,result);
     }
 }
+
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-
-
-
-
 AverageDensity::AverageDensity(QObject* parent):
     QObject(parent)
 {
 }
+
 /*
  * calculating mean between end and begin in a QList of type T
  */
@@ -241,9 +236,13 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 
 void AverageDensity::start()
 {
-
-
     int total_plots=0;
+
+
+    QStringList COLORS;
+    COLORS<<"red"<<"dark-violet"<<"blue"<<"orange"<<"cyan"<<"brown"<<"black"<<"gold"<<"indigo"<<"lightslategray"<<"forestgreen";
+    QString line_w="2";
+
 
     QThreadPool *t_pool=QThreadPool::globalInstance();
 
@@ -288,7 +287,7 @@ void AverageDensity::start()
         batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream in(&batchFile);
         int blocks=1;
-        QVector<int> mapping;
+        QVector<int> orig_length;
 
         while (!in.atEnd())
         {
@@ -307,13 +306,15 @@ void AverageDensity::start()
             q.first();
             int columns=q.record().count()-2;
             blocks=columns/3;
+            qDebug()<<"blocks:"<<blocks;
             quint64 length=0;
-            mapping.resize(blocks);
+            orig_length.resize(blocks);
             /*calculating total plot length, sum up mapping for all segments*/
             for(int tot_len=0;tot_len<blocks;tot_len++)
             {
                 length+=q.value(1+3*(tot_len+1)).toInt();
-                mapping[tot_len]=q.value(1+3*(tot_len+1)).toInt();
+                orig_length[tot_len]=
+                        q.value(3*(tot_len+1)).toInt()/*end*/-q.value(3*(tot_len+1)-1).toInt()/*start*/;
             }
 
             for(int i=0;i<fileLabels.size();i++)
@@ -355,11 +356,9 @@ void AverageDensity::start()
         for(int j=0;j<column;j++)
             out+=QString(",%1").arg(keys.at(j));
         out=out+"\n";
-        //        int c=0;
         for(int i=0; i<rows;i++)
         {
-            //            if(i>mapping[c]*(c+1)) c++;
-            out+=QString("%1").arg(i-rows/2);
+            out+=QString("%1").arg((int)((double)i*((double)orig_length[0]/rows)-orig_length[0]/2));
             for(int j=0;j<column;j++)
             {
                 out+=QString(",%1").arg(storage[keys.at(j)].at(i));
@@ -375,47 +374,58 @@ void AverageDensity::start()
 
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
         {
-            QString xlabel;
+            QString xlabel="set xlabel \"bp\"\n";
+            QString xtics="set xtic auto\n";
             if(blocks==1)
             {
-                xlabel=QString("set xlabel \"%1 bp flanking TSS\"\n").arg(mapping[0]);
+                xlabel=QString("set xlabel \"%1 bp around TSS\"\n").arg(orig_length[0]/2);
+                xtics="set xtics rotate by -60 offset -2 (";
+                xtics+=QString("\"%1 bp\" %2,").arg(-orig_length[0]/2).arg(-orig_length[0]/2);
+                xtics+=QString("\"%1 bp\" %2,").arg(-orig_length[0]/4).arg(-orig_length[0]/4);
+                xtics+=QString("\"TSS\" 0,");
+                xtics+=QString("\"%1 bp\" %2,").arg(orig_length[0]/4).arg(orig_length[0]/4);
+                xtics+=QString("\"%1 bp\" %2)\n").arg(orig_length[0]/2).arg(orig_length[0]/2);
             }
-            else if(blocks==3)
+
+            QString ls;
+            for(int i=0;i<total_plots;i++)
             {
-                xlabel=QString("set xlabel \"genes on center, +- %1 bp before/after\"\n").arg(mapping[0]);
+                ls+=QString("set style line %1 lt 1 lc rgb \"%2\" lw %3\n").arg(i+1).arg(COLORS.at(i%COLORS.size())).arg(line_w);
             }
+
             QString plt=QString("set output '%1.%2' \n"
                                 "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
                                 "set datafile separator ','\n"
                                 "set autoscale\n"
                                 "unset log\n"
                                 "unset label\n"
-                                "set xtic auto\n"
+                                +xtics+
                                 "set ytic auto\n"
                                 "set key autotitle columnhead\n"
+                                "#set yrange [*:1.6e-08]\n"
                                 +xlabel+
                                 "set ylabel \"Tag density\"\n"
                                 "set style fill transparent\n"
                                 "set title \"%4\"\n"
                                 "set format y \"%.1e\"\n"
-                                "set grid\n"
-                                "plot \\\n").
+                                "unset grid\n"
+                                +ls+
+                                "plot for [x=2:%5] \"%6\" u 1:x with lines ls x-1\n").
+
                     arg(gArgs().fileInfo("out").baseName()).
                     arg(gArgs().getArgs("plot_ext").toString()).
                     arg(gArgs().getArgs("plot_ext").toString()).
-                    arg(gArgs().fileInfo("out").baseName().replace('_',' '));
+                    arg(gArgs().fileInfo("out").baseName().replace('_',' ')).
+                    arg(total_plots+1).
+                    arg(gArgs().getArgs("out").toString());
 
-            QString _plots=QString("\"%1\" u 1:2 with lines lc 2").arg(gArgs().getArgs("out").toString());
-            for(int i=1;i<total_plots;i++)
-                _plots+=QString(", \\\n\"%1\" u 1:%2 with lines lc %3").arg(gArgs().getArgs("out").toString()).arg(i+2).arg(i+2);
-            outFile.setFileName(gArgs().fileInfo("out").baseName()+".plt");
+            outFile.setFileName(gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
             outFile.write(plt.toAscii());
-            outFile.write(_plots.toAscii());
             outFile.close();
 
             QProcess myProcess;
-            myProcess.start(gArgs().getArgs("gnuplot").toString()+" "+gArgs().fileInfo("out").baseName()+".plt");
+            myProcess.start(gArgs().getArgs("gnuplot").toString()+" "+gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             myProcess.waitForFinished(1000*120);
         }
         emit finished();

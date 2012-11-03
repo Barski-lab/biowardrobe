@@ -19,6 +19,7 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+
 #ifndef _AVERAGEDENSITY_
 #define _AVERAGEDENSITY_
 
@@ -27,13 +28,12 @@
 #include <Reads.hpp>
 #include <SqlReader.hpp>
 #include <SamReader.hpp>
-//#include <AVDHandler.hpp>
+
 
 #define FSTM AverageDensity
 
 typedef genome::GenomeDescription gen_lines;
 
-//typedef AVDHandler<gen_lines,gen_lines,HandledData> AVD_Handler;
 
 class sam_reader_thread;
 
@@ -42,8 +42,6 @@ class AverageDensity: public QObject
     Q_OBJECT
 private:
 
-    //States
-//    AVD_Handler                 *s3;
     QList<gen_lines*>           sam_data;
     QList<sam_reader_thread*>   t_queue;
     QSqlQuery                   q;
