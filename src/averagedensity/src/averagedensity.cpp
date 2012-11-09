@@ -240,8 +240,8 @@ void AverageDensity::start()
 
 
     QStringList COLORS;
-    COLORS<<"red"<<"dark-violet"<<"blue"<<"orange"<<"cyan"<<"brown"<<"black"<<"gold"<<"indigo"<<"lightslategray"<<"forestgreen";
-    QString line_w="2";
+    COLORS<<"red"<<"dark-violet"<<"blue"<<"orange"<<"cyan"<<"brown"<<"black"<<"gold"<<"gray"<<"green";
+    QString line_w="1.5";
 
 
     QThreadPool *t_pool=QThreadPool::globalInstance();
@@ -394,7 +394,7 @@ void AverageDensity::start()
             }
 
             QString plt=QString("set output '%1.%2' \n"
-                                "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone\n"
+                                "set terminal %3 enhanced size 1920,1080 dynamic mouse standalone fname \"Helvetica\" fsize 24\n"
                                 "set datafile separator ','\n"
                                 "set autoscale\n"
                                 "unset log\n"
