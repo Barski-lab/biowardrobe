@@ -25,8 +25,14 @@
 
 #include <config.hpp>
 
+struct Isoform;
+
 typedef unsigned int t_genome_coordinates;
 typedef unsigned int t_reads_count;
+
+typedef QSharedPointer<Isoform> IsoformPtr;
+typedef QVector< IsoformPtr > refsec;
+typedef QMap<QString, refsec> IsoformsOnChromosome;
 
 struct Isoform
 {
@@ -39,7 +45,11 @@ struct Isoform
     quint64 cdsStart;
     quint64 cdsEnd;
     int exCount;
-    bicl::interval_map<t_genome_coordinates,t_reads_count> isoform;
+    bicl::interval_map<t_genome_coordinates,t_reads_count> isoform;//?
+    /*QSharedPointer for storing shared isoforms reads, and storing isoforms intersections*/
+    QSharedPointer<bicl::interval_map<t_genome_coordinates,unsigned int> > intersects_count;
+    QSharedPointer<QList<IsoformPtr> > intersects_isoforms;/*Pointers to intersected chromosomes*/
+    QSharedPointer<bicl::interval_map<t_genome_coordinates,t_reads_count> > general;/*common part for intersected isoforms plus reads*/
     quint64 len;
     quint64 totReads;
     float RPKM;
@@ -69,9 +79,6 @@ struct Isoform
         intersects(false){};
 };
 
-typedef QSharedPointer<Isoform> IsoformPtr;
-typedef QVector< IsoformPtr > refsec;
-typedef QMap<QString, refsec> IsoformsOnChromosome;
 
 #include <Reads.hpp>
 typedef genome::GenomeDescription gen_lines;

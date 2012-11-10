@@ -84,10 +84,6 @@ void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
 
     while(it1 != a.end() && it2 != b.end())
     {
-        //typename T::interval_type itv1  = getFirst<typename T::interval_type,typename T::segment_type>(*it1);
-        //typename T::interval_type itv2  = getFirst<typename T::interval_type,typename T::segment_type>(*it2);
-        //        typename T::interval_type itv1  = getFirst(*it1);
-        //        typename T::interval_type itv2  = getFirst(*it2);
         IntervalType itv1  = bicl::key_value<T>(it1);
         IntervalType itv2  = bicl::key_value<T>(it2);
 

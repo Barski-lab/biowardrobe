@@ -14,21 +14,21 @@ int main(void)
 {
 
 
-bicl::interval_map<int,int> a; a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
+bicl::interval_map<int,int> a,b,c; 
+a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
 
-bicl::interval_map<int,int> b; 
+//bicl::interval_map<int,int> b; 
 
 b+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),1);
-b+=make_pair(bicl::discrete_interval<int>::closed((int)6,(int)7),0);
+b+=make_pair(bicl::discrete_interval<int>::closed((int)6,(int)7),1);
 
-bicl::interval_map<int,int> c;
+//bicl::interval_map<int,int> c;
 
 bicl::interval_set<int> d;
 
 //bicl::interval_set<int,int> e;
 
 
-c=a&b;
 
 //            a+=make_pair(bicl::discrete_interval<int>::closed(left,right),1);
 
@@ -45,6 +45,23 @@ c=a&b;
 a+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),1);
 
 b+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);;
+
+cout<<"a:"<<a<<endl;
+cout<<"b:"<<b<<endl;
+
+c=a&b;
+
+
+    it = c.begin();
+    cout << "----- cccccccccccccccccccc -------------------------\n";
+    while(it != c.end())
+    {
+      bicl::discrete_interval<int> itv  = it->first;
+        // Who is at the party within the time interval 'when' ?
+        int who = (*it++).second;
+        cout << itv << ": " << who << endl;
+    }
+
 
 if(a==b)
 {
