@@ -30,7 +30,7 @@
  *  fills result of type T by selected data (from start till end)
  */
 template<class T>
-void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator& e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
+void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
 {
     /*if iterator points not to the begining of the segment shift to the start position*/
     while(i!=e && (qint64)(i.key()-start)<0) i++;
@@ -145,23 +145,16 @@ void getReadsAtPoint(genome::cover_map::iterator& i,genome::cover_map::iterator&
 template <class T>
 void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result)
 {
-    genome::cover_map::iterator iterator;
-    /*
-    reads, end iterator,positive strand
-    */
-    genome::cover_map::iterator e_p=input->getLineCover(chrome+QChar('+')).getEndIterator();
-    /*
-    reads, end iterator, negative strand
-    */
-    genome::cover_map::iterator e_n=input->getLineCover(chrome+QChar('-')).getEndIterator();
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
-        iterator=input->getLineCover(chrome+QChar('+')).getUpperBound(start-1);//getting left position of reads
-        getReadsAtPoint<T>(iterator,e_p,start,end,reverse,shift,mapping,result);
+        getReadsAtPoint<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
+                           ,input->getLineCover(chrome+QChar('+')).getEndIterator()
+                           ,start,end,reverse,shift,mapping,result);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
-        iterator=input->getLineCover(chrome+QChar('-')).getUpperBound(start-1);//reads
-        getReadsAtPoint<T>(iterator,e_n,start,end,reverse,shift,mapping,result);
+        getReadsAtPoint<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start)
+                           ,input->getLineCover(chrome+QChar('-')).getEndIterator()
+                           ,start,end,reverse,shift,mapping,result);
     }
 }
 
@@ -404,7 +397,7 @@ void AverageDensity::start()
                                 "set key autotitle columnhead\n"
                                 "#set yrange [*:1.6e-08]\n"
                                 +xlabel+
-                                "set ylabel \"Tag density\"\n"
+                                "set ylabel \"Avg. Tag Density (per bp)\"\n"
                                 "set style fill transparent\n"
                                 "set title \"%4\"\n"
                                 "set format y \"%.1e\"\n"

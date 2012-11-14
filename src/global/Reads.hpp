@@ -27,12 +27,12 @@
 #include <QtDebug>
 
 #ifndef Q_MOC_RUN
- #include <boost/icl/interval.hpp>
- #include <boost/icl/closed_interval.hpp>
- #include <boost/icl/interval_map.hpp>
- #include <boost/icl/separate_interval_set.hpp>
+#include <boost/icl/interval.hpp>
+#include <boost/icl/closed_interval.hpp>
+#include <boost/icl/interval_map.hpp>
+#include <boost/icl/separate_interval_set.hpp>
 
- namespace bicl = boost::icl;
+namespace bicl = boost::icl;
 #endif
 
 namespace genome {
@@ -49,60 +49,60 @@ class Read
 public:
 
     Read():
-      multiplying(1),
-          length(0),
+        multiplying(1),
+        length(0),
         position(interval_type::closed(0,0)),
         positions(make_pair(interval_type::closed(0,0),0)),
         sentenceRepresentation(""),
         qualityRepresentation("")
-      {};
+    {};
 
-      Read(Read const &r):
-      multiplying(r.multiplying),
-          length(r.length),
-          position(r.position)
-      {
-          sentenceRepresentation=r.sentenceRepresentation;
-          qualityRepresentation=r.qualityRepresentation;
-      };
+    Read(Read const &r):
+        multiplying(r.multiplying),
+        length(r.length),
+        position(r.position)
+    {
+        sentenceRepresentation=r.sentenceRepresentation;
+        qualityRepresentation=r.qualityRepresentation;
+    };
 
 
-      Read(int start,int len,QString sr="",QString qr=""):
-      multiplying(1),
-          length(len),
-          position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
-          sentenceRepresentation(sr),
-          qualityRepresentation(qr)
-      {};
+    Read(int start,int len,QString sr="",QString qr=""):
+        multiplying(1),
+        length(len),
+        position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
+        sentenceRepresentation(sr),
+        qualityRepresentation(qr)
+    {};
 
-      Read(int start,int len,int num,QString sr="",QString qr=""):
-      multiplying(num),
-          length(len),
-          position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
-          sentenceRepresentation(sr),
-          qualityRepresentation(qr)
-      {};
+    Read(int start,int len,int num,QString sr="",QString qr=""):
+        multiplying(num),
+        length(len),
+        position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
+        sentenceRepresentation(sr),
+        qualityRepresentation(qr)
+    {};
 
-      Read(bicl::interval_map<t_genome_coordinates,t_reads_count> p,int len,QString sr="",QString qr=""):
-      multiplying(1),
-          length(len),
-          positions(p),
-          sentenceRepresentation(sr),
-          qualityRepresentation(qr)
-      {};
+    Read(bicl::interval_map<t_genome_coordinates,t_reads_count> p,int len,QString sr="",QString qr=""):
+        multiplying(1),
+        length(len),
+        positions(p),
+        sentenceRepresentation(sr),
+        qualityRepresentation(qr)
+    {};
 
-      int&  getLevel()   {return multiplying;};
-      void plusLevel()  {++multiplying;};
-      int  getStart()   {return position.lower();};
-      int&  getLength()  {return length;};
-      interval_type& getInterval(){return position;};
-      Read& getMyself(void) {return *this;};
+    int&  getLevel()   {return multiplying;};
+    void  plusLevel()  {++multiplying;};
+    int   getStart()   {return position.lower();};
+    int&  getLength()  {return length;};
+    interval_type& getInterval(){return position;};
+    Read& getMyself(void) {return *this;};
 
-      void  operator+= (const int& c) {this->multiplying+=c;};
-      bool  operator== (const Read& r) const {return this->position==r.position;};
-      bool  operator!= (const Read& r) const {return this->position!=r.position;};
-      void  operator++ (int) {this->multiplying++;};
-      Read & operator= (const Read &r);
+    void  operator+= (const int& c) {this->multiplying+=c;};
+    bool  operator== (const Read& r) const {return this->position==r.position;};
+    bool  operator!= (const Read& r) const {return this->position!=r.position;};
+    void  operator++ (int) {this->multiplying++;};
+    Read & operator= (const Read &r);
 
 private:
     int multiplying;
@@ -122,35 +122,42 @@ typedef QMap<int,Read> cover_map;
 
 class Cover
 {
- public:
-  Cover():max_len(0),length(0){};
+public:
+    typedef cover_map::iterator iterator;
 
-  void add(Read&);
-  int  getHeight(int);//not implemented yet. number of overlaped reads at coordinate
-  int  getHeight(int,int);//not implemented yet. number of overlaped reads between coordinates
-  int  getStarts(int); //get number of reads starts at exact position
-  int  getStarts(int,int); //get number of reads starts at segment between
-  QList<int> getStarts(); //get set of coordinates where reads starts
-  void setLength(int);
+    Cover():max_len(0),length(0){};
 
-  cover_map::iterator getBeginIterator(){return covering.begin();};
-  cover_map::iterator getEndIterator(){return covering.end();};
+    void add(Read&);
+    int  getHeight(int);//not implemented yet. number of overlaped reads at coordinate
+    int  getHeight(int,int);//not implemented yet. number of overlaped reads between coordinates
+    int  getStarts(int); //get number of reads starts at exact position
+    int  getStarts(int,int); //get number of reads starts at segment between
+    QList<int> getStarts(); //get set of coordinates where reads starts
+    void setLength(int);
 
-  cover_map::iterator getUpperBound(int Key){return covering.upperBound(Key);};
+    iterator getBeginIterator(){return covering.begin();};
+    iterator getEndIterator(){return covering.end();};
 
- bool  operator== (const Cover& c) const {return this==&c;};
+    /* Returns an iterator pointing to the item that immediately follows the last item with key key in the map.
+   * If the map contains no item with key key, the function returns an iterator to the nearest item with a greater key.*/
+    iterator getUpperBound(int Key){return covering.upperBound(Key);};
+    /* Returns an iterator pointing to the first item with key key in the map.
+   * If the map contains no item with key key, the function returns an iterator to the nearest item with a greater key.*/
+    iterator getLowerBound(int Key){return covering.lowerBound(Key);};
 
- bool isEmpty(){return covering.size()==0;};
+    bool  operator== (const Cover& c) const {return this==&c;};
 
-// static Cover empty(){ return Cover();};
+    bool isEmpty(){return covering.size()==0;};
 
- private:
-  cover_map covering;
+    // static Cover empty(){ return Cover();};
 
-  bicl::interval_map<t_genome_coordinates,t_reads_count> m_covering;
+private:
+    cover_map covering;
 
-  int max_len;
-  int length;
+    bicl::interval_map<t_genome_coordinates,t_reads_count> m_covering;
+
+    int max_len;
+    int length;
 };
 
 /**********************************************************************************
@@ -158,60 +165,60 @@ class Cover
 **********************************************************************************/
 class Lines
 {
- public:
-  Lines():length(0){};
-  Lines(Lines&):length(0){};
-  void  addLine(QString, Read&);
-  void  setLength(quint64 l);
-  void  setLength(const QChar &sense,const QString &chrName, quint64 l);
-  Cover& getLineCover(QString);
+public:
+    Lines():length(0){};
+    Lines(Lines&):length(0){};
+    void  addLine(QString, Read&);
+    void  setLength(quint64 l);
+    void  setLength(const QChar &sense,const QString &chrName, quint64 l);
+    Cover& getLineCover(QString);
 
-  QList<QString> getLines(void)
-  {
-   return lines.keys();
-  };
-  /*
+    QList<QString> getLines(void)
+    {
+        return lines.keys();
+    };
+    /*
   */
 
- protected:
-  QMap<QString,Cover> lines;
-  quint64 length;
-  Cover empty;
+protected:
+    QMap<QString,Cover> lines;
+    quint64 length;
+    Cover empty;
 };
 
 /**********************************************************************************
 
 **********************************************************************************/
 class GenomeDescription:
- public Lines
+        public Lines
 {
- public:
-  quint64              notAligned;                  // number of reads (ussualy form sam/bam file) that are not aligned
-  quint64              total;
-  quint64              tot_len;                     //total hromosome length
-  /*
+public:
+    quint64              notAligned;                  // number of reads (ussualy form sam/bam file) that are not aligned
+    quint64              total;
+    quint64              tot_len;                     //total hromosome length
+    /*
   */
-  void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
-  {
-    Read r(pos,len,num);
-    addLine(chrName+sense,r);
-  };
-  /*
+    void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
+    {
+        Read r(pos,len,num);
+        addLine(chrName+sense,r);
+    };
+    /*
   */
-  GenomeDescription():Lines(),
-   notAligned(0),
-   total(0),
-   tot_len(0)
-   {};
+    GenomeDescription():Lines(),
+        notAligned(0),
+        total(0),
+        tot_len(0)
+    {};
 
-  GenomeDescription(GenomeDescription& a):Lines()
-   {
-       this->notAligned=a.notAligned;
-       this->total=a.total;
-       this->tot_len=a.tot_len;
-       this->lines=a.lines;
-       this->length=a.length;
-   };
+    GenomeDescription(GenomeDescription& a):Lines()
+    {
+        this->notAligned=a.notAligned;
+        this->total=a.total;
+        this->tot_len=a.tot_len;
+        this->lines=a.lines;
+        this->length=a.length;
+    };
 
 };
 

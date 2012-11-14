@@ -75,7 +75,7 @@ void FSTM::FillUpData()
         QString sql_str;
         if(gArgs().getArgs("sql_query1").toString().isEmpty())
         {
-            sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene where chrom not like '%\\_%'";
+            sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene where chrom not like '%\\_%' order by chrom,strand,txStart,txEnd";
             //sql_str="select CONCAT_WS(',',CONCAT('\\\"',refsec,'\\\"'),CONCAT('\\\"',gene,'\\\"'),CONCAT('\\\"',CONVERT(txStart,CHAR),'\\\"')) as name,gene as name2,chrom,strand,txStart,txStart as txEnd from expirements.RNASEQ_CD4_CUFFLINKS";
         }
         else
@@ -130,6 +130,11 @@ void FSTM::FillUpData()
             /*Variables to store start/end exon positions*/
             bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
 
+            if(gArgs().getArgs("sam_ignorechr").toString().contains(chr))
+            {
+                continue;
+            }
+
             QChar strand=q.value(fieldStrand).toString().at(0);
             for(int j=0;j<exCount;j++)
             {
@@ -162,6 +167,9 @@ void FSTM::FillUpData()
                             /*repeat this part for multithread*/
                             for(int t=0;t<m_ThreadNum;t++)
                             {
+                                isoforms[t][0][key][i]->intersects=true;
+                                isoforms[t][0][key][j]->intersects=true;
+
                                 if(isoforms[t][0][key][j]->intersects_count.isNull())
                                 {
                                     bicl::interval_map<t_genome_coordinates,unsigned int> * p = new bicl::interval_map<t_genome_coordinates,unsigned int>();
@@ -201,6 +209,7 @@ void FSTM::FillUpData()
                             /*repeat this part for multithread*/
                             for(int t=0;t<m_ThreadNum;t++)
                             {
+                                isoforms[t][0][key][j]->intersects=true;
                                 if(isoforms[t][0][key][j]->intersects_count.isNull())
                                 {
                                     isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][j]->isoform ;
@@ -337,41 +346,31 @@ void FSTM::FillUpData()
             bicl::interval_set<t_genome_coordinates>::const_iterator it = (segments_lists[key]).begin();
             while(it != (segments_lists[key]).end())
             {
+                /*chromosome name*/
+                QString chr=key;
+                quint64 txStart=(*it).lower();
+                quint64 txEnd=(*it).upper();
+                quint64 cdsStart=txStart;
+                quint64 cdsEnd=txEnd;
+                /*iso name*/
+                QString iso_name=QString("%1:%2-%3").arg(chr).arg(txStart).arg(txEnd);
+                /*gene name*/
+                QString g_name=iso_name;
+                /*Variables to store start/end exon positions*/
+                bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
+
+                QChar strand='+';
+
+                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd),1));
+
                 /*Duplicate data for each multithreaded bam reader*/
                 for(int i=0;i<m_ThreadNum;i++)
                 {
-                    /*chromosome name*/
-                    QString chr=key;
-                    quint64 txStart=(*it).lower();
-                    quint64 txEnd=(*it).upper();
-                    quint64 cdsStart=txStart;
-                    quint64 cdsEnd=txEnd;
-                    /*iso name*/
-                    QString iso_name=QString("%1:%2-%3").arg(chr).arg(txStart).arg(txEnd);
-                    /*gene name*/
-                    QString g_name=iso_name;
-                    /*Variables to store start/end exon positions*/
-                    bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
-
-                    QChar strand='+';
-                    quint64 len=0;
-                    len+=(txEnd-txStart);
-                    iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd),1));
-
-                    QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,len)   );
+                    QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
                     isoforms[i][0][chr].append( p );
                 }
                 it++;
             }
-
-            //             {
-            //                 quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
-            //                 len+=(e-s);
-            //                 iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s,e),1));
-            //             }
-
-            //             QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,len)   );
-            //             isoforms[i][0][chr].append( p );
 
         }
     }
@@ -469,6 +468,7 @@ void FSTM::WriteResult()
 
     foreach(const QString &chr,isoforms[0][0].keys())
     {
+
         QString SQL_QUERY="";
         for(int c=0; c<isoforms[0][0][chr].size(); c++)
         {

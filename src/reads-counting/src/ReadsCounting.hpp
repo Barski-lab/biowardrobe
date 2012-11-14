@@ -33,6 +33,7 @@ typedef unsigned int t_reads_count;
 typedef QSharedPointer<Isoform> IsoformPtr;
 typedef QVector< IsoformPtr > refsec;
 typedef QMap<QString, refsec> IsoformsOnChromosome;
+typedef bicl::interval_map<t_genome_coordinates,t_reads_count> chrom_coverage;
 
 struct Isoform
 {
@@ -45,21 +46,27 @@ struct Isoform
     quint64 cdsStart;
     quint64 cdsEnd;
     int exCount;
-    bicl::interval_map<t_genome_coordinates,t_reads_count> isoform;//?
+    chrom_coverage isoform;//?
     /*QSharedPointer for storing shared isoforms reads, and storing isoforms intersections*/
-    QSharedPointer<bicl::interval_map<t_genome_coordinates,unsigned int> > intersects_count;
+    QSharedPointer<chrom_coverage > intersects_count;
     QSharedPointer<QList<IsoformPtr> > intersects_isoforms;/*Pointers to intersected chromosomes*/
-    QSharedPointer<bicl::interval_map<t_genome_coordinates,t_reads_count> > general;/*common part for intersected isoforms plus reads*/
+    QSharedPointer<chrom_coverage > general;/*common part for intersected isoforms plus reads*/
     quint64 len;
-    quint64 totReads;
+    float totReads;
     float RPKM;
     bool testNeeded;
     bool intersects;
+    quint16 min;
+    float density;
+    quint16 count;
 
     Isoform():
     exCount(0),
     len(0),
-    RPKM(0){};
+    RPKM(0),
+    min(-1),
+    density(0.0),
+    count(0){};
 
     Isoform(QString n,QString n2,QString chr,QChar s,quint64 txs,quint64 txe,quint64 cdss,quint64 cdse,bicl::interval_map<t_genome_coordinates,t_reads_count> iso,quint64 l):
         name(n),
@@ -70,13 +77,16 @@ struct Isoform
         txEnd(txe),
         cdsStart(cdss),
         cdsEnd(cdse),
-        exCount(iso.size()),
+        exCount(iso.iterative_size()),
         isoform(iso),
         len(l),
         totReads(0),
         RPKM(0),
         testNeeded(false),
-        intersects(false){};
+        intersects(false),
+        min(-1),
+        density(0.0),
+        count(0){};
 };
 
 
