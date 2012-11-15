@@ -32,25 +32,19 @@ void sam_reader_thread::run(void)
     foreach(const QString key,isoforms[0].keys())/*Iterating trough chromosomes*/
         for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/
         {
-            if(!isoforms[0][key][i]->general.isNull()) continue;
-
+            if(isoforms[0][key][i]->testNeeded) continue;
             if(isoforms[0][key][i]->intersects)
             {
-                QSharedPointer<chrom_coverage> p=QSharedPointer<chrom_coverage>(new chrom_coverage(isoforms[0][key][i]->intersects_count.data()[0]));
-                for(int cc=0;cc<isoforms[0][key][i]->intersects_isoforms->size();cc++)
-                    isoforms[0][key][i]->intersects_isoforms->at(cc)->general=p;
 
                 chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
-                chrom_coverage::iterator it = isoforms[0][key][i]->general->begin();
 
-                for(; it != isoforms[0][key][i]->general->end(); it++,it_count++)
+                for(; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++)
                 {
                     chrom_coverage::interval_type itv  =
-                            bicl::key_value<chrom_coverage >(it);
-                    quint64 tot=1;
+                            bicl::key_value<chrom_coverage >(it_count);
+                    quint64 tot=0;
 
                     /**/
-
 
                     chrom_coverage::domain_type l=itv.lower();
                     chrom_coverage::domain_type u=itv.upper();
@@ -70,7 +64,6 @@ void sam_reader_thread::run(void)
                     }
                     tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
                     tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
-                    it->second=tot;
 
 
                     /*Calculating densities */
@@ -78,25 +71,48 @@ void sam_reader_thread::run(void)
                     {
                         if(bicl::intersects(isoforms[0][key][i]->intersects_isoforms->at(c)->isoform,itv))
                         {
-                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads+=(tot-1);
-                            if(isoforms[0][key][i]->intersects_isoforms->at(c)->min>it_count->second)
+                            /*DEBUG*/
+                            if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                            {
+                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<
+                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<" c:"<<c+1<<" al: 1"<<" segment:["<<l<<":"<<u<<"] len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(float)tot/(u-l+1);
+
+                            }
+                            /*DEBUG*/
+
+                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads+=tot;
+                            if(isoforms[0][key][i]->intersects_isoforms->at(c)->min > it_count->second)
                             {
                                 isoforms[0][key][i]->intersects_isoforms->at(c)->min=it_count->second;
+
                                 isoforms[0][key][i]->intersects_isoforms->at(c)->count=1;
                                 isoforms[0][key][i]->intersects_isoforms->at(c)->density=((float)tot/(u-l+1))/it_count->second;
                             }
-                            if(isoforms[0][key][i]->intersects_isoforms->at(c)->min==it_count->second)
+                            else if(isoforms[0][key][i]->intersects_isoforms->at(c)->min==it_count->second)
                             {
                                 isoforms[0][key][i]->intersects_isoforms->at(c)->count++;
                                 isoforms[0][key][i]->intersects_isoforms->at(c)->density+=((float)tot/(u-l+1))/it_count->second;
                             }
                         }
+                        else
+                        {
+                            /*DEBUG*/
+                            if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                            {
+                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<
+                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<" c:"<<c+1<<" al: 0"<<" segment:["<<l<<":"<<u<<"] len:"<<(u-l+1);
+
+                            }
+                            /*DEBUG*/
+                        }
                     }
                 }
+
                 /*calculate total density*/
                 float tot_density=0.0;
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                 {
+                    isoforms[0][key][i]->intersects_isoforms->at(c)->testNeeded=true;
                     isoforms[0][key][i]->intersects_isoforms->at(c)->density/=isoforms[0][key][i]->intersects_isoforms->at(c)->count;
                     tot_density+=isoforms[0][key][i]->intersects_isoforms->at(c)->density;
                 }
@@ -104,16 +120,11 @@ void sam_reader_thread::run(void)
 
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                 {
-//                    chrom_coverage reads=isoforms[0][key][i]->intersects_isoforms->at(c)->general.data()[0]         &isoforms[0][key][i]->intersects_isoforms->at(c)->isoform;
-//                    chrom_coverage ratio=isoforms[0][key][i]->intersects_isoforms->at(c)->intersects_count.data()[0]&isoforms[0][key][i]->intersects_isoforms->at(c)->isoform;
-
-//                    isoforms[0][key][i]->intersects_isoforms->at(c)->totReads;
-//                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads*isoforms[0][key][i]->intersects_isoforms->at(c)->density/tot_density;
-                float pk=(float)isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()/1000.0;
-                float pm=(float)(sam_data->total-sam_data->notAligned)/1000000.0;
+                    float pk=(float)isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()/1000.0;
+                    float pm=(float)(sam_data->total-sam_data->notAligned)/1000000.0;
+                    float co=isoforms[0][key][i]->intersects_isoforms->at(c)->density/tot_density;
                     isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
-                            (isoforms[0][key][i]->intersects_isoforms->at(c)->totReads*isoforms[0][key][i]->intersects_isoforms->at(c)->density/tot_density)/(pk*pm);
-                            //((float)(val)/((float)(reads.size())/1000.0))/((float)(sam_data->total-sam_data->notAligned)/1000000.0);
+                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads*co/(pk*pm);
 
                     if(isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith("RPS3"))
                     {
@@ -123,42 +134,6 @@ void sam_reader_thread::run(void)
                                   isoforms[0][key][i]->intersects_isoforms->at(c)->min << " density:"<<
                                   isoforms[0][key][i]->intersects_isoforms->at(c)->density << " size:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
                                   " pk:"<<pk<<" pm:"<<pm << " rpkm:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM;
-
-                    }
-
-//                    if(reads.size()!=ratio.size())
-//                    {
-//                        qDebug()<<"Shit happend:"<<reads.size()<<" :"<<ratio.size();
-//                    }
-//                    else
-                    {
-
-//                        chrom_coverage::iterator itr = reads.begin();
-//                        chrom_coverage::iterator rat = ratio.begin();
-//                        float val=0;
-//                        while(itr!=reads.end())
-//                        {
-//                            chrom_coverage::interval_type itvr  =
-//                                    bicl::key_value<chrom_coverage >(itr);
-//                            chrom_coverage::interval_type vrat  =
-//                                    bicl::key_value<chrom_coverage >(rat);
-//                            if(isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith("RPS3"))
-//                            {
-//                                qDebug()<<" ["<<itvr.lower()<<":" <<itvr.upper()<<"],["<<vrat.lower()<<":" <<vrat.upper()<<"] ="<<itvr.lower()-itvr.upper();
-//                                qDebug()<<" reads val:"<<itr->second-1<<" ratio val:" <<rat->second-1 <<" ratio:"<<(float)(itr->second-1)/(rat->second-1);
-//                            }
-//                            if((float)(itr->second-1)/(rat->second-1)<0)
-//                            {
-//                                qDebug()<<" reads val:"<<itr->second<<" ratio val:" <<rat->second <<" minus one:" << ((float)itr->second-1.0);
-//                            }
-//                            val+=(float)(itr->second-1)/(rat->second-1);
-//                            itr++;
-//                            rat++;
-//                        }
-//                        /*Intersections should be analized and recalculated value of RPKM stored*/
-//                        isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=;
-//                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
-//                                ((float)(val)/((float)(reads.size())/1000.0))/((float)(sam_data->total-sam_data->notAligned)/1000000.0);
                     }
                 }
             }

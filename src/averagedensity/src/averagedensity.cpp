@@ -270,7 +270,6 @@ void AverageDensity::start()
 
 
         QMap<QString,QList<double> > storage;
-        //QList<double> smooth_data;
 
         /* SQL Query batch file format:
          * - first line - grapht title
@@ -351,7 +350,8 @@ void AverageDensity::start()
         out=out+"\n";
         for(int i=0; i<rows;i++)
         {
-            out+=QString("%1").arg((int)((double)i*((double)orig_length[0]/rows)-orig_length[0]/2));
+            //out+=QString("%1").arg((int)((double)i*((double)orig_length[0]/rows)-orig_length[0]/2));
+            out+=QString("%1").arg((int)(i-rows/2));
             for(int j=0;j<column;j++)
             {
                 out+=QString(",%1").arg(storage[keys.at(j)].at(i));
