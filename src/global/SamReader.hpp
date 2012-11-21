@@ -60,10 +60,6 @@ private:
     SamHeader header;
     RefVector references;
 #endif
-#ifdef D_USE_SAM
-    samfile_t *fp;
-    bam1_t    *bamCore;
-#endif
 };
 
 #include <SamReader.cpp>

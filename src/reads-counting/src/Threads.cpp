@@ -29,6 +29,12 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
+    bool dUTP=false;
+    if(gArgs().getArgs("rna_seq").toString()=="dUTP")
+    {
+        dUTP=true;
+    }
+
     foreach(const QString key,isoforms[0].keys())/*Iterating trough chromosomes*/
         for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/
         {
@@ -62,8 +68,26 @@ void sam_reader_thread::run(void)
                         l++;
                         u--;
                     }
-                    tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
-                    tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
+
+                    if(dUTP)
+                    {
+                        /*
+                         * if it is dUTP method then anly reads from opposide gene direction should be counted
+                         **/
+                        if(isoforms[0][key][i]->strand==QChar('+'))
+                        {
+                            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
+                        }
+                        else
+                        {
+                            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
+                        }
+                    }
+                    else
+                    {
+                        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
+                        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
+                    }
 
 
                     /*Calculating densities */
@@ -128,7 +152,6 @@ void sam_reader_thread::run(void)
 
                     if(isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith("RPS3"))
                     {
-                        //<<" size:"<<reads.size()
                         qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<
                                   " name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2 <<" tot_density:" << tot_density << " min:"<<
                                   isoforms[0][key][i]->intersects_isoforms->at(c)->min << " density:"<<

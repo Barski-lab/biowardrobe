@@ -1,3 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the global module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 #include "Bam2Bedgraph.hpp"
 
 #include <SamReader.hpp>
@@ -7,41 +28,39 @@
 typedef genome::GenomeDescription gen_lines;
 
 typedef SamReader<gen_lines> sam_reader;
-typedef BEDHandler<gen_lines,HandledData> bed_handler;
+typedef BEDHandler<gen_lines,QList<int> > bed_handler;
 
 
 FSTM::FSTM(QObject *parent):
- QThread(parent)
- {
- }
+    QObject(parent)
+{
+}
 
 FSTM::~FSTM()
- {
- }
+{
+}
 
-void FSTM::run()
- {  
-     try{
-         gen_lines sam_data;
-         sam_reader    *s=new sam_reader(&sam_data);  
-         s->Load();
+void FSTM::start()
+{
+    try{
+        gen_lines    sam_data;
+        sam_reader   s(&sam_data);
+        s.Load();
 
-         HandledData bed_data;
-         bed_handler   *s3=new bed_handler(sam_data,bed_data);
-         s3->Load();
+        QList<int>   bed_data;
+        bed_handler  bed(sam_data,bed_data);
+        bed.Load();
 
-         delete s;
-         delete s3;
-     }
-     catch(char *str)
-     {
-         cerr << "Error rised:"<<str << endl;
-     }
-     catch(...)
-     {
-         //cerr << "Caught " << e.what( ) << endl;
-         //cerr << "Type " << typeid( e ).name( ) << endl;
-     }
+    }
+    catch(char *str)
+    {
+        cerr << "Error rised:"<<str << endl;
+    }
+    catch(...)
+    {
+        //cerr << "Caught " << e.what( ) << endl;
+        //cerr << "Type " << typeid( e ).name( ) << endl;
+    }
 
-     exit();
- }
+    emit finished();
+}

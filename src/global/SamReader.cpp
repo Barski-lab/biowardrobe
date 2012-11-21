@@ -33,7 +33,7 @@ template <class Storage>
 SamReader<Storage>::~SamReader()
 {
 #ifdef D_USE_BAM
- reader.Close();
+    reader.Close();
 #endif
 #ifdef D_USE_SAM
     samclose(fp);
@@ -46,7 +46,7 @@ SamReader<Storage>::~SamReader()
 ****************************************************************************************************************************/
 template <class Storage>
 SamReader<Storage>::SamReader( Storage* o, QObject *):
-output(o)
+    output(o)
 {
     inFile=gArgs().getArgs("in").toString();
     initialize();
@@ -57,8 +57,8 @@ output(o)
 ****************************************************************************************************************************/
 template <class Storage>
 SamReader<Storage>::SamReader(QString fn, Storage* o, QObject *):
-inFile(fn),
-output(o)
+    inFile(fn),
+    output(o)
 {
     initialize();
 }
@@ -95,65 +95,11 @@ void SamReader<Storage>::initialize()
         if(twicechr.contains(references[RefID].RefName.c_str()))
         {
             tids<<RefID;
-//			qDebug()<<inFile<<" Twiced chr!"<<references[RefID].RefName.c_str();
         }
-//		qDebug() <<inFile<< " refname:" << references[RefID].RefName.c_str()<<"reflen:"<<references[RefID].RefLength;
+        //		qDebug() <<inFile<< " refname:" << references[RefID].RefName.c_str()<<"reflen:"<<references[RefID].RefLength;
         output->setLength(QChar('+'),references[RefID].RefName.c_str(),references[RefID].RefLength);
         output->setLength(QChar('-'),references[RefID].RefName.c_str(),references[RefID].RefLength);
         output->tot_len+=references[RefID].RefLength;
-    }
-#endif
-#ifdef D_USE_SAM
-    //SAM or actually BAM ?
-    //  if(!setup.contains("SAM/RMODE"))
-    //      setup.setValue("SAM/RMODE","r");
-    //
-    //  if(!setup.contains("SAM/SITESHIFT"))
-    //      setup.setValue("SAM/SITESHIFT",0);
-    //
-    //  if(!setup.contains("SAM/TWICECHR"))
-    //      setup.setValue("SAM/TWICECHR",QString("chrX chrY"));
-    //
-    //  if(!setup.contains("SAM/IGNORECHR"))
-    //      setup.setValue("SAM/IGNORECHR",QString("chrM"));
-    //
-    //
-    //  if(inFile=="")
-    //  {
-    //   inFile=setup.value("inFileName").toString();
-    //  }
-    //
-    if((fp = samopen(gArgs().getArgs("in").toString().toLocal8Bit().data(),
-        gArgs().getArgs("sam_rmode").toString().toLocal8Bit().data(), 0)) == 0)
-    {
-        qCritical()<<"Fail to open file:" << inFile.toString().toLocal8Bit();
-        qApp->quit();
-    }
-    qDebug()<<"filename:"<<inFile;
-
-    bamCore=bam_init1();
-
-    if(1)
-    {
-        //float tot_len=0.0;
-
-        for(int i=0; i<fp->header->n_targets; i++)
-        {
-            if(ignorechr.contains(fp->header->target_name[i]))
-            {
-                i_tids<<i;
-                continue;
-            }
-            if(twicechr.contains(fp->header->target_name[i]))
-            {
-                tids<<i;
-                //qDebug()<<"Twiced chr!"<<i;
-            }
-            //  qDebug()<<fp->header->target_name[i]<<"="<<fp->header->target_len[i];// -hr.name, hr.len
-            //  tot_len+=fp->header->target_len[i];
-            ii+=fp->header->target_len[i];
-        }
-        // qDebug()<<inFile<<": tot_len(float):"<<tot_len;// -hr.name, hr.len
     }
 #endif
     qDebug()<<inFile<<": Total genome length:"<<output->tot_len;// -hr.name, hr.len
@@ -170,16 +116,7 @@ void SamReader<Storage>::Load(void)
 {
     int siteshift=gArgs().getArgs("sam_siteshift").toInt();
     int ignored=0;
-    bool reverse=false;
-//    QChar pos_str='+';
-//    QChar neg_str='-';
-    if(gArgs().getArgs("rna_seq").toString()=="dUTP")
-    {
-        reverse=true;
-//        pos_str='-';
-//        neg_str='+';
-        siteshift=0;
-    }
+
 #ifdef D_USE_BAM
     BamAlignment al;
     while ( reader.GetNextAlignment(al))
@@ -209,88 +146,21 @@ void SamReader<Storage>::Load(void)
             //    <<"Len:"<<al.Length<<" Cigar"<<_out<<" strand:"<<(al.IsReverseStrand()?"-":"+");
             //}
 
-            if(reverse)
-            {
-                if(al.IsReverseStrand())
-                {// - strand
-                    output->setGene(QChar('+'),
-                                    references[al.RefID].RefName.c_str(),
-                                    al.Position+1-siteshift,
-                                    num,al.Length
-                                    );
-                }
-                else
-                {
-                    output->setGene(QChar('+'),
-                                    references[al.RefID].RefName.c_str(),
-                                    al.Position+1+siteshift,
-                                    num,al.Length
-                                    );
-                }
-            }
-            else
-            {
-                if(al.IsReverseStrand())
-                {// - strand
-                    output->setGene(QChar('-'),
-                                    references[al.RefID].RefName.c_str(),
-                                    al.GetEndPosition()+1-siteshift,
-                                    num,al.Length
-                                    );
-                }
-                else
-                {
-                    output->setGene(QChar('+'),
-                                    references[al.RefID].RefName.c_str(),
-                                    al.Position+1+siteshift,
-                                    num,al.Length
-                                    );
-                }
-            }
-        }
-        else
-        {
-            output->notAligned++;
-        }
-    }
-
-#endif
-#ifdef D_USE_SAM
-    while((samread(fp,bamCore))>0)
-    {
-        output->total++;
-
-        if(bamCore->core.tid>=0)
-        {
-            int num=1;
-
-            if(i_tids.contains(bamCore->core.tid)) { ignored++; continue; }
-            if(tids.contains(bamCore->core.tid)) { num=2; output->total++;}
-
-            //It is a question how to calculate the shift of nonsense strand
-            //start coordinate of align on nonsens strand is from left to right
-            //but expected the right position
-            // (coordinate + sequnese length) = right position on non sense strand
-            //fp->header->target_len[bamCore->core.tid] - hr.len
-            //fp->header->target_name[bamCore->core.tid] - hr.name
-
-            //qDebug()<<"data:"<<QString((const char*)bamCore->data);
-
-            if(bam1_strand(bamCore))
+            if(al.IsReverseStrand())
             {// - strand
-                output->setGene(neg_str,
-                    fp->header->target_name[bamCore->core.tid],
-                    bamCore->core.pos+bamCore->core.l_qseq+1-siteshift,
-                    num,bamCore->core.l_qseq
-                    );
+                output->setGene(QChar('-'),
+                                references[al.RefID].RefName.c_str(),
+                                al.GetEndPosition()+1-siteshift,
+                                num,al.Length
+                                );
             }
             else
-            { // + strand
-                output->setGene(pos_str,
-                    fp->header->target_name[bamCore->core.tid],
-                    bamCore->core.pos+1+siteshift,
-                    num,bamCore->core.l_qseq
-                    );
+            {
+                output->setGene(QChar('+'),
+                                references[al.RefID].RefName.c_str(),
+                                al.Position+1+siteshift,
+                                num,al.Length
+                                );
             }
         }
         else
@@ -298,7 +168,9 @@ void SamReader<Storage>::Load(void)
             output->notAligned++;
         }
     }
+
 #endif
+
     qDebug()<<inFile<<": Total:"<<output->total;
     qDebug()<<inFile<<": Not aligned:"<<output->notAligned;
     qDebug()<<inFile<<": Aligned:"<<output->total-output->notAligned;

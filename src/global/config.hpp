@@ -107,51 +107,51 @@ namespace bicl = boost::icl;
 
 #define _MAX_SQ_SN 255
 
-class HandledData
-{
- public:
-  quint32 width;
-  quint32 height;
-  QMap<QString,QList< qreal > > _data;
+//class HandledData
+//{
+// public:
+//  quint32 width;
+//  quint32 height;
+//  QMap<QString,QList< qreal > > _data;
 
-  double **data;
+//  double **data;
 
-  HandledData():
-  width(0),
-  height(0),
-  data(NULL)
-  {};
+//  HandledData():
+//  width(0),
+//  height(0),
+//  data(NULL)
+//  {};
 
-  HandledData(quint32 w, quint32 h)
-   {
-    SetSize(w,h);
-   };
+//  HandledData(quint32 w, quint32 h)
+//   {
+//    SetSize(w,h);
+//   };
 
-  HandledData(HandledData &hd):
-  width(hd.width),
-  height(hd.height),
-  data(hd.data)
-  {};
+//  HandledData(HandledData &hd):
+//  width(hd.width),
+//  height(hd.height),
+//  data(hd.data)
+//  {};
 
-  void SetSize(quint32 w,quint32 h)
-   {
-    width=w; height=h;
-    data=new double* [sizeof(double*)*h];
-    while(h--)
-     {
-      data[h]=new qreal[sizeof(double)*w];
-      memset(data[h],0,sizeof(double)*w);
-     }
-   };
+//  void SetSize(quint32 w,quint32 h)
+//   {
+//    width=w; height=h;
+//    data=new double* [sizeof(double*)*h];
+//    while(h--)
+//     {
+//      data[h]=new qreal[sizeof(double)*w];
+//      memset(data[h],0,sizeof(double)*w);
+//     }
+//   };
 
-  ~HandledData()
-   {
-    while(height--)
-     delete [] data[height];
-    delete [] data;
-    data=NULL;
-   };
-};
+//  ~HandledData()
+//   {
+//    while(height--)
+//     delete [] data[height];
+//    delete [] data;
+//    data=NULL;
+//   };
+//};
 
 #define CONCAT_IMPL( x, y ) x##y
 #define MACRO_CONCAT( x, y ) CONCAT_IMPL( x, y )

@@ -47,12 +47,12 @@ QState(parent),
         if(gArgs().getArgs("bed_HeaderString").toString().contains('%'))
         {
             _outFile.write((gArgs().getArgs("bed_HeaderString").toString().arg(_outFile.fileName())+"\n").toLocal8Bit());
-            _outFile.flush();	 
+            _outFile.flush();
         }
         else
         {
             _outFile.write((gArgs().getArgs("bed_HeaderString").toString()+"\n").toLocal8Bit());
-            _outFile.flush();	 
+            _outFile.flush();
         }
     }
 #ifdef _SQL_
@@ -60,12 +60,12 @@ QState(parent),
     QSqlQuery q;
 
 
-    QStringList tbls=db.tables();
+//    QStringList tbls=db.tables();
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
-    { 
-        sqlErr = q.lastError(); 
-        qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
-    } 
+    {
+        sqlErr = q.lastError();
+        qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+    }
 
     QString tbl;
     QString sql;
@@ -83,12 +83,12 @@ QState(parent),
                                                                            chromEnd int(10) unsigned NOT NULL, \
                                                                            name varchar(255) NOT NULL \
                                                                            ) ENGINE=MyISAM DEFAULT CHARSET=utf8"))
-        { 
-            sqlErr = q.lastError(); 
-            qWarning()<<qPrintable(tr("Create table error. ")+sqlErr.text()); 
-	    exit(-1);
-        } 
-        sql=QString("insert ignore into trackDb(tablename,shortLabel,type,longLabel,visibility,priority,\
+        {
+            sqlErr = q.lastError();
+            qWarning()<<qPrintable(tr("Create table error. ")+sqlErr.text());
+        exit(-1);
+        }
+        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,\
                     colorR,colorG,colorB,\
                     altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)\
                     values('%1','%2','bedGraph 4','%3',0,10,\
@@ -98,10 +98,10 @@ QState(parent),
                     arg(tbl).arg(tbl).
                     arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
-        { 
-            sqlErr = q.lastError(); 
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
-        } 
+        {
+            sqlErr = q.lastError();
+            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+        }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name) VALUES";
         break;
     case 8:
@@ -115,11 +115,11 @@ QState(parent),
                                                                            score int(5) not null,\
                                                                            strand char not null\
                                                                            ) ENGINE=MyISAM DEFAULT CHARSET=utf8"))
-        { 
-            sqlErr = q.lastError(); 
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
-        } 
-        sql=QString("insert ignore into trackDb(tablename,shortLabel,type,longLabel,visibility,priority,\
+        {
+            sqlErr = q.lastError();
+            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+        }
+        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,\
                     colorR,colorG,colorB,\
                     altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)\
                     values('%1','%2','PbedGraph 4','%3',0,10,\
@@ -129,10 +129,10 @@ QState(parent),
                     arg(tbl).arg(tbl).
                     arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
-        { 
-            sqlErr = q.lastError(); 
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
-        } 
+        {
+            sqlErr = q.lastError();
+            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+        }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name,score,strand) VALUES";
         break;
     }
@@ -189,13 +189,13 @@ void BEDHandler<Storage,Result>::Load()
                 }
                 appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("+");
             }
-            //-----------------------------------------------------------------------------------    
+            //-----------------------------------------------------------------------------------
 #ifdef _SQL_
             appe.chop(1);
             if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError(); 
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
+                sqlErr = i_q.lastError();
+                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
             }
 #endif
             bed.clear();
@@ -232,8 +232,8 @@ void BEDHandler<Storage,Result>::Load()
             appe.chop(1);
             if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError(); 
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
+                sqlErr = i_q.lastError();
+                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
             }
 #endif
         }
@@ -252,8 +252,8 @@ void BEDHandler<Storage,Result>::Load()
             appe.chop(1);
             if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError(); 
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text()); 
+                sqlErr = i_q.lastError();
+                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
             }
 #endif
         }
@@ -262,7 +262,7 @@ void BEDHandler<Storage,Result>::Load()
 
     if(!create_file)
     {
-        _outFile.flush();	 
+        _outFile.flush();
     }
 }//end of function
 

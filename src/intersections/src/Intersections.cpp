@@ -89,7 +89,7 @@ void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
 
         if(itv1.upper()>itv2.upper())
         {
-            /*if segments intersect and we should move second segment then segment A should not be included in output*/
+            /*if segments intersect and we should move second segment then segment A shouldn't be included in output*/
             if(intersects(T::interval_type::closed(itv1.lower()-max_gap,itv1.upper()+max_gap),itv2)) checking=false;
             it2++;
         }
@@ -113,6 +113,7 @@ void UniqSegmentsInA(T &a,T &b,T &c,int max_gap=200)
 
 
 /*************************************************************************************************************
+ * Load bed from QuEST output PEAKS
 **************************************************************************************************************/
 template<typename T>
 void FSTM::loadBed(T & a,QString fname)
@@ -166,11 +167,7 @@ void FSTM::start()
             if(Q.isEmpty() || Q.isNull()) continue;
             if(Q.at(0)==QChar('>'))
             {
-                Q.remove(0,1);
-                //if(g_key!="")
-                //{
-                //    qDebug()<<"k:"<<g_key<<"s:"<<genome[g_key].length();
-                //}
+                Q.remove(0,1);//Chromosome name
                 g_key=Q;
                 continue;
             }
