@@ -39,9 +39,9 @@ class BEDHandler : public QState
 
 private:
 
-    Storage *sam_input;        
+    Storage *sam_input;
     Result *output;
-    
+
     QSettings setup;
 
     QFile _outFile;
@@ -54,8 +54,7 @@ public:
     void Load(void);
 protected:
 #ifdef _SQL_
-    QSqlError sqlErr;
-    QSqlQuery i_q;
+    QSqlQuery q;
     QString sql_prep;
 #endif
     virtual void onEntry(QEvent* event);

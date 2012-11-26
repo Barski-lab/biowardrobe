@@ -34,10 +34,10 @@ class sam_reader_thread: public QThread
 
 private:
     gen_lines *sam_data;
-    QString fileName; 
+    QString fileName;
     IsoformsOnChromosome* isoforms;
 
-public:   
+public:
 
     sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io):
       sam_data(sd),
@@ -49,5 +49,12 @@ protected:
 
     void run(void);
 };
+
+
+namespace Math{
+
+class Matrix
+
+}
 
 #endif

@@ -35,7 +35,7 @@ BEDHandler<Storage,Result>::~BEDHandler()
 //-------------------------------------------------------------
 template <class Storage,class Result>
 BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output,QState * parent):
-QState(parent),
+    QState(parent),
     sam_input(&sam),
     output(&_output)
 {
@@ -56,15 +56,11 @@ QState(parent),
         }
     }
 #ifdef _SQL_
-    QSqlDatabase db=QSqlDatabase::database();
-    QSqlQuery q;
+    //QStringList  tbls=QSqlDatabase::database().tables();
 
-
-//    QStringList tbls=db.tables();
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
     {
-        sqlErr = q.lastError();
-        qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+        qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
     }
 
     QString tbl;
@@ -75,63 +71,59 @@ QState(parent),
     switch(gArgs().getArgs("bed_format").toInt())
     {
     case 4:
-        if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+" \
-                                                                           ( \
-                                                                           bin smallint(5) unsigned NOT NULL, \
-                                                                           chrom varchar(255) NOT NULL, \
-                                                                           chromStart int(10) unsigned NOT NULL, \
-                                                                           chromEnd int(10) unsigned NOT NULL, \
-                                                                           name varchar(255) NOT NULL \
-                                                                           ) ENGINE=MyISAM DEFAULT CHARSET=utf8"))
+        if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+
+                   "( "
+                   "bin smallint(5) unsigned NOT NULL, "
+                   "chrom varchar(255) NOT NULL, "
+                   "chromStart int(10) unsigned NOT NULL, "
+                   "chromEnd int(10) unsigned NOT NULL, "
+                   "name varchar(255) NOT NULL "
+                   ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
         {
-            sqlErr = q.lastError();
-            qWarning()<<qPrintable(tr("Create table error. ")+sqlErr.text());
-        exit(-1);
+            qWarning()<<qPrintable(tr("Create table error. ")+q.lastError().text());
+            exit(-1);
         }
-        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,\
-                    colorR,colorG,colorB,\
-                    altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)\
-                    values('%1','%2','bedGraph 4','%3',0,10,\
-                    255,0,0,\
-                    0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
-                    arg(gArgs().getArgs("sql_table").toString()).
-                    arg(tbl).arg(tbl).
-                    arg(gArgs().getArgs("sql_grp").toString());
+        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,"
+                    "colorR,colorG,colorB,"
+                    "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
+                    "values('%1','%2','bedGraph 4','%3',0,10,"
+                    "255,0,0,"
+                    "0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
+                arg(gArgs().getArgs("sql_table").toString()).
+                arg(tbl).arg(tbl).
+                arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
         {
-            sqlErr = q.lastError();
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
         }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name) VALUES";
         break;
     case 8:
-        if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+" \
-                                                                           ( \
-                                                                           bin smallint(5) unsigned NOT NULL,\
-                                                                           chrom varchar(255) NOT NULL,\
-                                                                           chromStart int(10) unsigned NOT NULL,\
-                                                                           chromEnd int(10) unsigned NOT NULL,\
-                                                                           name varchar(255) NOT NULL,\
-                                                                           score int(5) not null,\
-                                                                           strand char not null\
-                                                                           ) ENGINE=MyISAM DEFAULT CHARSET=utf8"))
+        if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+
+                   "( "
+                   "bin smallint(5) unsigned NOT NULL,"
+                   "chrom varchar(255) NOT NULL,"
+                   "chromStart int(10) unsigned NOT NULL,"
+                   "chromEnd int(10) unsigned NOT NULL,"
+                   "name varchar(255) NOT NULL,"
+                   "score int(5) not null,"
+                   "strand char not null"
+                   ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
         {
-            sqlErr = q.lastError();
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
         }
-        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,\
-                    colorR,colorG,colorB,\
-                    altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)\
-                    values('%1','%2','PbedGraph 4','%3',0,10,\
-                    255,0,0,\
-                    0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
-                    arg(gArgs().getArgs("sql_table").toString()).
-                    arg(tbl).arg(tbl).
-                    arg(gArgs().getArgs("sql_grp").toString());
+        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,"
+                    "colorR,colorG,colorB,"
+                    "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
+                    "values('%1','%2','PbedGraph 4','%3',0,10,"
+                    "255,0,0,"
+                    "0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
+                arg(gArgs().getArgs("sql_table").toString()).
+                arg(tbl).arg(tbl).
+                arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
         {
-            sqlErr = q.lastError();
-            qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+            qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
         }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name,score,strand) VALUES";
         break;
@@ -192,10 +184,9 @@ void BEDHandler<Storage,Result>::Load()
             //-----------------------------------------------------------------------------------
 #ifdef _SQL_
             appe.chop(1);
-            if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError();
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
 #endif
             bed.clear();
@@ -230,10 +221,9 @@ void BEDHandler<Storage,Result>::Load()
             }
 #ifdef _SQL_
             appe.chop(1);
-            if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError();
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
 #endif
         }
@@ -250,10 +240,9 @@ void BEDHandler<Storage,Result>::Load()
             }
 #ifdef _SQL_
             appe.chop(1);
-            if(!i_q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!q.exec(sql_prep+appe+"; COMMIT;"))
             {
-                sqlErr = i_q.lastError();
-                qWarning()<<qPrintable(tr("Select query error. ")+sqlErr.text());
+                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
             }
 #endif
         }
