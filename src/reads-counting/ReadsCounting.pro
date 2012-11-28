@@ -59,7 +59,9 @@ INCLUDEPATH += . \
 HEADERS     +=  ../global/Arguments.hpp \
 		../global/Reads.hpp \
 		./src/Threads.hpp \
-		./src/ReadsCounting.hpp
+		./src/ReadsCounting.hpp \
+    ../global/Matrix.hpp \
+    ../global/Math.hpp
 		
                
                

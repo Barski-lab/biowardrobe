@@ -3,7 +3,8 @@
 #include <boost/icl/interval_map.hpp>
 //#include <boost/icl/separate_interval_set.hpp>
 //#include <boost/icl/concept/interval_associator.hpp>
-
+#include <QVector>
+#include <QtCore>
 
 namespace bicl = boost::icl;
 
@@ -13,7 +14,20 @@ using namespace std;
 int main(void)
 {
 
+QVector<QVector< float> > m,m1,m2;
+m.resize(2);
+m[0]<<1.0<<2.0<<3.0<<4.0<<5.0;
+m[1]<<10.0<<20.0<<30.0<<40.0<<50.0;
+m1=m;
+m[0][2]=3.3;
 
+for(int i=0;i<m.size(); i++)
+ for(int j=0; j<m[i].size();j++)
+ {
+        cout << m[i][j] << " =?= " << m1[i][j] << endl;
+ }
+return 0;
+//------------------------------------------------------------------
 bicl::interval_map<int,int> a,b,c; 
 a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
 

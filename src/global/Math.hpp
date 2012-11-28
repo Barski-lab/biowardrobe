@@ -4,7 +4,7 @@
 ** All rights reserved.
 ** Contact: Andrey Kartashov (porter@porter.st)
 **
-** This file is part of the ReadsCounting module of the genome-tools.
+** This file is part of the global module of the genome-tools.
 **
 ** GNU Lesser General Public License Usage
 ** This file may be used under the terms of the GNU Lesser General Public
@@ -19,36 +19,20 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-#ifndef _Threads_
-#define _Threads_
+#ifndef _MATH_H_28112012_
+#define _MATH_H_28112012_
+
+#include <limits>
+//std::numeric_limits<float>::max();
+//std::numeric_limits<float>::min();
+//std::numeric_limits<float>::infinity();
+
+#include <Matrix.hpp>
+
+namespace Math{
 
 
-#include <config.hpp>
-#include <ReadsCounting.hpp>
-#include <Math.hpp>
-
-//-------------------------------------------------------------------------------------------------------
-class sam_reader_thread: public QThread
-{
-    Q_OBJECT
-
-private:
-    gen_lines *sam_data;
-    QString fileName;
-    IsoformsOnChromosome* isoforms;
-
-public:
-
-    sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io):
-        sam_data(sd),
-        fileName(fn),
-        isoforms(io)
-    {};
-
-protected:
-
-    void run(void);
-};
+}//namespace
 
 
 #endif
