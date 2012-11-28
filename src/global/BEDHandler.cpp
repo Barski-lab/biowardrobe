@@ -57,6 +57,8 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output,QState * par
     }
 #ifdef _SQL_
     //QStringList  tbls=QSqlDatabase::database().tables();
+    no_sql_upload=gArgs().getArgs("no-sql-upload").toBool();
+    if(no_sql_upload) return;
 
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
     {
@@ -179,14 +181,18 @@ void BEDHandler<Storage,Result>::Load()
                 {
                     _outFile.write(QString(chrome+"\t%1\t%2\t%3\t0\t+\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
                 }
-                appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("+");
+                if(!no_sql_upload)
+                    appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("+");
             }
             //-----------------------------------------------------------------------------------
 #ifdef _SQL_
-            appe.chop(1);
-            if(!q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!no_sql_upload)
             {
-                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                appe.chop(1);
+                if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                {
+                    qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                }
             }
 #endif
             bed.clear();
@@ -217,13 +223,17 @@ void BEDHandler<Storage,Result>::Load()
                 {
                     _outFile.write(QString(chrome+"\t%1\t%2\t-%3\t0\t-\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
                 }
-                appe+=QString(" (0,'%1',%2,%3,-%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("-");
+                if(!no_sql_upload)
+                    appe+=QString(" (0,'%1',%2,%3,-%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("-");
             }
 #ifdef _SQL_
-            appe.chop(1);
-            if(!q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!no_sql_upload)
             {
-                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                appe.chop(1);
+                if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                {
+                    qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                }
             }
 #endif
         }
@@ -236,13 +246,17 @@ void BEDHandler<Storage,Result>::Load()
                 {
                     _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
                 }
-                appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value());
+                if(!no_sql_upload)
+                    appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value());
             }
 #ifdef _SQL_
-            appe.chop(1);
-            if(!q.exec(sql_prep+appe+"; COMMIT;"))
+            if(!no_sql_upload)
             {
-                qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                appe.chop(1);
+                if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                {
+                    qWarning()<<qPrintable(tr("Select query error. ")+q.lastError().text());
+                }
             }
 #endif
         }

@@ -46,6 +46,7 @@ private:
 
     QFile _outFile;
     bool create_file;
+    bool no_sql_upload;
 public:
 
     BEDHandler(Storage &sam,Result &output,QState *parent=0);

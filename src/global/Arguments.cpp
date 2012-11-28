@@ -253,9 +253,11 @@ void Arguments::argsList(void)
 
     Arguments::addArg("threads","threads","",QVariant::Int,"Max number of threads",4);
 
-    Arguments::addArg("sam_siteshift","sam_siteshift","SAM/SITESHIFT",QVariant::Int,"default siteshift",0);
+    Arguments::addArg("sam_siteshift","sam_siteshift","SAM/SITESHIFT",QVariant::Int,"Default siteshift",0);
+    Arguments::addArg("sam_mapped_limit","sam_mapped_limit","SAM/MAPPEDLIMIT",QVariant::Int,"Default limit to mapped data",0);
     Arguments::addArg("sam_twicechr","sam_twicechr","SAM/TWICECHR",QVariant::String,"Which chromosome to double",QString(""));// chrX chrY
     Arguments::addArg("sam_ignorechr","sam_ignorechr","SAM/IGNORECHR",QVariant::String,"Which chromosome to ignore",QString(""));//chrM
+
 }
 
 /***************************************************************************************

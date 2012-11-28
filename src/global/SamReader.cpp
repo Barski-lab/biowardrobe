@@ -35,9 +35,6 @@ SamReader<Storage>::~SamReader()
 #ifdef D_USE_BAM
     reader.Close();
 #endif
-#ifdef D_USE_SAM
-    samclose(fp);
-#endif
 }
 
 
@@ -115,7 +112,7 @@ template <class Storage>
 void SamReader<Storage>::Load(void)
 {
     int siteshift=gArgs().getArgs("sam_siteshift").toInt();
-    int ignored=0;
+    int ignored=0,mapped=gArgs().getArgs("sam_mapped_limit").toInt();
 
 #ifdef D_USE_BAM
     BamAlignment al;
@@ -128,6 +125,11 @@ void SamReader<Storage>::Load(void)
             int num=1;
             if(i_tids.contains(al.RefID)) { ignored++; continue; }
             if(tids.contains(al.RefID)) { num=2; output->total++;}
+
+            if(mapped==1) break;
+            if(mapped>1)  mapped--;
+
+
             //char TagVal=0;
             //if(al.GetTag<char>("XS",TagVal) && ((al.IsReverseStrand() && TagVal=='-') || (!al.IsReverseStrand() && TagVal=='+')) )
             //{
