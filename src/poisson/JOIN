@@ -1,3 +1,0 @@
-join -t $'\t' -a 1 -a 2 -e 'MISS' -o 0,1.2,1.3,2.2,2.3 CM-H3K4me3-Duplicate-241-4.txt EM-H3K4me3-Duplicate-241-5.txt >QQQ
-join -t $'\t' -a 1 -a 2 -e 'MISS' -o 0,1.2,1.3,1.4,1.5,2.2,2.3 QQQ Naive-H3K4me3-Duplicate-236-8.txt >join_res.txt
-rm -f ./QQQ
