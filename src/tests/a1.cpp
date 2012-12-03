@@ -13,22 +13,15 @@ using namespace std;
 
 int main(void)
 {
+bicl::interval_map<int,int> a,b,c; 
 
-QVector<QVector< float> > m,m1,m2;
-m.resize(2);
-m[0]<<1.0<<2.0<<3.0<<4.0<<5.0;
-m[1]<<10.0<<20.0<<30.0<<40.0<<50.0;
-m1=m;
-m[0][2]=3.3;
+if(a==b)
+ cout <<"eq" << endl;
+//QString str="abscdf-";
+//        cout <<str.right(1).toStdString() << endl;
 
-for(int i=0;i<m.size(); i++)
- for(int j=0; j<m[i].size();j++)
- {
-        cout << m[i][j] << " =?= " << m1[i][j] << endl;
- }
 return 0;
 //------------------------------------------------------------------
-bicl::interval_map<int,int> a,b,c; 
 a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
 
 //bicl::interval_map<int,int> b; 

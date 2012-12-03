@@ -32,9 +32,7 @@
 template <class Storage>
 SamReader<Storage>::~SamReader()
 {
-#ifdef D_USE_BAM
     reader.Close();
-#endif
 }
 
 
@@ -70,7 +68,6 @@ void SamReader<Storage>::initialize()
     QString twicechr=gArgs().getArgs("sam_twicechr").toString();
     QString ignorechr=gArgs().getArgs("sam_ignorechr").toString();
 
-#ifdef D_USE_BAM
     vector<string> fn;
     fn.push_back(inFile.toStdString());
     if ( !reader.Open(fn) ) {
@@ -93,12 +90,12 @@ void SamReader<Storage>::initialize()
         {
             tids<<RefID;
         }
-        //		qDebug() <<inFile<< " refname:" << references[RefID].RefName.c_str()<<"reflen:"<<references[RefID].RefLength;
+        qDebug() <<inFile<< " refname:" << references[RefID].RefName.c_str()<<"reflen:"<<references[RefID].RefLength;
         output->setLength(QChar('+'),references[RefID].RefName.c_str(),references[RefID].RefLength);
         output->setLength(QChar('-'),references[RefID].RefName.c_str(),references[RefID].RefLength);
         output->tot_len+=references[RefID].RefLength;
     }
-#endif
+
     qDebug()<<inFile<<": Total genome length:"<<output->tot_len;// -hr.name, hr.len
 
 }
@@ -113,17 +110,31 @@ void SamReader<Storage>::Load(void)
 {
     int siteshift=gArgs().getArgs("sam_siteshift").toInt();
     int ignored=0,mapped=gArgs().getArgs("sam_mapped_limit").toInt();
+    int u=0, l=0;
+    QStringList border=gArgs().split("sam_frag_filtr",'-');
+    if(border.size()==2)
+    {
+        l=border[0].toInt();
+        u=border[1].toInt();
+    }
 
-#ifdef D_USE_BAM
+    //int c=400;
+
     BamAlignment al;
     while ( reader.GetNextAlignment(al))
     {
         output->total++;
+        if(i_tids.contains(al.RefID)) { ignored++; continue; }
 
+        //        if(c-->0)
+        //        {
+        //            qDebug()<<"Name:"<<al.Name.c_str()<< " Maped:"<<al.IsMapped() <<" fM:"<<al.IsFirstMate()<<
+        //                   " Mate"<<al.IsMateMapped()<<" strand:"<<(al.IsReverseStrand()?"-":"+")<<" flg:"<<al.AlignmentFlag
+        //                   <<" mrf:"<<al.MateRefID;
+        //        }
         if(al.IsMapped())
         {
             int num=1;
-            if(i_tids.contains(al.RefID)) { ignored++; continue; }
             if(tids.contains(al.RefID)) { num=2; output->total++;}
 
             if(mapped==1) break;
@@ -133,45 +144,66 @@ void SamReader<Storage>::Load(void)
             //char TagVal=0;
             //if(al.GetTag<char>("XS",TagVal) && ((al.IsReverseStrand() && TagVal=='-') || (!al.IsReverseStrand() && TagVal=='+')) )
             //{
-            //    QString _out;
-            //    const vector<CigarOp>& cigarData = al.CigarData;
-            //    if (! cigarData.empty() )
-            //    {
-            //        vector<CigarOp>::const_iterator cigarIter = cigarData.begin();
-            //        vector<CigarOp>::const_iterator cigarEnd  = cigarData.end();
-            //        for ( ; cigarIter != cigarEnd; ++cigarIter ) {
-            //            const CigarOp& op = (*cigarIter);
-            //            _out+=QString("[Len=%1,Type=%2]").arg(op.Length).arg(op.Type);
-            //        }
-            //    }
+            //QString _out;
+            //                const vector<CigarOp>& cigarData = al.CigarData;
+            //                if (! cigarData.empty() )
+            //                {
+            //                    vector<CigarOp>::const_iterator cigarIter = cigarData.begin();
+            //                    vector<CigarOp>::const_iterator cigarEnd  = cigarData.end();
+            //                    for ( ; cigarIter != cigarEnd; ++cigarIter ) {
+            //                        const CigarOp& op = (*cigarIter);
+            //                        _out+=QString("[Len=%1,Type=%2]").arg(op.Length).arg(op.Type);
+            //                    }
+            //                }
             //    qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position<<"-"<<al.GetEndPosition()<<"] XS:"<<TagVal
             //    <<"Len:"<<al.Length<<" Cigar"<<_out<<" strand:"<<(al.IsReverseStrand()?"-":"+");
             //}
 
+
+            QChar strnd=QChar('+');
+            int shift=siteshift;
+            int length=al.Length;
+            int position=al.Position;
+
             if(al.IsReverseStrand())
             {// - strand
-                output->setGene(QChar('-'),
-                                references[al.RefID].RefName.c_str(),
-                                al.GetEndPosition()+1-siteshift,
-                                num,al.Length
-                                );
+                strnd= QChar('-');
+                shift= -siteshift;
+                position=al.GetEndPosition();
             }
-            else
+            if(al.IsMateMapped() && al.IsFirstMate())
             {
-                output->setGene(QChar('+'),
-                                references[al.RefID].RefName.c_str(),
-                                al.Position+1+siteshift,
-                                num,al.Length
-                                );
+                length=abs(al.InsertSize);
+                position-=length;
             }
+
+            if( (u|l)>0 && !(l<=length && length<=u) )
+            {
+                output->notAligned+=num;
+                continue;
+            }
+            if(al.IsMateMapped() && al.IsSecondMate())
+            {
+                continue;
+            }
+            output->setGene(strnd,
+                            references[al.RefID].RefName.c_str(),
+                            position+1+shift,
+                            num,length
+                            );
+
+            //            if(c-->0)
+            //            {
+            //                qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position<<"-"<<al.GetEndPosition()<<"] "
+            //                       <<" new pos:"<<position
+            //                       <<"Len:"<<length<<" Cigar"<<_out<<" strand:"<<(al.IsReverseStrand()?"-":"+");
+            //            }
         }
         else
         {
             output->notAligned++;
         }
     }
-
-#endif
 
     qDebug()<<inFile<<": Total:"<<output->total;
     qDebug()<<inFile<<": Not aligned:"<<output->notAligned;

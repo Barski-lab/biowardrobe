@@ -100,49 +100,33 @@ void sam_reader_thread::run(void)
                         if(bicl::intersects(isoforms[0][key][i]->intersects_isoforms->at(c)->isoform,itv))
                         {
                             /*DEBUG*/
-                            if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                             {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<
+                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-                                          " c:"<<c+1<<" al: 1"<<" segment:["<<l<<":"<<u<<"] len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(float)tot/(u-l+1);
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(float)tot/(u-l+1);
 
                             }
                             /*DEBUG*/
                             float cur_density=((float)tot/(u-l+1))/it_count->second;
                             matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<float>::min():cur_density);
-
-//                            ///probably depricated
-//                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads+=tot;
-
-//                            if(isoforms[0][key][i]->intersects_isoforms->at(c)->min > it_count->second)
-//                            {
-//                                isoforms[0][key][i]->intersects_isoforms->at(c)->min=it_count->second;
-
-//                                isoforms[0][key][i]->intersects_isoforms->at(c)->count=1;
-//                                isoforms[0][key][i]->intersects_isoforms->at(c)->density=cur_density;
-//                            }
-//                            else if(isoforms[0][key][i]->intersects_isoforms->at(c)->min==it_count->second)
-//                            {
-//                                isoforms[0][key][i]->intersects_isoforms->at(c)->count++;
-//                                isoforms[0][key][i]->intersects_isoforms->at(c)->density+=cur_density;
-//                            }
-//                            ///probably depricated up
                         }
                         else
                         {
                             matrix.setElement(c,column,0.0);
                             /*DEBUG*/
-                            if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                             {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<
-                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<" c:"<<c+1<<" al: 0"<<" segment:["<<l<<":"<<u<<"] len:"<<(u-l+1);
+                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
+                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
+                                       <<" segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(0) len:"<<(u-l+1);
 
                             }
                             /*DEBUG*/
                         }
                     }
                 }
-                if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                 {
                     /*DEBUG*/
                     qDebug()<<"Matrix Converging";
@@ -151,7 +135,7 @@ void sam_reader_thread::run(void)
                 }
 
                 qint64 cylc=matrix.convergeAverageMatrix();
-                if(isoforms[0][key][i]->name2.startsWith("RPS3"))
+                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                 {
                     /*DEBUG*/
                     qDebug()<<"Matrix After Converging:"<<cylc;
@@ -187,6 +171,8 @@ void sam_reader_thread::run(void)
                         isoforms[0][key][i]->intersects_isoforms->at(c)->density+=matrix.getValue(c,column)*(u-l+1);
                     }
                 }
+                qreal cutoff=gArgs().getArgs("rpkm_cutoff").toReal();
+
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                 {
                     isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=(int)isoforms[0][key][i]->intersects_isoforms->at(c)->density;
@@ -195,10 +181,11 @@ void sam_reader_thread::run(void)
                     isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
                             isoforms[0][key][i]->intersects_isoforms->at(c)->density/pm;
 
-                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM<0.1)
+                    /*Wich RPKM is meaningfull ?*/
+                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff)
                         isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=0.0;
 
-                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith("RPS3"))
+                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                     {
                         qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
                                <<" name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2
@@ -208,33 +195,6 @@ void sam_reader_thread::run(void)
                                  " pm:"<<pm << " rpkm:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM;
                     }
                 }
-                //                /*calculate total density*/
-//                float tot_density=0.0;
-//                for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
-//                {
-//                    isoforms[0][key][i]->intersects_isoforms->at(c)->testNeeded=true;
-//                    isoforms[0][key][i]->intersects_isoforms->at(c)->density/=isoforms[0][key][i]->intersects_isoforms->at(c)->count;
-//                    tot_density+=isoforms[0][key][i]->intersects_isoforms->at(c)->density;
-//                }
-//                if(tot_density<0.000000001) tot_density=1.0;
-
-//                for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
-//                {
-//                    float pk=(float)isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()/1000.0;
-//                    float pm=(float)(sam_data->total-sam_data->notAligned)/1000000.0;
-//                    float co=isoforms[0][key][i]->intersects_isoforms->at(c)->density/tot_density;
-//                    isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
-//                            isoforms[0][key][i]->intersects_isoforms->at(c)->totReads*co/(pk*pm);
-
-//                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith("RPS3"))
-//                    {
-//                        qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<
-//                                  " name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2 <<" tot_density:" << tot_density << " min:"<<
-//                                  isoforms[0][key][i]->intersects_isoforms->at(c)->min << " density:"<<
-//                                  isoforms[0][key][i]->intersects_isoforms->at(c)->density << " size:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-//                                  " pk:"<<pk<<" pm:"<<pm << " rpkm:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM;
-//                    }
-//                }
             }
             /*if not intersects*/
             else

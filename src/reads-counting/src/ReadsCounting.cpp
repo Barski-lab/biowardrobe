@@ -68,6 +68,9 @@ void FSTM::FillUpData()
         isoforms[i]=new IsoformsOnChromosome ();
         sam_data[i]=new gen_lines();
     }
+
+    TSS_organized_list.resize(m_ThreadNum);
+
     /* fill from one sql or file
       * or from sum of segments from sql queries or files*/
     if(gArgs().getArgs("batch").toString().isEmpty() || !gArgs().fileInfo("batch").exists())
@@ -119,6 +122,7 @@ void FSTM::FillUpData()
             /*exon name*/
             /*chromosome name*/
             QString chr=q.value(fieldChrom).toString();
+            QChar strand=q.value(fieldStrand).toString().at(0);
             /*iso name*/
             QString iso_name=q.value(fieldName).toString();
             /*gene name*/
@@ -135,17 +139,28 @@ void FSTM::FillUpData()
                 continue;
             }
 
-            QChar strand=q.value(fieldStrand).toString().at(0);
             for(int j=0;j<exCount;j++)
             {
                 quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
                 iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s,e),1));
             }
+
             for(int i=0;i<m_ThreadNum;i++)
             {
 
                 QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
                 isoforms[i][0][chr].append( p );
+                QString str;
+                if(strand==QChar('+'))
+                {
+                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txStart);
+                }
+                else
+                {
+                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txStart);
+                }
+
+                TSS_organized_list[i][str].append(p);
             }
         }
 
@@ -420,7 +435,7 @@ void FSTM::WriteResult()
 {
 
     qDebug()<<" Writing a result";
-    QFile outFile,sqlFile;
+    QFile outFile;
     outFile.setFileName(gArgs().getArgs("out").toString());
     outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
@@ -435,24 +450,24 @@ void FSTM::WriteResult()
     }
     outFile.write(QString("\n").toAscii());
 
-    QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `expirements`.`%1`; \
-                                 CREATE TABLE `expirements`.`%2` ( \
-                                     `refsec_id` VARCHAR(100) NOT NULL , \
-                                     `gene_id` VARCHAR(100) NOT NULL , \
-                                     `chrom` VARCHAR(45) NOT NULL, \
-                                     `txStart` INT NULL , \
-                                     `txEnd` INT NULL , \
-                                     `strand` char(1), \
-                                     RPKM_0   float, \
-                                     %3 \
-                                     INDEX refsec_id_idx (refsec_id) using btree, \
-                                     INDEX gene_id_idx (gene_id) using btree, \
-                                     INDEX chr_idx (chrom) using btree, \
-                                     INDEX txStart_idx (txStart) using btree, \
-                                     INDEX txEnd_idx (txEnd) using btree \
-                                     ) \
-                                 ENGINE = MyISAM \
-            COMMENT = 'created by readscounting';").
+    QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `expirements`.`%1`;"
+                                 "CREATE TABLE `experiments`.`%2` ( "
+                                 "`refsec_id` VARCHAR(100) NOT NULL ,"
+                                 "`gene_id` VARCHAR(100) NOT NULL ,"
+                                 "`chrom` VARCHAR(45) NOT NULL,"
+                                 "`txStart` INT NULL ,"
+                                 "`txEnd` INT NULL ,"
+                                 "`strand` char(1),"
+                                 "RPKM_0   float,"
+                                 "%3 "
+                                 "INDEX refsec_id_idx (refsec_id) using btree,"
+                                 "INDEX gene_id_idx (gene_id) using btree,"
+                                 "INDEX chr_idx (chrom) using btree,"
+                                 "INDEX txStart_idx (txStart) using btree,"
+                                 "INDEX txEnd_idx (txEnd) using btree"
+                                 ")"
+                                 "ENGINE = MyISAM "
+                                 "COMMENT = 'created by readscounting';").
             arg(gArgs().fileInfo("out").baseName()).
             arg(gArgs().fileInfo("out").baseName()).
             arg(RPKM_FIELDS);
@@ -531,6 +546,64 @@ void FSTM::WriteResult()
         }
     }
     outFile.close();
+
+
+    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_genes.csv");
+    outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+
+    for(int i=1;i<m_ThreadNum;i++)
+    {
+        outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+    }
+    outFile.write(QString("\n").toAscii());
+
+    foreach(QString key,TSS_organized_list[0].keys())
+    {
+        for(int i=0;i<m_ThreadNum;i++)
+        {
+            QString name,name2;
+            float RPKM=0.0;
+            quint64 totReads=0;
+
+            QSharedPointer<Isoform> current;
+            for(int j=0;j<TSS_organized_list[i][key].size();j++)
+            {
+                current = TSS_organized_list[i][key].at(j);
+                name+=current.data()->name+",";
+                if(!name2.contains(current.data()->name2))
+                    name2+=current.data()->name2+",";
+                RPKM+=current.data()->RPKM;
+                totReads+=current.data()->totReads;
+            }
+            name.chop(1);
+            name2.chop(1);
+
+            if(i==0)
+            {
+                outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
+                               arg(name).
+                               arg(name2).
+                               arg(current.data()->chrom).
+                               arg(current.data()->txStart).
+                               arg(current.data()->txEnd).
+                               arg(current.data()->strand).
+                               arg(totReads).
+                               arg(RPKM)).toAscii());
+            }
+            else
+            {
+                QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
+                outFile.write(tmp.toAscii());
+            }
+        }
+        outFile.write(QString("\n").toAscii());
+    }
+
+    outFile.close();
+
+
+
     qDebug()<<"Complete";
     emit finished();
 }

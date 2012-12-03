@@ -40,6 +40,7 @@ namespace genome {
 typedef unsigned int t_genome_coordinates;
 typedef unsigned int t_reads_count;
 typedef bicl::discrete_interval<t_genome_coordinates> interval_type;
+typedef bicl::interval_map<t_genome_coordinates,t_reads_count> read_representation;
 
 /**********************************************************************************
 
@@ -49,28 +50,28 @@ class Read
 public:
 
     Read():
-        multiplying(1),
+        multiplying(0),
         length(0),
-        position(interval_type::closed(0,0)),
-        positions(make_pair(interval_type::closed(0,0),0)),
+        m_read_representation(make_pair(interval_type::closed(0,0),0)),
         sentenceRepresentation(""),
         qualityRepresentation("")
     {};
 
     Read(Read const &r):
         multiplying(r.multiplying),
-        length(r.length),
-        position(r.position)
+        length(r.length)
     {
         sentenceRepresentation=r.sentenceRepresentation;
         qualityRepresentation=r.qualityRepresentation;
+        this->m_read_representation=r.m_read_representation;
     };
 
 
     Read(int start,int len,QString sr="",QString qr=""):
         multiplying(1),
         length(len),
-        position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
+        //position(interval_type::closed(start,start+len-1)),
+        m_read_representation(make_pair(interval_type::closed(start,start+len-1),1)),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
@@ -78,38 +79,38 @@ public:
     Read(int start,int len,int num,QString sr="",QString qr=""):
         multiplying(num),
         length(len),
-        position(bicl::discrete_interval<t_genome_coordinates>::closed(start,start+len-1)),
+        m_read_representation(make_pair(interval_type::closed(start,start+len-1),1)),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
 
-    Read(bicl::interval_map<t_genome_coordinates,t_reads_count> p,int len,QString sr="",QString qr=""):
+    Read(read_representation p,QString sr="",QString qr=""):
         multiplying(1),
-        length(len),
-        positions(p),
+        length(p.size()),
+        m_read_representation(p),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
 
-    int&  getLevel()   {return multiplying;};
-    void  plusLevel()  {++multiplying;};
-    int   getStart()   {return position.lower();};
-    int&  getLength()  {return length;};
-    interval_type& getInterval(){return position;};
-    Read& getMyself(void) {return *this;};
+    int&  getLevel();//   {return multiplying;};
+    //void  plusLevel();//  {++multiplying;};
+    int   getStart();//   {return bicl::key_value<read_representation>(m_read_representation.begin()).lower();};
+    int&  getLength();//  {return length;};
+    read_representation& getInterval();//{return m_read_representation;};
+    Read& getMyself(void);// {return *this;};
 
-    void  operator+= (const int& c) {this->multiplying+=c;};
-    bool  operator== (const Read& r) const {return this->position==r.position;};
-    bool  operator!= (const Read& r) const {return this->position!=r.position;};
-    void  operator++ (int) {this->multiplying++;};
+    void  operator+= (const int& c);// {this->multiplying+=c;};
+    bool  operator== (const Read& r) const;// {return this->m_read_representation==r.m_read_representation;};
+    bool  operator!= (const Read& r) const;// {return this->m_read_representation!=r.m_read_representation;};
+    void  operator++ (int);// {this->multiplying++;};
     Read & operator= (const Read &r);
 
 private:
     int multiplying;
     int length;
     //  read_position position;
-    bicl::discrete_interval<t_genome_coordinates> position; //::closed(s,e)
-    bicl::interval_map<t_genome_coordinates,t_reads_count> positions;
+    //interval_type position; //::closed(s,e)
+    read_representation m_read_representation;;
     QString sentenceRepresentation;
     QString qualityRepresentation;
 };
@@ -118,22 +119,22 @@ private:
 /**********************************************************************************
 
 **********************************************************************************/
-typedef QMap<int,Read> cover_map;
+typedef QMap<int,QList<Read> > cover_map;
 
 class Cover
 {
 public:
     typedef cover_map::iterator iterator;
 
-    Cover():max_len(0),length(0){};
+//    Cover():max_len(0),length(0){};
+    Cover():length(0){};
 
-    void add(Read&);
-    int  getHeight(int);//not implemented yet. number of overlaped reads at coordinate
-    int  getHeight(int,int);//not implemented yet. number of overlaped reads between coordinates
-    int  getStarts(int); //get number of reads starts at exact position
-    int  getStarts(int,int); //get number of reads starts at segment between
+    void addRead(Read&);
+
+    int  getStarts(int,int); //get number of reads that are starts at particular segment
     QList<int> getStarts(); //get set of coordinates where reads starts
-    void setLength(int);
+    void setLength(qint64);
+    qint64 getLength(void);
 
     iterator getBeginIterator(){return covering.begin();};
     iterator getEndIterator(){return covering.end();};
@@ -154,10 +155,8 @@ public:
 private:
     cover_map covering;
 
-    bicl::interval_map<t_genome_coordinates,t_reads_count> m_covering;
-
-    int max_len;
-    int length;
+//    int max_len;
+    qint64 length;
 };
 
 /**********************************************************************************
@@ -168,17 +167,14 @@ class Lines
 public:
     Lines():length(0){};
     Lines(Lines&):length(0){};
-    void  addLine(QString, Read&);
+    void  addRead(QString, Read&);
     void  setLength(quint64 l);
     void  setLength(const QChar &sense,const QString &chrName, quint64 l);
+    quint64  getLength(void);
+    quint64  getLength(const QChar &sense,const QString &chrName);
     Cover& getLineCover(QString);
 
-    QList<QString> getLines(void)
-    {
-        return lines.keys();
-    };
-    /*
-  */
+    QList<QString> getLines(void);
 
 protected:
     QMap<QString,Cover> lines;
@@ -194,17 +190,16 @@ class GenomeDescription:
 {
 public:
     quint64              notAligned;                  // number of reads (ussualy form sam/bam file) that are not aligned
-    quint64              total;
-    quint64              tot_len;                     //total hromosome length
+    quint64              total;                       // total number of reads
+    quint64              tot_len;                     // total hromosome length
+
     /*
-  */
-    void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
-    {
-        Read r(pos,len,num);
-        addLine(chrName+sense,r);
-    };
+    */
+    void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len);
+    void setGene(const QChar &sense,const QString &chrName,read_representation &r);
+
     /*
-  */
+    */
     GenomeDescription():Lines(),
         notAligned(0),
         total(0),

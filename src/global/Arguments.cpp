@@ -233,8 +233,10 @@ void Arguments::argsList(void)
     Arguments::addArg("bed_window","bed_window","BED/WINDOW",QVariant::Int,"Window for counting ",20);
     Arguments::addArg("bed_siteshift","bed_siteshift","BED/SITESHIFT",QVariant::Int,"Bed graph reads shifting",0);
     Arguments::addArg("bed_format","bed_format","BED/FORMAT",QVariant::Int,"",4);
+    Arguments::addArg("bed_type","bed_type","BED/type",QVariant::Int,"How to count reads: just starts =0, middle of fragments =1,whole read =2",0);
     Arguments::addArg("bed_separatestrand","bed_separatestrand","BED/SEPARATESTRAND",QVariant::Bool,"",false);
     Arguments::addArg("bed_HeaderString","bed_HeaderString","BED/HEADERSTRING",QVariant::String,"",QString("track type=bedGraph name=%1"));
+
     Arguments::addArg("no-bed-file","no-bed-file","",QVariant::Bool,"Do not create bed file",false);
     Arguments::addArg("no-sql-upload","no-sql-upload","",QVariant::Bool,"Do not upload to SQL",false);
 
@@ -242,6 +244,10 @@ void Arguments::argsList(void)
     Arguments::addArg("sql_grp","sql_grp","",QVariant::String,"Sql group for trackDb table","");
 
     Arguments::addArg("rna_seq","rna_seq","rnaseq",QVariant::String,"","");
+
+    Arguments::addArg("debug_gene","debug_gene","debug_gene",QVariant::String,"Shows full debug information about this gene","");
+
+    Arguments::addArg("rpkm_cutoff","rpkm-cutoff","RPKM/CUTOFF",QVariant::String,"Cutoff for RPKM","0.1");
 
     Arguments::addArg("avd_window","avd_window","AVD/WINDOW",QVariant::Int,"Average tag density window",2000);
     Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
@@ -257,6 +263,7 @@ void Arguments::argsList(void)
     Arguments::addArg("sam_mapped_limit","sam_mapped_limit","SAM/MAPPEDLIMIT",QVariant::Int,"Default limit to mapped data",0);
     Arguments::addArg("sam_twicechr","sam_twicechr","SAM/TWICECHR",QVariant::String,"Which chromosome to double",QString(""));// chrX chrY
     Arguments::addArg("sam_ignorechr","sam_ignorechr","SAM/IGNORECHR",QVariant::String,"Which chromosome to ignore",QString(""));//chrM
+    Arguments::addArg("sam_frag_filtr","sam_frag_filtr","SAM/FRAGFILTR",QVariant::String,"Which length of fragment to leave -sam_frag_filtr=\"120-150\"",QString(""));// chrX chrY
 
 }
 

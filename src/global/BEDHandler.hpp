@@ -34,7 +34,7 @@ GLOBALCALL{
 #endif
 
 template <class Storage, class Result>
-class BEDHandler : public QState
+class BEDHandler
 {
 
 private:
@@ -49,7 +49,7 @@ private:
     bool no_sql_upload;
 public:
 
-    BEDHandler(Storage &sam,Result &output,QState *parent=0);
+    BEDHandler(Storage &sam,Result &output);
 //    BEDHandler(Storage &sam,QState *parent=0);
     ~BEDHandler();
     void Load(void);
@@ -58,7 +58,7 @@ protected:
     QSqlQuery q;
     QString sql_prep;
 #endif
-    virtual void onEntry(QEvent* event);
+//    virtual void onEntry(QEvent* event);
 
 };
 

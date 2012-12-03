@@ -52,14 +52,12 @@ private:
     QString inFile;
     Storage   *output;
 
-    QSet<int> tids;//t ids which should be twiced
-    QSet<int> i_tids;//t ids which should be ignored
+    QSet<int> tids;//Reads from this chromosome (ids) should be twiced
+    QSet<int> i_tids;//Reads from this chromosome (ids) should be ignored
 
-#ifdef D_USE_BAM
     BamMultiReader reader;
     SamHeader header;
     RefVector references;
-#endif
 };
 
 #include <SamReader.cpp>

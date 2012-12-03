@@ -107,9 +107,10 @@ private:
     int m_ThreadNum;
     QSqlQuery q;
 
-    IsoformsOnChromosome** isoforms;
+    IsoformsOnChromosome** isoforms; //QVector<QVector<> > ???
     gen_lines** sam_data;
     sam_reader_thread** threads;
+    QVector<QMap<QString, QVector< IsoformPtr > > > TSS_organized_list;
 
 public:
 

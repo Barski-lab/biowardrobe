@@ -3,7 +3,7 @@
 # Software root PATH
 #export REPO_BASE="/usr/src/REPO"
 #export REPO_BASE="/data/barskilab/SVN"
-export REPO_BASE="/data/DEVEL/REPO/"
+export REPO_BASE="/data/DEVEL/REPO"
 
 #export ROOT_DIR="/mnt/sf_F_DRIVE/FASTQ-DATA"
 #export ROOT_DIR="/data/barskilab"
@@ -25,14 +25,17 @@ export TOPHAT_PATH="tophat"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/JOE/RNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/RAHUL/RNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/CLARK"
-export WORK_DIR="/data/barskilab/FASTQ-DATA/YRINA/RNA"
+#export WORK_DIR="/data/barskilab/FASTQ-DATA/YRINA/RNA"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski/NIH/CD4-CTCF"
+export WORK_DIR="/data/G_DRIVE/FASTQ-DATA/BARSKI/NIH/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski_OLD"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/NamekawaSatoshi/DNA"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Olsson/"
 
 
 export GROUP="barskii2"
+export GROUP="barskii_scicer"
+
 #export GROUP="barskii5" #CD4 substets RNA-seq
 #export GROUP="barskii4" #CD4 substets chromatin
 #export GROUP="marcroch"
@@ -44,7 +47,7 @@ export BED_SITESHIFT=75
 export BED_WINDOW=20
 #export TRIM="-5 6"
 
-export RUN_ON="rebo" #
+export RUN_ON="hg19" #
 #export RUN_ON="hg19c" #
 #export RUN_ON="hg19" #
 #export RUN_ON="mm9" #
@@ -257,21 +260,36 @@ function do_average {
 
 function do_sicer {
  do_bw_bam "bam"
- ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -in="${NA}.bam" -out="${NA}_s.bed" -log="${NA}_s.log" -bed_window=1 -bed_format=4 -no-sql-upload -bed_siteshift=${BED_SITESHIFT}
+
+ T=3
+ W=200
+ G=200
+ E=100
+ LIMIT=8100000
+ if [ -f "./${NA}_s.bed" ]; then
+  echo "${NA}_s.bed exist"
+ else
+#  ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -in="${NA}.bam" -out="${NA}_s.bed" -log="${NA}_s.log" -bed_window=0 -bed_format=8 -no-sql-upload -sam_mapped_limit=0
+#  grep -v 'track' ${NA}_s.bed|awk '{ if($4<0) $4=$4*(-1); printf("%s\t%s\t%s\tU%s\t%s\t%s\n",$1,$2,$3,$5,$4,$6);}' >${NA}_so.bed
+#  mv -f ${NA}_so.bed ${NA}_s.bed
+  if [ ${LIMIT} -gt 0 ]; then
+   bamToBed -bed12 -i ${NA}.bam |head -${LIMIT} >./${NA}_s.bed
+  else
+   bamToBed -bed12 -i ${NA}.bam >./${NA}_s.bed
+  fi
+ fi
 
 # if [ -f "./SICER/${NA}_s-W200-G0-E100.scoreisland" ]; then
 #  echo "./SICER/${NA}_s-W200-G0-E100.scoreisland exist"
- if [ -f "./SICER/${NA}_s-1-removed.bed" ]; then
-  echo "./SICER/${NA}_s-1-removed.bed exist"
+ if [ -f "./SICER/${NA}_s-W${W}-G${G}-E${E}.scoreisland" ]; then
+  echo "./SICER/${NA}_s-W${W}-G${G}-E${E}.scoreisland exist"
+  cd ./SICER
+  ${REPO_BASE}/genomebrowser/scripts/BedLoaderSicer.py ${NA} ${GROUP} hg19
+  cd ..
  else
-  if [ -f ${NA}_s.bed ]; then
-   echo "${NA}_s.bed exist"
-  else
-  grep -v 'track' ${NA}_s.bed|awk '{ if($4<0) $4=$4*(-1); printf("%s\t%s\t%s\tU%s\t%s\t%s\n",$1,$2,$3,$5,$4,$6);}' >${NA}_so.bed
-  mv -f ${NA}_so.bed ${NA}_s.bed
-  fi
   mkdirhier ./SICER/
-  sh ${REPO_BASE}/genomebrowser/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 1 50 150 0.74 50 0.1 
+#  sh ${REPO_BASE}/genomebrowser/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 1 50 150 0.74 50 0.1
+  sh ${REPO_BASE}/genomebrowser/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 ${T} ${W} 150 0.74 ${G} ${E}
  fi
  
 # cd ./SICER/
