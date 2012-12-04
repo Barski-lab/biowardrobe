@@ -88,8 +88,8 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
                     "colorR,colorG,colorB,"
                     "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
                     "values('%1','%2','bedGraph 4','%3',0,10,"
-                    "255,0,0,"
-                    "0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
+                    "30,70,150,"
+                    "1,1,1,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
                 arg(gArgs().getArgs("sql_table").toString()).
                 arg(tbl).arg(tbl).
                 arg(gArgs().getArgs("sql_grp").toString());
@@ -117,8 +117,8 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
                     "colorR,colorG,colorB,"
                     "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
                     "values('%1','%2','PbedGraph 4','%3',0,10,"
-                    "255,0,0,"
-                    "0,0,255,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
+                    "1,1,1,"
+                    "1,1,1,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
                 arg(gArgs().getArgs("sql_table").toString()).
                 arg(tbl).arg(tbl).
                 arg(gArgs().getArgs("sql_grp").toString());
@@ -150,8 +150,9 @@ void BEDHandler<Storage,Result>::Load()
         chrome.chop(1);
         //+ strand
         QMap <int,int> bed;
-        QVector<quint64> cover;
-        cover.resize(sam_input->getLength('+',chrome)+1);
+        QVector<int> cover;
+        //cover.resize();
+        cover.fill(0,sam_input->getLength('+',chrome)+1);
 
         {
             genome::cover_map::iterator i=sam_input->getLineCover(chrome+QChar('+')).getBeginIterator();
@@ -183,7 +184,6 @@ void BEDHandler<Storage,Result>::Load()
             }
             else if(gArgs().getArgs("bed_type").toInt()==2)
             {
-                qDebug()<<"begin type 2 cycles+"<<chrome;
                 for(;i!=e;i++)//thru start positions
                     for(int c=0;c<i.value().size();c++)//thru different reads at the same position
                     {
@@ -195,7 +195,6 @@ void BEDHandler<Storage,Result>::Load()
                                 cover[l]+=(*it).second;
                         }
                     }
-                qDebug()<<"finish type 2 cycles+"<<chrome;
             }
         }
 
@@ -262,7 +261,6 @@ void BEDHandler<Storage,Result>::Load()
             }
             else if(gArgs().getArgs("bed_type").toInt()==2)
             {
-                qDebug()<<"begin type 2 cycles+"<<chrome;
                 for(;i!=e;i++)//thru start positions
                     for(int c=0;c<i.value().size();c++)//thru different reads at the same position
                     {
@@ -274,7 +272,6 @@ void BEDHandler<Storage,Result>::Load()
                                 cover[l]+=(*it).second;
                         }
                     }
-                qDebug()<<"finish type 2 cycles+"<<chrome;
             }
         }//-strand
 
@@ -313,23 +310,44 @@ void BEDHandler<Storage,Result>::Load()
         {
             QString appe;
 
+            /*If bed type is 2 then special handling*/
             if(gArgs().getArgs("bed_type").toInt()==2)
             {
-                for(;it!=read_re.end();it++)
+                quint64 begin=0;
+                int sql_groupping=0;
+                for(qint64 i=0;i<cover.size()-1;i++)
                 {
-                    genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
+                    if(cover[i] == 0 && cover[i+1] == 0) continue;
+                    if(cover[i] == cover[i+1] ) continue;
+                    if(cover[i] == 0) { begin=i+1; continue;}
+
 
                     if(!create_file)
                     {
-                        _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(itv.lower()).arg(itv.upper()).arg((*it).second).toLocal8Bit());
+                        _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(begin).arg(i).arg(cover[i]).toLocal8Bit());
                     }
 #ifdef _SQL_
                     if(!no_sql_upload)
-                        appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(itv.lower()).arg(itv.upper()).arg((*it).second);
+                    {
+                        sql_groupping++;
+                        appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(begin).arg(i).arg(cover[i]);
+                        if(sql_groupping==3000)
+                        {
+                            sql_groupping=0;
+                            appe.chop(1);
+                            if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                            {
+                                qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+                            }
+                            appe="";
+                        }
+
+                    }
 #endif
+                    begin=i;
                 }
 #ifdef _SQL_
-                if(!no_sql_upload)
+                if(!no_sql_upload && sql_groupping>0)
                 {
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
@@ -364,9 +382,9 @@ void BEDHandler<Storage,Result>::Load()
                 }
 #endif
             }//bed_type
-        }
-
-    }
+        }//4 or 8
+    qDebug()<<"Complete chrom:"<<chrome;
+    }//foreach
 
     if(!create_file)
     {
