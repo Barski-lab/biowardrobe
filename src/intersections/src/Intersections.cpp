@@ -155,8 +155,10 @@ void FSTM::start()
 
     /*Reads whole genome .fa file into QMap*/
     QFile genomeFile;
+    bool TSS_wrt=false;
     if(gArgs().fileInfo("in").exists())
     {
+        TSS_wrt=true;
         genomeFile.setFileName(gArgs().getArgs("in").toString());
         genomeFile.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream g_in(&genomeFile);
@@ -192,7 +194,7 @@ void FSTM::start()
     while (!in.atEnd())
     {
         QString Q = in.readLine();
-        if(Q.isEmpty() || Q.isNull() || Q.at(0)==QChar('#')) continue;
+        if(Q.isEmpty() || Q.at(0)==QChar('#')) continue;
         if(Q.startsWith("select"))
         {
             QL<<Q;
@@ -208,18 +210,21 @@ void FSTM::start()
 
 
 
-    QList<int>** b_values;
-    b_values=new QList<int>* [QL.size()/2];
+    QVector< QList<int>  > b_values;
+    b_values.resize(QL.size()/2);
 
     for(int i=0,j=0;i<QL.size();i+=2,j++)
     {
-        b_values[j]=new QList<int>();
-
+        //b_values[j]=new QList<int>();
+        qDebug()<<"Working on:"<<i;
         string_map_segments chr_intervals_P1;//Peaks
         string_map_segments chr_intervals_P2;//Peaks
         //loading bed files, names from batch file, ith and (i+1)th position
-        loadBed< string_map_segments >(chr_intervals_P1,PFL.at(i));
-        loadBed< string_map_segments >(chr_intervals_P2,PFL.at(i+1));
+        if(PFL.size()==QL.size())
+        {
+            loadBed< string_map_segments >(chr_intervals_P1,PFL.at(i));
+            loadBed< string_map_segments >(chr_intervals_P2,PFL.at(i+1));
+        }
 
         /*loading segments from database(SQL) queries sicer, queries from batch file*/
         string_map_segments chr_intervals_Q1;//SQL, sicer segments ?
@@ -273,8 +278,8 @@ void FSTM::start()
 
         while(q.next())
         {
-            int frame=10000;
-            int min_score=31;
+            int frame=1000;
+            int min_score=30;
             int tss=q.value(1).toInt();
             int left=tss-frame;
             int right=tss+frame;
@@ -302,7 +307,7 @@ void FSTM::start()
 
             if( a1 && a2)
             {
-                b_values[j]->append(1);
+                b_values[j].append(1);
             }
             else if(a1)
             {
@@ -319,11 +324,11 @@ void FSTM::start()
 
                 if(max>min_score)
                 {
-                    b_values[j]->append(2);
+                    b_values[j].append(2);
                 }
                 else
                 {
-                    b_values[j]->append(4);
+                    b_values[j].append(4);
                 }
             }
             else if(a2)
@@ -341,20 +346,21 @@ void FSTM::start()
 
                 if(max>min_score)
                 {
-                    b_values[j]->append(3);
+                    b_values[j].append(3);
                 }
                 else
                 {
-                    b_values[j]->append(4);
+                    b_values[j].append(4);
                 }
             }
             else
             {
-                b_values[j]->append(4);
+                b_values[j].append(4);
             }
         }/*While q.next (Q3)*/
 
-        outData(chr_intervals_P1,chr_intervals_r_Q1,chr_intervals_P2,chr_intervals_r_Q2,j);
+        //outData(chr_intervals_P1,chr_intervals_r_Q1,chr_intervals_P2,chr_intervals_r_Q2,j);
+        qDebug()<<"Finished working on:"<<i;
     }
 
     if(!q.exec(Q3))
@@ -367,8 +373,11 @@ void FSTM::start()
     _outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
     QFile TSSfile;
-    TSSfile.setFileName("TSS.fa");
-    TSSfile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    if(TSS_wrt)
+    {
+        TSSfile.setFileName("TSS.fa");
+        TSSfile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    }
 
     //_outFile.write(QString("NAME,N_E,N_C,E_C\n").toLocal8Bit() );
     int c=0;
@@ -378,16 +387,20 @@ void FSTM::start()
         int tss=q.value(1).toInt();
         int left=tss-frame/2;
         QString chr=q.value(0).toString();
-        TSSfile.write(QString(">%1\n%2\n").arg(q.value(2).toString()).arg(genome[chr].mid(left,frame).data()).toLocal8Bit());
+        if(TSS_wrt)
+            TSSfile.write(QString(">%1\n%2\n").arg(q.value(2).toString()).arg(genome[chr].mid(left,frame).data()).toLocal8Bit());
 
         _outFile.write(QString("\"%1\"").arg(q.value(2).toString()).toLocal8Bit() );
         for(int j=0; j<QL.size()/2;j++)
-            _outFile.write(QString(",%1").arg(b_values[j]->at(c)).toLocal8Bit() );
+            _outFile.write(QString(",%1").arg(b_values[j].at(c)).toLocal8Bit() );
         _outFile.write(QString("\n").toLocal8Bit() );
         c++;
     }
-    TSSfile.flush();
-    TSSfile.close();
+    if(TSS_wrt)
+    {
+        TSSfile.flush();
+        TSSfile.close();
+    }
     _outFile.flush();
     _outFile.close();
 

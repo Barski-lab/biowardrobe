@@ -3,17 +3,26 @@ EM_H3K4me3_peaks.bed
 select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
 select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
-#select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
-#select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
-#select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
-#select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
-#select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
-#select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.Naive_H2AZ_208_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.EM_H2AZ_208_7_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
-#select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
-#select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me3_Duplicate_241_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.Naive_H2AZ_208_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H2AZ_208_6_sicer where chrom not like 'chrM' order by chrom,chromStart;
 #
-#select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me3_Duplicate_241_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
-#select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me3_Duplicate_236_8_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.EM_H2AZ_208_7_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H2AZ_208_6_sicer where chrom not like 'chrM' order by chrom,chromStart;
+#
+select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me1_Duplicate_319_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me1_Duplicate_319_6_sicer where chrom not like 'chrM' order by chrom,chromStart;
+#
+select chrom,chromStart,chromEnd,score from hg19.Naive_H3K4me1_Duplicate_319_4_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me1_Duplicate_319_5_sicer where chrom not like 'chrM' order by chrom,chromStart;
+#
+select chrom,chromStart,chromEnd,score from hg19.EM_H3K4me1_Duplicate_319_6_sicer where chrom not like 'chrM' order by chrom,chromStart;
+select chrom,chromStart,chromEnd,score from hg19.CM_H3K4me1_Duplicate_319_5_sicer where chrom not like 'chrM' order by chrom,chromStart;

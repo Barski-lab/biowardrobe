@@ -1,2 +1,3 @@
 #!/bin/bash
-./Intersections -out="result.csv" -log="logfile.log" -batch="batch" -in="/data/G_DRIVE/FASTQ-DATA/b_indexes/hg19.fa"
+./Intersections -out="result.csv" -log="logfile.log" -batch="batch" 
+#-in="/data/G_DRIVE/FASTQ-DATA/b_indexes/hg19.fa"
