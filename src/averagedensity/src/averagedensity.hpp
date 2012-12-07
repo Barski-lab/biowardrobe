@@ -26,7 +26,6 @@
 #include <config.hpp>
 
 #include <Reads.hpp>
-#include <SqlReader.hpp>
 #include <SamReader.hpp>
 
 

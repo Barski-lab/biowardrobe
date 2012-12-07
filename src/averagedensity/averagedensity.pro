@@ -13,14 +13,17 @@ QT       += sql
 DEFINES     += D_USE_BAM \
                _SQL_
 
+#
+#../global/FileWriter.hpp 
+
+
 HEADERS     += ../global/SamReader.hpp \
-               ../global/FileWriter.hpp \
                ../global/Arguments.hpp \
                src/averagedensity.hpp
 
+#../global/FileWriter.cpp
 
-SOURCES     += ../global/FileWriter.cpp \
-               ../global/Reads.cpp \
+SOURCES     += ../global/Reads.cpp \
                ../global/Arguments.cpp \
                src/averagedensity.cpp \
                src/main.cpp
@@ -43,7 +46,8 @@ RCC_DIR     = GeneratedFiles
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
 LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-QMAKE_CXXFLAGS += -Werror -std=c++11
+QMAKE_CXXFLAGS += -Werror 
+#-std=c++11
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools

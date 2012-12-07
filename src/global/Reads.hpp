@@ -150,6 +150,14 @@ public:
 
     bool isEmpty(){return covering.size()==0;};
 
+    template <typename T>
+    static void countReads(QList<Read> &qr,T &tot)
+    {
+        for(int c=0;c<qr.size();c++)
+            tot+=qr[c].getLevel();
+    };
+
+
     // static Cover empty(){ return Cover();};
 
 private:

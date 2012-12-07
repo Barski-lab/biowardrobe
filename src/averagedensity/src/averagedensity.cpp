@@ -58,12 +58,13 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
                  */
                 if((quint64)(old_position*coef) == (quint64)(position*coef))
                 {
-                    sum_val+=i.value().getLevel();
+                    genome::Cover::countReads<double>(i.value(),sum_val);
                     ++i;
                     continue;
                 }
                 result[shift+(quint64)(coef*old_position)]+=sum_val*coef;
-                sum_val=i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),sum_val=0);
+                //sum_val=i.value().getLevel();
                 old_position=position;
                 ++i;
             }
@@ -74,7 +75,8 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                double value=i.value().getLevel();
+                double value=0;//i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),value);
                 quint64 map_end=(quint64)(coef*(position+1));
                 if(map_end>mapping)
                     map_end=mapping;
@@ -88,7 +90,8 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                double value=i.value().getLevel();
+                double value=0;//i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),value);
                 result[shift+position]+=value;
                 ++i;
             }
@@ -104,12 +107,14 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
                 /*to make a density, need to calculate sum within length/mapp*/
                 if((quint64)(old_position*coef) == (quint64)(position*coef))
                 {
-                    sum_val+=i.value().getLevel();
+                    //sum_val+=i.value().getLevel();
+                    genome::Cover::countReads<double>(i.value(),sum_val);
                     ++i;
                     continue;
                 }
                 result[shift+mapping-(quint64)(coef*old_position)]+=sum_val*coef;
-                sum_val=i.value().getLevel();
+                //sum_val=i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),sum_val=0);
                 old_position=position;
                 ++i;
             }
@@ -120,7 +125,8 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                double value=i.value().getLevel();
+                double value=0;//i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),value);
                 quint64 map_end=(quint64)(coef*(position+1));
                 if(map_end>mapping)
                     map_end=mapping;
@@ -133,8 +139,9 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                double value=i.value().getLevel();
-                result[shift+mapping-position]+=value;
+                //double value=0;//i.value().getLevel();
+                genome::Cover::countReads<double>(i.value(),result[shift+mapping-position]);
+                //result[shift+mapping-position]+=value;
                 ++i;
             }
         }
