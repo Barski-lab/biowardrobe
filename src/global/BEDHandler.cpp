@@ -59,6 +59,39 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
     no_sql_upload=gArgs().getArgs("no-sql-upload").toBool();
     if(no_sql_upload) return;
 
+#define trackDb_table QString("trackDb_local")
+
+    QString trackDb="CREATE TABLE IF NOT EXIST "+trackDb_table+" ("
+            "tableName varchar(255) not null,"
+            "shortLabel varchar(255) not null,"
+            "type varchar(255) not null,"
+            "longLabel varchar(255) not null,"
+            "visibility tinyint unsigned not null,"
+            "priority float not null,"
+            "colorR tinyint unsigned not null,"
+            "colorG tinyint unsigned not null,"
+            "colorB tinyint unsigned not null,"
+            "altColorR tinyint unsigned not null,"
+            "altColorG tinyint unsigned not null,"
+            "altColorB tinyint unsigned not null,"
+            "useScore tinyint unsigned not null,"
+            "private tinyint unsigned not null,"
+            "restrictCount int not null,"
+            "restrictList longblob not null,"
+            "url longblob not null,"
+            "html longblob not null,"
+            "grp varchar(255) not null,"
+            "canPack tinyint unsigned not null,"
+            "settings longblob not null,"
+            "PRIMARY KEY(tableName)"
+            ") ENGINE=MyISAM DEFAULT CHARSET=utf8;";
+
+    if(!q.exec(trackDb))
+    {
+        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+    }
+
+
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
     {
         qWarning()<<qPrintable("Select query error. "+q.lastError().text());
@@ -66,7 +99,7 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
 
     QString tbl;
     QString sql;
-    tbl=gArgs().getArgs("sql_table").toString();
+    tbl=gArgs().getArgs("bed_trackname").toString();
     tbl.replace('_'," ");
 
     switch(gArgs().getArgs("bed_format").toInt())
@@ -84,7 +117,7 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
             qWarning()<<qPrintable("Create table error. "+q.lastError().text());
             exit(-1);
         }
-        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,"
+        sql=QString("insert ignore into"+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
                     "colorR,colorG,colorB,"
                     "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
                     "values('%1','%2','bedGraph 4','%3',0,10,"
@@ -113,7 +146,7 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
         {
             qWarning()<<qPrintable("Select query error. "+q.lastError().text());
         }
-        sql=QString("insert ignore into trackDb_local(tablename,shortLabel,type,longLabel,visibility,priority,"
+        sql=QString("insert ignore into "+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
                     "colorR,colorG,colorB,"
                     "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
                     "values('%1','%2','PbedGraph 4','%3',0,10,"
@@ -163,10 +196,11 @@ void BEDHandler<Storage,Result>::Load()
                 while(i!=e)
                 {
                     int val=i.key()+shift;
-                    for(int c=0;c<i.value().size();c++)
-                    {
-                        bed[val-val%w_h]+=i.value()[c].getLevel();
-                    }
+                    genome::Cover::countReads<int>(i.value(),bed[val-val%w_h]);
+                    //                    for(int c=0;c<i.value().size();c++)
+                    //                    {
+                    //                        bed[val-val%w_h]+=i.value()[c].getLevel();
+                    //                    }
                     ++i;
                 }
             }
@@ -239,10 +273,11 @@ void BEDHandler<Storage,Result>::Load()
                 {
                     int val=i.key()-shift;
                     if(val<0) val=0;
-                    for(int c=0;c<i.value().size();c++)
-                    {
-                        bed[val-val%w_h]+=i.value()[c].getLevel();
-                    }
+                    genome::Cover::countReads<int>(i.value(),bed[val-val%w_h]);
+                    //                    for(int c=0;c<i.value().size();c++)
+                    //                    {
+                    //                        bed[val-val%w_h]+=i.value()[c].getLevel();
+                    //                    }
                     ++i;
                 }
             }
@@ -306,7 +341,7 @@ void BEDHandler<Storage,Result>::Load()
 #endif
         }
         else
-         /* if bed format eq to 4 then output data for both strand */
+            /* if bed format eq to 4 then output data for both strand */
         {
             QString appe;
 
@@ -383,7 +418,7 @@ void BEDHandler<Storage,Result>::Load()
 #endif
             }//bed_type
         }//4 or 8
-    qDebug()<<"Complete chrom:"<<chrome;
+        qDebug()<<"Complete chrom:"<<chrome;
     }//foreach
 
     if(!create_file)
