@@ -1,20 +1,7 @@
 #!/bin/bash
 
-# Software root PATH
-#export REPO_BASE="/usr/src/REPO"
-#export REPO_BASE="/data/barskilab/SVN"
-export REPO_BASE="/data/DEVEL/REPO"
+export BOWTIE_INDEXES="/data/DATA/indexes/"
 
-#export ROOT_DIR="/mnt/sf_F_DRIVE/FASTQ-DATA"
-#export ROOT_DIR="/data/barskilab"
-export ROOT_DIR="/data/G_DRIVE/FASTQ-DATA"
-
-export BOWTIE_INDEXES="${ROOT_DIR}/indexes"
-
-#export BOWTIE_PATH="/usr/src/REPO/genomebrowser/thirdparty/bowtie-0.12.7/bowtie"
-#export TOPHAT_PATH="/usr/local/tophat/1.4.1/bin/tophat"
-export BOWTIE_PATH="bowtie"
-export TOPHAT_PATH="tophat"
 
 #export WORK_DIR="/mnt/sf_G_DRIVE/FASTQ-DATA/NIH"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Experiments-2012/DNA"
@@ -22,56 +9,61 @@ export TOPHAT_PATH="tophat"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/SARA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/DNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/RNA/"
+#export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/PAPER1/RNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/JOE/RNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/RAHUL/RNA/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/CLARK"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/YRINA/RNA"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski/NIH/CD4-CTCF"
-export WORK_DIR="/data/G_DRIVE/FASTQ-DATA/BARSKI/NIH/"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski_OLD"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/NamekawaSatoshi/DNA"
 #export WORK_DIR="/data/barskilab/FASTQ-DATA/Olsson/"
 
+export WORK_DIR="/data/DATA/FASTQ-DATA/TEST/"
 
-export GROUP="barskii2"
-export GROUP="barskii_scicer"
-
+#export GROUP="barskii2"
 #export GROUP="barskii5" #CD4 substets RNA-seq
 #export GROUP="barskii4" #CD4 substets chromatin
 #export GROUP="marcroch"
+#export GROUP="markroch1"
 #export GROUP="NamekawaSatoshi"
 #export GROUP="joe"
 #export GROUP="rahul"
+export GROUP="test"
 
-export BED_SITESHIFT=75
+export BED_SITESHIFT=0
 export BED_WINDOW=20
 #export TRIM="-5 6"
 
-export RUN_ON="hg19" #
+#export RUN_ON="rebo" #
 #export RUN_ON="hg19c" #
-#export RUN_ON="hg19" #
+export RUN_ON="hg19" #
 #export RUN_ON="mm9" #
-export DUTP="--library-type fr-firststrand"
-export ADD_TOPHAT="--segment-mismatches 2 -x 1 ${DUTP}"
+#export DUTP="--library-type fr-firststrand"
+#export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs -T"
+export ADD_TOPHAT=" ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} --keep-tmp"
 export BED_FORMAT=4 # 4/8
 
 #--no-novel-juncs 
 case ${RUN_ON} in 
  "hg19")
    export GENOME=hg19
-   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/hg19_genes"
-   export GFT_FILE="-G /data/barskilab/indexes/hg19_genes.gtf"
+   echo ${BOWTIE_INDEXES}
+#   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/hg19_genes"
+   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes"
+#   export GFT_FILE="-G /data/barskilab/indexes/hg19_genes.gtf"
+   export GFT_FILE="-G ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes.gtf"
  ;;
  "mm9")
    export GENOME=mm9
    export SQLDB="-sql_dbname=mm9"
-   export GFT_FILE="-G /data/barskilab/indexes/mm9_genes.gtf"
-   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/mm9_genes"
+   export GFT_FILE="-G ${BOWTIE_INDEXES}/mm9_genes.gtf"
+   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/gtf/mm9_genes"
  ;;
  "hg19c")
    export GENOME=hg19c
-   export GFT_FILE="-G /data/barskilab/indexes/genes_c.gtf"
-   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/genes_c"
+   export GFT_FILE="-G ${BOWTIE_INDEXES}/hg19_refsec_genes_control.gtf"
+   export TRANSCRIPTOME="--transcriptome-index ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes_control"
  ;;
  "hg19_lupus")
    export GENOME=hg19_lupus
@@ -87,11 +79,13 @@ case ${RUN_ON} in
  ;;
 esac
 
+export BOWTIE_PATH="bowtie"
+export TOPHAT_PATH="tophat2"
 
 
-module load bowtie/0127 2>/dev/null
-module load python/2.7.1 2>/dev/null
-module load tophat/141 2>/dev/null
+#module load bowtie/0127 2>/dev/null
+#module load python/2.7.1 2>/dev/null
+#module load tophat/141 2>/dev/null
 
 #
 # Aligment bowtie result to bam & hits
@@ -181,7 +175,7 @@ FNAME="${NA}_${c}"
    if [ -f ./${NA}.bam ]; then
     echo "${NA}.bam exist"
    else 
-    ${TOPHAT_PATH} --num-threads 12 -g 1 -o ${FNAME} ${GFT_FILE} ${ADD_TOPHAT} ${TRANSCRIPTOME} ${BOWTIE_INDEXES}/${GENOME} ${NA}
+    ${TOPHAT_PATH} --num-threads 24 -o ${FNAME} ${GFT_FILE} ${ADD_TOPHAT} ${TRANSCRIPTOME} ${BOWTIE_INDEXES}/${GENOME} ${NA}
 
     mv ./${FNAME}/accepted_hits.bam ./${NA}.bam
     echo "Making .bam by tophat complete"
@@ -200,7 +194,7 @@ function do_bed_file {
 #  echo "${1}.bed exist"
 # else 
 #  rm -f ./logfile.log
-#  ${REPO_BASE}/genomebrowser/src/sam2bedgraph/sam2bedgraph ${NA}.bam
+#  ${REPO_BASE}/genome-tools/src/sam2bedgraph/sam2bedgraph ${NA}.bam
 #  mv -f output.bed ./${1}.bed
 #  echo "Making ${1}.bed complete"
 # fi
@@ -217,13 +211,15 @@ function upload_bed_mysql {
  do_bw_bam "bam"
  #replace +,=,-,\. on _
  TBL="${NA//[+|=|\-|\.]/_}"
- ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
+# TBL="${TBL//run*index[0-9]_/}"
+# TBL="${TBL//_fastq}"
+ bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
  
 #"debug/bam2bedgraph.exe" -in="run0146_lane8_read1_index10=ABYR21.fastq.bam" -out="run0146_lane8_read1_index10=ABYR21.fastq.out" -bed_window=20 -bed_siteshift=0 -bed_format=8 -log="run0146_lane8_read1_index10=ABYR21.fastq.log" -sql_table="run0146_lane8_read1_index10_ABYR21" -sql_grp="barskii2" -rna_seq="dUTP" -no-bed-file
  
  
 # do_bed_file "${NA}"
-# ${REPO_BASE}/genomebrowser/scripts/BedLoader.py ${NA} ${GROUP} ${GENOME}
+# ${REPO_BASE}/genome-tools/scripts/BedLoader.py ${NA} ${GROUP} ${GENOME}
  
 }
 
@@ -232,7 +228,7 @@ function upload_bed_mysql_pair {
  do_bw_bam_pair "bam"
  #replace +,=,-,\. on _
 # TBL="${NA//[+|=|\-|\.]/_}"
-# ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
+# ${REPO_BASE}/genome-tools/src/bam2bedgraph/bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
 }
 
 function upload_tophat_bed_mysql {
@@ -241,9 +237,9 @@ function upload_tophat_bed_mysql {
 # do_bed_file "${NA}"
 
  TBL="${NA//[+|=|\-|\.]/_}"
- ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_format=${BED_FORMAT} -no-bed-file ${SQLDB}
+ bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_format=${BED_FORMAT} -no-bed-file ${SQLDB}
 
-# ${REPO_BASE}/genomebrowser/scripts/BedLoader.py ${NA} ${GROUP} ${GENOME}
+# ${REPO_BASE}/genome-tools/scripts/BedLoader.py ${NA} ${GROUP} ${GENOME}
 }
 
 
@@ -255,45 +251,31 @@ function do_bowtie_hits {
 function do_average {
  do_bw_bam "bam"
  do_bed_file "${NA}"
- ${REPO_BASE}/genomebrowser/ 
+ ${REPO_BASE}/genome-tools/ 
 }
 
 function do_sicer {
  do_bw_bam "bam"
-
- T=3
- W=200
- G=200
- E=100
- LIMIT=8100000
- if [ -f "./${NA}_s.bed" ]; then
-  echo "${NA}_s.bed exist"
- else
-#  ${REPO_BASE}/genomebrowser/src/bam2bedgraph/bam2bedgraph -in="${NA}.bam" -out="${NA}_s.bed" -log="${NA}_s.log" -bed_window=0 -bed_format=8 -no-sql-upload -sam_mapped_limit=0
-#  grep -v 'track' ${NA}_s.bed|awk '{ if($4<0) $4=$4*(-1); printf("%s\t%s\t%s\tU%s\t%s\t%s\n",$1,$2,$3,$5,$4,$6);}' >${NA}_so.bed
-#  mv -f ${NA}_so.bed ${NA}_s.bed
-  if [ ${LIMIT} -gt 0 ]; then
-   bamToBed -bed12 -i ${NA}.bam |head -${LIMIT} >./${NA}_s.bed
-  else
-   bamToBed -bed12 -i ${NA}.bam >./${NA}_s.bed
-  fi
- fi
+# do_bed_file "${NA}_s"
+ bam2bedgraph -in="${NA}.bam" -out="${NA}_s.bed" -log="${NA}_s.log" -bed_window=1 -bed_format=4 -no-sql-upload
 
 # if [ -f "./SICER/${NA}_s-W200-G0-E100.scoreisland" ]; then
 #  echo "./SICER/${NA}_s-W200-G0-E100.scoreisland exist"
- if [ -f "./SICER/${NA}_s-W${W}-G${G}-E${E}.scoreisland" ]; then
-  echo "./SICER/${NA}_s-W${W}-G${G}-E${E}.scoreisland exist"
-  cd ./SICER
-  ${REPO_BASE}/genomebrowser/scripts/BedLoaderSicer.py ${NA} ${GROUP} hg19
-  cd ..
+ if [ -f "./SICER/${NA}_s-1-removed.bed" ]; then
+  echo "./SICER/${NA}_s-1-removed.bed exist"
  else
+  if [ -f ${NA}_s.bed ]; then
+   echo "${NA}_s.bed exist"
+  else
+  grep -v 'track' ${NA}_s.bed|awk '{ if($4<0) $4=$4*(-1); printf("%s\t%s\t%s\tU%s\t%s\t%s\n",$1,$2,$3,$5,$4,$6);}' >${NA}_so.bed
+  mv -f ${NA}_so.bed ${NA}_s.bed
+  fi
   mkdirhier ./SICER/
-#  sh ${REPO_BASE}/genomebrowser/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 1 50 150 0.74 50 0.1
-  sh ${REPO_BASE}/genomebrowser/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 ${T} ${W} 150 0.74 ${G} ${E}
+  sh ${REPO_BASE}/genome-tools/thirdparty/SICER1.1/SICER/SICER-rb.sh . ${NA}_s.bed ./SICER hg19 1 50 150 0.74 50 0.1 
  fi
  
 # cd ./SICER/
-# ${REPO_BASE}/genomebrowser/scripts/BedLoaderScicer.py ${NA}_s ${GROUP} ${GENOME}
+# ${REPO_BASE}/genome-tools/scripts/BedLoaderScicer.py ${NA}_s ${GROUP} ${GENOME}
 
 # sh /usr/src/SICER1.1/SICER/SICER-rb.sh . ${NA}.bed ./OUT hg19 1 200 150 0.74 0 100 &
 # mkdirhier /mnt/sf_G_DRIVE/FASTQ-DATA/results/${NA}/OUT
@@ -302,21 +284,23 @@ function do_sicer {
 # mkdirhier /mnt/sf_G_DRIVE/FASTQ-DATA/results/${NA}/OUT
 # grep -v 'track' output.bed|awk '{ if($4<0) $4=$4*(-1); printf("%s\t%s\t%s\tU%s\t%s\t%s\n",$1,$2,$3,$5,$4,$6);}' >/mnt/sf_G_DRIVE/FASTQ-DATA/results/${NA}/${NA}.bed
 # hg19 1 ["window size (bp)"] ["fragment size"] ["effective genome fraction"] ["gap size (bp)"] ["E-value"]
-# /usr/src/REPO/genomebrowser/scripts/BedLoader.py ${NA}
+# /usr/src/REPO/genome-tools/scripts/BedLoader.py ${NA}
 # cd /mnt/sf_G_DRIVE/FASTQ-DATA/results/${NA}/OUT/
-# /usr/src/REPO/genomebrowser/scripts/BedLoaderScicer.py ${NA}
+# /usr/src/REPO/genome-tools/scripts/BedLoaderScicer.py ${NA}
 # sh /usr/src/SICER1.1/SICER/SICER-rb.sh . ${NA}.bed ./OUT hg19 1 200 150 0.74 0 100 &
 }
 
 
 function do_quest {
+ echo "depricated"
+ exit
  do_bw_bam "hits"
  quest_dir=`basename ${NA} .fastq`
  quest_dir=${quest_dir}.quest
  if [ -d ${quest_dir} ]; then
   echo "Quest dir [${quest_dir}] already exist."
  else
-  ${REPO_BASE}/genomebrowser/thirdparty/QuEST_2.4/generate_QuEST_parameters.pl \
+  ${REPO_BASE}/genome-tools/thirdparty/QuEST_2.4/generate_QuEST_parameters.pl \
   -bowtie_align_ChIP ./${NA}.hits -rp ${ROOT_DIR}/genomes/${GENOME}/ \
   -gt ${ROOT_DIR}/b_indexes/hg19_tb -ap ./${quest_dir}
  fi
@@ -328,7 +312,7 @@ function do_fence {
  if [ -f ./${1}.fence ]; then
   echo "${1}.fence exist"
  else 
-  ${REPO_BASE}/genomebrowser/scripts/fence.py ${NA} >${NA}.fence
+  fence.py ${NA} >${NA}.fence
   echo "Making ${1}.fence complete"
  fi
 
