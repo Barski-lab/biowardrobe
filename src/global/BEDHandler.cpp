@@ -61,7 +61,7 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
 
 #define trackDb_table QString("trackDb_local")
 
-    QString trackDb="CREATE TABLE IF NOT EXIST "+trackDb_table+" ("
+    QString trackDb="CREATE TABLE IF NOT EXISTS "+trackDb_table+" ("
             "tableName varchar(255) not null,"
             "shortLabel varchar(255) not null,"
             "type varchar(255) not null,"
