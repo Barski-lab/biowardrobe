@@ -50,15 +50,15 @@ private:
 public:
 
     BEDHandler(Storage &sam,Result &output);
-//    BEDHandler(Storage &sam,QState *parent=0);
     ~BEDHandler();
     void Load(void);
 protected:
+
 #ifdef _SQL_
     QSqlQuery q;
     QString sql_prep;
 #endif
-//    virtual void onEntry(QEvent* event);
+
 
 };
 

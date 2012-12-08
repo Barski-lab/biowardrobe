@@ -3,33 +3,32 @@
 export BOWTIE_INDEXES="/data/DATA/indexes/"
 
 
-#export WORK_DIR="/mnt/sf_G_DRIVE/FASTQ-DATA/NIH"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/Experiments-2012/DNA"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/Experiments-2012/YRINA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/SARA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/DNA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/RNA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/MARK/PAPER1/RNA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/JOE/RNA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/RAHUL/RNA/"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/CLARK"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/YRINA/RNA"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski/NIH/CD4-CTCF"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/Barski_OLD"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/NamekawaSatoshi/DNA"
-#export WORK_DIR="/data/barskilab/FASTQ-DATA/Olsson/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/Experiments-2012/DNA"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/Experiments-2012/YRINA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/SARA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/DNA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/RNA/"
+export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/PAPER1/RNA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/JOE/RNA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/RAHUL/RNA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/CLARK"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/YRINA/RNA"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/Barski/NIH/CD4-CTCF"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/Barski_OLD"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/NamekawaSatoshi/DNA"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/Olsson/"
 
-export WORK_DIR="/data/DATA/FASTQ-DATA/TEST/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/TEST/"
 
 #export GROUP="barskii2"
 #export GROUP="barskii5" #CD4 substets RNA-seq
 #export GROUP="barskii4" #CD4 substets chromatin
 #export GROUP="marcroch"
-#export GROUP="markroch1"
+export GROUP="markroch1"
 #export GROUP="NamekawaSatoshi"
 #export GROUP="joe"
 #export GROUP="rahul"
-export GROUP="test"
+#export GROUP="test"
 
 export BED_SITESHIFT=0
 export BED_WINDOW=20
@@ -40,8 +39,8 @@ export BED_WINDOW=20
 export RUN_ON="hg19" #
 #export RUN_ON="mm9" #
 #export DUTP="--library-type fr-firststrand"
-#export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs -T"
-export ADD_TOPHAT=" ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} --keep-tmp"
+export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs -T"
+export ADD_TOPHAT="-g 1 ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} --keep-tmp"
 export BED_FORMAT=4 # 4/8
 
 #--no-novel-juncs 
