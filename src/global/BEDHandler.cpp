@@ -117,7 +117,7 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
             qWarning()<<qPrintable("Create table error. "+q.lastError().text());
             exit(-1);
         }
-        sql=QString("insert ignore into"+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
+        sql=QString("insert ignore into "+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
                     "colorR,colorG,colorB,"
                     "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
                     "values('%1','%2','bedGraph 4','%3',0,10,"
