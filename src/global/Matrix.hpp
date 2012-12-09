@@ -42,19 +42,20 @@ public:
     void    setElement(qint64,qint64,T);
 
     T       getValue(qint64,qint64);
-    qint64 getRowCount(void) const;
+    qint64  getRowCount(void) const;
 
-    qint64 getRowColCount(qint64,T);
-    qint64 getColRowCount(qint64,T);
+    qint64  getRowColCount(qint64,T);
+    qint64  getColRowCount(qint64,T);
 
     void    setRowCount(qint64);
 
-    qint64 getColCount(void) const;
-    qint64 getColCount(T);
+    qint64  getColCount(void) const;
+    qint64  getColCount(T);
     void    setColCount(qint64);
 
     T       colSum(qint64 col);
     T       rowSum(qint64);
+    T       rowLogSum(qint64);
     T       SumAll(bool abs=false);
 
     T& operator()(qint64, qint64);
@@ -69,7 +70,7 @@ public:
     void    fillRowCond(qint64,T,T);
     void    fillColCond(qint64,T,T);
 
-    qint64 convergeAverageMatrix(void);
+    qint64 convergeAverageMatrix(bool arithmetic=false);
 private:
     QVector<QVector<T> > m_matrix_data;
     void init(qint64,qint64);
@@ -245,6 +246,22 @@ T    Matrix<T>::rowSum(qint64 row)
 }
 
 /*
+ * Sum up all log of elements in a row
+ */
+template <class T>
+T       Matrix<T>::rowLogSum(qint64 row)
+{
+    if(this->getRowCount()<row)
+        return (T)0;
+
+    T sum=(T)0;
+    for(int i=0;i<m_matrix_data[row].size();i++)
+        if(m_matrix_data[row][i]>(T)0)
+            sum+=mlog<T>(m_matrix_data[row][i]);
+    return sum;
+}
+
+/*
  * Sum up all elements in the matrix
  */
 template <class T>
@@ -301,13 +318,13 @@ void Matrix<T>::fillColCond(qint64 col,T val,T cond)
 
 
 /*
- * This function solving matrix
+ * This function solving matrix using arithmetic mean
  *  Equations like this:
  *   densities in each column of particular row should be equal
  *   sum of densities in each column should be equal in sum of original matrix
  */
 template <class T>
-qint64 Matrix<T>::convergeAverageMatrix(void)
+qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic)
 {
     QVector<qint64> rowCol;
 
@@ -330,12 +347,22 @@ qint64 Matrix<T>::convergeAverageMatrix(void)
     for(;cycles<100000;cycles++)
     {
         /*cycle trough rows, make average of all rows, and assign*/
-        for(qint64 i=0; i<this->getRowCount(); i++)
+        if(arithmetic)
         {
-            T av=this->rowSum(i)/rowCol.at(i);
-            this->fillRowCond(i,av,(T)0);
+            for(qint64 i=0; i<this->getRowCount(); i++)
+            {
+                T av=this->rowSum(i)/rowCol.at(i);
+                this->fillRowCond(i,av,(T)0);
+            }
         }
-
+        else
+        {
+            for(qint64 i=0; i<this->getRowCount(); i++)
+            {
+                T av=this->rowLogSum(i)/rowCol.at(i);
+                this->fillRowCond(i,mexp<T>(av),(T)0);
+            }
+        }
         /*cycle trough column, sum of ratio of all columns should be original val */
         for(qint64 j=0; j<this->getColCount(); j++)
         {
@@ -357,6 +384,7 @@ qint64 Matrix<T>::convergeAverageMatrix(void)
     return cycles;
 }
 
+
 /*
  * Make a printable string
  */
@@ -368,15 +396,17 @@ QString    Matrix<T>::toString(void)
     if(this->getColCount()==0)
         return QString("Empty matrix.");
 
-    QString str=QString("\nMatrix[%1,%2]\n").arg(this->getRowCount()).arg(this->getColCount());
+    QString str=QString("\nMatrix[%1,%2]\n t(matrix(c(").arg(this->getRowCount()).arg(this->getColCount());
     for(int i=0;i<this->getRowCount();i++)
     {
         for(qint64 j=0;j<this->getColCount();j++)
         {
-            str+=QString("%1\t").arg(this->getValue(i,j),0,'e',5);//arg(d, 0, 'E', 3)
+            str+=QString("%1,\t").arg(this->getValue(i,j),0,'e',5);//arg(d, 0, 'E', 3)
         }
+        str.chop(1);
         str+="\n";
     }
+    str+=QString("),ncol=%1))\n").arg(this->getRowCount());
     return str;
 }
 

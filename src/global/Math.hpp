@@ -27,12 +27,47 @@
 //std::numeric_limits<float>::min();
 //std::numeric_limits<float>::infinity();
 
-#include <Matrix.hpp>
 
 namespace Math{
+
+typedef long double ldouble;
+
+template<typename T>
+inline T mlog(T& v)
+{   return log(v); }
+template<>
+inline float mlog<float>(float& v)
+{   return logf(v); }
+template<>
+inline long double mlog<long double>(long double& v)
+{   return logl(v); }
+
+
+template<typename T>
+inline T mexp(T& v)
+{   return exp(v); }
+template<>
+inline float mexp<float>(float& v)
+{   return expf(v); }
+template<>
+inline long double mexp<long double>(long double& v)
+{   return expl(v); }
+
+
+template<typename T>
+inline T mpow(T& x,T& y)
+{   return pow(x,y); }
+template<>
+inline float mpow<float>(float& x, float& y)
+{   return powf(x,y); }
+template<>
+inline long double mpow<long double>(long double& x,long double& y)
+{   return powl(x,y); }
+
 
 
 }//namespace
 
+#include <Matrix.hpp>
 
 #endif

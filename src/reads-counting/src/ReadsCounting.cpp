@@ -21,6 +21,7 @@
 ****************************************************************************/
 #include <ReadsCounting.hpp>
 #include <Threads.hpp>
+#include <Math.hpp>
 
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
@@ -59,6 +60,7 @@ void FSTM::start()
     StartingThreads();
     WriteResult();
 }//end func
+
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 void FSTM::FillUpData()
@@ -298,7 +300,7 @@ void FSTM::FillUpData()
     {
         /* This type of reads count is just simple counting within segment and it is does not metter
           * is this segment from + or - strand. If segments intersects then it become single segment that overlaps
-          * all intersets one
+          * all intersects one
           */
 
         /* Working on batch file filling QL and PFL
@@ -489,7 +491,7 @@ void FSTM::WriteResult()
         {
             /* if in input controls list say 1,3,7 next loop will have i==list
               * then this variable became equal to current value */
-            float control=0.0;
+            double control=0.0;
 
             for(int i=0;i<m_ThreadNum;i++)
             {
@@ -520,7 +522,7 @@ void FSTM::WriteResult()
                     }
                     else
                     {
-                        float log2_val=0.0;
+                        double log2_val=0.0;
                         if(current.data()->RPKM==0.0)
                         {
                             log2_val=0.5/control;
@@ -529,9 +531,9 @@ void FSTM::WriteResult()
                         {
                             log2_val=current.data()->RPKM/control;
                         }
-                        QString tmp=QString(",%1,%2,%3").arg(current.data()->totReads).arg(current.data()->RPKM).arg(log2f(log2_val));
+                        QString tmp=QString(",%1,%2,%3").arg(current.data()->totReads).arg(current.data()->RPKM).arg(Math::mlog<double>(log2_val));
                         outFile.write(tmp.toAscii());
-                        tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(log2f(log2_val));
+                        tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(Math::mlog<double>(log2_val));
                         SQL_QUERY+=tmp;
                     }
                 }
@@ -563,7 +565,7 @@ void FSTM::WriteResult()
         for(int i=0;i<m_ThreadNum;i++)
         {
             QString name,name2;
-            float RPKM=0.0;
+            double RPKM=0.0;
             quint64 totReads=0;
 
             QSharedPointer<Isoform> current;

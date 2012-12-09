@@ -52,12 +52,12 @@ struct Isoform
     QSharedPointer<QList<IsoformPtr> > intersects_isoforms;/*Pointers to intersected chromosomes*/
     QSharedPointer<chrom_coverage > general;/*common part for intersected isoforms plus reads*/
     quint64 len;
-    float totReads;
-    float RPKM;
+    double totReads;
+    double RPKM;
     bool testNeeded;
     bool intersects;
     quint16 min;
-    float density;
+    double density;
     quint16 count;
 
     Isoform():

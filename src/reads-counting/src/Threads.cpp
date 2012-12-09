@@ -43,7 +43,7 @@ void sam_reader_thread::run(void)
             {
 
                 chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
-                Math::Matrix<float> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
+                Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
 
                 /*it is cycle trought column*/
                 for(quint64 column=0; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++,column++)
@@ -104,12 +104,12 @@ void sam_reader_thread::run(void)
                             {
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(float)tot/(u-l+1);
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(double)tot/(u-l+1);
 
                             }
                             /*DEBUG*/
-                            float cur_density=((float)tot/(u-l+1))/it_count->second;
-                            matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<float>::min():cur_density);
+                            double cur_density=((double)tot/(u-l+1))/it_count->second;
+                            matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min():cur_density);
                         }
                         else
                         {
@@ -171,28 +171,29 @@ void sam_reader_thread::run(void)
                         isoforms[0][key][i]->intersects_isoforms->at(c)->density+=matrix.getValue(c,column)*(u-l+1);
                     }
                 }
-                qreal cutoff=gArgs().getArgs("rpkm_cutoff").toReal();
+                double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
+                double cut_val=gArgs().getArgs("rpkm_cutoff_val").toDouble();
 
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                 {
                     isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=(int)isoforms[0][key][i]->intersects_isoforms->at(c)->density;
                     isoforms[0][key][i]->intersects_isoforms->at(c)->density=1000.0*isoforms[0][key][i]->intersects_isoforms->at(c)->density/isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size();
-                    float pm=(float)(sam_data->total-sam_data->notAligned)/1000000.0;
+                    double pm=(double)(sam_data->total-sam_data->notAligned)/1000000.0;
                     isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
                             isoforms[0][key][i]->intersects_isoforms->at(c)->density/pm;
 
                     /*Wich RPKM is meaningfull ?*/
                     if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff)
-                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=0.0;
+                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
 
                     if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                     {
                         qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
                                <<" name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2
-                              << " density:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->density
-                              << " totReads:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->totReads
+                              << " density:"<<(double)isoforms[0][key][i]->intersects_isoforms->at(c)->density
+                              << " totReads:"<<(double)isoforms[0][key][i]->intersects_isoforms->at(c)->totReads
                               << " size:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-                                 " pm:"<<pm << " rpkm:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM;
+                                 " pm:"<<(double)pm << " rpkm:"<<(double)isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM;
                     }
                 }
             }
@@ -211,7 +212,7 @@ void sam_reader_thread::run(void)
                 }
                 isoforms[0][key][i]->totReads=tot;
                 isoforms[0][key][i]->RPKM=
-                        ((float)(tot)/((float)(isoforms[0][key][i]->isoform.size())/1000.0))/((float)(sam_data->total-sam_data->notAligned)/1000000.0);
+                        ((double)(tot)/((double)(isoforms[0][key][i]->isoform.size())/1000.0))/((double)(sam_data->total-sam_data->notAligned)/1000000.0);
             }
         }
     qDebug()<<fileName<<"- finished";
