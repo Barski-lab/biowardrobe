@@ -97,7 +97,7 @@ void sam_reader_thread::run(void)
                         if(bicl::intersects(isoforms[0][key][i]->intersects_isoforms->at(c)->isoform,itv))
                         {
                             /*DEBUG*/
-                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
+                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
@@ -112,7 +112,7 @@ void sam_reader_thread::run(void)
                         {
                             matrix.setElement(c,column,0.0);
                             /*DEBUG*/
-                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
+                            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
@@ -123,7 +123,8 @@ void sam_reader_thread::run(void)
                         }
                     }
                 }
-                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
+
+                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                 {
                     /*DEBUG*/
                     qDebug()<<"Matrix Converging";
@@ -132,7 +133,8 @@ void sam_reader_thread::run(void)
                 }
 
                 qint64 cylc=matrix.convergeAverageMatrix(arithmetic);
-                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
+
+                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                 {
                     /*DEBUG*/
                     qDebug()<<"Matrix After Converging:"<<cylc;
@@ -183,7 +185,7 @@ void sam_reader_thread::run(void)
                     if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff)
                         isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
 
-                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->intersects_isoforms->at(c)->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
+                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->intersects_isoforms->at(c)->name2) )
                     {
                         qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
                                <<" name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2

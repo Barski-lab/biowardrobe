@@ -396,7 +396,7 @@ QString    Matrix<T>::toString(void)
     if(this->getColCount()==0)
         return QString("Empty matrix.");
 
-    QString str=QString("\nMatrix[%1,%2]\n t(matrix(c(").arg(this->getRowCount()).arg(this->getColCount());
+    QString str=QString("\nMatrix[%1,%2]\n t(matrix(c(\n").arg(this->getRowCount()).arg(this->getColCount());
     for(int i=0;i<this->getRowCount();i++)
     {
         for(qint64 j=0;j<this->getColCount();j++)
@@ -406,7 +406,8 @@ QString    Matrix<T>::toString(void)
         str.chop(1);
         str+="\n";
     }
-    str+=QString("),ncol=%1))\n").arg(this->getRowCount());
+    str.chop(2);
+    str+=QString("\n),ncol=%1))\n").arg(this->getRowCount());
     return str;
 }
 
