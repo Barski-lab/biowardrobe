@@ -212,6 +212,10 @@ void sam_reader_thread::run(void)
                 isoforms[0][key][i]->totReads=tot;
                 isoforms[0][key][i]->RPKM=
                         ((double)(tot)/((double)(isoforms[0][key][i]->isoform.size())/1000.0))/((double)(sam_data->total-sam_data->notAligned)/1000000.0);
+
+                /*Wich RPKM is meaningfull ?*/
+                if(isoforms[0][key][i]->RPKM < cutoff)
+                    isoforms[0][key][i]->RPKM=cut_val;
             }
         }
     qDebug()<<fileName<<"- finished";
