@@ -42,10 +42,10 @@ void sam_reader_thread::run(void)
             if(isoforms[0][key][i]->intersects)
             {
 
-                chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
                 Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
 
                 /*it is cycle trought column*/
+                chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
                 for(quint64 column=0; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++,column++)
                 {
                     chrom_coverage::interval_type itv  =
@@ -70,6 +70,23 @@ void sam_reader_thread::run(void)
                         l++;
                         u--;
                     }
+                    chrom_coverage::domain_type exon_len=u-l+1;
+
+                    bool next_is_close=false;
+
+                    if(isoforms[0][key][i]->strand==QChar('+') && it_count!=isoforms[0][key][i]->intersects_count->end())
+                    {
+                        it_count++;
+                        if(it_count!=isoforms[0][key][i]->intersects_count->end())
+                        {
+                            chrom_coverage::interval_type itv1  =
+                                    bicl::key_value<chrom_coverage >(it_count);
+                            if(u+1>=itv1.lower())
+                                next_is_close=true;
+                        }
+                        it_count--;
+                    }
+
 
                     if(dUTP)
                     {
@@ -104,12 +121,20 @@ void sam_reader_thread::run(void)
                             {
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<(u-l+1)<<" reads: "<<tot<<" density:"<<(double)tot/(u-l+1);
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<exon_len<<" reads: "<<tot<<" density:"<<(double)tot/exon_len;
 
                             }
                             /*DEBUG*/
-                            double cur_density=((double)tot/(u-l+1))/it_count->second;
-                            matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min():cur_density);
+
+                            double cur_density=((double)tot/exon_len)/it_count->second;
+                            if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
+                            {
+                                matrix.setElement(c,column,0.0);
+                            }
+                            else
+                            {
+                                matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*10.0:cur_density);
+                            }
                         }
                         else
                         {

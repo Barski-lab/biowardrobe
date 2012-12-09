@@ -13,6 +13,14 @@ using namespace std;
 
 int main(void)
 {
+QString str="GAPDH STAT6 TPI1 SPSB2";
+
+if(str.contains("STAT6"))
+ cout <<"!!!" << endl;
+
+
+return 0;
+
 bicl::interval_map<int,int> a,b,c; 
 
 if(a==b)
@@ -20,7 +28,6 @@ if(a==b)
 //QString str="abscdf-";
 //        cout <<str.right(1).toStdString() << endl;
 
-return 0;
 //------------------------------------------------------------------
 a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
 
