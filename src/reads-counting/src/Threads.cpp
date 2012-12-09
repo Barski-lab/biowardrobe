@@ -29,11 +29,8 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
-    bool dUTP=false;
-    if(gArgs().getArgs("rna_seq").toString()=="dUTP")
-    {
-        dUTP=true;
-    }
+    bool dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
+    bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
     foreach(const QString key,isoforms[0].keys())/*Iterating trough chromosomes*/
         for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/
@@ -134,7 +131,7 @@ void sam_reader_thread::run(void)
                     /*DEBUG*/
                 }
 
-                qint64 cylc=matrix.convergeAverageMatrix();
+                qint64 cylc=matrix.convergeAverageMatrix(arithmetic);
                 if(!gArgs().getArgs("debug_gene").toString().isEmpty() && isoforms[0][key][i]->name2.startsWith(gArgs().getArgs("debug_gene").toString()))
                 {
                     /*DEBUG*/

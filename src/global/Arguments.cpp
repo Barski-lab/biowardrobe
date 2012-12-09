@@ -251,6 +251,9 @@ void Arguments::argsList(void)
     Arguments::addArg("rpkm_cutoff","rpkm-cutoff","RPKM/CUTOFF",QVariant::String,"Cutoff for RPKM","0.1");
     Arguments::addArg("rpkm_cutoff_val","rpkm-cutoff-val","RPKM/CUTOFFVAL",QVariant::String,"Cutoff value for RPKM","0.0");
 
+    Arguments::addArg("math_converging","math-converging","MATH/CONVERGING",QVariant::String,"Type of converging: arithmetic, geometric","geometric");
+
+
     Arguments::addArg("avd_window","avd_window","AVD/WINDOW",QVariant::Int,"Average tag density window",2000);
     Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
 
