@@ -144,7 +144,7 @@ void SamReader<Storage>::Load(void)
             //char TagVal=0;
             //if(al.GetTag<char>("XS",TagVal) && ((al.IsReverseStrand() && TagVal=='-') || (!al.IsReverseStrand() && TagVal=='+')) )
             //{
-            //QString _out;
+            QString _out;
             //                const vector<CigarOp>& cigarData = al.CigarData;
             //                if (! cigarData.empty() )
             //                {
@@ -161,7 +161,7 @@ void SamReader<Storage>::Load(void)
 
 
             QChar strnd=QChar('+');
-            int shift=siteshift;
+            int shift=siteshift+1;
             int length=al.Length;
             int position=al.Position;
 
@@ -188,16 +188,16 @@ void SamReader<Storage>::Load(void)
             }
             output->setGene(strnd,
                             references[al.RefID].RefName.c_str(),
-                            position+1+shift,
+                            position+shift,
                             num,length
                             );
 
-            //            if(c-->0)
-            //            {
-            //                qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position<<"-"<<al.GetEndPosition()<<"] "
-            //                       <<" new pos:"<<position
-            //                       <<"Len:"<<length<<" Cigar"<<_out<<" strand:"<<(al.IsReverseStrand()?"-":"+");
-            //            }
+                        if(QString("chr22")==references[al.RefID].RefName.c_str() && al.Position>=19938458 && al.Position<=19938576)
+                        {
+                            qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position<<"-"<<al.GetEndPosition()<<"] "
+                                   <<" new pos:"<<position
+                                   <<"Len:"<<length<<" Cigar"<<_out<<" strand:"<<(al.IsReverseStrand()?"-":"+");
+                        }
         }
         else
         {
