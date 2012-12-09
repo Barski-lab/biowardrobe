@@ -32,6 +32,9 @@ void sam_reader_thread::run(void)
     bool dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
     bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
+    double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
+    double cut_val=gArgs().getArgs("rpkm_cutoff_val").toDouble();
+
     foreach(const QString key,isoforms[0].keys())/*Iterating trough chromosomes*/
         for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/
         {
@@ -170,8 +173,6 @@ void sam_reader_thread::run(void)
                         isoforms[0][key][i]->intersects_isoforms->at(c)->density+=matrix.getValue(c,column)*(u-l+1);
                     }
                 }
-                double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
-                double cut_val=gArgs().getArgs("rpkm_cutoff_val").toDouble();
 
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                 {
