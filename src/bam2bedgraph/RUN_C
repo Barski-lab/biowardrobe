@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export BOWTIE_INDEXES="/data/DATA/indexes/"
+export BOWTIE_INDEXES="/data/DATA/indexes"
 
 
 #export WORK_DIR="/data/DATA/FASTQ-DATA/Experiments-2012/DNA"
@@ -8,7 +8,7 @@ export BOWTIE_INDEXES="/data/DATA/indexes/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/SARA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/DNA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/RNA/"
-export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/PAPER1/RNA/"
+#export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/PAPER1/RNA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/JOE/RNA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/RAHUL/RNA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/CLARK"
@@ -17,14 +17,15 @@ export WORK_DIR="/data/DATA/FASTQ-DATA/MARK/PAPER1/RNA/"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/Barski_OLD"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/NamekawaSatoshi/DNA"
 #export WORK_DIR="/data/DATA/FASTQ-DATA/Olsson/"
-
 #export WORK_DIR="/data/DATA/FASTQ-DATA/TEST/"
+export WORK_DIR="/data/DATA/FASTQ-DATA/NIH/RNA"
+
 
 #export GROUP="barskii2"
-#export GROUP="barskii5" #CD4 substets RNA-seq
+export GROUP="barskii5" #CD4 substets RNA-seq
 #export GROUP="barskii4" #CD4 substets chromatin
 #export GROUP="marcroch"
-export GROUP="markroch1"
+#export GROUP="markroch1"
 #export GROUP="NamekawaSatoshi"
 #export GROUP="joe"
 #export GROUP="rahul"
@@ -39,8 +40,8 @@ export BED_WINDOW=20
 export RUN_ON="hg19" #
 #export RUN_ON="mm9" #
 #export DUTP="--library-type fr-firststrand"
-export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs -T"
-export ADD_TOPHAT="-g 1 ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} --keep-tmp"
+export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs "
+export ADD_TOPHAT=" -g 1 ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} "
 export BED_FORMAT=4 # 4/8
 
 #--no-novel-juncs 
@@ -209,10 +210,11 @@ function upload_bed_mysql {
 
  do_bw_bam "bam"
  #replace +,=,-,\. on _
- TBL="${NA//[+|=|\-|\.]/_}"
+# TBL="${NA//[+|=|\-|\.]/_}"
 # TBL="${TBL//run*index[0-9]_/}"
 # TBL="${TBL//_fastq}"
- bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
+ bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" \
+ -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_siteshift=${BED_SITESHIFT} -bed_format=${BED_FORMAT} -no-bed-file  ${SQLDB}
  
 #"debug/bam2bedgraph.exe" -in="run0146_lane8_read1_index10=ABYR21.fastq.bam" -out="run0146_lane8_read1_index10=ABYR21.fastq.out" -bed_window=20 -bed_siteshift=0 -bed_format=8 -log="run0146_lane8_read1_index10=ABYR21.fastq.log" -sql_table="run0146_lane8_read1_index10_ABYR21" -sql_grp="barskii2" -rna_seq="dUTP" -no-bed-file
  
@@ -232,13 +234,10 @@ function upload_bed_mysql_pair {
 
 function upload_tophat_bed_mysql {
 
- do_tophat_bam 
-# do_bed_file "${NA}"
+ do_tophat_bam
 
- TBL="${NA//[+|=|\-|\.]/_}"
- bam2bedgraph -sql_table="${TBL}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_format=${BED_FORMAT} -no-bed-file ${SQLDB}
-
-# ${REPO_BASE}/genome-tools/scripts/BedLoader.py ${NA} ${GROUP} ${GENOME}
+ bam2bedgraph -sql_table="${TBLN}" -in="${NA}.bam" -out="${NA}.out" -log="${NA}.log" -bed_trackname="${TBL}" \
+  -sql_grp="${GROUP}" -bed_window=${BED_WINDOW} -bed_format=${BED_FORMAT} -no-bed-file ${SQLDB}
 }
 
 
@@ -365,7 +364,12 @@ echo "${i}"|grep -v "^#" >/dev/null
  echo ""
  echo "_________________________________________________________________"
  echo $NA 
- 
+
+ export TBLN="${NA//[+|=|\-|\.]/_}"
+ TBL="${NA//run*=/}"
+ TBL="${TBL//.fastq/}"
+ export TBL="${TBL//[+|=|\-|\.|_]/ }"
+
  cd ${WORK_DIR} #/${NA}/
 
  #do_fence "${NA}"

@@ -144,7 +144,7 @@ void FSTM::FillUpData()
             for(int j=0;j<exCount;j++)
             {
                 quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
-                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s,e),1));
+                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s+1,e),1));
             }
 
             for(int i=0;i<m_ThreadNum;i++)
