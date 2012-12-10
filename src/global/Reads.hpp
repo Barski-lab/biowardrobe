@@ -126,7 +126,6 @@ class Cover
 public:
     typedef cover_map::iterator iterator;
 
-//    Cover():max_len(0),length(0){};
     Cover():length(0){};
 
     void addRead(Read&);
@@ -150,6 +149,7 @@ public:
 
     bool isEmpty(){return covering.size()==0;};
 
+
     template <typename T>
     static void countReads(QList<Read> &qr,T &tot)
     {
@@ -158,12 +158,9 @@ public:
     };
 
 
-    // static Cover empty(){ return Cover();};
 
 private:
     cover_map covering;
-
-//    int max_len;
     qint64 length;
 };
 

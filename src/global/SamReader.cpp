@@ -118,7 +118,6 @@ void SamReader<Storage>::Load(void)
         u=border[1].toInt();
     }
 
-    //int c=400;
 
     BamAlignment al;
     while ( reader.GetNextAlignment(al))
@@ -151,8 +150,8 @@ void SamReader<Storage>::Load(void)
 
             QChar strnd=QChar('+');
             int shift=siteshift;
-            int length=al.Length;
             int position=al.Position+1;
+            int length=al.GetEndPosition()-al.Position;
 
             if(al.IsReverseStrand())
             {// - strand
@@ -176,29 +175,43 @@ void SamReader<Storage>::Load(void)
                 continue;
             }
 
+            /*
+            genome::read_representation rp;
+
             QString _out;
             const vector<CigarOp>& cigarData = al.CigarData;
-                            if (! cigarData.empty() )
-                            {
-                                vector<CigarOp>::const_iterator cigarIter = cigarData.begin();
-                                vector<CigarOp>::const_iterator cigarEnd  = cigarData.end();
-                                for ( ; cigarIter != cigarEnd; ++cigarIter ) {
-                                    const CigarOp& op = (*cigarIter);
-                                    _out+=QString("[Len=%1,Type=%2]").arg(op.Length).arg(op.Type);
-                                }
-                            }
+            if (! cigarData.empty() && cigarData.size()>1)
+            {
+                vector<CigarOp>::const_iterator cigarIter = cigarData.begin();
+                for ( ; cigarIter != cigarData.end(); ++cigarIter )
+                {
+                    if(QString(cigarIter->Type)=="M")
+                    {
+                    }
+                    //const CigarOp& op = (*cigarIter);
+                    _out+=QString("[Len=%1,Type=%2]").arg(cigarIter->Length).arg(cigarIter->Type);
+                }
+            }
+            else
+            {
+                rp.add(make_pair(genome::interval_type::closed(position,position+al.Length),num));
+            }
+            */
+
             output->setGene(strnd,
                             references[al.RefID].RefName.c_str(),
                             position+shift,
                             num,length
                             );
 
-                        if(QString("chr22")==references[al.RefID].RefName.c_str() && al.Position>=19938458 && al.Position<=19938576)
-                        {
-                            qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position<<"-"<<al.GetEndPosition()<<"] "
-                                   <<" new pos:"<<position<<" strand:"<<strnd<<" end pos f/t:"<<al.GetEndPosition(false,true)
-                                   <<"Len:"<<length<<" Cigar"<<_out<<"cigar size:"<<cigarData.size();
-                        }
+            /*
+            if(QString("chr22")==references[al.RefID].RefName.c_str() && al.Position>=19938458 && al.Position<=19938576)
+            {
+                qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str()<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] "
+                       <<" new pos:"<<position<<" strand:"<<strnd
+                      <<"Len:"<<length<<" Cigar"<<_out<<"cigar size:"<<cigarData.size();
+            }
+            */
         }
         else
         {

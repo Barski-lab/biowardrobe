@@ -29,7 +29,7 @@
 #endif
 
 #include <config.hpp>
-
+#include <Reads.hpp>
 
 template <class Storage>
 class SamReader
