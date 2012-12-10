@@ -72,6 +72,7 @@ void FSTM::FillUpData()
     }
 
     TSS_organized_list.resize(m_ThreadNum);
+    GENES_organized_list.resize(m_ThreadNum);
 
     /* fill from one sql or file
       * or from sum of segments from sql queries or files*/
@@ -129,7 +130,7 @@ void FSTM::FillUpData()
             QString iso_name=q.value(fieldName).toString();
             /*gene name*/
             QString g_name=q.value(fieldName2).toString();
-            quint64 txStart=q.value(fieldTxStart).toInt();
+            quint64 txStart=q.value(fieldTxStart).toInt()+1;
             quint64 txEnd=q.value(fieldTxEnd).toInt();
             quint64 cdsStart=q.value(fieldCdsStart).toInt();
             quint64 cdsEnd=q.value(fieldCdsEnd).toInt();
@@ -159,10 +160,11 @@ void FSTM::FillUpData()
                 }
                 else
                 {
-                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txStart);
+                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txEnd);
                 }
 
                 TSS_organized_list[i][str].append(p);
+                GENES_organized_list[i][g_name].append(p);
             }
         }
 
@@ -549,8 +551,10 @@ void FSTM::WriteResult()
     }
     outFile.close();
 
-
-    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_genes.csv");
+    /*
+     *   Reporting isoforms with common TSS
+     */
+    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_common_tss.csv");
     outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
     outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
@@ -605,6 +609,66 @@ void FSTM::WriteResult()
     outFile.close();
 
 
+    /*
+     *   Reporting GENES Expression
+     */
+    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
+    outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+    outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+
+    for(int i=1;i<m_ThreadNum;i++)
+    {
+        outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+    }
+    outFile.write(QString("\n").toAscii());
+
+    foreach(QString key,GENES_organized_list[0].keys())
+    {
+        for(int i=0;i<m_ThreadNum;i++)
+        {
+            QString name,name2;
+            double RPKM=0.0;
+            quint64 totReads=0;
+
+            QSharedPointer<Isoform> current;
+            for(int j=0;j<GENES_organized_list[i][key].size();j++)
+            {
+                current = GENES_organized_list[i][key].at(j);
+                name+=current.data()->name+",";
+                if(!name2.contains(current.data()->name2))
+                    name2+=current.data()->name2+",";
+                RPKM+=current.data()->RPKM;
+                totReads+=current.data()->totReads;
+            }
+            name.chop(1);
+            name2.chop(1);
+
+            if(i==0)
+            {
+                outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
+                               arg(name).
+                               arg(name2).
+                               arg(current.data()->chrom).
+                               arg(current.data()->txStart).
+                               arg(current.data()->txEnd).
+                               arg(current.data()->strand).
+                               arg(totReads).
+                               arg(RPKM)).toAscii());
+            }
+            else
+            {
+                QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
+                outFile.write(tmp.toAscii());
+            }
+        }
+        outFile.write(QString("\n").toAscii());
+    }
+
+    outFile.close();
+
+    /*
+     *
+     */
 
     qDebug()<<"Complete";
     emit finished();
