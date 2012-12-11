@@ -163,14 +163,14 @@ void sam_reader_thread::run(void)
                             {
                                 matrix.setElement(c,column,0.0);
 
-                                if(tot>4)
-                                {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
-                                       <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
-                                       <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
-                                       <<" mu:"<<lambda*(double)exon_len
-                                       <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
-                                }
+                                //                                if(tot>4)
+                                //                                {
+                                //                                qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
+                                //                                       <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
+                                //                                       <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
+                                //                                       <<" mu:"<<lambda*(double)exon_len
+                                //                                       <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
+                                //                                }
                             }
                             else
                             {
