@@ -23,13 +23,57 @@
 #include <SamReader.hpp>
 
 
+sam_reader_thread::sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io):
+    sam_data(sd),
+    fileName(fn),
+    isoforms(io)
+{
+    dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
+};
+
+
+quint64 sam_reader_thread::getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u)
+{
+    quint64 tot=0;
+    if(dUTP)
+    {
+        /*
+         * if it is dUTP method then only reads from opposite gene direction should be counted
+         */
+        if(isoforms[0][key][i]->strand==QChar('+'))
+        {
+            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
+        }
+        else
+        {
+            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
+        }
+    }
+    else
+    {
+        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
+        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
+    }
+    return tot;
+}
+
+void sam_reader_thread::correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u)
+{
+    if(itv.bounds().bits() == bicl::interval_bounds::_left_open)
+    { l++; }
+    else if(itv.bounds().bits() == bicl::interval_bounds::_right_open)
+    { u--; }
+    else if(itv.bounds().bits() == bicl::interval_bounds::_open)
+    { l++; u--; }
+}
+
+
 void sam_reader_thread::run(void)
 {
     qDebug()<<fileName<<"- started";
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
-    bool dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
     bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
     double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
@@ -44,8 +88,26 @@ void sam_reader_thread::run(void)
 
                 Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
 
-                /*it is cycle trought column*/
+                /*
+                 * Counting total reads
+                 */
+                quint64 totReads=0;
                 chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
+                for(; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++)
+                {
+                    chrom_coverage::interval_type itv  =
+                            bicl::key_value<chrom_coverage >(it_count);
+                    /**/
+                    chrom_coverage::domain_type l=itv.lower(), u=itv.upper();
+                    correctBoundings(itv,l,u);
+                    totReads+=getTotal(key,i,l,u);
+                }
+                double lambda=(double)totReads/isoforms[0][key][i]->intersects_count->size();
+
+                /*
+                 * it is cycle trought column
+                 */
+                it_count = isoforms[0][key][i]->intersects_count->begin();
                 for(quint64 column=0; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++,column++)
                 {
                     chrom_coverage::interval_type itv  =
@@ -53,27 +115,15 @@ void sam_reader_thread::run(void)
                     quint64 tot=0;
 
                     /**/
-
-                    chrom_coverage::domain_type l=itv.lower();
-                    chrom_coverage::domain_type u=itv.upper();
-
-                    if(itv.bounds().bits() == bicl::interval_bounds::_left_open)
-                    {
-                        l++;
-                    }
-                    else if(itv.bounds().bits() == bicl::interval_bounds::_right_open)
-                    {
-                        u--;
-                    }
-                    else if(itv.bounds().bits() == bicl::interval_bounds::_open)
-                    {
-                        l++;
-                        u--;
-                    }
+                    chrom_coverage::domain_type l=itv.lower(), u=itv.upper();
+                    correctBoundings(itv,l,u);
                     chrom_coverage::domain_type exon_len=u-l+1;
 
+                    /*
+                     * Testing if next fragment prolongs current
+                     */
+                    /*
                     bool next_is_close=false;
-
                     if(isoforms[0][key][i]->strand==QChar('+') && it_count!=isoforms[0][key][i]->intersects_count->end())
                     {
                         it_count++;
@@ -81,33 +131,14 @@ void sam_reader_thread::run(void)
                         {
                             chrom_coverage::interval_type itv1  =
                                     bicl::key_value<chrom_coverage >(it_count);
-                            if(u+1>=itv1.lower())
-                                next_is_close=true;
+                            if(u+1 >= itv1.lower())
+                                next_is_close=true & (column>0);
                         }
                         it_count--;
                     }
+                    */
 
-
-                    if(dUTP)
-                    {
-                        /*
-                         * if it is dUTP method then only reads from opposite gene direction should be counted
-                         */
-                        if(isoforms[0][key][i]->strand==QChar('+'))
-                        {
-                            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
-                        }
-                        else
-                        {
-                            tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
-                        }
-                    }
-                    else
-                    {
-                        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('+')).getStarts(l,u);
-                        tot+=sam_data->getLineCover(isoforms[0][key][i]->chrom+QChar('-')).getStarts(l,u);
-                    }
-
+                    tot=getTotal(key,i,l,u);
 
                     /*Calculating densities, going trought rows for matrix */
                     for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
@@ -127,9 +158,16 @@ void sam_reader_thread::run(void)
                             /*DEBUG*/
 
                             double cur_density=((double)tot/exon_len)/it_count->second;
-                            if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
+                            //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
+                            double p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len);
+                            if(p_val>0.01)
                             {
                                 matrix.setElement(c,column,0.0);
+                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
+                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<exon_len<<" reads: "<<tot<<" density:"<<(double)tot/exon_len;
+                                qDebug()<<" lambda:"<<lambda << " totReads:"<<totReads<<" totIsoLength:"<<isoforms[0][key][i]->intersects_count->size()<<" mu:"<<lambda*(double)exon_len
+                                       <<" exonLen:"<<exon_len<<" p_val"<<p_val;
                             }
                             else
                             {
@@ -177,22 +215,9 @@ void sam_reader_thread::run(void)
                     chrom_coverage::interval_type itv  =
                             bicl::key_value<chrom_coverage >(it_count);
 
-                    chrom_coverage::domain_type l=itv.lower();
-                    chrom_coverage::domain_type u=itv.upper();
+                    chrom_coverage::domain_type l=itv.lower(),u=itv.upper();
+                    correctBoundings(itv,l,u);
 
-                    if(itv.bounds().bits() == bicl::interval_bounds::_left_open)
-                    {
-                        l++;
-                    }
-                    else if(itv.bounds().bits() == bicl::interval_bounds::_right_open)
-                    {
-                        u--;
-                    }
-                    else if(itv.bounds().bits() == bicl::interval_bounds::_open)
-                    {
-                        l++;
-                        u--;
-                    }
                     for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                     {
                         isoforms[0][key][i]->intersects_isoforms->at(c)->density+=matrix.getValue(c,column)*(u-l+1);

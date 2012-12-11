@@ -50,7 +50,7 @@ struct Isoform
     /*QSharedPointer for storing shared isoforms reads, and storing isoforms intersections*/
     QSharedPointer<chrom_coverage > intersects_count;
     QSharedPointer<QList<IsoformPtr> > intersects_isoforms;/*Pointers to intersected chromosomes*/
-    QSharedPointer<chrom_coverage > general;/*common part for intersected isoforms plus reads*/
+    //QSharedPointer<chrom_coverage > general;/*common part for intersected isoforms plus reads*/
     quint64 len;
     double totReads;
     double RPKM;

@@ -36,14 +36,14 @@ private:
     gen_lines *sam_data;
     QString fileName;
     IsoformsOnChromosome* isoforms;
+    bool dUTP;
+
+void correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
+quint64 getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
 
 public:
 
-    sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io):
-        sam_data(sd),
-        fileName(fn),
-        isoforms(io)
-    {};
+    sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io);
 
 protected:
 
