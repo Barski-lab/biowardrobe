@@ -88,6 +88,7 @@ void sam_reader_thread::run(void)
             {
 
                 Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
+                Math::Matrix<double> matrix_orig(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
                 QVector<double> rowCol;
                 rowCol.resize(isoforms[0][key][i]->intersects_isoforms->size());
 
@@ -158,28 +159,30 @@ void sam_reader_thread::run(void)
                             /* Should be changed in future, if exon length less then read length
                              * then just ignore that exon, otherwise
                              */
-                            if(exon_len<100 && ( tot==0 || (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 ) )
+                            if(exon_len<100 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
                             {
                                 matrix.setElement(c,column,0.0);
 
                                 if(tot>4)
                                 {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
+                                qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
                                        <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
+                                       <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
                                        <<" mu:"<<lambda*(double)exon_len
                                        <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
                                 }
                             }
                             else
                             {
-                                matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*10.0:cur_density);
-
+                                matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*1000.0:cur_density);
                             }
+                            matrix_orig.setElement(c,column,cur_density);
                             rowCol[c]+=1.0;
                         }
                         else
                         {
                             matrix.setElement(c,column,0.0);
+                            matrix_orig.setElement(c,column,0.0);
                             /*DEBUG*/
                             if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
@@ -224,7 +227,9 @@ void sam_reader_thread::run(void)
 
                     for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++)
                     {
-                        isoforms[0][key][i]->intersects_isoforms->at(c)->density+=matrix.getValue(c,column)*(u-l+1);
+                        double val=matrix.getValue(c,column);
+                        if(val==0) val=matrix_orig.getValue(c,column);
+                        isoforms[0][key][i]->intersects_isoforms->at(c)->density+=val*(u-l+1);
                     }
                 }
 
