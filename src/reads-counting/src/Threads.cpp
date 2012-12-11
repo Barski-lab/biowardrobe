@@ -74,6 +74,7 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
+    double bMu=(double)(sam_data->total-sam_data->notAligned)/(sam_data->tot_len*0.76);
     bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
     double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
@@ -150,19 +151,24 @@ void sam_reader_thread::run(void)
 
                             double cur_density=((double)tot/exon_len)/it_count->second;
                             //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
+                            if(lambda<bMu) lambda=bMu;
                             double p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len);
-                            if(p_val>0.01)
+                            /* Should be changed in future, if exon length less then read length
+                             * then just ignore that exon, otherwise
+                             */
+                            if(p_val>0.01 && exon_len<100)
                             {
                                 matrix.setElement(c,column,0.0);
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
                                           " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
                                           " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<exon_len<<" reads: "<<tot<<" density:"<<(double)tot/exon_len;
-                                qDebug()<<" lambda:"<<lambda << " totReads:"<<totReads<<" totIsoLength:"<<isoforms[0][key][i]->intersects_count->size()<<" mu:"<<lambda*(double)exon_len
+
+                                qDebug()<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads<<" curReads:"<<tot<<" totLength:"<<ri-le<<" mu:"<<lambda*(double)exon_len
                                        <<" exonLen:"<<exon_len<<" p_val"<<p_val;
                             }
                             else
                             {
-                                matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*10.0:cur_density);
+                                matrix.setElement(c,column,cur_density);
                             }
                         }
                         else
