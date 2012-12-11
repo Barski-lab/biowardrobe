@@ -1,0 +1,16 @@
+
+Downloading genome browser databases
+
+rsync -avzP rsync://hgdownload.cse.ucsc.edu/mysql/hg19/ ./hg19/
+
+
+
+SETUP MYSQL:
+ 1. root passwd
+ 
+ read PASS
+ mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'%' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
+ 
+ 
+ 
