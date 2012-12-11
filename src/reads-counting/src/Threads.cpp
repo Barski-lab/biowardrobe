@@ -97,7 +97,7 @@ void sam_reader_thread::run(void)
                  */
                 chrom_coverage::domain_type le=isoforms[0][key][i]->txStart,ri=isoforms[0][key][i]->txEnd;
                 quint64 totReads=getTotal(key,i,le,ri);
-                double lambda=(double)totReads/(ri-le);
+                double lambda=(double)totReads/(ri-le+1);
 
                 /*
                  * it is cycle trought column
@@ -154,9 +154,9 @@ void sam_reader_thread::run(void)
 
                             double cur_density=((double)tot/exon_len)/it_count->second;
                             //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
-                            if(lambda<bMu) lambda=bMu;
+                            if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu;
                             double p_val=1;
-                            /* Should be changed in future, if exon length less then read length
+                            /* Should be changed in future, if exon length less then 2*read length
                              * then just ignore that exon, otherwise
                              */
                             if(exon_len<100 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
