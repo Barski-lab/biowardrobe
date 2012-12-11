@@ -29,6 +29,7 @@ FSTM::FSTM(QObject *parent):
     QObject(parent)
 {
     m_ThreadCount=0;
+    dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
 }
 
 //------------------------------------------------------------------------------------
@@ -181,7 +182,7 @@ void FSTM::FillUpData()
                 {
                     if(isoforms[0][0][key][i]->intersects_count.isNull())
                     {
-                        if(bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform))
+                        if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) && bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform))
                         {
                             /*repeat this part for multithread*/
                             for(int t=0;t<m_ThreadNum;t++)

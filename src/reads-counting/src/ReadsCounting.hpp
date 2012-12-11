@@ -112,7 +112,7 @@ private:
     sam_reader_thread** threads;
     QVector<QMap<QString, QVector< IsoformPtr > > > TSS_organized_list;
     QVector<QMap<QString, QVector< IsoformPtr > > > GENES_organized_list;
-
+    bool dUTP;
 public:
 
     FSTM(QObject* parent=0);

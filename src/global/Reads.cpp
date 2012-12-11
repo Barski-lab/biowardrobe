@@ -188,8 +188,9 @@ int  Cover::getStarts(int s,int e)
     iterator i = getLowerBound(s);
 
     for(;covering.end()!=i && i.key()<=e;i++)
-        for(int j=0; j<i.value().size();j++)
-            a+=i.value()[j].getLevel();
+        countReads<int>(i.value(),a);
+//        for(int j=0; j<i.value().size();j++)
+//            a+=i.value()[j].getLevel();
     return a;
 }
 

@@ -29,7 +29,7 @@ sam_reader_thread::sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromoso
     isoforms(io)
 {
     dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
-};
+}
 
 
 quint64 sam_reader_thread::getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u)
