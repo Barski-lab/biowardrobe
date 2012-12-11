@@ -91,23 +91,14 @@ void sam_reader_thread::run(void)
                 /*
                  * Counting total reads
                  */
-                quint64 totReads=0;
-                chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
-                for(; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++)
-                {
-                    chrom_coverage::interval_type itv  =
-                            bicl::key_value<chrom_coverage >(it_count);
-                    /**/
-                    chrom_coverage::domain_type l=itv.lower(), u=itv.upper();
-                    correctBoundings(itv,l,u);
-                    totReads+=getTotal(key,i,l,u);
-                }
-                double lambda=(double)totReads/isoforms[0][key][i]->intersects_count->size();
+                chrom_coverage::domain_type le=isoforms[0][key][i]->txStart,ri=isoforms[0][key][i]->txEnd;
+                quint64 totReads=getTotal(key,i,le,ri);
+                double lambda=(double)totReads/(ri-le);
 
                 /*
                  * it is cycle trought column
                  */
-                it_count = isoforms[0][key][i]->intersects_count->begin();
+                chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
                 for(quint64 column=0; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++,column++)
                 {
                     chrom_coverage::interval_type itv  =
