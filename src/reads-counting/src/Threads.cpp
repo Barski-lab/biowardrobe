@@ -88,6 +88,8 @@ void sam_reader_thread::run(void)
             {
 
                 Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
+                QVector<double> rowCol;
+                rowCol.resize(isoforms[0][key][i]->intersects_isoforms->size());
 
                 /*
                  * Counting total reads
@@ -160,16 +162,20 @@ void sam_reader_thread::run(void)
                             {
                                 matrix.setElement(c,column,0.0);
 
+                                if(tot>4)
+                                {
                                 qDebug()<<"name:"<<isoforms[0][key][i]->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
                                        <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
                                        <<" mu:"<<lambda*(double)exon_len
                                        <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
+                                }
                             }
                             else
                             {
                                 matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*10.0:cur_density);
 
                             }
+                            rowCol[c]+=1.0;
                         }
                         else
                         {
@@ -191,11 +197,12 @@ void sam_reader_thread::run(void)
                 {
                     /*DEBUG*/
                     qDebug()<<"Matrix Converging";
+                    qDebug()<<"rowCol"<<rowCol;
                     qDebug()<<matrix.toString();
                     /*DEBUG*/
                 }
 
-                qint64 cylc=matrix.convergeAverageMatrix(arithmetic);
+                qint64 cylc=matrix.convergeAverageMatrix(arithmetic,rowCol);
 
                 if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                 {

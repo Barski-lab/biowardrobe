@@ -70,7 +70,7 @@ public:
     void    fillRowCond(qint64,T,T);
     void    fillColCond(qint64,T,T);
 
-    qint64 convergeAverageMatrix(bool arithmetic=false);
+    qint64 convergeAverageMatrix(bool arithmetic,QVector<T> rowCol);
 private:
     QVector<QVector<T> > m_matrix_data;
     void init(qint64,qint64);
@@ -324,17 +324,15 @@ void Matrix<T>::fillColCond(qint64 col,T val,T cond)
  *   sum of densities in each column should be equal in sum of original matrix
  */
 template <class T>
-qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic)
+qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
 {
-    QVector<qint64> rowCol;
-
     QVector<T> sumCol;
 
     /*calculating valuable fields in each row*/
-    for(qint64 i=0;i<this->getRowCount();i++)
-    {
-        rowCol<<this->getRowColCount(i,(T)0);
-    }
+//    for(qint64 i=0;i<this->getRowCount();i++)
+//    {
+//        rowCol<<this->getRowColCount(i,(T)0);
+//    }
     /*calculating original sums of each column*/
     for(qint64 i=0;i<this->getColCount();i++)
     {
