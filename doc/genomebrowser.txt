@@ -1,15 +1,24 @@
+INSTALLING UCSC genome browser on OpenSuse
 
 Downloading genome browser databases
 
 rsync -avzP rsync://hgdownload.cse.ucsc.edu/mysql/hg19/ ./hg19/
+rsync -avzP rsync://hgdownload.cse.ucsc.edu/gbdb/hg19/ ./hg19/
 
+DOWNLOAD GenomeBrowser sources
 
+Start an initial Git local repository:
+ $ git clone git://genome-source.cse.ucsc.edu/kent.git
+       
 
 SETUP MYSQL:
- 1. root passwd
+ 1. zypper in mysql
+ 2. /etc/init.d/mysql start
+ 3. setting root passwd
  
+ #!/bin/bash
  read PASS
- mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'%' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
  mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
  
  

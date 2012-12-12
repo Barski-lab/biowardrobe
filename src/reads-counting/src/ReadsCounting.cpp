@@ -451,7 +451,7 @@ void FSTM::WriteResult()
     for(int i=1;i<m_ThreadNum;i++)
     {
         outFile.write(QString(",TOT_R_%1,RPKM_%2,log2_%3").arg(i).arg(i).arg(i).toAscii());
-        RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i).arg(i);
+        RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
     }
     outFile.write(QString("\n").toAscii());
 

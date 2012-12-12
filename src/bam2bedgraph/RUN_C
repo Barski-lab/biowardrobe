@@ -58,7 +58,6 @@ esac
 export RUN_ON="${3}" #
 
 #export GROUP="joe"
-#export GROUP="rahul"
 
 export TOPHAT_TRANSCRIPTOME_ONLY=" --no-novel-juncs "
 case ${2} in
@@ -84,9 +83,13 @@ case ${2} in
   "NIH")
    export GROUP="barskii5" #CD4 substets RNA-seq
    #export GROUP="barskii4" #CD4 substets chromatin
+   export ADD_TOPHAT=" --segment-length 18 "
   ;;
   "TEST")
    export GROUP="test"
+  ;;
+  "RAHUL")
+   export GROUP="rahul"
   ;;
   *)
   echo "Unknown name"
@@ -121,14 +124,13 @@ export WORK_DIR="/data/DATA/FASTQ-DATA/${2}/${TYPE}"
 #export DUTP="--library-type fr-firststrand"
 #--max-deletion-length 20 --segment-length 20
 
-export ADD_TOPHAT=" -g 1 ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} "
+export ADD_TOPHAT=" -g 1 ${DUTP} ${TOPHAT_TRANSCRIPTOME_ONLY} ${ADD_TOPHAT} "
 export BED_FORMAT=4 # 4/8
 
 #--no-novel-juncs 
 case ${RUN_ON} in 
  "hg19")
    export GENOME=hg19
-   echo ${BOWTIE_INDEXES}
    export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes "
    export GFT_FILE="-G ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes.gtf"
 #   export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/hg19_genes"
@@ -143,8 +145,8 @@ case ${RUN_ON} in
  "hg19c")
    export GENOME=hg19c
    export GFT_FILE=" -G ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes_control.gtf "
-   export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes_control "
-#   export TRANSCRIPTOME=" --keep-tmp  "
+   #export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/gtf/hg19_refsec_genes_control "
+   export TRANSCRIPTOME=" --keep-tmp  "
  ;;
  "hg19_lupus")
    export GENOME=hg19_lupus
@@ -219,7 +221,7 @@ case ${1} in
    if [ -f ./${NA}${SUFFIX}.bam ]; then
     echo "${NA}${SUFFIX}.bam exist"
    else 
-    ${BOWTIE_PATH} -q -v 2 -m 1 --best --strata -p 11 -S ${TRIM} \
+    ${BOWTIE_PATH} -q -v 2 -m 1 --best --strata -p 24 -S ${TRIM} \
     ${GENOME} -1 ${NA} -2 ${NA2} 2>./${NA}${SUFFIX}.bw.log|
     samtools view -Sb - >./${NA}${SUFFIX}.bam 2>/dev/null
     echo "Making .bam complete"
@@ -383,7 +385,7 @@ function do_fence {
  if [ -f ./${1}.fence ]; then
   echo "${1}.fence exist"
  else 
-  fence.py ${NA} >${NA}.fence
+  fence.py --in=${NA} >${NA}.fence
   echo "Making ${1}.fence complete"
  fi
 
