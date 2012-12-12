@@ -456,7 +456,7 @@ void FSTM::WriteResult()
     outFile.write(QString("\n").toAscii());
 
     QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1;"
-                                 "CREATE TABLE `experiments`.`%2` ( "
+                                 "CREATE TABLE %2 ( "
                                  "`refsec_id` VARCHAR(100) NOT NULL ,"
                                  "`gene_id` VARCHAR(100) NOT NULL ,"
                                  "`chrom` VARCHAR(45) NOT NULL,"
@@ -474,7 +474,7 @@ void FSTM::WriteResult()
                                  "ENGINE = MyISAM "
                                  "COMMENT = 'created by readscounting';").
             arg(gArgs().getArgs("sql_table").toString()).
-            arg(gArgs().fileInfo("out").baseName()).
+            arg(gArgs().getArgs("sql_table").toString()).
             arg(RPKM_FIELDS);
 
     if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
@@ -552,6 +552,51 @@ void FSTM::WriteResult()
     }
     outFile.close();
 
+    RPKM_FIELDS="";
+    for(int i=1;i<m_ThreadNum;i++)
+    {
+        RPKM_FIELDS+=QString("coalesce(sum(RPKM_%1),0) AS RPKM_%2,").arg(i).arg(i);
+    }
+
+
+    if(!gArgs().getArgs("no-sql-upload").toBool())
+    {
+
+    QString DROP_TBL= QString("DROP VIEW IF EXISTS %1_common_tss;").arg(gArgs().getArgs("sql_table").toString());
+    CREATE_TABLE=QString(
+                "CREATE VIEW %1_common_tss AS "
+                "select "
+                "group_concat(refsec_id  separator ',') AS refsec_id,"
+                "group_concat(gene_id    separator ',') AS gene_id,"
+                "chrom AS chrom,"
+                "txStart AS txStart,"
+                "txEnd AS txEnd,"
+                "strand AS strand,"
+                "coalesce(sum(RPKM_0),0) AS RPKM_0,"
+                "%2 "
+                "from %3 "
+                "where strand = '%4' "
+                "group by chrom,%5,strand ");
+
+            QString CT1=CREATE_TABLE.
+            arg(gArgs().getArgs("sql_table").toString()).
+            arg(RPKM_FIELDS).
+            arg(gArgs().getArgs("sql_table").toString()).
+            arg("+").arg("txStart");
+            QString CT2=CREATE_TABLE.
+            arg(gArgs().getArgs("sql_table").toString()).
+            arg(RPKM_FIELDS).
+            arg(gArgs().getArgs("sql_table").toString()).
+            arg("-").arg("txEnd");
+            if(!q.exec(DROP_TBL+CT1+" union "+CT2+";"))
+            {
+                qDebug()<<"Query error: "<<q.lastError().text();
+            }
+    }
+
+
+
+
     /*
      *   Reporting isoforms with common TSS
      */
@@ -608,6 +653,13 @@ void FSTM::WriteResult()
     }
 
     outFile.close();
+
+
+
+
+
+
+
 
 
     /*
