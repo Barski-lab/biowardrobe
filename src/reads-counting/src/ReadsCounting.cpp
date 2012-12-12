@@ -451,11 +451,11 @@ void FSTM::WriteResult()
     for(int i=1;i<m_ThreadNum;i++)
     {
         outFile.write(QString(",TOT_R_%1,RPKM_%2,log2_%3").arg(i).arg(i).arg(i).toAscii());
-        RPKM_FIELDS+=QString("RPKM_%1 float,log2_%2 float,").arg(i).arg(i);
+        RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i).arg(i);
     }
     outFile.write(QString("\n").toAscii());
 
-    QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `expirements`.`%1`;"
+    QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1;"
                                  "CREATE TABLE `experiments`.`%2` ( "
                                  "`refsec_id` VARCHAR(100) NOT NULL ,"
                                  "`gene_id` VARCHAR(100) NOT NULL ,"
@@ -473,7 +473,7 @@ void FSTM::WriteResult()
                                  ")"
                                  "ENGINE = MyISAM "
                                  "COMMENT = 'created by readscounting';").
-            arg(gArgs().fileInfo("out").baseName()).
+            arg(gArgs().getArgs("sql_table").toString()).
             arg(gArgs().fileInfo("out").baseName()).
             arg(RPKM_FIELDS);
 
@@ -482,8 +482,8 @@ void FSTM::WriteResult()
         qDebug()<<"Query error: "<<q.lastError().text();
     }
 
-    QString SQL_QUERY_BASE=QString("insert into `expirements`.`%1` values ").
-            arg(gArgs().fileInfo("out").baseName());
+    QString SQL_QUERY_BASE=QString("insert into %1 values ").
+            arg(gArgs().getArgs("sql_table").toString());
 
 
     foreach(const QString &chr,isoforms[0][0].keys())
@@ -536,7 +536,7 @@ void FSTM::WriteResult()
                         }
                         QString tmp=QString(",%1,%2,%3").arg(current.data()->totReads).arg(current.data()->RPKM).arg(Math::mlog<double>(log2_val));
                         outFile.write(tmp.toAscii());
-                        tmp=QString(",%1,%2").arg(current.data()->RPKM).arg(Math::mlog<double>(log2_val));
+                        tmp=QString(",%1").arg(current.data()->RPKM);//.arg(Math::mlog<double>(log2_val));
                         SQL_QUERY+=tmp;
                     }
                 }
