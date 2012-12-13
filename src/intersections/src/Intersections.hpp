@@ -39,8 +39,9 @@ class FSTM: public QObject
 private:
 
     QSqlQuery q;
+    QSqlQuery big_q;
     QMap<QString,QByteArray> genome;
-
+    bool TSS_wrt;
 
 public slots:
 
@@ -52,11 +53,11 @@ public:
     ~FSTM();
 
     template<typename T>
-    void loadBed(T &,QString);
+    void loadBed(T &,QString,QString cond="P-");
 
     void outData(string_map_segments&,string_map_segments&,string_map_segments&,string_map_segments&,int);
-
-
+    void TSS_LOAD(void);
+    bool LOAD_BATCH(QStringList &QL, QStringList &PFL);
 signals:
     void finished(void);
 };
