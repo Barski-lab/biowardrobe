@@ -74,10 +74,7 @@ AvgTagWindow=4000
 [SQL]
 DRIVER=QMYSQL
 DBNAME=expirements
-HOST=bmigbdb1.chmcres.cchmc.org
 PORT=3306
-USER=root
-PASS="@ByteArray(AAAACnicsywqSU9JS89LKgMAFS0D/g==)"
 HOST1=localhost
 
 [QUERIES]
