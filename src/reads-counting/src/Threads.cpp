@@ -174,7 +174,7 @@ void sam_reader_thread::run(void)
                             }
                             else
                             {
-                                matrix.setElement(c,column,cur_density==0.0?std::numeric_limits<double>::min()*1000.0:cur_density);
+                                matrix.setElement(c,column,cur_density==0.0?matrix.getLimit():cur_density);
                             }
                             matrix_orig.setElement(c,column,cur_density);
                             rowCol[c]+=1.0;

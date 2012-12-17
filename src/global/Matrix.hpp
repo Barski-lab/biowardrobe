@@ -71,6 +71,7 @@ public:
     void    fillColCond(qint64,T,T);
 
     qint64 convergeAverageMatrix(bool arithmetic,QVector<T> rowCol);
+    T getLimit(void);
 private:
     QVector<QVector<T> > m_matrix_data;
     void init(qint64,qint64);
@@ -102,6 +103,11 @@ Matrix<T>::Matrix(qint64 row,qint64 col)
     init(row,col);
 }
 
+template <class T>
+T Matrix<T>::getLimit()
+{
+    return std::numeric_limits<T>::min()*1.0e+10;
+}
 /*
  *
  */
@@ -358,7 +364,10 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
             for(qint64 i=0; i<this->getRowCount(); i++)
             {
                 T av=this->rowLogSum(i)/rowCol.at(i);
-                this->fillRowCond(i,mexp<T>(av),(T)0);
+                av=mexp<T>(av);
+                if(av<getLimit())
+                    av=getLimit();
+                this->fillRowCond(i,av,(T)0);
             }
         }
         /*cycle trough column, sum of ratio of all columns should be original val */

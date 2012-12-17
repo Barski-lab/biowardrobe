@@ -55,7 +55,7 @@ public:
     template<typename T>
     void loadBed(T &,QString,QString cond="P-");
 
-    void outData(string_map_segments&,string_map_segments&,string_map_segments&,string_map_segments&,int);
+    void outData(string_map_segments&,string_map_segments&,string_map_segments&,string_map_segments&,int,int score=40);
     void TSS_LOAD(void);
     bool LOAD_BATCH(QStringList &QL, QStringList &PFL);
 signals:

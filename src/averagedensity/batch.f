@@ -1,0 +1,8 @@
+2hr control
+run0134_lane8_read1_index4=TE7_2hr_control.fastq.bam
+2hr IL13
+run0134_lane8_read1_index5=TE7_2hr_IL13.fastq.bam
+6hr IL13
+run0140_lane7_read1_index12=TE7_6hr_IL13.fastq.bam
+6hr control
+run0140_lane7_read1_index6=TE7_6hr_control.fastq.bam
