@@ -375,9 +375,15 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
         {
             T sum=this->colSum(j);
             if(sum==0) continue;
-            T rat=sumCol.at(j)/sum;
+            //T rat=sumCol.at(j)/sum;
             for(qint64 r=0;r<this->getRowCount();r++)
-                this->setElement(r,j,this->getElement(r,j)*rat);
+            {
+                if(this->getElement(r,j)==(T)0) continue;
+                T av = sumCol.at(j)*this->getElement(r,j)/sum;
+                if(av<getLimit())
+                    av=getLimit();
+                this->setElement(r,j,av);
+            }
         }
 
         tmp-=*this;
