@@ -74,7 +74,7 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
-    double bMu=(double)(sam_data->total-sam_data->notAligned)/(sam_data->tot_len*0.76);
+    double bMu=(double)(sam_data->total-sam_data->notAligned)/(sam_data->tot_len*0.70);
     bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
     double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
@@ -95,7 +95,7 @@ void sam_reader_thread::run(void)
                 /*
                  * Counting total reads
                  */
-                chrom_coverage::domain_type le=isoforms[0][key][i]->txStart,ri=isoforms[0][key][i]->txEnd;
+                chrom_coverage::domain_type le=isoforms[0][key][i]->txStart-50000,ri=isoforms[0][key][i]->txEnd+50000;
                 quint64 totReads=getTotal(key,i,le,ri);
                 double lambda=(double)totReads/(ri-le+1);
 
@@ -145,32 +145,42 @@ void sam_reader_thread::run(void)
                             /*DEBUG*/
                             if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
-                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
-                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<exon_len<<" reads: "<<tot<<" density:"<<(double)tot/exon_len;
+                                qDebug()<<"strand"<<isoforms[0][key][i]->strand<<
+                                          "totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(1) len:"<<exon_len<<" reads: "<<tot<<" density:"<<(double)tot/exon_len
+                                          <<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
+                                          <<" name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2;
 
                             }
                             /*DEBUG*/
 
                             double cur_density=((double)tot/exon_len)/it_count->second;
                             //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
-                            if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu; /*if exon_len eq or greater then whole isoform length*/
+                            //if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu; /*if exon_len eq or greater then whole isoform length*/
                             double p_val=1;
+
+
                             /* Should be changed in future, if exon length less then 2*read length
                              * then just ignore that exon, otherwise
                              */
-                            if(exon_len<200 && cur_density<0.5 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
+
+
+
+                            if(exon_len<200 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
                             { /*trying to ignore not relevant data*/
+
+
+
                                 matrix.setElement(c,column,0.0);
 
-                                //                                if(tot>4)
-                                //                                {
-                                //                                qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
-                                //                                       <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
-                                //                                       <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
-                                //                                       <<" mu:"<<lambda*(double)exon_len
-                                //                                       <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
-                                //                                }
+                                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
+                                {
+                                    qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
+                                           <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
+                                          <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
+                                         <<" mu:"<<lambda*(double)exon_len
+                                        <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
+                                }
                             }
                             else
                             {
@@ -186,9 +196,12 @@ void sam_reader_thread::run(void)
                             /*DEBUG*/
                             if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
-                                qDebug()<<"name:"<<isoforms[0][key][i]->name<<"strand"<<isoforms[0][key][i]->strand<<
-                                          " name2:"<<isoforms[0][key][i]->name2<<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
-                                       <<" segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(0) len:"<<(u-l+1);
+
+                                qDebug()<<"strand"<<isoforms[0][key][i]->strand<<
+                                          "totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()<<
+                                          " segment:["<<l<<":"<<u<<"] c:"<<c+1<<"(0) len:"<<exon_len<<" reads: "<<tot<<" density: 0"
+                                          <<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
+                                          <<" name2:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name2;
 
                             }
                             /*DEBUG*/
