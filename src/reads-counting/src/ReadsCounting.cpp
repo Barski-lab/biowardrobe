@@ -436,7 +436,7 @@ void FSTM::WriteResult()
 
                 if(i==0)
                 {
-                    outFile.write((QString("\"%1\",\"%2\",%3,%4,%5,%6,%7,%8").
+                    outFile.write((QString("\"%1\",=\"%2\",%3,%4,%5,%6,%7,%8").
                                    arg(current.data()->name).
                                    arg(current.data()->name2).
                                    arg(current.data()->chrom).
