@@ -154,13 +154,13 @@ void sam_reader_thread::run(void)
 
                             double cur_density=((double)tot/exon_len)/it_count->second;
                             //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
-                            if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu;
+                            if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu; /*if exon_len eq or greater then whole isoform length*/
                             double p_val=1;
                             /* Should be changed in future, if exon length less then 2*read length
                              * then just ignore that exon, otherwise
                              */
-                            if(exon_len<100 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
-                            {
+                            if(exon_len<200 && cur_density<0.5 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
+                            { /*trying to ignore not relevant data*/
                                 matrix.setElement(c,column,0.0);
 
                                 //                                if(tot>4)
