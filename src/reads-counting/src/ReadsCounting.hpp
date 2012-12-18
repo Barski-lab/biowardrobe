@@ -127,6 +127,7 @@ protected slots:
     void FillUpData(void);
     void StartingThreads(void);
     void WriteResult(void);
+    void CreateTablesViews(void);
 
 signals:
     void finished(void);
