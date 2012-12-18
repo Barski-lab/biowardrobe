@@ -265,12 +265,12 @@ void FSTM::FillUpData()
     }//if not a batch
     else
     {
-         /* This type of reads count is just simple counting within segment and it is does not metter
+        /* This type of reads count is just simple counting within segment and it is does not metter
           * is this segment from + or - strand. If segments intersects then it become single segment that overlaps
           * all intersects one
           */
 
-         /* Working on batch file filling QL and PFL
+        /* Working on batch file filling QL and PFL
           * if line starts from "select" than it is query
           * if other then it is bed file
           */
@@ -604,8 +604,19 @@ void FSTM::CreateTablesViews(void)
 {
     if(!gArgs().getArgs("no-sql-upload").toBool())
     {
-        QString RPKM_FIELDS="";
 
+        QString DROP_TBL= QString("DROP VIEW IF EXISTS %1_common_tss;").arg(gArgs().getArgs("sql_table").toString());
+        if(!q.exec(DROP_TBL))
+        {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+        DROP_TBL= QString("DROP VIEW IF EXISTS %1_genes;").arg(gArgs().getArgs("sql_table").toString());
+        if(!q.exec(DROP_TBL))
+        {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+
+        QString RPKM_FIELDS="";
         for(int i=1;i<m_ThreadNum;i++)
         {
             RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
@@ -637,23 +648,13 @@ void FSTM::CreateTablesViews(void)
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
+
         RPKM_FIELDS="";
         for(int i=1;i<m_ThreadNum;i++)
         {
-            RPKM_FIELDS+=QString("coalesce(sum(RPKM_%1),0) AS RPKM_%2,").arg(i).arg(i);
+            RPKM_FIELDS+=QString(",coalesce(sum(RPKM_%1),0) AS RPKM_%2 ").arg(i).arg(i);
         }
-        RPKM_FIELDS.chop(1);
 
-        QString DROP_TBL= QString("DROP VIEW IF EXISTS %1_common_tss").arg(gArgs().getArgs("sql_table").toString());
-        if(!q.exec(DROP_TBL))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
-        }
-        DROP_TBL= QString("DROP VIEW IF EXISTS %1_genes").arg(gArgs().getArgs("sql_table").toString());
-        if(!q.exec(DROP_TBL))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
-        }
 
         CREATE_TABLE=QString(
                     "CREATE VIEW %1_common_tss AS "
@@ -664,7 +665,7 @@ void FSTM::CreateTablesViews(void)
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0,"
+                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%2 "
                     "from %3 "
                     "where strand = '+' "
@@ -681,7 +682,7 @@ void FSTM::CreateTablesViews(void)
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0,"
+                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%1 "
                     "from %2 "
                     "where strand = '-' "
@@ -692,39 +693,24 @@ void FSTM::CreateTablesViews(void)
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
+
         CREATE_TABLE=QString(
-                    "CREATE VIEW %1_common_tss AS "
+                    "CREATE VIEW %1_genes AS "
                     "select "
                     "group_concat(refsec_id  separator ',') AS refsec_id,"
-                    "group_concat(gene_id    separator ',') AS gene_id,"
+                    "gene_id,"
                     "chrom AS chrom,"
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0,"
+                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%2 "
                     "from %3 "
-                    "where strand = '+' "
-                    "group by chrom,txStart,strand ").
+                    "group by gene_id ").
                 arg(gArgs().getArgs("sql_table").toString()).
                 arg(RPKM_FIELDS).
-                arg(gArgs().getArgs("sql_table").toString())+
-                QString(
-                    " union "
-                    "select "
-                    "group_concat(refsec_id  separator ',') AS refsec_id,"
-                    "group_concat(gene_id    separator ',') AS gene_id,"
-                    "chrom AS chrom,"
-                    "txStart AS txStart,"
-                    "txEnd AS txEnd,"
-                    "strand AS strand,"
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0,"
-                    "%1 "
-                    "from %2 "
-                    "where strand = '-' "
-                    "group by chrom,txEnd,strand ").
-                arg(RPKM_FIELDS).
                 arg(gArgs().getArgs("sql_table").toString());
+
         if(!q.exec(CREATE_TABLE))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
