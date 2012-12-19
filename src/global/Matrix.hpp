@@ -106,7 +106,8 @@ Matrix<T>::Matrix(qint64 row,qint64 col)
 template <class T>
 T Matrix<T>::getLimit()
 {
-    static T val=std::numeric_limits<T>::min()*1.0e+10;
+    //static T val=std::numeric_limits<T>::min()*1.0e+10;
+    static T val=1.0e-7;
     return val;
 }
 /*
@@ -349,7 +350,7 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
     Matrix<T> tmp(*this);
 
     qint64 cycles=0;
-    for(;cycles<100000;cycles++)
+    for(;cycles<10000;cycles++)
     {
         /*cycle trough rows, make average of all rows, and assign*/
         if(arithmetic)

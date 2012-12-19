@@ -170,7 +170,7 @@ void sam_reader_thread::run(void)
                                 matrix.setElement(c,column,0.0);
                             }
                             else
-                            if(exon_len<150 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
+                            if((p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
                             { /*trying to ignore not relevant data*/
 
                                 matrix.setElement(c,column,matrix.getLimit());
