@@ -166,12 +166,12 @@ void sam_reader_thread::run(void)
 
 
 
-                            if(exon_len<150 && tot>0 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
+                            if(exon_len<150 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
                             { /*trying to ignore not relevant data*/
 
 
-
-                                matrix.setElement(c,column,0.0);
+                                matrix.setElement(c,column,matrix.getLimit());
+                                //matrix.setElement(c,column,0.0);
 
                                 if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                                 {
