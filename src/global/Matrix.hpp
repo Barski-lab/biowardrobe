@@ -107,7 +107,7 @@ template <class T>
 T Matrix<T>::getLimit()
 {
     //static T val=std::numeric_limits<T>::min()*1.0e+10;
-    static T val=1.0e-7;
+    static T val=(T)(gArgs().getArgs("rpkm_cutoff").toDouble()*1.0e-3);
     return val;
 }
 /*
@@ -335,7 +335,7 @@ template <class T>
 qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
 {
     QVector<T> sumCol;
-
+    double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble()*1.0e-1;
     /*calculating valuable fields in each row*/
 //    for(qint64 i=0;i<this->getRowCount();i++)
 //    {
@@ -350,7 +350,7 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
     Matrix<T> tmp(*this);
 
     qint64 cycles=0;
-    for(;cycles<10000;cycles++)
+    for(;cycles<2000;cycles++)
     {
         /*cycle trough rows, make average of all rows, and assign*/
         if(arithmetic)
@@ -390,7 +390,7 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
 
         tmp-=*this;
 
-        if(tmp.SumAll(true)<1.0e-5)
+        if(tmp.SumAll(true)<cutoff)
             return cycles;
 
         tmp=*this;
