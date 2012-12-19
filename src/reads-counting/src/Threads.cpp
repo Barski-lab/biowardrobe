@@ -95,9 +95,9 @@ void sam_reader_thread::run(void)
                 /*
                  * Counting total reads
                  */
-                chrom_coverage::domain_type le=isoforms[0][key][i]->txStart-50000,ri=isoforms[0][key][i]->txEnd+50000;
-                quint64 totReads=getTotal(key,i,le,ri);
-                double lambda=(double)totReads/(ri-le+1);
+                //chrom_coverage::domain_type le=isoforms[0][key][i]->txStart-50000,ri=isoforms[0][key][i]->txEnd+50000;
+                //quint64 totReads=getTotal(key,i,le,ri);
+                double lambda=bMu;//(double)totReads/(ri-le+1);
 
                 /*
                  * it is cycle trought column
@@ -175,8 +175,8 @@ void sam_reader_thread::run(void)
 
                                 if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                                 {
-                                    qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu<< " totReads:"<<totReads
-                                           <<" totLength:"<<ri-le<<" curReads:"<<tot<<" exonLen:"<<exon_len
+                                    qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu
+                                           <<" curReads:"<<tot<<" exonLen:"<<exon_len
                                           <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
                                          <<" mu:"<<lambda*(double)exon_len
                                         <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
