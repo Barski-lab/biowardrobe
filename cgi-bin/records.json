@@ -1,0 +1,43 @@
+#! /usr/bin/env python
+
+#import os
+#import sys
+import MySQLdb
+#import warnings
+import cgi
+
+form = cgi.FieldStorage()
+table_name=str(form["tablename"].value)
+
+cursor = conn.cursor ()
+
+fields=list()
+
+cursor.execute ("describe "+table_name)
+for (row ) in cursor.fetchall():
+ fields.append(row[0]) 
+
+
+cursor.close ()
+cursor = conn.cursor ()
+cursor.execute ("select * from "+table_name)
+comma=""
+
+
+print """
+{"success":true, "data":[""",
+
+for (row ) in cursor.fetchall():
+ print """%s{"""%(comma),
+ c=""
+ for i,item in enumerate(fields):
+  print """%s"%s":"%s" """%(c,item,row[i]),
+  c=","
+ comma=","
+ print """}""",
+
+print """]}"""
+
+cursor.close ()
+#conn.commit ()
+conn.close ()
