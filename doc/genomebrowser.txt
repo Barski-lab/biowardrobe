@@ -1,16 +1,65 @@
+
 INSTALLING UCSC genome browser on OpenSuse
 
 Downloading genome browser databases
 
-rsync -avzP rsync://hgdownload.cse.ucsc.edu/mysql/hg19/ ./hg19/
-rsync -avzP rsync://hgdownload.cse.ucsc.edu/gbdb/hg19/ ./hg19/
+ rsync -avzP rsync://hgdownload.cse.ucsc.edu/mysql/hg19/ ./hg19/
+ rsync -avzP rsync://hgdownload.cse.ucsc.edu/gbdb/hg19/ ./hg19/
 
+ from directory kent/src/product/scripts run:
+ ./updateHtml.sh browserEnvironment.txt
+ ./fetchMinimalGbdb.sh browserEnvironment.txt hg19
+ ./fetchFullGbdb.sh browserEnvironment.txt hg19
+ 
 DOWNLOAD GenomeBrowser sources
 
 Start an initial Git local repository:
- $ git clone git://genome-source.cse.ucsc.edu/kent.git
-       
+   git clone git://genome-source.cse.ucsc.edu/kent.git
+   cd kent
+   git checkout -t -b beta origin/beta       
+   git pull
+   cd ../
+   git clone http://genome-source.cse.ucsc.edu/samtabix.git samtabix
+   cd samtabix
+   make
 
+COMPILE
+
+ export MACHTYPE=x86_64
+ export MYSQLINC="/usr/include/mysql"
+ export USE_SSL=1
+ export USE_SAMTABIX=1
+ export SAMTABIXDIR="/data/DEVEL/GIT/samtabix"
+ export SAMTABIXINC="/data/DEVEL/GIT/samtabix"
+ export SAMTABIXLIB="/data/DEVEL/GIT/samtabix/libsamtabix.a"
+ export MYSQLLIBS=`mysql_config --libs`
+ export BINDIR="/usr/local/genomebrowser"
+ export CGI_BIN="/cgi-bin"
+ export DOCUMENTROOT="/srv/www/htdocs"
+ export SCRIPTS="/usr/local/genomebrowser"
+
+ export JT="-j 16 "
+ # create jkweb.a
+ cd kent/src/lib
+ make $JT
+ cd ../../../
+ # create stringify utility required by some makefiles
+ cd kent/src/utils/stringify
+ make $JT
+ cd ../../../../
+ # create pslCDnaFilter utility program
+ cd kent/src/hg/pslCDnaFilter
+ make $JT
+ cd ../../../../
+ cd kent/src
+ make libs $JT
+ cd ../../
+ cd kent/src/hg
+ make compile $JT
+ #To continue building the CGI binaries
+ make install DESTDIR="/srv/www" $JT
+
+ 
 SETUP MYSQL:
  1. zypper in mysql
  2. /etc/init.d/mysql start
@@ -21,5 +70,6 @@ SETUP MYSQL:
  mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
  mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
  
- 
- 
+
+
+
