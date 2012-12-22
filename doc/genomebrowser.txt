@@ -69,7 +69,20 @@ SETUP MYSQL:
  read PASS
  mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
  mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306 -p -e "GRANT ALL ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" mysql
+
+ 4. Useful tables hgcentral.defaultDb, hgcentral.genomeClade, hgcentral.dbDb
  
 
-
+SETUP APACHE2
+ 1. zypper in apache2
+ 2. in /etc/apache2 edit mod_mime-defaults.conf
+ add following lines to make includes work
+ AddType text/html .html                                                                                                                                              
+ AddOutputFilter INCLUDES .html   
+ 
+ 3. add 
+ AllowOverride All                                                                                                                                            
+ XBitHack on                                                                                                                                                  
+ Options -Indexes +MultiViews +FollowSymLinks +Includes                                                                                                       
 
