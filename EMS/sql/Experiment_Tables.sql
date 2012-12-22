@@ -1,3 +1,5 @@
+create database if not exists ems;
+create database if not exists experiments;
 use ems;
 set foreign_key_checks = 0 ; 
 drop table if exists LabData;
@@ -72,13 +74,18 @@ id INTEGER AUTO_INCREMENT PRIMARY KEY,
 Worker varchar(150) UNIQUE KEY,
 passwd varchar(150),
 fname varchar(150),
-lname varchar(150)
+lname varchar(150),
+dna_login varchar(150),
+dna_pass varchar(150)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into Worker (Worker,fname,lname) values ('barski','Artem','Barski');
 insert into Worker (Worker,fname,lname) values ('porter','Andrey','Kartashov');
 insert into Worker (Worker,fname,lname) values ('david','David','Muench');
 insert into Worker (Worker,fname,lname) values ('yrina','Yrina','Rochman');
+insert into Worker (Worker,fname,lname) values ('satoshi','Satoshi','');
+insert into Worker (Worker,fname,lname) values ('clark','Clark','');
+insert into Worker (Worker,fname,lname) values ('rahul','Rahul','');
 
 drop table if exists protocol;
 create table if not exists protocol (
@@ -145,11 +152,14 @@ insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,C
 values(3,'ABDM10','Resting Naïve CD4',1,2,'Human Naïve CD4 T cells','Resting, purified from filters	',3,1,'NIST Pool 7',0.4,now());
 insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
 values(3,'ABDM11','Activated 18hr Naïve CD4',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',3,1,'NIST Pool 7',0.4,now());
-
 insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
 values(3,'ABDM12','Resting Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Resting, purified from filters	',4,1,'NIST Pool 7',0.4,now());
 insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
 values(3,'ABDM13','Activated 18hr Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',4,1,'NIST Pool 7',0.4,now());
+
+
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
+values(4,'ABYR14','Activated_rested CD4',1,2,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,1,'',0,now());
 
 
 
