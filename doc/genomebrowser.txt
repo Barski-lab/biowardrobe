@@ -72,7 +72,8 @@ SETUP MYSQL:
  mysql -uroot -hlocalhost -P3306 -p -e "GRANT ALL ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" mysql
 
  4. Useful tables hgcentral.defaultDb, hgcentral.genomeClade, hgcentral.dbDb
- 
+ 5. Blat
+  UPDATE hgcentral.blatServers SET host=CONCAT(host,".cse.ucsc.edu") where db in ('hg19','mm9','mm10');
 
 SETUP APACHE2
  1. zypper in apache2
@@ -86,3 +87,4 @@ SETUP APACHE2
  XBitHack on                                                                                                                                                  
  Options -Indexes +MultiViews +FollowSymLinks +Includes                                                                                                       
 
+setfacl -Rm d:u::rwX,d:g::rwX,d:m:rwX,d:o:r-X ./gbdb/
