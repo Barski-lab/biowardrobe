@@ -100,7 +100,7 @@ Ext.application({
                                        items:
                                            [
                                            { region: 'north',
-                                               title: 'Allergy department experiments management software (dr. Barski laboratory)',
+                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software (dr. Barski laboratory)</div><div style="float: right; text-align: right;">Wellcome:'+USER_NAME+"</div>",
                                                autoHeight: true
                                            },
 

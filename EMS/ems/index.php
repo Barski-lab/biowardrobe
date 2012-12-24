@@ -1,3 +1,8 @@
+<?php
+  require("common.php");
+  require_authentication();
+?>
+
 <html>
 <head>
  <title>Laboratory examples</title>
@@ -9,7 +14,10 @@
 
 
  <script type="text/javascript" src="ext/ext-debug.js"></script>
- 
+
+<script type="text/javascript">
+ var USER_NAME="<?php echo $_SESSION[username] ?>";
+</script>
  <script type="text/javascript" src="app.js"></script>
 </head>
 

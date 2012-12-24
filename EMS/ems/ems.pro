@@ -134,4 +134,8 @@ OTHER_FILES += \
     app/view/ExperimentType/ExperimentType.js \
     app/view/Fragmentation/List.js \
     app/view/Fragmentation/Fragmentation.js \
-    app/controller/FragmentationEdit.js
+    app/controller/FragmentationEdit.js \
+    index.php \
+    login.php \
+    common.php \
+    authenticate.php
