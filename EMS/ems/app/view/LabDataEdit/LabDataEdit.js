@@ -82,16 +82,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                                 name : 'protocol_id',
                                                 displayField: 'protocol',
                                                 fieldLabel: 'Protocol',
-                                                //                          store: EMS.store.Protocol,
-                                                store: {
-                                                    autoLoad: true,
-                                                    model: 'EMS.model.Protocol',
-                                                    listeners: {
-                                                        load: function() {
-                                                            Logger.log('Protocol data loaded');
-                                                        }
-                                                    }
-                                                },
+                                                store: EMS.store.Protocol,
                                                 //                          hideTrigger: true,
                                                 mode: 'local',
                                                 typeAhead: false,
@@ -109,15 +100,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                                 name : 'experimenttype_id',
                                                 //                          store: (new EMS.store.ExperimentTypes).load(),
                                                 store: EMS.store.ExperimentType,
-                                                //                         store: {
-                                                //                                     autoLoad: true,
-                                                //                                     model: 'EMS.model.ExperimentType',
-                                                //                                     listeners: {
-                                                //                                             load: function() {
-                                                //                                                 Logger.log('Experiment types data loaded');
-                                                //                                             }
-                                                //                                     }
-                                                //                                 },
                                                 displayField: 'Type',
                                                 fieldLabel: 'Experiment Type',
                                                 //                          hideTrigger: true,
@@ -149,16 +131,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                                 name : 'genome_id',
                                                 displayField: 'Genome',
                                                 fieldLabel: 'Genome Type',
-                                                //                          store: EMS.store.Genome,
-                                                store: {
-                                                    autoLoad: true,
-                                                    model: 'EMS.model.Genome',
-                                                    listeners: {
-                                                        load: function() {
-                                                            Logger.log('Genome data loaded');
-                                                        }
-                                                    }
-                                                },
+                                                store: EMS.store.Genome,
                                                 mode: 'local',
                                                 typeAhead: false,
                                                 editable:false,

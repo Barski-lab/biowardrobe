@@ -50,8 +50,8 @@ Ext.define('EMS.controller.WorkersEdit', {
                },
 
                newworkerwin: function(button) {
-                       var edit = Ext.create('EMS.view.user.Edit',{newcomp: true,modal: true});//.show();
-                       edit.show();
+                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: true,modal: true});//.show();
+                   edit.show();
                },
                update: function(button) {
                    var win    = button.up('window');

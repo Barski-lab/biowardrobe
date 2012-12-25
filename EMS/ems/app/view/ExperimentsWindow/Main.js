@@ -33,24 +33,11 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
                minHeight: 500,
                iconCls: 'table2',
                layout: 'fit',
-               overflowY : 'scroll',
+//               overflowY : 'scroll',
 //               overflowX : 'scroll',
 
                initComponent: function() {
                    this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-
-                   this.tbar = [
-                            {
-                                text:'New',
-                                tooltip:'Add a new experiment',
-                                action: 'Add',
-                                iconCls:'table-row-add'
-                            }, '-',
-                            Ext.create('Ext.PagingToolbar', {
-                                           store: EMS.store.LabData
-                                       })
-                        ];//tbar
-
                    this.callParent(arguments);
                }
            });

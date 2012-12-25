@@ -68,27 +68,20 @@ Ext.application({
                     name: 'EMS',
 
                     appFolder: 'app',
-                    /*    requires: [
-                            'EMS.view.EMSMenu'
-                            'EMS.view.ExperimentsWindow.ExperimentsWindow'
-                        ],*/
                     controllers: [
                         'EMS.controller.EMSMenu',
+                        'EMS.controller.ExperimentTypeEdit',
                         'EMS.controller.ExperimentsWindow',
                         'EMS.controller.WorkersEdit',
                         'EMS.controller.GenomeEdit',
                         'EMS.controller.AntibodiesEdit',
                         'EMS.controller.ProtocolEdit',
-                        'EMS.controller.ExperimentTypeEdit',
                         'EMS.controller.CrosslinkEdit',
                         'EMS.controller.FragmentationEdit'
                     ],
 
-
                     views: [
                         'EMSMenu'
-                        //        'EMS.view.ExperimentsWindow.Main',
-                        //        'EMS.view.ExperimentsWindow.Grid'
                     ],
 
 

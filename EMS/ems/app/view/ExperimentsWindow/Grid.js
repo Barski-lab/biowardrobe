@@ -87,8 +87,38 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                  editor: { xtype: 'datefield',  allowBlank: false,
                  minValue: '01/01/2011', maxValue: Ext.Date.format(new Date(), 'm/d/Y'),
                  format: 'm/d/Y',minText: 'Cannot have a start date before the company existed!'}*/ }
-                                 ]//columns
+                                 ],//columns
+                                 tbar: [
+                                     {
+                                         text:'New',
+                                         tooltip:'Describe a new experiment',
+                                         id: 'new-experiment-data',
+                                         //                                         handler : function(){
+                                         //                                             var r = Ext.create('EMS.model.LabDada', {
+                                         //                                                                    Crosslink: 'New Crosslink Type'
+                                         //                                                                });
+                                         //                                             EMS.store.LabData.insert(0, r);
+                                         //                                             cellEditing.startEditByPosition({row: 0, column: 1});
+                                         //                                         },
 
+                                         iconCls:'table-row-add'
+                                     },
+                                     {
+                                         text:'Save',
+                                         tooltip:'Save changes',
+                                         handler : function(){
+                                             EMS.store.LabData.sync({
+                                                                           success: function (batch, options) {
+                                                                               console.log('Sync successed' ,batch, options);
+                                                                               EMS.store.LabData.load();
+                                                                           }});
+                                         },
+                                         iconCls:'table2-check'
+                                     }, '-',
+                                     Ext.create('Ext.PagingToolbar', {
+                                                    store: EMS.store.LabData
+                                                })
+                                 ]//tbar
 
                              });  //grid/paging.js
 

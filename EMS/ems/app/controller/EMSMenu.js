@@ -27,9 +27,6 @@ Ext.require([
                 'Ext.ux.IFrame'
             ]);
 
-var ExperimentsWindow,WorkersEditWindow,FenceChartWindow;
-
-//Ext.require('EMS.view.ExperimentsWindow');
 
 Ext.define('EMS.controller.EMSMenu', {
                extend: 'Ext.app.Controller',
@@ -67,28 +64,28 @@ Ext.define('EMS.controller.EMSMenu', {
                    Logger.log('Menu item \''+menuitem.action+'\' choosed.');
 
                    if(menuitem.action === "LabData"){
-                       if(!ExperimentsWindow){
-                           ExperimentsWindow=Ext.create('EMS.view.ExperimentsWindow.Main',{});
-                           Ext.getCmp('EMSMenu').add(ExperimentsWindow);
+                       if(typeof this.ExperimentsWindow === 'undefined' || !this.ExperimentsWindow){
+                           this.ExperimentsWindow=Ext.create('EMS.view.ExperimentsWindow.Main',{});
+                           Ext.getCmp('EMSMenu').add(this.ExperimentsWindow);
                        }
-                       if(ExperimentsWindow.isVisible()){
-                           ExperimentsWindow.focus(); }
+                       if(this.ExperimentsWindow.isVisible()){
+                           this.ExperimentsWindow.focus(); }
                        else {
-                           ExperimentsWindow.show(); }
+                           this.ExperimentsWindow.show(); }
                    }
 
                    /*
                      Create window with workers list
                    */
                    if(menuitem.action === "Workers"){
-                       if(!WorkersEditWindow){
-                           WorkersEditWindow=Ext.create('EMS.view.WorkersEdit',{});
-                           Ext.getCmp('EMSMenu').add(ExperimentsWindow);
+                       if(typeof this.WorkersEditWindow === 'undefined' || !this.WorkersEditWindow){
+                           this.WorkersEditWindow=Ext.create('EMS.view.WorkersEdit',{});
+                           Ext.getCmp('EMSMenu').add(this.ExperimentsWindow);
                        }
-                       if(WorkersEditWindow.isVisible()){
-                           WorkersEditWindow.focus(); }
+                       if(this.WorkersEditWindow.isVisible()){
+                           this.WorkersEditWindow.focus(); }
                        else {
-                           WorkersEditWindow.show(); }
+                           this.WorkersEditWindow.show(); }
                    }
 
                    /*
@@ -161,15 +158,14 @@ Ext.define('EMS.controller.EMSMenu', {
                      Create chart window for adaptor contamination
                    */
                    if(menuitem.action === "AdaptorCont"){
-                       if(!FenceChartWindow){
-                           FenceChartWindow=Ext.create('EMS.view.charts.Fence',{});
-                           Ext.getCmp('EMSMenu').add(FenceChartWindow);
+                       if(typeof this.FenceChartWindow === 'undefined' ||!this.FenceChartWindow){
+                           this.FenceChartWindow=Ext.create('EMS.view.charts.Fence',{});
+                           Ext.getCmp('EMSMenu').add(this.FenceChartWindow);
                        }
-                       if(FenceChartWindow.isVisible()){
-                           FenceChartWindow.hide(); }
+                       if(this.FenceChartWindow.isVisible()){
+                           this.FenceChartWindow.focus(); }
                        else {
-                           FenceChartWindow.show(); }
-
+                           this.FenceChartWindow.show(); }
                    }
 
                    /*

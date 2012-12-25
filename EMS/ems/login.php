@@ -4,7 +4,7 @@
 
   if($_REQUEST["timeout"]=="true")
   {
-   $TITLE="session timeouts";
+   $TITLE="session expired";
   }
 
   session_destroy();

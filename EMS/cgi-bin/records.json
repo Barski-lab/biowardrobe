@@ -47,7 +47,12 @@ except Exception, e:
 
 form = cgi.FieldStorage()
 table_name=str(form["tablename"].value)
+page=int(form["page"].value)
+start=int(form["start"].value)
+limit=int(form["limit"].value)
 
+begin=(page-1)*limit
+end=page*limit
 #cursor = conn.cursor ()
 
 fields=list()
@@ -59,7 +64,8 @@ for (row ) in cursor.fetchall():
 
 cursor.close ()
 cursor = conn.cursor ()
-cursor.execute ("select * from "+table_name)
+SQL="select * from "+table_name+" limit %d,%d"%(begin,limit)
+cursor.execute (SQL)
 comma=""
 
 

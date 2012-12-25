@@ -36,27 +36,32 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         render: this.onPanelRendered
                                     },
                                     'ExperimentsWindow grid': {
-                                        selectionchange: this.onExperimentSelectionChanged,
+                                        selectionchange: this.onSelectionChanged,
                                         itemdblclick: this.onItemDblClick
                                     },
-                                    'ExperimentsWindow button[action=Add]': {
+                                    '#new-experiment-data': {
                                         click: this.onAdd
-                                    },
-                                    'ExperimentsWindow button[action=Refresh]': {
-                                        click: this.onRefresh
                                     },
                                     'LabDataEdit button[action=save]': {
                                         click: this.onSave
                                     }
                                 });
-                   this.getLabDataStore().load();
+                   //this.getLabDataStore().load();
+               },
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onSelectionChanged: function() {
+                   //Logger.log('onExperimentSelectionChanged');
                },
                //-----------------------------------------------------------------------
                //
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   //Logger.log('The panel was rendered');
+                   //Logger.log('The LabData panel was rendered');
+                   this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
@@ -65,34 +70,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //-----------------------------------------------------------------------
 
                onAdd: function() {
-                   Logger.log('Add pressed');
-                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit').show();
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: true,modal:true});
+                   edit.show();
                },
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onRefresh: function() {
-                   Logger.log('Refresh pressed');
-                   this.getLabDataStore().load();
-                   this.getLabDataStore().sync();
-               },
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onSave: function() {
-                   Logger.log('Save pressed');
-               },
-
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onSelectionChanged: function() {
-                   //Logger.log('onExperimentSelectionChanged');
-               },
-
                //-----------------------------------------------------------------------
                //
                //
@@ -101,13 +81,17 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
 
-                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit');
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false,modal:true});
                    edit.show();
-                   form=edit.down('form');
-                   // edit.setTitle(edit.getTitle()+" Hi");
-                   form.loadRecord(record);
-                   console.log('record:');
-                   console.log(record);
+                   edit.down('form').loadRecord(record);
+                   //console.log(record);
+               },
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               onSave: function() {
+                   Logger.log('Save pressed');
                }
 
            });
