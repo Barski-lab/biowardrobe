@@ -43,6 +43,7 @@ var Logger = (function(){
                                  msg: msg
                              });
                 panel.body.scroll('b', 100000, true);
+                console.log(msg);
             }
             else
             {
@@ -79,6 +80,7 @@ Ext.application({
                         'EMS.controller.AntibodiesEdit',
                         'EMS.controller.ProtocolEdit',
                         'EMS.controller.ExperimentTypeEdit',
+                        'EMS.controller.CrosslinkEdit',
                         'EMS.controller.FragmentationEdit'
                     ],
 
@@ -100,7 +102,8 @@ Ext.application({
                                        items:
                                            [
                                            { region: 'north',
-                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software (dr. Barski laboratory)</div><div style="float: right; text-align: right;">Wellcome:'+USER_NAME+"</div>",
+                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software (dr. Barski laboratory)</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
+                                                      "<a href=login.php>&nbsp;logout</a></div>",
                                                autoHeight: true
                                            },
 

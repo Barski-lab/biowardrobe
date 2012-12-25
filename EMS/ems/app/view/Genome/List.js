@@ -20,21 +20,21 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.view.user.List' ,{
+
+Ext.define('EMS.view.Genome.List' ,{
                extend: 'Ext.grid.Panel',
-               alias : 'widget.userlist',
 
                initComponent: function() {
 
+                   var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+                                                    clicksToEdit: 1
+                                                });
+
                    Ext.apply(this, {
-
-                                 store: EMS.store.Worker,
-
+                                 store: EMS.store.Genome,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Worker',  dataIndex: 'Worker',  flex: 1},
-                                     {header: 'First name', dataIndex: 'fname', flex: 1},
-                                     {header: 'Last name', dataIndex: 'lname', flex: 1},
+                                     {header: 'Genome', dataIndex: 'Genome', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -43,36 +43,43 @@ Ext.define('EMS.view.user.List' ,{
                                                  iconCls: 'table-row-delete',
                                                  tooltip: 'Delete Genome',
                                                  handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.Worker.removeAt(rowIndex);
+                                                     EMS.store.Genome.removeAt(rowIndex);
                                                  }
                                              }]
                                      }
                                  ],
+                                 plugins: [cellEditing],
                                  tbar: [
                                      {
                                          text:'New',
                                          tooltip:'Add a new Genome type',
-                                         id: "new-worker-window",
+                                         handler : function(){
+                                             var r = Ext.create('EMS.model.Genome', {
+                                                                    Genome: 'New Genome Type'
+                                                                });
+                                             EMS.store.Genome.insert(0, r);
+                                             cellEditing.startEditByPosition({row: 0, column: 1});
+                                         },
                                          iconCls:'table-row-add'
                                      },
                                      {
                                          text:'Save',
                                          tooltip:'Save changes',
                                          handler : function(){
-                                             EMS.store.Worker.sync({
-                                                                       success: function (batch, options) {
-                                                                           console.log('Sync successed' ,batch, options);
-                                                                           EMS.store.Worker.load();
-                                                                       }});
+                                             EMS.store.Genome.sync({
+                                                                           success: function (batch, options) {
+                                                                               console.log('Sync successed' ,batch, options);
+                                                                               EMS.store.Genome.load();
+                                                                           }});
                                          },
                                          iconCls:'table2-check'
-                                     }
-                                     , '-',
+                                     }, '-',
                                      Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Worker
+                                                    store: EMS.store.Genome
                                                 })
                                  ]//tbar
-                             })
+
+                             });
                    this.callParent(arguments);
                }
            });

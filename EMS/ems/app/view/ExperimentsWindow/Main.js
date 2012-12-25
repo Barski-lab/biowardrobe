@@ -37,9 +37,8 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
 //               overflowX : 'scroll',
 
                initComponent: function() {
-                   this.items = [
-                            Ext.create('EMS.view.ExperimentsWindow.Grid')
-                        ];
+                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
+
                    this.tbar = [
                             {
                                 text:'New',
@@ -48,17 +47,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
                                 iconCls:'table-row-add'
                             }, '-',
                             Ext.create('Ext.PagingToolbar', {
-                                           store: {
-                                               autoLoad: true,
-                                               model: 'EMS.model.LabData',
-                                               pageSize: 30,
-                                               listeners: {
-                                                   load: function() {
-                                                       Logger.log('LabData store loaded');
-                                                   }
-                                               }
-                                           }
-
+                                           store: EMS.store.LabData
                                        })
                         ];//tbar
 

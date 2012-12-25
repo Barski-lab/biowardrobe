@@ -1,6 +1,14 @@
 <?php
+
+  $TITLE="EMS login";
+
+  if($_REQUEST["timeout"]=="true")
+  {
+   $TITLE="session timeouts";
+  }
+
+  session_destroy();
   session_start();
-  session_unset();
 ?>
 <html>
   <head>
@@ -36,7 +44,7 @@
 
     Ext.onReady(function() {
         var loginForm=new Ext.form.Panel({
-            bodyPadding: 10,
+            bodyPadding: 5,
             width: 300,
             height: 100,
             frame: true,
@@ -69,16 +77,13 @@
        }],
 
            buttons: [{
-             text: 'Log in',
+             text: 'Login',
              handler: function(){
                if(Ext.getCmp('username').getValue() !== '' && Ext.getCmp('password').getValue() !== '')
                {
                  loginForm.getForm().submit({
                    url: 'authenticate.php',
                    method: 'POST',
-                   params: {
-                     response: Ext.getCmp('password').getValue() //hex_md5(Ext.getCmp('challenge').getValue()+hex_md5(Ext.getCmp('password').getValue()))
-                   },
                    success: function(){
                      window.location = 'index.php';
                    },
@@ -108,13 +113,14 @@
 
         });
         var loginWindow = new Ext.Window({
-          title: 'EMS Login',
+          title: '<?php echo $TITLE; ?>',
+          bodyPadding: 2,
           layout: 'fit',
           closable: false,
           resizable: false,
           draggable: true,
           border: false,
-          height: 125,
+          height: 130,
           width: 300,
           items: [loginForm]
         });

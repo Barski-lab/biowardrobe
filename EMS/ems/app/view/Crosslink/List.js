@@ -20,59 +20,66 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.view.user.List' ,{
+
+Ext.define('EMS.view.Crosslink.List' ,{
                extend: 'Ext.grid.Panel',
-               alias : 'widget.userlist',
 
                initComponent: function() {
 
+                   var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
+                                                    clicksToEdit: 1
+                                                });
+
                    Ext.apply(this, {
-
-                                 store: EMS.store.Worker,
-
+                                 store: EMS.store.Crosslinking,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Worker',  dataIndex: 'Worker',  flex: 1},
-                                     {header: 'First name', dataIndex: 'fname', flex: 1},
-                                     {header: 'Last name', dataIndex: 'lname', flex: 1},
+                                     {header: 'Crosslink', dataIndex: 'Crosslink', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
                                          sortable: false,
                                          items: [{
                                                  iconCls: 'table-row-delete',
-                                                 tooltip: 'Delete Genome',
+                                                 tooltip: 'Delete Experiment Type',
                                                  handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.Worker.removeAt(rowIndex);
+                                                     EMS.store.Crosslinking.removeAt(rowIndex);
                                                  }
                                              }]
                                      }
                                  ],
+                                 plugins: [cellEditing],
                                  tbar: [
                                      {
                                          text:'New',
-                                         tooltip:'Add a new Genome type',
-                                         id: "new-worker-window",
+                                         tooltip:'Add a new Crosslink type',
+                                         handler : function(){
+                                             var r = Ext.create('EMS.model.Crosslinking', {
+                                                                    Crosslink: 'New Crosslink Type'
+                                                                });
+                                             EMS.store.Crosslinking.insert(0, r);
+                                             cellEditing.startEditByPosition({row: 0, column: 1});
+                                         },
                                          iconCls:'table-row-add'
                                      },
                                      {
                                          text:'Save',
                                          tooltip:'Save changes',
                                          handler : function(){
-                                             EMS.store.Worker.sync({
-                                                                       success: function (batch, options) {
-                                                                           console.log('Sync successed' ,batch, options);
-                                                                           EMS.store.Worker.load();
-                                                                       }});
+                                             EMS.store.Crosslinking.sync({
+                                                                           success: function (batch, options) {
+                                                                               console.log('Sync successed' ,batch, options);
+                                                                               EMS.store.Crosslinking.load();
+                                                                           }});
                                          },
                                          iconCls:'table2-check'
-                                     }
-                                     , '-',
+                                     }, '-',
                                      Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Worker
+                                                    store: EMS.store.Crosslinking
                                                 })
                                  ]//tbar
-                             })
+
+                             });
                    this.callParent(arguments);
                }
            });

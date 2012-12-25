@@ -20,30 +20,26 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.Protocol', {
-               extend: 'Ext.data.Model',
 
-               fields:
-                   [
-                   { name: 'id', type: 'int' },
-                   { name: 'protocol', type: 'string' }
-               ],
-               hasMany: { model: 'LabData', foreignKey: 'protocol_id' },
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/records.json?tablename=protocol',
-                       update: '/cgi-bin/barski/recordsUp.json'
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true
-                   }
+Ext.define('EMS.view.Crosslink.Crosslink', {
+               extend: 'Ext.Window',
+               alias : 'widget.Crosslink',
+               width: 400,
+               height: 250,
+               minWidth: 400,
+               minHeight: 250,
+               title: 'List of Crosslink Types',
+               closable: true,
+               maximizable: true,
+               closeAction: 'hide',
+               iconCls: 'atom',
+
+               layout: 'fit',
+
+
+               initComponent: function() {
+                   this.items =  Ext.create('EMS.view.Crosslink.List');
+                   this.callParent(arguments);
                }
+
            });

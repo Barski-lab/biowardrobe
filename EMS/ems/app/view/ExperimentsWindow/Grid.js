@@ -37,16 +37,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                      };
 
                    Ext.apply(this, {
-                                 store: {
-                                     autoLoad: true,
-                                     pageSize: 30,
-                                     model: 'EMS.model.LabData',
-                                     listeners: {
-                                         load: function() {
-                                             Logger.log('LabData store loaded');
-                                         }
-                                     }
-                                 },
+                                 store: EMS.store.LabData,
 
                                  //features: [filters],
 
@@ -57,7 +48,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      {   header: "Belongs to",                  sortable: true,  width: 90,    dataIndex: 'worker_id',
                                          renderer: function(value,meta,record){
                                              var rec=EMS.store.Worker.findRecord('id',value);
-                                             return rec?rec.data.fname+', '+rec.data.lname:'';}},
+                                             return rec?rec.data.lname+', '+rec.data.fname:'';}},
                                      /*          {   header: "Run Index",              sortable: false,  width: 60,    dataIndex: 'IndexRun',     format: 0,  xtype: "numbercolumn",
                  editor: { xtype: 'numberfield',allowBlank: false,  minValue: 1,  maxValue: 150000 } },*/
                                      {   header: "Genome",                 sortable: true,  width: 70,    dataIndex: 'genome_id',

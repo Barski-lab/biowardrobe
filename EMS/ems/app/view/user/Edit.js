@@ -31,6 +31,7 @@ Ext.define('EMS.view.user.Edit', {
                width: 280,
 
                initComponent: function() {
+
                    this.items = [
                             {
                                 xtype: 'form',
@@ -61,7 +62,8 @@ Ext.define('EMS.view.user.Edit', {
                    this.buttons = [
                             {
                                 text: 'Save',
-                                action: 'save'
+                                action: 'save',
+                                id: 'worker-edit-save',
                             },
                             {
                                 text: 'Cancel',

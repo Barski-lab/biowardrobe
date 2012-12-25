@@ -1,12 +1,19 @@
 <?php
-  session_start();
-  function is_authenticated() {
-    return isset($_SESSION[authenticated]) && $_SESSION[authenticated] == "yes";
-  }
+
   function require_authentication() {
-    if (!is_authenticated()) {
+    if (!isset($_SESSION["timeout"])) {
+      session_destroy();
       header("Location:login.php");
       exit;
     }
+    if($_SESSION["timeout"] + 600 < time()){
+      session_destroy();
+      header("Location:login.php?timeout=true");
+      exit;
+    }
+    $_SESSION["timeout"]=time();
   }
+
+  session_start();
+  require_authentication();
 ?>

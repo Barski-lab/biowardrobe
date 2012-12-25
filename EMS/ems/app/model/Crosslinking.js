@@ -27,22 +27,4 @@ Ext.define( 'EMS.model.Crosslinking', {
                    { name: 'id', type: 'int' },
                    { name: 'Crosslink', type: 'string' }
                ],
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/records.json?tablename=Crosslink',
-                       update: '/cgi-bin/barski/recordsUp.json'
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true
-                   }
-               }
-
            });

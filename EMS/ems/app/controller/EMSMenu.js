@@ -39,9 +39,9 @@ Ext.define('EMS.controller.EMSMenu', {
                {
                    Logger.log('Menu Initialized!');
                    this.control({
-                                    //                                    'viewport > EMSMenu': {
-                                    //                                        render: this.onPanelRendered
-                                    //                                    },
+                                    'viewport > EMSMenu': {
+                                        render: this.onPanelRendered
+                                    },
                                     'EMSMenu button > menuitem': {
                                         click: this.onEMSMenuForms
                                     }
@@ -54,6 +54,7 @@ Ext.define('EMS.controller.EMSMenu', {
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
                    Logger.log('The panel was rendered');
+                   Ext.getCmp('MenuWorkers').setVisible(USER_GNAME==="porter");
                },
 
                //-----------------------------------------------------------------------
@@ -117,6 +118,19 @@ Ext.define('EMS.controller.EMSMenu', {
                            this.ExpTypeEditWindow.show(); }
                    }
                    /*
+                     Create window with Crosslink list
+                   */
+                   if(menuitem.action === "CrossType"){
+                       if(typeof this.CrosslinkEditWindow === 'undefined' || !this.CrosslinkEditWindow){
+                           this.CrosslinkEditWindow=Ext.create('EMS.view.Crosslink.Crosslink',{});
+                           Ext.getCmp('EMSMenu').add(this.CrosslinkEditWindow);
+                       }
+                       if(this.CrosslinkEditWindow.isVisible()){
+                           this.CrosslinkEditWindow.focus(); }
+                       else {
+                           this.CrosslinkEditWindow.show(); }
+                   }
+                   /*
                      Create window with Fragmentation list
                    */
                    if(menuitem.action === "FragmentType"){
@@ -128,6 +142,19 @@ Ext.define('EMS.controller.EMSMenu', {
                            this.FragmentationEditWindow.focus(); }
                        else {
                            this.FragmentationEditWindow.show(); }
+                   }
+                   /*
+                     Create window with Genome list
+                   */
+                   if(menuitem.action === "GenomeType"){
+                       if(typeof this.GenomeEditWindow === 'undefined' || !this.GenomeEditWindow){
+                           this.GenomeEditWindow=Ext.create('EMS.view.Genome.Genome',{});
+                           Ext.getCmp('EMSMenu').add(this.GenomeEditWindow);
+                       }
+                       if(this.GenomeEditWindow.isVisible()){
+                           this.GenomeEditWindow.focus(); }
+                       else {
+                           this.GenomeEditWindow.show(); }
                    }
 
                    /*

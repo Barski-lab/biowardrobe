@@ -35,7 +35,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                            { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Experiment type',iconCls: 'army-knife' },
                            { text: 'Genome type', action: 'GenomeType', tooltip: 'Experiment type',iconCls: '' },
                            '-',
-                           { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit' }
+                           { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit', id: "MenuWorkers" }
                        ],
                        iconCls:'form-blue'
                    },

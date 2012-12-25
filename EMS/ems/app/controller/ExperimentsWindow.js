@@ -49,6 +49,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         click: this.onSave
                                     }
                                 });
+                   this.getLabDataStore().load();
                },
                //-----------------------------------------------------------------------
                //

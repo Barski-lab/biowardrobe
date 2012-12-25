@@ -24,7 +24,7 @@ Ext.define('EMS.controller.WorkersEdit', {
                extend: 'Ext.app.Controller',
                stores: ['Worker'],
                models: ['Worker'],
-               views: ['user.Edit', 'user.List'],
+               views: ['user.Edit', 'user.List','WorkersEdit'],
 
                init: function() {
                    this.control({
@@ -33,25 +33,53 @@ Ext.define('EMS.controller.WorkersEdit', {
                                         itemdblclick: this.edit
                                     },
                                     //Button pressed save
-                                    'useredit > button[action=save]': {
+                                    '#worker-edit-save': {
                                         click: this.update
+                                    },
+                                    '#new-worker-window':{
+                                        click: this.newworkerwin
                                     }
                                 });
                    this.getWorkerStore().load();
                },
 
                edit: function(grid, record) {
-                   var edit = Ext.create('EMS.view.user.Edit').show();
+                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});//.show();
                    edit.down('form').loadRecord(record);
+                   edit.show();
                },
 
+               newworkerwin: function(button) {
+                       var edit = Ext.create('EMS.view.user.Edit',{newcomp: true,modal: true});//.show();
+                       edit.show();
+               },
                update: function(button) {
-                   var win    = button.up('window'),
-                           form   = win.down('form'),
-                           record = form.getRecord(),
-                           values = form.getValues();
+                   var win    = button.up('window');
+                   var form   = win.down('form');
+                   var record = form.getRecord();
+                   var values = form.getValues();
 
-                   record.set(values);
+                   if(win.newcomp)
+                   {
+                       if(values.Worker !== '' || values.fname !== '' || values.lname !== '')
+                       {
+                           EMS.store.Worker.insert(0, values);
+                       }
+                       else
+                       {
+                           Ext.Msg.show({
+                                            title: 'Save Failed',
+                                            msg: 'Empty fields not allowed',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK
+                                        });
+                           return;
+                       }
+                   }
+                   else
+                   {
+                       record.set(values);
+                   }
                    win.close();
                    this.getWorkerStore().sync();
                }

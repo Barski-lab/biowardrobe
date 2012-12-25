@@ -22,25 +22,71 @@
 
 
 Ext.define( 'EMS.store.Crosslinking', {
-    extend: 'Ext.data.Store',
+               extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Crosslinking'],
-    storeId: 'Crosslinking',
-    model:  'EMS.model.Crosslinking',
-    autoLoad: false,
-    singleton: true,
-
-    proxy:{
-           type: 'ajax',
-           api: {
-            read : '/cgi-bin/barski/records.json?tablename=Crosslink',
-            update: '/cgi-bin/barski/recordsUp.json'
-           },
-           reader: {
-            type: 'json',
-            root: 'data',
-            successProperty: 'success'
-           }
-          }
-});
+               requires: ['EMS.model.Crosslinking'],
+               storeId: 'Crosslinking',
+               model:  'EMS.model.Crosslinking',
+               autoLoad: false,
+               singleton: true,
+               proxy:{
+                   type: 'ajax',
+                   api: {
+                       read : '/cgi-bin/barski/records.json',
+                       update: '/cgi-bin/barski/recordsUp.json',
+                       create: '/cgi-bin/barski/recordsNew.json',
+                       destroy: '/cgi-bin/barski/recordsDel.json'
+                   },
+                   extraParams: {
+                       tablename:  'Crosslink'
+                   },
+                   reader: {
+                       type: 'json',
+                       root: 'data',
+                       successProperty: 'success'
+                   },
+                   writer: {
+                       type: 'json',
+                       root: 'data',
+                       writeAllFields: true,
+                       encode: true
+                   },
+                   listeners: {
+                       exception: function(proxy, response, operation) {
+                           // response contains responseText, which has the message
+                           // but in unparsed Json (see below)
+                           console.log(proxy, response, operation);
+                           try{
+                               var json = Ext.decode(response.responseText);
+                               if (json) {
+                                   //detl.getForm().markInvalid(json.errors);
+                                   Ext.MessageBox.show({
+                                                           title: 'Save Failed',
+                                                           msg: json.message,
+                                                           icon: Ext.MessageBox.ERROR,
+                                                           buttons: Ext.Msg.OK
+                                                       });
+                                   console.log('Save failed:',json.message,' error:',json.errors);
+                               } else
+                               {
+                                   Ext.MessageBox.show({
+                                                           title: 'Save Failed',
+                                                           msg: operation.getError(),
+                                                           icon: Ext.MessageBox.ERROR,
+                                                           buttons: Ext.Msg.OK
+                                                       });
+                               }
+                           }
+                           catch(Error)
+                           {
+                               Ext.Msg.show({
+                                                title: 'Save Failed',
+                                                msg: 'Error in "'+operation.action+'" operation',
+                                                icon: Ext.Msg.ERROR,
+                                                buttons: Ext.Msg.OK
+                                            });
+                           }
+                       }}
+               }
+           });
 

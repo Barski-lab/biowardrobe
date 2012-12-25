@@ -138,4 +138,10 @@ OTHER_FILES += \
     index.php \
     login.php \
     common.php \
-    authenticate.php
+    authenticate.php \
+    app/view/Crosslink/List.js \
+    app/view/Crosslink/Crosslink.js \
+    app/controller/CrosslinkEdit.js \
+    app/view/Genome/List.js \
+    app/view/Genome/Genome.js \
+    ../sql/EMS.sql

@@ -1,7 +1,7 @@
 create database if not exists ems;
 create database if not exists experiments;
 use ems;
-set foreign_key_checks = 0 ; 
+set foreign_key_checks = 0 ;
 drop table if exists LabData;
 drop table if exists ExperimentType;
 drop table if exists Antibodies;
@@ -108,7 +108,7 @@ create table if not exists LabData (
  Notes TEXT,
  file_name varchar(2000),
  date_add datetime not null,
- libStatus INTEGER, 
+ libStatus INTEGER,
  libStatusTxt varchar(200),
  genome_id INTEGER,
  crosslink_id INTEGER,
@@ -135,32 +135,37 @@ index(experimenttype_id), FOREIGN KEY(experimenttype_id)
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB4','Naïve CD4 Pol II',1,1,'Human Naive  CD4 T cells (CD45R0-CD27+)','Resting, purified from filters	',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB5','TCM CD4 Pol II',1,1,'Human TCM  CD4 T cells (CD45R0+CD27+)','Resting, purified from filters	',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB6','TEM CD4 Pol II',1,1,'Human TEM  CD4 T cells (CD45R0+CD27-)','Resting, purified from filters	',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB7','Naïve CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters	',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB8','TCM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters	',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add) 
-values(1,'ABAB9','TEM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters	',2,2,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB4','Naïve CD4 Pol II',1,1,'Human Naive  CD4 T cells (CD45R0-CD27+)','Resting, purified from filters',2,1,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB5','TCM CD4 Pol II',1,1,'Human TCM  CD4 T cells (CD45R0+CD27+)','Resting, purified from filters',2,1,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB6','TEM CD4 Pol II',1,1,'Human TEM  CD4 T cells (CD45R0+CD27-)','Resting, purified from filters',2,1,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB7','Naïve CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB8','TCM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+values(1,'ABAB9','TEM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
-values(3,'ABDM10','Resting Naïve CD4',1,2,'Human Naïve CD4 T cells','Resting, purified from filters	',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+values(3,'ABDM10','Resting Naïve CD4',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',3,1,'NIST Pool 7',0.4,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
 values(3,'ABDM11','Activated 18hr Naïve CD4',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
-values(3,'ABDM12','Resting Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Resting, purified from filters	',4,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+values(3,'ABDM12','Resting Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',4,1,'NIST Pool 7',0.4,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
 values(3,'ABDM13','Activated 18hr Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',4,1,'NIST Pool 7',0.4,now());
 
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add) 
-values(4,'ABYR14','Activated_rested CD4',1,2,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,1,'',0,now());
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+values(4,'ABYR14','Activated_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,1,'',0,now());
 
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+values(4,'ABYR15','Anergic_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,1,'',0,now());
+
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+values(4,'ABYR16','Naïve CD4',2,2,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,1,'',0,now());
 
 
 #14	ABYR14	Activated_rested CD4 	Human	Done-Analysis	10	RNA-Seq	HumanCD4 T cells				Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d	N/A	Covaris, 3min	N/A			dUTP			Anergy7_1
@@ -175,8 +180,8 @@ values(4,'ABYR14','Activated_rested CD4',1,2,'Human CD4 T cells','Activated with
 #23	ABYR23	Anergic Ist CD4 7h	Human	Done-Analysis	21	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 7h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
 #24	ABYR24	Activated Ist CD4 14h	Human	Done-Analysis	22	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28 14h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
 #25	ABYR25	Anergic Ist CD4 14h	Human	Done-Analysis	23	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 14h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#26	ABAB26	EM resting Pol2	Human	In seq	25	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- resting	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance						
-#27	ABAB27	EM activated 150 min Pol2	Human	In seq	27	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- 150 min activated w CD3/28	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance						
+#26	ABAB26	EM resting Pol2	Human	In seq	25	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- resting	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance
+#27	ABAB27	EM activated 150 min Pol2	Human	In seq	27	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- 150 min activated w CD3/28	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance
 #28	ABYR28	Naïve CD4	Human	In seq	20	RNA-Seq	Human CD4 T cells Naïve				Cultured with APC 4d, purified StemCell, rest 2d	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
 #29	ABYR29	Activated CD4+2od Act 4h	Human	In seq	21	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28/IL2 5d, purifiedStemCell, rested 3d, Act4h	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
 #30	ABYR30	Anergic CD4	Human	In seq	22	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 5d, purifiedStemCell, rested 3d	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
