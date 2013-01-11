@@ -119,7 +119,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                         items:[
                                             {
                                                 xtype: 'numberfield',
-                                                name : 'Spikeins',
+                                                name : 'spikeins',
                                                 fieldLabel: 'Spikeins',
                                                 labelWidth: 70,
                                                 width: 150

@@ -76,7 +76,11 @@ for (row ) in cursor.fetchall():
  print """%s{"""%(comma),
  c=""
  for i,item in enumerate(fields):
-  print """%s"%s":"%s" """%(c,item,row[i]),
+  if row[i] is None:
+#   print """%s"%s":"" """%(c,item),
+   print """%s"%s":"%s" """%(c,item,row[i]),
+  else:
+   print """%s"%s":"%s" """%(c,item,row[i]),
   c=","
  comma=","
  print """}""",

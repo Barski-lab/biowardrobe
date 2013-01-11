@@ -8,7 +8,7 @@
   }
 
   function validate($response, $data) {
-    return $data["Worker"]==$response;
+    return $data["passwd"]==$response;
   }
 
   function authenticate() {

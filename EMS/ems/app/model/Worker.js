@@ -22,13 +22,15 @@
 
 Ext.define( 'EMS.model.Worker', {
                extend: 'Ext.data.Model',
-
+               idProperty: 'id',
                fields:
                  [
                    { name: 'id', type: 'int' },
                    { name: 'Worker', type: 'string' },
                    { name: 'passwd', type: 'string' },
                    { name: 'fname', type: 'string' },
-                   { name: 'lname', type: 'string' }
+                   { name: 'lname', type: 'string' },
+                   { name: 'dnalogin', type: 'string' },
+                   { name: 'dnapass', type: 'string' }
                  ]
            });

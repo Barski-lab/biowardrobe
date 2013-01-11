@@ -81,7 +81,7 @@ Ext.define( 'EMS.store.Worker', {
                            catch(Error)
                            {
                                Ext.Msg.show({
-                                                title: 'Save Failed',
+                                                title: 'Operation Failed',
                                                 msg: 'Error in "'+operation.action+'" operation',
                                                 icon: Ext.Msg.ERROR,
                                                 buttons: Ext.Msg.OK

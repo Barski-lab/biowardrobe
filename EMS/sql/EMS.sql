@@ -75,8 +75,8 @@ Worker varchar(150) UNIQUE KEY,
 passwd varchar(150),
 fname varchar(150),
 lname varchar(150),
-dna_login varchar(150),
-dna_pass varchar(150)
+dnalogin varchar(150),
+dnapass varchar(150)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into Worker (Worker,fname,lname) values ('barski','Artem','Barski');
@@ -101,13 +101,13 @@ create table if not exists LabData (
  Conditions varchar(1000),
  spikeinspool varchar(200),
  spikeins DOUBLE,
- Tags_total INTEGER,
- Tags_mapped INTEGER,
+ TagsTotal INTEGER,
+ TagsMapped INTEGER,
  LibCode varchar(50),
  Name4browser varchar(200),
  Notes TEXT,
- file_name varchar(2000),
- date_add datetime not null,
+ filename varchar(2000),
+ dateadd datetime not null,
  libStatus INTEGER,
  libStatusTxt varchar(200),
  genome_id INTEGER,
@@ -135,36 +135,36 @@ index(experimenttype_id), FOREIGN KEY(experimenttype_id)
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB4','Naïve CD4 Pol II',1,1,'Human Naive  CD4 T cells (CD45R0-CD27+)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB5','TCM CD4 Pol II',1,1,'Human TCM  CD4 T cells (CD45R0+CD27+)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB6','TEM CD4 Pol II',1,1,'Human TEM  CD4 T cells (CD45R0+CD27-)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB7','Naïve CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB8','TCM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
 values(1,'ABAB9','TEM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(3,'ABDM10','Resting Naïve CD4',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(3,'ABDM11','Activated 18hr Naïve CD4',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(3,'ABDM12','Resting Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',4,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(3,'ABDM13','Activated 18hr Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',4,1,'NIST Pool 7',0.4,now());
 
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(4,'ABYR14','Activated_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,1,'',0,now());
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(4,'ABYR15','Anergic_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,1,'',0,now());
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,date_add)
+insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
 values(4,'ABYR16','Naïve CD4',2,2,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,1,'',0,now());
 
 

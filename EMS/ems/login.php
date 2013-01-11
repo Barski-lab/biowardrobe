@@ -44,7 +44,7 @@
 
     Ext.onReady(function() {
         var loginForm=new Ext.form.Panel({
-            bodyPadding: 5,
+            bodyPadding: 10,
             width: 300,
             height: 100,
             frame: true,

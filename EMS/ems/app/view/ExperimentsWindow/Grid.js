@@ -78,11 +78,11 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              var rec=EMS.store.Protocol.findRecord('id',value);
                                              return rec?rec.data.protocol:'';}
                                      },
-                                     {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'Tags_total' },
-                                     {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'Tags_mapped' },
+                                     {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'TagsTotal' },
+                                     {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'TagsMapped' },
                                      {   header: "Name for browser",       sortable: false,  width: 100,   dataIndex: 'Name4browser', flex: 1},
                                      {   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'LibCode'   },
-                                     {   header: "Date",                   sortable: true,   width: 70,    dataIndex: 'date_add',    renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true,
+                                     {   header: "Date",                   sortable: true,   width: 70,    dataIndex: 'dateadd',    renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true,
                                          /*                 , xtype: "datecolumn",
                  editor: { xtype: 'datefield',  allowBlank: false,
                  minValue: '01/01/2011', maxValue: Ext.Date.format(new Date(), 'm/d/Y'),

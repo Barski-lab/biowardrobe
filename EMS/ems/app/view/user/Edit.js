@@ -27,8 +27,8 @@ Ext.define('EMS.view.user.Edit', {
                title : 'Edit User',
                layout: 'fit',
 
-               height: 210,
-               width: 280,
+               height: 310,
+               width: 290,
 
                initComponent: function() {
 
@@ -54,6 +54,24 @@ Ext.define('EMS.view.user.Edit', {
                                         xtype: 'textfield',
                                         name : 'lname',
                                         fieldLabel: 'Last name'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name : 'passwd',
+                                        fieldLabel: 'Password',
+                                        allowBlank: false,
+                                        inputType: 'password'
+                                    },
+                                    {
+                                        xtype: 'textfield',
+                                        name : 'dnalogin',
+                                        fieldLabel: 'Dna Login'
+                                    }
+                                    ,
+                                    {
+                                        xtype: 'textfield',
+                                        name : 'dnapass',
+                                        fieldLabel: 'Dna Pass'
                                     }
                                 ]
                             }
