@@ -22,9 +22,8 @@
 Ext.define( 'EMS.model.Crosslinking', {
                extend: 'Ext.data.Model',
 
-               fields:
-                   [
+               fields: [
                    { name: 'id', type: 'int' },
-                   { name: 'Crosslink', type: 'string' }
-               ],
+                   { name: 'crosslink', type: 'string' }
+               ]
            });

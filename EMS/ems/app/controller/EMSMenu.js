@@ -32,8 +32,7 @@ Ext.define('EMS.controller.EMSMenu', {
                extend: 'Ext.app.Controller',
 
                views:['EMSMenu'],
-               init: function()
-               {
+               init: function() {
                    Logger.log('Menu Initialized!');
                    this.control({
                                     'viewport > EMSMenu': {

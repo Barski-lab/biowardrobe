@@ -41,47 +41,51 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
 
                                  //features: [filters],
 
-                                 columns:
-                                     [
+                                 columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
 
-                                     {   header: "Belongs to",                  sortable: true,  width: 90,    dataIndex: 'worker_id',
+                                     {   header: "Belongs to",                  sortable: true,  width: 100,    dataIndex: 'worker_id',
                                          renderer: function(value,meta,record){
                                              var rec=EMS.store.Worker.findRecord('id',value);
-                                             return rec?rec.data.lname+', '+rec.data.fname:'';}},
-                                     /*          {   header: "Run Index",              sortable: false,  width: 60,    dataIndex: 'IndexRun',     format: 0,  xtype: "numbercolumn",
-                 editor: { xtype: 'numberfield',allowBlank: false,  minValue: 1,  maxValue: 150000 } },*/
-                                     {   header: "Genome",                 sortable: true,  width: 70,    dataIndex: 'genome_id',
-                                         renderer: function(value,meta,record){
-                                             var rec=EMS.store.Genome.findRecord('id',value);
-                                             return rec?rec.data.Genome:'';}
+                                             return rec?rec.data.fullname:'';
+                                         }
                                      },
-                                     {   header: "Cells",                  sortable: false,  width: 120,   dataIndex: 'Cells',        flex: 1},
-                                     {   header: "Condition",                  sortable: false,  width: 120,   dataIndex: 'Conditions',        flex: 1},
-                                     {   header: "Type",                   sortable: false,  width: 70,    dataIndex: 'experimenttype_id',
-                                         renderer: function(value,meta,record){
+                                     {   header: "Genome",                 sortable: false,  width: 70,    dataIndex: 'genome_id',
+                                         renderer: function(value,meta,record) {
+                                             var rec=EMS.store.Genome.findRecord('id',value);
+                                             return rec?rec.data.genome:'';
+                                         }
+                                     },
+                                     {   header: "Cells",                  sortable: false,  width: 120,   dataIndex: 'cells',        flex: 1},
+                                     {   header: "Condition",              sortable: false,  width: 120,   dataIndex: 'conditions',        flex: 1},
+                                     {   header: "Type",                   sortable: false,  width: 90,    dataIndex: 'experimenttype_id',
+                                         renderer: function(value,meta,record) {
                                              var rec=EMS.store.ExperimentType.findRecord('id',value);
-                                             return rec?rec.data.Type:'';}
+                                             return rec?rec.data.etype:'';
+                                         }
 
                                          /*          editor: {
-              xtype: 'combobox',
-              typeAhead: true,
-              displayField: 'Type',
-              triggerAction: 'all',
-              selectOnTab: true,
-              store: types_store,
-//            lazyRender: true,
-              listClass: 'x-combo-list-small'
-          }*/},
-                                     {   header: "Protocol",               sortable: false,  width: 70,    dataIndex: 'protocol_id',
-                                         renderer: function(value,meta,record){
-                                             var rec=EMS.store.Protocol.findRecord('id',value);
-                                             return rec?rec.data.protocol:'';}
+                                            xtype: 'combobox',
+                                            typeAhead: true,
+                                            displayField: 'Type',
+                                            triggerAction: 'all',
+                                            selectOnTab: true,
+                                            store: types_store,
+                                            lazyRender: true,
+                                            listClass: 'x-combo-list-small'
+                                        }
+                                        */
                                      },
-                                     {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'TagsTotal' },
-                                     {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'TagsMapped' },
-                                     {   header: "Name for browser",       sortable: false,  width: 100,   dataIndex: 'Name4browser', flex: 1},
-                                     {   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'LibCode'   },
+//                                     {   header: "Protocol",               sortable: false,  width: 70,    dataIndex: 'protocol_id',
+//                                         renderer: function(value,meta,record){
+//                                             var rec=EMS.store.Protocol.findRecord('id',value);
+//                                             return rec?rec.data.protocol:'';}
+//                                     },
+                                     {   header: "status",                 sortable: false,  width: 50,    dataIndex: 'libstatustxt'},
+                                     {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'tagstotal' },
+                                     {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'tagsmapped' },
+                                     {   header: "Name for browser",       sortable: false,  width: 80,    dataIndex: 'name4browser', flex: 1},
+                                     {   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'libcode'   },
                                      {   header: "Date",                   sortable: true,   width: 70,    dataIndex: 'dateadd',    renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true,
                                          /*                 , xtype: "datecolumn",
                  editor: { xtype: 'datefield',  allowBlank: false,

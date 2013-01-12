@@ -28,34 +28,32 @@ Ext.define( 'EMS.model.LabData', {
                    'EMS.model.Worker',
                    'EMS.model.Crosslinking',
                    'EMS.model.Fragmentation',
-                   'EMS.model.Antibodies',
-                   'EMS.model.Protocol'
+                   'EMS.model.Antibodies'
                ],
 
                fields: [
                    { name: 'id', type: 'int' },
-                   'Cells',
-                   'Mapping_cond',
-                   'Conditions',
+                   'cells',
+                   'conditions',
                    'spikeinspool',
                    'spikeins',
-                   { name: 'TagsTotal', type: 'int' },
-                   { name: 'TagsMapped', type: 'int' },
-                   'LibCode',
-                   'Name4browser',
-                   'Notes',
+                   { name: 'tagstotal', type: 'int' },
+                   { name: 'tagsmapped', type: 'int' },
+                   'libcode',
+                   'name4browser',
+                   'notes',
+                   'protocol',
                    'filename',
                    { name: 'dateadd', type: 'date' },
-                   { name: 'libStatus', type: 'int' },
-                   'libStatusTxt',
+                   { name: 'libstatus', type: 'int' },
+                   'libstatustxt',
                    { name: 'genome_id', type: 'int' },
                    { name: 'crosslink_id', type: 'int' },
                    { name: 'fragmentation_id', type: 'int' },
                    { name: 'worker_id', type: 'int' },
-                   { name: 'antibodies_id', type: 'int' },
-                   { name: 'protocol_id', type: 'int' },
+                   { name: 'antibody_id', type: 'int' },
                    { name: 'experimenttype_id', type: 'int' }
-               ],
+               ]
            });
 
 //#{"ID":"1","WORKER_ID":null,"LibCode":"ABAB4","Name4browser":"Naive CD4 Pol II","genomeType":"1",

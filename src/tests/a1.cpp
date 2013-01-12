@@ -11,40 +11,39 @@ namespace bicl = boost::icl;
 using namespace std;
 
 
+
+template <typename T>
+T Poisson_cdist(int k, T lambda)
+{
+    T res = 1.0;
+    for(int i=0; i<k; i++){
+        T log_cur_p = -lambda + i*log(lambda) ;
+        for(int j=1; j<=i; j++)//factorial
+        {
+            log_cur_p = log_cur_p - log((T)j);
+        }
+        res -= exp(log_cur_p);
+    }
+    return res;
+}
+
+
 int main(void)
 {
-QString str="GAPDH STAT6 TPI1 SPSB2";
-
-if(str.contains("STAT6"))
- cout <<"!!!" << endl;
-
-
-return 0;
 
 bicl::interval_map<int,int> a,b,c; 
 
-if(a==b)
- cout <<"eq" << endl;
-//QString str="abscdf-";
-//        cout <<str.right(1).toStdString() << endl;
-
 //------------------------------------------------------------------
 a+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);
+a+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),1);
 
-//bicl::interval_map<int,int> b; 
+b+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),2);
+b+=make_pair(bicl::discrete_interval<int>::closed((int)6,(int)7),2);
+b+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),2);;
 
-b+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),1);
-b+=make_pair(bicl::discrete_interval<int>::closed((int)6,(int)7),1);
+c=a&b;
 
-//bicl::interval_map<int,int> c;
-
-bicl::interval_set<int> d;
-
-//bicl::interval_set<int,int> e;
-
-
-
-//            a+=make_pair(bicl::discrete_interval<int>::closed(left,right),1);
+b=b-c;
 
     bicl::interval_map<int, int>::iterator it = b.begin();
     cout << "----- History of party guests -------------------------\n";
@@ -56,9 +55,27 @@ bicl::interval_set<int> d;
         cout << itv << ": " << who << endl;
     }
 
-a+=make_pair(bicl::discrete_interval<int>::closed((int)2,(int)4),1);
 
-b+=make_pair(bicl::discrete_interval<int>::closed((int)1,(int)3),1);;
+
+
+
+
+return 0;
+
+for(int i=0;i<10;i++)
+ cout <<i<<":"<<Poisson_cdist<double>(i,(100.0/2000.0)*10.0) << endl;
+
+
+
+
+
+QString str="GAPDH STAT6 TPI1 SPSB2";
+
+if(str.contains("STAT6"))
+ cout <<"!!!" << endl;
+
+
+
 
 cout<<"a:"<<a<<endl;
 cout<<"b:"<<b<<endl;

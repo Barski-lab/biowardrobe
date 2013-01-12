@@ -32,8 +32,6 @@ Ext.define('EMS.view.Antibodies.Antibodies', {
                closable: true,
                maximizable: true,
                closeAction: 'hide',
-               //               constrain: true,
-               //               overflowY : 'scroll',
                iconCls: 'battery-green',
 
                layout: 'fit',
@@ -41,7 +39,6 @@ Ext.define('EMS.view.Antibodies.Antibodies', {
 
                initComponent: function() {
                    this.items =  Ext.create('EMS.view.Antibodies.List');
-                                              //Ext.getCmp('EMSMenu').add(ExperimentsWindow);
                    this.callParent(arguments);
                }
 

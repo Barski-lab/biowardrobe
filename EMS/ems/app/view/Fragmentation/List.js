@@ -34,7 +34,7 @@ Ext.define('EMS.view.Fragmentation.List' ,{
                                  store: EMS.store.Fragmentation,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Fragmentation', dataIndex: 'Fragmentation', flex: 1, editor: { allowBlank: false} },
+                                     {header: 'Fragmentation', dataIndex: 'fragmentation', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -45,7 +45,7 @@ Ext.define('EMS.view.Fragmentation.List' ,{
                                                  handler: function(grid, rowIndex, colIndex) {
                                                      EMS.store.Fragmentation.removeAt(rowIndex);
                                                  }
-                                             }]
+                                         }]
                                      }
                                  ],
                                  plugins: [cellEditing],
@@ -55,7 +55,7 @@ Ext.define('EMS.view.Fragmentation.List' ,{
                                          tooltip:'Add a new fragmentation type',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.Fragmentation', {
-                                                                    Fragmentation: 'New Fragmentation Type'
+                                                                    fragmentation: 'New Fragmentation Type'
                                                                 });
                                              EMS.store.Fragmentation.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});
@@ -67,10 +67,10 @@ Ext.define('EMS.view.Fragmentation.List' ,{
                                          tooltip:'Save changes',
                                          handler : function(){
                                              EMS.store.Fragmentation.sync({
-                                                                           success: function (batch, options) {
-                                                                               console.log('Sync successed' ,batch, options);
-                                                                               EMS.store.Fragmentation.load();
-                                                                           }});
+                                                                              success: function (batch, options) {
+                                                                                  console.log('Sync successed' ,batch, options);
+                                                                                  EMS.store.Fragmentation.load();
+                                                                              }});
                                          },
                                          iconCls:'table2-check'
                                      }, '-',

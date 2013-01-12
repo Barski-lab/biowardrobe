@@ -22,9 +22,8 @@
 Ext.define( 'EMS.model.Genome', {
                extend: 'Ext.data.Model',
 
-               fields:
-                 [
+               fields: [
                    { name: 'id', type: 'int' },
-                   { name: 'Genome', type: 'string' }
-                 ]
+                   { name: 'genome', type: 'string' }
+               ]
            });

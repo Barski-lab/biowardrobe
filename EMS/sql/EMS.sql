@@ -11,67 +11,69 @@ drop table if exists Fragmentation;
 drop table if exists Worker;
 drop table if exists protocol;
 
-drop table if exists ExperimentType;
-create table if not exists ExperimentType (
+drop table if exists experimenttype;
+create table if not exists experimenttype (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Type varchar(100) UNIQUE KEY,
-Program varchar(100)
+etype varchar(100) UNIQUE KEY,
+command varchar(400)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into ExperimentType (Type,program) values ('ChIP-Seq','bowtie');
-insert into ExperimentType (Type,program) values ('RNA-Seq','tophat');
+insert into experimenttype (etype,command) values ('DNA-Seq','bowtie');
+insert into experimenttype (etype,command) values ('DNA-Seq pair','bowtie');
+insert into experimenttype (etype,command) values ('RNA-Seq','tophat');
+insert into experimenttype (etype,command) values ('RNA-Seq pair','tophat');
+insert into experimenttype (etype,command) values ('RNA-Seq dUTP','tophat');
 
-drop table if exists Antibodies;
-create table if not exists Antibodies (
+drop table if exists antibody;
+create table if not exists antibody (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Antibody varchar(150) UNIQUE KEY
+antibody varchar(150) UNIQUE KEY
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into Antibodies (Antibody) values ('N/A');
-insert into Antibodies (Antibody) values ('Pol2, 8WG16, Covance');
-insert into Antibodies (Antibody) values ('H3K9Ac (ab10812)');
-insert into Antibodies (Antibody) values ('H3K36me3 (ab9050)');
-insert into Antibodies (Antibody) values ('H3K9me3 (ab8898)');
-insert into Antibodies (Antibody) values ('H3K27Ac (ab4729)');
+insert into antibody (antibody) values ('N/A');
+insert into antibody (antibody) values ('Pol2, 8WG16, Covance');
+insert into antibody (antibody) values ('H3K9Ac (ab10812)');
+insert into antibody (antibody) values ('H3K36me3 (ab9050)');
+insert into antibody (antibody) values ('H3K9me3 (ab8898)');
+insert into antibody (antibody) values ('H3K27Ac (ab4729)');
 
-drop table if exists Crosslink;
-create table if not exists Crosslink (
+drop table if exists crosslink;
+create table if not exists crosslink (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Crosslink varchar(150) UNIQUE KEY
+crosslink varchar(150) UNIQUE KEY
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into Crosslink (Crosslink) values ('N/A');
-insert into Crosslink (Crosslink) values ('FA, 10min, RT');
+insert into crosslink (crosslink) values ('N/A');
+insert into crosslink (crosslink) values ('FA, 10min, RT');
 
-drop table if exists Genome;
-create table if not exists Genome (
+drop table if exists genome;
+create table if not exists genome (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Genome varchar(150) UNIQUE KEY
+genome varchar(150) UNIQUE KEY
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into Genome (Genome) values ('Human');
-insert into Genome (Genome) values ('Human+spike');
-insert into Genome (Genome) values ('Mouse');
-insert into Genome (Genome) values ('Ribosomal');
+insert into genome (genome) values ('Human');
+insert into genome (genome) values ('Human+spike');
+insert into genome (genome) values ('Mouse');
 
-drop table if exists Fragmentation;
-create table if not exists Fragmentation (
+drop table if exists fragmentation;
+create table if not exists fragmentation (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Fragmentation varchar(150) UNIQUE KEY
+fragmentation varchar(150) UNIQUE KEY
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into Fragmentation (Fragmentation) values ('Covaris, 17min');
-insert into Fragmentation (Fragmentation) values ('Covaris, 15min');
-insert into Fragmentation (Fragmentation) values ('Ambion Frag Kit');
-insert into Fragmentation (Fragmentation) values ('Covaris, 3min');
-insert into Fragmentation (Fragmentation) values ('Covaris, 3.2min');
-insert into Fragmentation (Fragmentation) values ('Covaris, 10min');
+insert into fragmentation (fragmentation) values ('Covaris, 17min');
+insert into fragmentation (fragmentation) values ('Covaris, 15min');
+insert into fragmentation (fragmentation) values ('Ambion Frag Kit');
+insert into fragmentation (fragmentation) values ('Covaris, 3min');
+insert into fragmentation (fragmentation) values ('Covaris, 3.2min');
+insert into fragmentation (fragmentation) values ('Covaris, 10min');
 
 
-drop table if exists Worker;
-create table if not exists Worker (
+drop table if exists worker;
+create table if not exists worker (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
-Worker varchar(150) UNIQUE KEY,
+worker varchar(150) UNIQUE KEY,
 passwd varchar(150),
 fname varchar(150),
 lname varchar(150),
@@ -79,93 +81,83 @@ dnalogin varchar(150),
 dnapass varchar(150)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into Worker (Worker,fname,lname) values ('barski','Artem','Barski');
-insert into Worker (Worker,fname,lname) values ('porter','Andrey','Kartashov');
-insert into Worker (Worker,fname,lname) values ('david','David','Muench');
-insert into Worker (Worker,fname,lname) values ('yrina','Yrina','Rochman');
-insert into Worker (Worker,fname,lname) values ('satoshi','Satoshi','');
-insert into Worker (Worker,fname,lname) values ('clark','Clark','');
-insert into Worker (Worker,fname,lname) values ('rahul','Rahul','');
+insert into worker (worker,fname,lname) values ('barski','Artem','Barski');
+insert into worker (worker,fname,lname) values ('porter','Andrey','Kartashov');
+insert into worker (worker,fname,lname) values ('david','David','Muench');
+insert into worker (worker,fname,lname) values ('yrina','Yrina','Rochman');
+insert into worker (worker,fname,lname) values ('mark','Mark','Rochman');
+insert into worker (worker,fname,lname) values ('satoshi','Satoshi','Namekawa');
+insert into worker (worker,fname,lname) values ('clark','Clark','');
+insert into worker (worker,fname,lname) values ('rahul','Rahul','');
 
-drop table if exists protocol;
-create table if not exists protocol (
-id INTEGER AUTO_INCREMENT PRIMARY KEY,
-protocol varchar(150) UNIQUE KEY
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
-insert into protocol(protocol) values('dUTP');
-
-create table if not exists LabData (
+drop table if exists labdata;
+create table if not exists labdata (
  id INTEGER AUTO_INCREMENT,
- Cells varchar(1000),
- Mapping_cond varchar(200),
- Conditions varchar(1000),
+ cells varchar(1000),
+ conditions varchar(1000),
  spikeinspool varchar(200),
  spikeins DOUBLE,
- TagsTotal INTEGER,
- TagsMapped INTEGER,
- LibCode varchar(50),
- Name4browser varchar(200),
- Notes TEXT,
+ tagstotal INTEGER default 0,
+ tagsmapped INTEGER default 0,
+ libcode varchar(50),
+ name4browser varchar(200),
+ notes TEXT,
+ protocol TEXT,
  filename varchar(2000),
  dateadd datetime not null,
- libStatus INTEGER,
- libStatusTxt varchar(200),
+ libstatus INTEGER default 0,
+ libstatustxt varchar(200) default 'created',
  genome_id INTEGER,
  crosslink_id INTEGER,
  fragmentation_id INTEGER,
- antibodies_id INTEGER,
- protocol_id INTEGER,
+ antibody_id INTEGER,
  worker_id INTEGER,
  experimenttype_id INTEGER,
  PRIMARY KEY(id),
  index(worker_id), FOREIGN KEY (worker_id)
-  REFERENCES Worker(id),
+  REFERENCES worker(id),
  index(genome_id), FOREIGN KEY(genome_id)
-  REFERENCES Genome(id),
+  REFERENCES genome(id),
  index(crosslink_id), FOREIGN KEY(crosslink_id)
-  REFERENCES Crosslink(id),
+  REFERENCES crosslink(id),
  index(fragmentation_id), FOREIGN KEY(fragmentation_id)
-  REFERENCES Fragmentation(id),
- index(antibodies_id), FOREIGN KEY(antibodies_id)
-  REFERENCES Antibodies(id),
-index(protocol_id), FOREIGN KEY(protocol_id)
-  REFERENCES protocol(id),
+  REFERENCES fragmentation(id),
+ index(antibody_id), FOREIGN KEY(antibody_id)
+  REFERENCES antibody(id),
 index(experimenttype_id), FOREIGN KEY(experimenttype_id)
-  REFERENCES ExperimentType(id)
+  REFERENCES experimenttype(id)
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB4','Naïve CD4 Pol II',1,1,'Human Naive  CD4 T cells (CD45R0-CD27+)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB5','TCM CD4 Pol II',1,1,'Human TCM  CD4 T cells (CD45R0+CD27+)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB6','TEM CD4 Pol II',1,1,'Human TEM  CD4 T cells (CD45R0+CD27-)','Resting, purified from filters',2,1,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB7','Naïve CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB8','TCM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,crosslink_id,fragmentation_id,antibodies_id,dateadd)
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,crosslink_id,fragmentation_id,antibody_id,dateadd)
 values(1,'ABAB9','TEM CD4 Pol II',1,1,'Human Naïve  CD4 T cells (CD45RA0-CD27+)','Resting, purified from filters',2,2,2,now());
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(3,'ABDM10','Resting Naïve CD4',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(3,'ABDM11','Activated 18hr Naïve CD4',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',3,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(3,'ABDM12','Resting Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Resting, purified from filters',4,1,'NIST Pool 7',0.4,now());
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(3,'ABDM13','Activated 18hr Naïve CD4 1',1,2,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',4,1,'NIST Pool 7',0.4,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(3,'ABDM10','Resting Naïve CD4',1,5,'Human Naïve CD4 T cells','Resting, purified from filters',3,'NIST Pool 7',0.4,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(3,'ABDM11','Activated 18hr Naïve CD4',1,5,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',3,'NIST Pool 7',0.4,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(3,'ABDM12','Resting Naïve CD4 1',1,5,'Human Naïve CD4 T cells','Resting, purified from filters',4,'NIST Pool 7',0.4,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(3,'ABDM13','Activated 18hr Naïve CD4 1',1,5,'Human Naïve CD4 T cells','Activated 18hrs IL-4, purified from filters',4,'NIST Pool 7',0.4,now());
 
 
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(4,'ABYR14','Activated_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,1,'',0,now());
-
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(4,'ABYR15','Anergic_rested CD4',2,2,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,1,'',0,now());
-
-insert into LabData(worker_id,LibCode,Name4browser,genome_id,experimenttype_id,Cells,Conditions,fragmentation_id,protocol_id,spikeinspool,spikeins,dateadd)
-values(4,'ABYR16','Naïve CD4',2,2,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,1,'',0,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(4,'ABYR14','Activated_rested CD4',2,5,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,'',0,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(4,'ABYR15','Anergic_rested CD4',2,5,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,'',0,now());
+insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
+values(4,'ABYR16','Naïve CD4',2,5,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,'',0,now());
 
 
 #14	ABYR14	Activated_rested CD4 	Human	Done-Analysis	10	RNA-Seq	HumanCD4 T cells				Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d	N/A	Covaris, 3min	N/A			dUTP			Anergy7_1

@@ -58,7 +58,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                    },
                    { xtype: 'button',
                        text:'Patients',
-                       tooltip:'Pationt\'s data',
+                       tooltip:'Patient\'s data',
                        menu: [
                            { text: 'List', action: 'List', tooltip: '',iconCls: 'icon-grid' }
                        ],

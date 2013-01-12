@@ -34,7 +34,7 @@ Ext.define('EMS.view.Genome.List' ,{
                                  store: EMS.store.Genome,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Genome', dataIndex: 'Genome', flex: 1, editor: { allowBlank: false} },
+                                     {header: 'Genome', dataIndex: 'genome', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -55,7 +55,7 @@ Ext.define('EMS.view.Genome.List' ,{
                                          tooltip:'Add a new Genome type',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.Genome', {
-                                                                    Genome: 'New Genome Type'
+                                                                    genome: 'New Genome Type'
                                                                 });
                                              EMS.store.Genome.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});

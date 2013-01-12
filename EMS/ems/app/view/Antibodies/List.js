@@ -34,19 +34,10 @@ Ext.define('EMS.view.Antibodies.List' ,{
 
                    Ext.apply(this, {
                                  store: EMS.store.Antibodies,
-                                 //                                 store: {
-                                 //                                     autoLoad: true,
-                                 //                                     model: 'EMS.model.Antibodies',
-                                 //                                     listeners: {
-                                 //                                         load: function() {
-                                 //                                             Logger.log('Antibodies store loaded');
-                                 //                                         }
-                                 //                                     }
-                                 //                                 },
 
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Antibody', dataIndex: 'Antibody', flex: 1, editor: { allowBlank: false} },
+                                     {header: 'Antibody', dataIndex: 'antibody', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -68,7 +59,7 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                          //                                action: 'Add',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.Antibodies', {
-                                                                    Antibody: 'New Antibody'
+                                                                    antibody: 'New Antibody'
                                                                 });
                                              EMS.store.Antibodies.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});

@@ -75,7 +75,6 @@ Ext.application({
                         'EMS.controller.WorkersEdit',
                         'EMS.controller.GenomeEdit',
                         'EMS.controller.AntibodiesEdit',
-                        'EMS.controller.ProtocolEdit',
                         'EMS.controller.CrosslinkEdit',
                         'EMS.controller.FragmentationEdit'
                     ],
@@ -124,7 +123,7 @@ Ext.application({
                                        ]//items Viewport
 
                                    });//ext create
-                    }//lunc func
+                    }//launch func
 
                 });//application
 

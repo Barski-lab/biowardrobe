@@ -22,9 +22,8 @@
 Ext.define( 'EMS.model.Fragmentation', {
                extend: 'Ext.data.Model',
 
-               fields:
-                   [
+               fields: [
                    { name: 'id', type: 'int' },
-                   { name: 'Fragmentation', type: 'string' }
+                   { name: 'fragmentation', type: 'string' }
                ]
            });

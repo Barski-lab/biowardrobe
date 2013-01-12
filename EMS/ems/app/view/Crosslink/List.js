@@ -34,7 +34,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                  store: EMS.store.Crosslinking,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Crosslink', dataIndex: 'Crosslink', flex: 1, editor: { allowBlank: false} },
+                                     {header: 'Crosslink', dataIndex: 'crosslink', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -55,7 +55,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                          tooltip:'Add a new Crosslink type',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.Crosslinking', {
-                                                                    Crosslink: 'New Crosslink Type'
+                                                                    crosslink: 'New Crosslink Type'
                                                                 });
                                              EMS.store.Crosslinking.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});

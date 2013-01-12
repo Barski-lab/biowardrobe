@@ -25,32 +25,7 @@ Ext.define('EMS.controller.GenomeEdit', {
                stores: ['Genome'],
                models: ['Genome'],
 
-               //    views: ['user.Edit', 'user.List'],
                init: function() {
-                   this.control({
-                                    'some grid': {
-                                        itemdblclick: this.edit
-                                    },
-                                    'some button[action=save]': {
-                                        click: this.update
-                                    }
-                                });
                    this.getGenomeStore().load();
-               },
-
-               edit: function(grid, record) {
-                   //        var edit = Ext.create('EMS.view.user.Edit').show();
-                   //        edit.down('form').loadRecord(record);
-               },
-
-               update: function(button) {
-                   var win    = button.up('window'),
-                           form   = win.down('form'),
-                           record = form.getRecord(),
-                           values = form.getValues();
-
-                   record.set(values);
-                   win.close();
-                   this.getGenomeStore().sync();
                }
            });

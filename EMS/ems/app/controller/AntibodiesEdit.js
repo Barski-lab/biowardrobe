@@ -24,63 +24,7 @@ Ext.define('EMS.controller.AntibodiesEdit', {
                extend: 'Ext.app.Controller',
                stores: ['Antibodies'],
                models: ['Antibodies'],
-               views:  ['Antibodies.Antibodies','Antibodies.Edit', 'Antibodies.List'],
-               refs: [
-                   {
-                       ref: 'AntibodieWindow',
-                       selector: 'AntibodiesWindow'
-                   }
-               ],
                init: function() {
-                   this.control({
-                                    //Double click event on a grid
-                                    'AntibodiesWindow grid': {
-                                        itemdblclick: this.onItemDblClick
-                                    },
-                                    //Button pressed save
-                                    'AntibodiesEdit button[action=save]': {
-                                        click: this.onSave
-                                    },
-                                    'AntibodiesWindow button[action=Add]': {
-                                        click: this.onAdd
-                                    }
-                                });
                    this.getAntibodiesStore().load();
-               },
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onAdd: function() {
-                   var edit = Ext.create('EMS.view.Antibodies.Edit');//.show();
-                   this.getAntibodieWindow().add(this.edit);
-                   edit.show();
-               },
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onItemDblClick: function(grid, record) {
-                   var edit = Ext.create('EMS.view.Antibodies.Edit');//.show();
-                   this.getAntibodieWindow().add(this.edit);
-                   edit.down('form').loadRecord(record);
-                   edit.show();
-               },
-
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
-               onSave: function(button) {
-                   var win    = button.up('window'),
-                           form   = win.down('form'),
-                           record = form.getRecord(),
-                           values = form.getValues();
-
-                   record.set(values);
-                   win.close();
-                   this.getAntibodiesStore().sync();
-                   this.getAntibodiesStore().save();
-                   Logger.log("Antibodies saved");
                }
            });

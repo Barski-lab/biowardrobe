@@ -24,7 +24,7 @@ Ext.define('EMS.controller.WorkersEdit', {
                extend: 'Ext.app.Controller',
                stores: ['Worker'],
                models: ['Worker'],
-               views: ['user.Edit', 'user.List','WorkersEdit'],
+               views:  ['user.Edit', 'user.List','WorkersEdit'],
 
                init: function() {
                    this.control({

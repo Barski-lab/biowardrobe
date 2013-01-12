@@ -127,7 +127,6 @@ OTHER_FILES += \
     app/view/EMSMenu.js \
     ux/IFrame.js \
     app/view/Antibodies/List.js \
-    app/view/Antibodies/Edit.js \
     app/controller/AntibodiesEdit.js \
     app/view/Antibodies/Antibodies.js \
     app/view/ExperimentType/List.js \
@@ -144,4 +143,5 @@ OTHER_FILES += \
     app/controller/CrosslinkEdit.js \
     app/view/Genome/List.js \
     app/view/Genome/Genome.js \
-    ../sql/EMS.sql
+    ../sql/EMS.sql \
+    store_defs.js

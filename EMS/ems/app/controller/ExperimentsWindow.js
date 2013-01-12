@@ -24,8 +24,8 @@
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Protocol'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEdit'],
 
                init: function()
@@ -72,6 +72,15 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onAdd: function() {
                    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: true,modal:true});
                    edit.show();
+                   var r = Ext.create('EMS.model.LabData', {
+                                          worker_id: USER_ID,
+                                          genome_id:  1,
+                                          crosslink_id: 1,
+                                          fragmentation_id: 1,
+                                          antibody_id: 1,
+                                          experimenttype_id: 1
+                                      });
+                   edit.down('form').loadRecord(r);
                },
                //-----------------------------------------------------------------------
                //

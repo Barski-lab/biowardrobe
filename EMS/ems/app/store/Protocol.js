@@ -24,70 +24,13 @@
 Ext.define( 'EMS.store.Protocol', {
                extend: 'Ext.data.Store',
 
-               requires: ['EMS.model.Protocol'],
-               storeId: 'Protocol',
-               model:  'EMS.model.Protocol',
-               autoLoad: false,
-               singleton: true,
+//               requires: ['EMS.model.Protocol'],
+//               storeId: 'Protocol',
+//               model:  'EMS.model.Protocol',
+//               autoLoad: false,
+//               singleton: true,
 
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/records.json',
-                       update: '/cgi-bin/barski/recordsUp.json',
-                       create: '/cgi-bin/barski/recordsNew.json',
-                       destroy: '/cgi-bin/barski/recordsDel.json'
-                   },
-                   extraParams: {
-                       tablename:  'protocol'
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true,
-                       encode: true
-                   },
-                   listeners: {
-                       exception: function(proxy, response, operation) {
-                           // response contains responseText, which has the message
-                           // but in unparsed Json (see below)
-                           console.log(proxy, response, operation);
-                           try{
-                               var json = Ext.decode(response.responseText);
-                               if (json) {
-                                   //detl.getForm().markInvalid(json.errors);
-                                   Ext.MessageBox.show({
-                                                           title: operation.action+'Failed',
-                                                           msg: json.message,
-                                                           icon: Ext.MessageBox.ERROR,
-                                                           buttons: Ext.Msg.OK
-                                                       });
-                                   console.log('Save failed:',json.message,' error:',json.errors);
-                               } else
-                               {
-                                   Ext.MessageBox.show({
-                                                           title: operation.action+'Failed',
-                                                           msg: operation.getError(),
-                                                           icon: Ext.MessageBox.ERROR,
-                                                           buttons: Ext.Msg.OK
-                                                       });
-                               }
-                           }
-                           catch(Error)
-                           {
-                               Ext.Msg.show({
-                                                title: operation.action+'Failed',
-                                                msg: 'Error in "'+operation.action+'" operation',
-                                                icon: Ext.Msg.ERROR,
-                                                buttons: Ext.Msg.OK
-                                            });
-                           }
-                       }}
-               }
+//               proxy: STORE_DEFS.proxy('protocol')
+
            });
 

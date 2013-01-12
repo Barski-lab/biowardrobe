@@ -42,7 +42,7 @@ Ext.define('EMS.view.user.Edit', {
                                 items: [
                                     {
                                         xtype: 'textfield',
-                                        name : 'Worker',
+                                        name : 'worker',
                                         fieldLabel: 'Worker'
                                     },
                                     {
@@ -81,11 +81,10 @@ Ext.define('EMS.view.user.Edit', {
                             {
                                 text: 'Save',
                                 action: 'save',
-                                id: 'worker-edit-save',
+                                id: 'worker-edit-save'
                             },
                             {
                                 text: 'Cancel',
-                                scope: this,
                                 handler: this.close
                             }
                         ];

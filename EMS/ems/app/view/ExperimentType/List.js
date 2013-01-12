@@ -34,7 +34,7 @@ Ext.define('EMS.view.ExperimentType.List' ,{
                                  store: EMS.store.ExperimentType,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Type', dataIndex: 'Type', flex: 1, editor: { allowBlank: false} },
+                                     {header: 'Type', dataIndex: 'etype', flex: 1, editor: { allowBlank: false} },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -55,7 +55,7 @@ Ext.define('EMS.view.ExperimentType.List' ,{
                                          tooltip:'Add a new experiment type',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.ExperimentType', {
-                                                                    Type: 'New Experiment Type'
+                                                                    etype: 'New Experiment Type'
                                                                 });
                                              EMS.store.ExperimentType.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});
