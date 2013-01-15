@@ -42,91 +42,129 @@
       'Ext.form.*',
   ]);
 
-    Ext.onReady(function() {
-        var loginForm=new Ext.form.Panel({
-            bodyPadding: 10,
-            width: 300,
-            height: 100,
-            frame: true,
-            autoEl: {
-                tag: 'form',
-                action: 'authenticate.php',
-                method: 'post'
-            },
 
+  Ext.onReady(function() {
+
+  var loginForm=new Ext.form.Panel({
+        bodyPadding: 10,
+        width: 300,
+        height: 100,
+        frame: true,
+        autoEl: {
+            tag: 'form',
+            action: 'authenticate.php',
+            method: 'post'
+        },
         items: [{
-          xtype: 'textfield',
-          id: 'username',
-          fieldLabel: 'Username',
-          name: 'username',
-          width: 'fit',
-          allowBlank: false,
-          autoCreate: {
-          tag: "input",
-          type: "text",
-          autocomplete: "on"
-          }
-        }, {
-          xtype: 'textfield',
-          id: 'password',
-          fieldLabel: 'Password',
-          name: 'password',
-          width: 'fit',
-          allowBlank: false,
-          inputType: 'password'
-       }],
+            xtype: 'textfield',
+            id: 'username',
+            fieldLabel: 'Username',
+            name: 'username',
+            width: 'fit',
+            allowBlank: false,
+            autoCreate: {
+                tag: "input",
+                type: "text",
+                autocomplete: "on"
+            }
+            }, {
+            xtype: 'textfield',
+            id: 'password',
+            fieldLabel: 'Password',
+            name: 'password',
+            width: 'fit',
+            allowBlank: false,
+            inputType: 'password',
+            enableKeyEvents: true,
+            listeners: {
+                specialkey: submitOnEnter
+            }
+            }],
 
            buttons: [{
-             text: 'Login',
-             handler: function(){
-               if(Ext.getCmp('username').getValue() !== '' && Ext.getCmp('password').getValue() !== '')
-               {
-                 loginForm.getForm().submit({
-                   url: 'authenticate.php',
-                   method: 'POST',
-                   success: function(){
-                     window.location = 'index.php';
-                   },
-                   failure: function(form, action){
-                     Ext.Msg.show({
-                       title: 'Error',
-                       msg: action.result.message,
-                       icon: Ext.Msg.ERROR,
-                       buttons: Ext.Msg.OK
-                       });
-                   }
-                 });
-               }else{
-                 Ext.Msg.show({
-                   title: 'Error',
-                   msg: 'Please enter user name and password',
-                   icon: Ext.Msg.ERROR,
-                   buttons: Ext.Msg.OK
-                 });
-               }
-             }
-           },{
-           text: 'Cancel',
-           handler: function() {
-               this.up('form').getForm().reset();
-           }}]
+            text: 'Login',
+            id: 'login',
+            submitValue: false,
+                handler: function(){
+                    submitForm();
+                }
+            } , {
+            text: 'Cancel',
+                handler: function() {
+                    this.up('form').getForm().reset();
+                }
+           }]
 
         });
+
+        function submitOnEnter(field, event) {
+            if (field.name==='password' && event.getKey() === event.ENTER) {
+              submitForm();
+            }
+        }
+
+        function disableFields(dis) {
+          if(dis) {
+            Ext.getCmp('username').setReadOnly(true);
+            Ext.getCmp('password').setReadOnly(true);
+            Ext.getCmp('login').disable();
+            }
+            else {
+            Ext.getCmp('username').setReadOnly(false);
+            Ext.getCmp('password').setReadOnly(false);
+            Ext.getCmp('login').enable();
+            }
+        }
+
+        function submitForm() {
+                    disableFields(true);
+
+                    if(Ext.getCmp('username').getValue() !== '' && Ext.getCmp('password').getValue() !== '')
+                    {
+                    loginForm.getForm().submit({
+                        url: 'authenticate.php',
+                        method: 'POST',
+                        success: function(){
+                          window.location = 'index.php';
+                        },
+                        failure: function(form, action){
+                        disableFields(false);
+                            Ext.Msg.show({
+                                title: 'Error',
+                                msg: action.result.message,
+                                icon: Ext.Msg.ERROR,
+                                buttons: Ext.Msg.OK
+                            });
+                        }
+                    });
+
+                    }else{
+                    disableFields(false);
+
+                        Ext.Msg.show({
+                            title: 'Error',
+                            msg: 'Please enter user name and password',
+                            icon: Ext.Msg.ERROR,
+                            buttons: Ext.Msg.OK
+                        });
+                    }
+        }
+
         var loginWindow = new Ext.Window({
-          title: '<?php echo $TITLE; ?>',
-          bodyPadding: 2,
-          layout: 'fit',
-          closable: false,
-          resizable: false,
-          draggable: true,
-          border: false,
-          height: 130,
-          width: 300,
-          items: [loginForm]
+        title: '<?php echo $TITLE; ?>',
+        bodyPadding: 2,
+        layout: 'fit',
+        closable: false,
+        resizable: false,
+        draggable: true,
+        border: false,
+        height: 130,
+        width: 300,
+        items: [loginForm]
         });
         loginWindow.show();
-    });
-     </script>
+        });
+        </script>
 
    </head>
 

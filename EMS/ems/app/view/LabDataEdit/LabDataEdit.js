@@ -20,200 +20,65 @@
 **
 ****************************************************************************/
 
+
 Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                extend: 'Ext.window.Window',
                alias : 'widget.LabDataEdit',
 
-               title : 'Laboratory Data Edit',
+               title : 'Experiment basic data',
                layout: 'fit',
+               iconCls: 'table2',
                buttonAlign: 'center',
+               maximizable: true,
+
                plain: true,
-               height: 400,
-               width: 600,
+               height: 700,
+               width: 800,
+               border: false,
 
                initComponent: function() {
-                   var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
-                   this.items = [
+                   var me=this;
+                   var labDataForm = Ext.create('EMS.view.LabDataEdit.LabDataEditForm');
+
+                   me.items= [
                             {
-                                xtype: 'form',
-                                layout: 'form',
-                                id: 'labdataId',
-                                padding: '5 5 5 5',
-                                bodyPadding: '5 5 5 5',
-                                border: false,
+                                xtype: 'tabpanel',
                                 frame: true,
-                                fieldDefaults: {
-                                    labelWidth: 120,
-                                    msgTarget: 'side'
-                                },
+                                border: false,
+                                plain: true,
+                                activeTab: 0,
                                 items: [
                                     {
-                                        xtype: 'combobox',
-                                        name : 'worker_id',
-                                        hidden: false,
-                                        displayField: 'fullname',
-                                        fieldLabel: 'Belongs to',
-                                        store: EMS.store.Worker,
-                                        editable:false,
-                                        valueField: 'id',
-                                        anchor: '100%',
-                                        disabled: USER_LNAME!=='porter'
-                                    } , {
-                                        xtype: 'textfield',
-                                        name : 'cells',
-                                        fieldLabel: 'Cells',
-                                        anchor: '100%',
-                                        afterLabelTextTpl: required,
-                                        allowBlank: false
-                                    } , {
-                                        xtype: 'textfield',
-                                        name : 'conditions',
-                                        fieldLabel: 'Conditions',
-                                        anchor: '100%',
-                                        afterLabelTextTpl: required,
-                                        allowBlank: false
-                                    } , {
-                                        xtype: 'textfield',
-                                        anchor: '100%',
-                                        name : 'name4browser',
-                                        fieldLabel: 'Name for browser',
-                                        afterLabelTextTpl: required,
-                                        allowBlank: false
-                                    } , {
-                                        xtype: 'textfield',
-                                        name : 'libcode',
-                                        fieldLabel: 'Library Code',
-                                        anchor: '100%',
-                                        afterLabelTextTpl: required,
-                                        allowBlank: false
-                                    } , {
-                                        layout: { type: 'hbox', pack: 'center' , align: 'middle' },
-                                        height: 50,
-                                        items: [
-                                            {
-                                                xtype: 'combobox',
-                                                fieldLabel: 'Genome Type',
-                                                name : 'genome_id',
-                                                displayField: 'genome',
-                                                store: EMS.store.Genome,
-                                                mode: 'local',
-                                                typeAhead: false,
-                                                editable: false,
-                                                valueField: 'id',
-                                                triggerAction: 'all',
-                                                queryMode: 'local',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            } , {
-                                                xtype: 'tbspacer', width: '2%'
-                                            } , {
-                                                xtype: 'combobox',
-                                                fieldLabel: 'Experiment Type',
-                                                name : 'experimenttype_id',
-                                                displayField: 'etype',
-                                                store: EMS.store.ExperimentType,
-                                                mode: 'local',
-                                                typeAhead: false,
-                                                editable: false,
-                                                valueField: 'id',
-                                                triggerAction: 'all',
-                                                queryMode: 'local',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            }
-                                        ]
-                                    } , {
-                                        layout: { type: 'hbox', pack: 'center' , align: 'middle' },
-                                        height: 50,
-                                        items: [
-                                            {
-                                                xtype: 'combobox',
-                                                displayField: 'crosslink',
-                                                name : 'crosslink_id',
-                                                fieldLabel: 'Crosslink',
-                                                store: EMS.store.Crosslinking,
-                                                mode: 'local',
-                                                typeAhead: false,
-                                                editable: false,
-                                                valueField: 'id',
-                                                triggerAction: 'all',
-                                                queryMode: 'local',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            } , {
-                                                xtype: 'tbspacer', width: '2%'
-                                            } , {
-                                                xtype: 'combobox',
-                                                fieldLabel: 'Fragmentation',
-                                                name : 'fragmentation_id',
-                                                displayField: 'fragmentation',
-                                                store: EMS.store.Fragmentation,
-                                                mode: 'local',
-                                                typeAhead: false,
-                                                editable: false,
-                                                valueField: 'id',
-                                                triggerAction: 'all',
-                                                queryMode: 'local',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            }
-                                        ]
-                                    } , {
-                                        layout: { type: 'hbox', pack: 'center' , align: 'middle' },
-                                        height: 50,
-                                        items: [
-                                            {
-                                                xtype: 'combobox',
-                                                name : 'antibody_id',
-                                                displayField: 'antibody',
-                                                fieldLabel: 'Antibody',
-                                                store: EMS.store.Antibodies,
-                                                mode: 'local',
-                                                typeAhead: false,
-                                                editable: false,
-                                                valueField: 'id',
-                                                triggerAction: 'all',
-                                                queryMode: 'local',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            } , {
-                                                xtype: 'tbspacer', width: '2%'
-                                            } , {
-                                                xtype: 'numberfield',
-                                                name : 'spikeins',
-                                                fieldLabel: 'Spikeins',
-                                                width: '45%',
-                                                labelWidth: 70,
-                                                labelAlign: 'top'
-                                            }
-                                        ]
+                                        xtype: 'panel',
+                                        title: 'Change info',
+                                        layout: 'fit',
+                                        items: labDataForm
+                                    },
+                                    {
+                                        xtype: 'panel',
+                                        layout: 'fit',
+                                        title: 'Processed data'
                                     }
                                 ]
                             }
                         ];
 
-                   this.buttons = [
+                   me.buttons = [
                             {
                                 text: 'Save',
                                 action: 'save',
                                 id: 'labdata-edit-save'
-                            },
-                            {
+                            } , {
                                 text: 'Cancel',
-                                scope: this,
+                                //scope: this,
                                 handler: function() {
-                                    this.down('form').getForm().reset();
-                                    this.close();
+                                    me.down('form').getForm().reset();
+                                    me.close();
                                 }
                             }
                         ];
 
-                   this.callParent(arguments);
+                   me.callParent(arguments);
                }
            });
 

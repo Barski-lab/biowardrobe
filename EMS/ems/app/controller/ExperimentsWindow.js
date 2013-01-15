@@ -26,7 +26,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
                stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
-               views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEdit'],
+               views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm','EMS.view.LabDataEdit.LabDataEdit'],
 
                init: function()
                {
@@ -44,10 +44,55 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     'LabDataEdit button[action=save]': {
                                         click: this.onSave
+                                    },
+                                    'LabDataEdit': {
+                                        show: this.onEditShow
+                                    },
+                                    'LabDataEdit combobox': {
+                                        select: this.onComboBoxSelect
                                     }
                                 });
                    //this.getLabDataStore().load();
                },
+               onComboBoxSelect: function(combo, records, options) {
+                   if(combo.name==='experimenttype_id') {
+                       this.setDisabledCombo(combo.up('window'));
+                   }
+                   if(combo.name==='genome_id'){
+                       this.setVisibleSpike(combo.up('window'));
+                   }
+
+               },
+               setDisabledCombo: function(obj) {
+                   var form=obj.down('form').getForm();
+                   var combo = form.findField('experimenttype_id');
+
+                   if( combo.getRawValue().indexOf('RNA') !== -1 ) {
+                       //form.findField('spikeins').setVisible(true);
+                       Ext.getCmp('rnafieldcontainer').hide();
+                   }
+                   else
+                   {
+                       //form.findField('spikeins').setVisible(false);
+                       Ext.getCmp('rnafieldcontainer').show();
+                   }
+               },
+               setVisibleSpike: function(obj) {
+                   var form=obj.down('form').getForm();
+                   var combo = form.findField('genome_id');
+
+                   if( combo.getRawValue().indexOf('spike') !== -1 ) {
+                       form.findField('spikeins').setVisible(true);
+                   }
+                   else
+                   {
+                       form.findField('spikeins').setVisible(false);
+                   }
+               },
+               onEditShow: function(obj) {
+                   this.setVisibleSpike(obj);
+               },
+
                //-----------------------------------------------------------------------
                //
                //
@@ -71,7 +116,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                onAdd: function() {
                    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: true,modal:true});
-                   edit.show();
                    var r = Ext.create('EMS.model.LabData', {
                                           worker_id: USER_ID,
                                           genome_id:  1,
@@ -81,6 +125,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           experimenttype_id: 1
                                       });
                    edit.down('form').loadRecord(r);
+                   edit.show();
                },
                //-----------------------------------------------------------------------
                //
@@ -91,8 +136,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
 
                    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false,modal:true});
-                   edit.show();
                    edit.down('form').loadRecord(record);
+                   edit.show();
                    //console.log(record);
                },
                //-----------------------------------------------------------------------

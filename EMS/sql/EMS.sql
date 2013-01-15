@@ -88,7 +88,7 @@ insert into worker (worker,fname,lname) values ('yrina','Yrina','Rochman');
 insert into worker (worker,fname,lname) values ('mark','Mark','Rochman');
 insert into worker (worker,fname,lname) values ('satoshi','Satoshi','Namekawa');
 insert into worker (worker,fname,lname) values ('clark','Clark','');
-insert into worker (worker,fname,lname) values ('rahul','Rahul','');
+insert into worker (worker,fname,lname) values ('rahul','Rahul','D.Mello');
 
 drop table if exists labdata;
 create table if not exists labdata (
