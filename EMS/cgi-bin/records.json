@@ -8,7 +8,7 @@ import cgitb; cgitb.enable()
 import cgi
 import urllib
 import urlparse
-import simplejson
+import simplejson as json
 import Arguments
 
 
@@ -51,6 +51,79 @@ page=int(form["page"].value)
 start=int(form["start"].value)
 limit=int(form["limit"].value)
 
+
+#DEBUG
+output=open('/tmp/UPDATE.ERROR','wb')
+#json.dump(jsondata, output)
+#output.write(form['sort'].value+"\n\n")
+#output.write("\n\n")
+#output.close()
+
+sort=str()
+
+try:
+ jsondata = json.loads(form['sort'].value)
+ if jsondata is None:
+  error_msg("No data")
+ sort="order by "
+ for rows in jsondata:
+  sort+=""" %s %s,"""%(rows['property'],rows['direction'])
+  #output.write(str(rows['direction'])+"\n\n")
+  #output.write(str(rows['property'])+"\n\n")
+ sort=sort[:-1]
+except:
+ pass
+
+filtr=str()
+
+try:
+ jsondata = json.loads(form['filter'].value)
+ if jsondata is None:
+  error_msg("No data")
+ filtr=" where "
+ for rows in jsondata:
+  nm='property'
+  try:
+   x=rows[nm]
+  except:
+   nm='field'
+   pass
+  try:
+   x=rows[nm]
+  except:
+   pass
+
+  if type(rows['value']) is str:
+    filtr+=""" %s like '%%%s%%' and"""%(rows[nm],rows['value'])
+  else:
+   if rows['value'] == 0:
+    continue
+   else:
+    filtr+=""" %s=%d and"""%(rows[nm],rows['value'])
+  #output.write(str(rows['direction'])+"\n\n")
+  #output.write(str(rows['property'])+"\n\n")
+ if filtr == " where ":
+  filtr="";
+ else:
+  filtr=filtr[:-3]
+ output.write(str(filtr)+"\n\n")
+except:
+ output.write(str(filtr)+"\n\n")
+ filtr=""
+ pass
+
+workerid=0
+try:
+ workerid=int(form["workerid"].value)
+except:
+ pass
+
+if workerid != 0 and table_name in ('labdata'):
+ if filtr != '':
+  filtr+=" and worker_id="+str(workerid)
+ else:
+  filtr+=" where worker_id="+str(workerid)
+
 begin=(page-1)*limit
 end=page*limit
 #cursor = conn.cursor ()
@@ -62,14 +135,14 @@ cursor.execute ("describe "+table_name)
 for (row ) in cursor.fetchall():
  fields.append(row[0]) 
 
-cursor.execute ("select count(*) from "+table_name)
+cursor.execute ("select count(*) from "+table_name+" "+filtr)
 for (row ) in cursor.fetchall():
  total=row[0]
 
 
 cursor.close ()
 cursor = conn.cursor ()
-SQL="select * from "+table_name+" limit %d,%d"%(begin,limit)
+SQL="select * from "+table_name+" %s %s limit %d,%d"%(filtr,sort,begin,limit)
 cursor.execute (SQL)
 comma=""
 

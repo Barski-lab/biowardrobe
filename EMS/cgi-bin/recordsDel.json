@@ -14,7 +14,7 @@ import Arguments
 
 def error_msg(msg):
  print """
-   {"success": false, "message": "%s" }"""%(msg)
+   {"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
  sys.exit()
 
 arguments = Arguments.Arguments(sys.argv)
@@ -90,9 +90,6 @@ except Exception, e:
  conn.close()
  Error_str=str(e).replace('"','')
 
- if 'Duplicate' in Error_str:
-  error_msg(Error_str)
-
- error_msg("Error inserting: " +Error_str+"<br>'"+SQL+"' ")
+ error_msg("Error in deletion: " +Error_str+"<br>'"+SQL+"' ")
 
 

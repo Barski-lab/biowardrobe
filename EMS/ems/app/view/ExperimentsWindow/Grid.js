@@ -27,19 +27,19 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                border: false,
                columnLines: true,
                frame: false,
+               remoteSort: true,
 
                initComponent: function() {
                    var filters = {
-                         ftype: 'filters',
-                         // encode and local configuration options defined previously for easier reuse
-                         encode: true, // json encode the filter query
-                         local: false   // defaults to false (remote filtering)
-                     };
-
+                       ftype: 'filters',
+                       // encode and local configuration options defined previously for easier reuse
+                       encode: true, // json encode the filter query
+                       local: false   // defaults to false (remote filtering)
+                   };
                    Ext.apply(this, {
                                  store: EMS.store.LabData,
 
-                                 //features: [filters],
+                                 features: [filters],
 
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
@@ -56,8 +56,22 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              return rec?rec.data.genome:'';
                                          }
                                      },
-                                     {   header: "Cells",                  sortable: false,  width: 120,   dataIndex: 'cells',        flex: 1},
-                                     {   header: "Condition",              sortable: false,  width: 120,   dataIndex: 'conditions',   flex: 1},
+                                     {   header: "Cells",                  sortable: false,  width: 120,   dataIndex: 'cells',        flex: 1,
+                                         filterable: true,
+                                         filter: {
+                                             type: 'string'
+                                             // specify disabled to disable the filter menu
+                                             //, disabled: true
+                                         }
+                                     },
+                                     {   header: "Condition",              sortable: false,  width: 140,   dataIndex: 'conditions',   flex: 1,
+                                         filterable: true,
+                                         filter: {
+                                             type: 'string'
+                                             // specify disabled to disable the filter menu
+                                             //, disabled: true
+                                         },
+                                     },
                                      {   header: "Type",                   sortable: false,  width: 90,    dataIndex: 'experimenttype_id',
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.ExperimentType.findRecord('id',value);

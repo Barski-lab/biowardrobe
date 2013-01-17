@@ -11,6 +11,9 @@ import urlparse
 import simplejson as json
 import Arguments
 
+#DEBUG
+output=open('/tmp/NEW.ERROR','wb')
+
 
 def error_msg(msg):
     print """
@@ -27,7 +30,7 @@ def upload_data(cursor,jsondata,table_name):
 
     cursor.execute ("describe "+table_name)
     for (row ) in cursor.fetchall():
-	if row[0] == 'id':
+	if row[0] in ('id','libstatustxt'):
 	    continue
 	if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
 	    fields_n+=str(row[0])+','
@@ -42,12 +45,12 @@ def upload_data(cursor,jsondata,table_name):
 
     fields_n=fields_n[:-1]
     fields_v=fields_v[:-1]
-    #output.write("\n" +str(fields_sql)+"\n\n")
-    #output.write("\n" +str(fields_values)+"\n\n")
+    output.write("\n" +str(fields_n)+"\n\n")
+    output.write("\n" +str(fields_v)+"\n\n")
 
     SQL="""INSERT INTO `%s` (%s) VALUES(%s);"""%(table_name,fields_n,fields_v)
     #SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,,fields_sql,'%s;')
-    #output.write("\n" +SQL+"\n\n")
+    output.write("\n" +SQL+"\n\n")
 
     #fields_values.append(jsondata['id'])
     cursor.execute(SQL,tuple(fields_values))
@@ -79,6 +82,8 @@ except Exception, e:
     pass
 
 jsondata = json.loads(url_parse['data'][0])
+#DEBUG
+json.dump(jsondata, output)
 
 if jsondata is None:
     error_msg("No data")

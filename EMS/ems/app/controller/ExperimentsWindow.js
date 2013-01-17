@@ -20,6 +20,15 @@
 **
 ****************************************************************************/
 
+Ext.require([
+    'Ext.grid.*',
+    'Ext.data.*',
+    'Ext.ux.grid.FiltersFeature'
+]);
+//'Ext.toolbar.Paging',
+//'Ext.ux.ajax.JsonSimlet',
+//'Ext.ux.ajax.SimManager'
+
 
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
@@ -130,6 +139,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           fragmentation_id: 1,
                                           antibody_id: 1,
                                           experimenttype_id: 1,
+                                          libstatustxt: 'created',
                                           dateadd: new Date()
                                       });
                    edit.down('form').loadRecord(r);

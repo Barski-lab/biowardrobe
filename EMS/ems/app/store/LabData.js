@@ -36,6 +36,17 @@ Ext.define('EMS.store.LabData', {
                model:  'EMS.model.LabData',
                autoLoad: false,
                singleton: true,
+               remoteSort: true,
+               remoteFilter: true,
+               sorters: [{
+                       property: 'dateadd',
+                       direction: 'DESC'
+                   },{
+                       property: 'libcode',
+                       direction: 'ASC'
+                   }],
+               pageSize: 30,
+
                proxy: STORE_DEFS.proxy('labdata')
 
            });

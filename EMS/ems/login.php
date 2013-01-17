@@ -67,7 +67,7 @@
                 type: "text",
                 autocomplete: "on"
             }
-            }, {
+        } , {
             xtype: 'textfield',
             id: 'password',
             fieldLabel: 'Password',
@@ -79,7 +79,7 @@
             listeners: {
                 specialkey: submitOnEnter
             }
-            }],
+        }],
 
            buttons: [{
             text: 'Login',
@@ -105,14 +105,14 @@
 
         function disableFields(dis) {
           if(dis) {
-            Ext.getCmp('username').setReadOnly(true);
-            Ext.getCmp('password').setReadOnly(true);
-            Ext.getCmp('login').disable();
+                Ext.getCmp('username').setReadOnly(true);
+                Ext.getCmp('password').setReadOnly(true);
+                Ext.getCmp('login').disable();
             }
             else {
-            Ext.getCmp('username').setReadOnly(false);
-            Ext.getCmp('password').setReadOnly(false);
-            Ext.getCmp('login').enable();
+                Ext.getCmp('username').setReadOnly(false);
+                Ext.getCmp('password').setReadOnly(false);
+                Ext.getCmp('login').enable();
             }
         }
 
@@ -121,26 +121,24 @@
 
                     if(Ext.getCmp('username').getValue() !== '' && Ext.getCmp('password').getValue() !== '')
                     {
-                    loginForm.getForm().submit({
-                        url: 'authenticate.php',
-                        method: 'POST',
-                        success: function(){
-                          window.location = 'index.php';
-                        },
-                        failure: function(form, action){
-                        disableFields(false);
-                            Ext.Msg.show({
-                                title: 'Error',
-                                msg: action.result.message,
-                                icon: Ext.Msg.ERROR,
-                                buttons: Ext.Msg.OK
-                            });
-                        }
-                    });
-
+                        loginForm.getForm().submit({
+                            url: 'authenticate.php',
+                            method: 'POST',
+                            success: function(){
+                            window.location = 'index.php';
+                            },
+                            failure: function(form, action){
+                            disableFields(false);
+                                Ext.Msg.show({
+                                    title: 'Error',
+                                    msg: action.result.message,
+                                    icon: Ext.Msg.ERROR,
+                                    buttons: Ext.Msg.OK
+                                });
+                            }
+                        });
                     }else{
-                    disableFields(false);
-
+                        disableFields(false);
                         Ext.Msg.show({
                             title: 'Error',
                             msg: 'Please enter user name and password',
@@ -151,16 +149,16 @@
         }
 
         var loginWindow = new Ext.Window({
-        title: '<?php echo $TITLE; ?>',
-        bodyPadding: 2,
-        layout: 'fit',
-        closable: false,
-        resizable: false,
-        draggable: true,
-        border: false,
-        height: 130,
-        width: 300,
-        items: [loginForm]
+            title: '<?php echo $TITLE; ?>',
+            bodyPadding: 2,
+            layout: 'fit',
+            closable: false,
+            resizable: false,
+            draggable: true,
+            border: false,
+            height: 130,
+            width: 300,
+            items: [loginForm]
         });
         loginWindow.show();
         });

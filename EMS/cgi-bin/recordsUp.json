@@ -11,6 +11,9 @@ import urlparse
 import simplejson as json
 import Arguments
 
+#DEBUG
+output=open('/tmp/UPDATE.ERROR','wb')
+
 
 def error_msg(msg):
     print """
@@ -42,7 +45,7 @@ def upload_data(cursor,jsondata,table_name):
     #output.write("\n" +str(fields_values)+"\n\n")
 
     SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,fields_sql,'%s;')
-    #output.write("\n" +SQL+"\n\n")
+    output.write("\n" +SQL+"\n\n")
 
     fields_values.append(jsondata['id'])
     cursor.execute(SQL,tuple(fields_values))
@@ -69,7 +72,7 @@ except Exception, e:
     error_msg("Table name is absent!!! Error:"+Error_str)
 
 try:
-    filter_data=url_parse['filter'][0]
+    filtr=url_parse['filter'][0]
 except Exception, e:
     pass
 
