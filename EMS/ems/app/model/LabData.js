@@ -50,7 +50,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'browsergrp_id', type: 'int' },
                    { name: 'dateadd', type: 'date' },
                    { name: 'libstatus', type: 'int' },
-                   { name: 'libstatustxt', type: 'string', persistant: false },
+                   { name: 'libstatustxt', type: 'string' },
                    { name: 'genome_id', type: 'int' },
                    { name: 'crosslink_id', type: 'int' },
                    { name: 'fragmentation_id', type: 'int' },

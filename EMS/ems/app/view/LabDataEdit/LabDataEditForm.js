@@ -175,9 +175,11 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                           layout: 'hbox',
                                                           items: [
                                                               {
-                                                                  xtype: 'numberfield',
+                                                                  xtype: 'textfield',
                                                                   name : 'spikeins',
                                                                   fieldLabel: 'Spikeins',
+                                                                  //afterLabelTextTpl: required,
+                                                                  //allowBlank: false,
                                                                   flex: 2
                                                                   //margin: '0 0 10 0'
                                                               } , {

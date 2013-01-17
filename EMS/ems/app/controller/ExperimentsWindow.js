@@ -55,7 +55,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         click: this.onSave
                                     },
                                     'LabDataEdit': {
-                                        show: this.onEditShow
+                                        show: this.onEditShow,
+                                        close: this.onEditClose
                                     },
                                     'LabDataEdit combobox': {
                                         select: this.onComboBoxSelect
@@ -110,6 +111,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
                    this.setDisabledCombo(obj);
+               },
+               onEditClose: function(obj) {
+                   this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
@@ -189,8 +193,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    {
                        record.set(values);
                    }
-                   win.close();
                    this.getLabDataStore().sync();
+                   win.close();
                }
 
            });

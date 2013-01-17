@@ -8,13 +8,17 @@ import cgitb; cgitb.enable()
 import cgi
 import urllib
 import urlparse
-import simplejson
+import simplejson as json
 import Arguments
 
+
+#DEBUG
+output=open('/tmp/DEL.ERROR','wb')
 
 def error_msg(msg):
  print """
    {"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
+ output.write("\n"+"Error in deletion: " +msg+"\n")
  sys.exit()
 
 arguments = Arguments.Arguments(sys.argv)
@@ -31,7 +35,9 @@ if url_parse['data'][0] is None:
  error_msg("No data")
 
 table_name=url_parse['tablename'][0]
-jsondata = simplejson.loads(url_parse['data'][0])
+jsondata = json.loads(url_parse['data'][0])
+#DEBUG
+json.dump(jsondata, output)
 
 if jsondata is None:
  error_msg("No data")
@@ -88,8 +94,8 @@ except Exception, e:
  cursor.close()
  conn.rollback()
  conn.close()
- Error_str=str(e).replace('"','')
-
+ #Error_str=str(e).replace('"','')
+ output.write("\n"+"Error in deletion: " +Error_str+"<br>'"+SQL+"' "+"\n")
  error_msg("Error in deletion: " +Error_str+"<br>'"+SQL+"' ")
 
 
