@@ -8,101 +8,124 @@ import cgitb; cgitb.enable()
 import cgi
 import urllib
 import urlparse
-import simplejson
+import simplejson as json
 import Arguments
 
 
 def error_msg(msg):
- print """
-   {"success": false, "message": "%s" }"""%(msg)
- sys.exit()
+    print """
+	{"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
+    sys.exit()
+
+#
+# function uploads data to SQL
+def upload_data(cursor,jsondata,table_name):
+    fields=list()
+    fields_values=list()
+    fields_n=""
+    fields_v=""
+
+    cursor.execute ("describe "+table_name)
+    for (row ) in cursor.fetchall():
+	if row[0] == 'id':
+	    continue
+	if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
+	    fields_n+=str(row[0])+','
+	    fields_v+='%s,'
+	    fields_values.append('')
+	    continue
+	if 'id' in row[0] and jsondata[row[0]] == 0:
+	    continue
+        fields_n+=str(row[0])+','
+        fields_v+='%s,'
+        fields_values.append(jsondata[row[0]])
+
+    fields_n=fields_n[:-1]
+    fields_v=fields_v[:-1]
+    #output.write("\n" +str(fields_sql)+"\n\n")
+    #output.write("\n" +str(fields_values)+"\n\n")
+
+    SQL="""INSERT INTO `%s` (%s) VALUES(%s);"""%(table_name,fields_n,fields_v)
+    #SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,,fields_sql,'%s;')
+    #output.write("\n" +SQL+"\n\n")
+
+    #fields_values.append(jsondata['id'])
+    cursor.execute(SQL,tuple(fields_values))
+
 
 arguments = Arguments.Arguments(sys.argv)
 
 
 stdinbuf = sys.stdin.read()
 if stdinbuf is None:
- error_msg("No data")
+    error_msg("No data")
 
 url_parse = dict(urlparse.parse_qs(stdinbuf))
 if url_parse['tablename'][0] is None:
- error_msg("Empty table name")
+    error_msg("Empty table name")
 if url_parse['data'][0] is None:
- error_msg("No data")
+    error_msg("No data")
 
-table_name=url_parse['tablename'][0]
-jsondata = simplejson.loads(url_parse['data'][0])
+table_name=str()
+
+try:
+    table_name=url_parse['tablename'][0]
+except Exception, e: 
+    error_msg("Table name is ebsent!!! Error:"+Error_str)
+
+try:
+    filter_data=url_parse['filter'][0]
+except Exception, e:
+    pass
+
+jsondata = json.loads(url_parse['data'][0])
 
 if jsondata is None:
- error_msg("No data")
+    error_msg("No data")
 
 try:
- conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
- cursor = conn.cursor ()
+    conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
+    conn.set_character_set('utf8')
+    cursor = conn.cursor ()
 except Exception, e: 
- error_msg("Error database connection")
+    Error_str=str(e).replace('"','')
+    error_msg("Error database connection"+Error_str)
 
+
+#DEBUG
+#output=open('/tmp/UPDATE.ERROR','wb')
+#json.dump(jsondata, output)
+#output.write("\n\n")
 
 try:
- SQL=str()
- is_str=0
- fields_n=str()
- fields_v=str()
+    #output.write("\n\n"+str(len(jsondata))+"-"+str(type(jsondata))+"\n\n")
+    #if just one new record
+    if type(jsondata) is dict:
+	upload_data(cursor,jsondata,table_name)
+    else:
+	for i in range(len(jsondata)):
+	    upload_data(cursor,jsondata[i],table_name)
+    cursor.close()
+    conn.commit()
+    conn.close()
 
- for rows in jsondata:
-
-  #if just one new record
-  if type(rows) is str:
-   if rows == 'id':
-    continue
-
-   fields_n+=str(rows).replace("'","").replace('"','').replace(';','')+","
-   fields_v+="'"+str(jsondata[rows]).replace("'","").replace('"','').replace(';','')+"',"
-   is_str=is_str+1
-   continue
-  else:
-  #if many records
-   for i in rows:
-    #in inserts ID should be 0
-    if str(i) == 'id':
-     continue
-
-    fields_n+=str(i).replace("'","").replace('"','').replace(';','')+","
-    fields_v+="'"+str(rows[i]).replace("'","").replace('"','').replace(';','')+"',"
-
-  #remove last ,
-  fields_n=fields_n[:-1]
-  fields_v=fields_v[:-1]
-  STR="""INSERT INTO `%s` (%s) VALUES(%s);"""%(table_name,fields_n,fields_v)
-  SQL+=STR
-  fields_n=str()
-  fields_v=str()
-
- if is_str > 0:
-  #remove last ,
-  fields_n=fields_n[:-1]
-  fields_v=fields_v[:-1]
-  STR="""INSERT INTO `%s` (%s) VALUES(%s);"""%(table_name,fields_n,fields_v)
-  SQL+=STR
-
-
- cursor.execute(SQL)
- cursor.close()
- conn.commit()
- conn.close()
-
- print """
-  {"success": true, "message": "Data saved" }"""
+    print """
+	{"success": true, "message": "Data saved" }"""
 
 except Exception, e:
- cursor.close()
- conn.rollback()
- conn.close()
- Error_str=str(e).replace('"','')
+    cursor.close()
+    conn.rollback()
+    conn.close()
+    Error_str=str(e)
 
- if 'Duplicate' in Error_str:
-  error_msg(Error_str)
+    #output.write("Error updating: \n" +Error_str+"\n\n")
+    #output.close()
+    if 'Duplicate' in Error_str:
+	error_msg(Error_str)
 
- error_msg("Error inserting: " +Error_str+"<br>'"+SQL+"' ")
+    error_msg("Error updating:"+Error_str)
+
+ #error_msg("Error updating: " +Error_str+"<br>'"+SQL+"' ")
 
 
+#output.close()

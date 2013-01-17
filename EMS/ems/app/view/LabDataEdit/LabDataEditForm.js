@@ -111,7 +111,8 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                           layout: 'hbox',
                                                           defaults: {
                                                               labelWidth: 120,
-                                                              labelAlign: 'top'
+                                                              labelAlign: 'top',
+                                                              margin: '10 0 0 0'
                                                           },
                                                           items: [
                                                               {
@@ -167,7 +168,8 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                           id: 'rnafieldcontainer',
                                                           defaults: {
                                                               labelWidth: 120,
-                                                              labelAlign: 'top'
+                                                              labelAlign: 'top',
+                                                              margin: '10 0 0 0'
                                                           },
                                                           layout: 'hbox',
                                                           items: [
@@ -211,7 +213,16 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   flex: 2
                                                               }
                                                           ]
-                                                      }
+                                                      },
+                                                      //items: [
+                                                          {
+                                                              xtype     : 'datefield',
+                                                              name      : 'dateadd',
+                                                              fieldLabel: 'Experiment date',
+                                                              margin: '10 5 0 0',
+                                                              allowBlank: false
+                                                              //value: new Date()
+                                                          }
                                                   ]
 
                                               }, {

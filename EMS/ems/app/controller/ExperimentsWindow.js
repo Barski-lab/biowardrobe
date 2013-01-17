@@ -33,7 +33,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    Logger.log('Experiments Control Loaded.');
                    this.control({
                                     'ExperimentsWindow': {
-                                        render: this.onPanelRendered
+                                        show: this.onPanelRendered
                                     },
                                     'ExperimentsWindow grid': {
                                         selectionchange: this.onSelectionChanged,
@@ -42,7 +42,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     '#new-experiment-data': {
                                         click: this.onAdd
                                     },
-                                    'LabDataEdit button[action=save]': {
+                                    '#labdata-edit-save': {
                                         click: this.onSave
                                     },
                                     'LabDataEdit': {
@@ -52,8 +52,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         select: this.onComboBoxSelect
                                     }
                                 });
-                   //this.getLabDataStore().load();
                },
+               //-----------------------------------------------------------------------
+               // Disabling/enabling antibody and fragmentation in depend
+               // of experiment type and genome on combobox select event
+               //-----------------------------------------------------------------------
                onComboBoxSelect: function(combo, records, options) {
                    if(combo.name==='experimenttype_id') {
                        this.setDisabledCombo(combo.up('window'));
@@ -63,34 +66,41 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
 
                },
+
+               //-----------------------------------------------------------------------
+               // Disabling/enabling antibody and fragmentation comboboxes
+               //
+               //-----------------------------------------------------------------------
                setDisabledCombo: function(obj) {
                    var form=obj.down('form').getForm();
                    var combo = form.findField('experimenttype_id');
 
-                   if( combo.getRawValue().indexOf('RNA') !== -1 ) {
-                       //form.findField('spikeins').setVisible(true);
-                       Ext.getCmp('rnafieldcontainer').hide();
+                   if( combo.getRawValue().indexOf('DNA') !== -1 ) {
+                       form.findField('crosslink_id').enable();
+                       form.findField('antibody_id').enable();
                    }
-                   else
-                   {
-                       //form.findField('spikeins').setVisible(false);
-                       Ext.getCmp('rnafieldcontainer').show();
+                   else {
+                       form.findField('crosslink_id').disable();
+                       form.findField('antibody_id').disable();
                    }
                },
-               setVisibleSpike: function(obj) {
-                   var form=obj.down('form').getForm();
-                   var combo = form.findField('genome_id');
 
-                   if( combo.getRawValue().indexOf('spike') !== -1 ) {
-                       form.findField('spikeins').setVisible(true);
+               //-----------------------------------------------------------------------
+               // Disabling/enabling spikeins field
+               //
+               //-----------------------------------------------------------------------
+               setVisibleSpike: function(obj) {
+                   var form = obj.down('form').getForm();
+                   if( form.findField('genome_id').getRawValue().indexOf('spike') !== -1 ) {
+                       form.findField('spikeins').enable();
                    }
-                   else
-                   {
-                       form.findField('spikeins').setVisible(false);
+                   else {
+                       form.findField('spikeins').disable();
                    }
                },
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
+                   this.setDisabledCombo(obj);
                },
 
                //-----------------------------------------------------------------------
@@ -98,22 +108,19 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onSelectionChanged: function() {
-                   //Logger.log('onExperimentSelectionChanged');
                },
                //-----------------------------------------------------------------------
                //
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   //Logger.log('The LabData panel was rendered');
                    this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
                //
-               //
+               // Set default values when new button pressed
                //-----------------------------------------------------------------------
-
                onAdd: function() {
                    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: true,modal:true});
                    var r = Ext.create('EMS.model.LabData', {
@@ -122,11 +129,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           crosslink_id: 1,
                                           fragmentation_id: 1,
                                           antibody_id: 1,
-                                          experimenttype_id: 1
+                                          experimenttype_id: 1,
+                                          dateadd: new Date()
                                       });
                    edit.down('form').loadRecord(r);
                    edit.show();
                },
+
                //-----------------------------------------------------------------------
                //
                //
@@ -138,14 +147,40 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false,modal:true});
                    edit.down('form').loadRecord(record);
                    edit.show();
-                   //console.log(record);
                },
                //-----------------------------------------------------------------------
                //
                //
                //-----------------------------------------------------------------------
-               onSave: function() {
-                   Logger.log('Save pressed');
+               onSave: function(button) {
+                   var win    = button.up('window');
+                   var form   = win.down('form');
+                   var record = form.getRecord();
+                   var values = form.getValues();
+
+                   if(win.addnew)
+                   {
+                       if(form.getForm().isValid())
+                       {
+                           EMS.store.LabData.insert(0, values);
+                       }
+                       else
+                       {
+                           Ext.Msg.show({
+                                            title: 'Save Failed',
+                                            msg: 'Empty fields are not allowed',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK
+                                        });
+                           return;
+                       }
+                   }
+                   else
+                   {
+                       record.set(values);
+                   }
+                   win.close();
+                   this.getLabDataStore().sync();
                }
 
            });

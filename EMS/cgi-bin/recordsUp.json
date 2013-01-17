@@ -8,106 +8,119 @@ import cgitb; cgitb.enable()
 import cgi
 import urllib
 import urlparse
-import simplejson
+import simplejson as json
 import Arguments
 
 
 def error_msg(msg):
- print """
-   {"success": false, "message": "%s" }"""%(msg)
- sys.exit()
+    print """
+	{"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
+    sys.exit()
+
+#
+# function uploads data to SQL
+def upload_data(cursor,jsondata,table_name):
+    fields=list()
+    fields_values=list()
+    fields_sql=""
+
+    cursor.execute ("describe "+table_name)
+    for (row ) in cursor.fetchall():
+	if row[0] == 'id':
+	    continue
+	if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
+	    fields_sql+=str(row[0])+'=%s,'
+	    fields_values.append('')
+	    continue
+	if 'id' in row[0] and jsondata[row[0]] == 0:
+	    continue
+        fields_sql+=str(row[0])+'=%s,'
+        fields_values.append(jsondata[row[0]])
+
+    fields_sql=fields_sql[:-1]
+    #output.write("\n" +str(fields_sql)+"\n\n")
+    #output.write("\n" +str(fields_values)+"\n\n")
+
+    SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,fields_sql,'%s;')
+    #output.write("\n" +SQL+"\n\n")
+
+    fields_values.append(jsondata['id'])
+    cursor.execute(SQL,tuple(fields_values))
+
 
 arguments = Arguments.Arguments(sys.argv)
 
 
 stdinbuf = sys.stdin.read()
 if stdinbuf is None:
- error_msg("No data")
+    error_msg("No data")
 
 url_parse = dict(urlparse.parse_qs(stdinbuf))
-if url_parse['tablename'][0] is None:
- error_msg("Empty table name")
-if url_parse['data'][0] is None:
- error_msg("No data")
 
-table_name=url_parse['tablename'][0]
-jsondata = simplejson.loads(url_parse['data'][0])
+table_name=str()
+
+try:
+    if url_parse['tablename'][0] is None:
+	error_msg("Empty table name")
+    if url_parse['data'][0] is None:
+	error_msg("No data")
+    table_name=url_parse['tablename'][0]
+except Exception, e: 
+    error_msg("Table name is absent!!! Error:"+Error_str)
+
+try:
+    filter_data=url_parse['filter'][0]
+except Exception, e:
+    pass
+
+jsondata = json.loads(url_parse['data'][0])
 
 if jsondata is None:
- error_msg("No data")
+    error_msg("No data")
 
 try:
- conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
- cursor = conn.cursor ()
+    conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
+    conn.set_character_set('utf8')
+    cursor = conn.cursor ()
 except Exception, e: 
- error_msg("Error database connection")
+    Error_str=str(e).replace('"','')
+    error_msg("Error database connection"+Error_str)
 
+
+#DEBUG
+#output=open('/tmp/UPDATE.ERROR','wb')
+#json.dump(jsondata, output)
+#output.write("\n\n")
 
 try:
- SQL=str()
- is_str=0
- SET_V=str()
- ID=str()
- 
- for rows in jsondata:
+    #output.write("\n\n"+str(len(jsondata))+"-"+str(type(jsondata))+"\n\n")
+    #if just one new record
+    if type(jsondata) is dict:
+	upload_data(cursor,jsondata,table_name)
+    else:
+	for i in range(len(jsondata)):
+	    upload_data(cursor,jsondata[i],table_name)
+    cursor.close()
+    conn.commit()
+    conn.close()
 
-  #if just one new record
-  if type(rows) is str:
-   if rows == 'id':
-    ID=str(jsondata[rows]).replace("'","").replace('"','').replace(';','')
-    continue
-
-   SET_V+=str(rows).replace("'","").replace('"','').replace(';','')+"="
-   SET_V+="'"+str(jsondata[rows]).replace("'","").replace('"','').replace(';','')+"',"
-   is_str=is_str+1
-   continue
-  else:
-  #if many records
-   ID=str()
-   for i in rows:
-    #in inserts ID should be 0
-    if str(i) == 'id':
-     ID=str(rows[i])
-     continue
-
-    SET_V+=str(i).replace("'","").replace('"','').replace(';','')+"="
-    SET_V+="'"+str(rows[i]).replace("'","").replace('"','').replace(';','')+"',"
-
-   #remove last ,
-  SET_V=SET_V[:-1]
-  if (not ID):
-   error_msg("No ID")
-  STR="""UPDATE `%s` SET %s WHERE id=%s;"""%(table_name,SET_V,ID)
-  SQL+=STR
-  SET_V=str()
-  ID=str()
-
- if is_str > 0:
-  #remove last ,
-  if (not ID):
-   error_msg("No ID")
-  SET_V=SET_V[:-1]
-  STR="""UPDATE `%s` SET %s WHERE id=%s;"""%(table_name,SET_V,ID)
-  SQL+=STR
-
-
- cursor.execute(SQL)
- cursor.close()
- conn.commit()
- conn.close()
-
- print """
-  {"success": true, "message": "Data saved" }"""
+    print """
+	{"success": true, "message": "Data saved" }"""
 
 except Exception, e:
- cursor.close()
- conn.rollback()
- conn.close()
- Error_str=str(e).replace('"','')
+    cursor.close()
+    conn.rollback()
+    conn.close()
+    Error_str=str(e)
 
- if 'Duplicate' in Error_str:
-  error_msg(Error_str)
+    #output.write("Error updating: \n" +Error_str+"\n\n")
+    #output.close()
+    if 'Duplicate' in Error_str:
+	error_msg(Error_str)
 
- error_msg("Error updating: " +Error_str+"<br>'"+SQL+"' ")
+    error_msg("Error updating:"+Error_str)
+
+ #error_msg("Error updating: " +Error_str+"<br>'"+SQL+"' ")
 
 
+#output.close()

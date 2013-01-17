@@ -56,10 +56,15 @@ end=page*limit
 #cursor = conn.cursor ()
 
 fields=list()
+total=str()
 
 cursor.execute ("describe "+table_name)
 for (row ) in cursor.fetchall():
  fields.append(row[0]) 
+
+cursor.execute ("select count(*) from "+table_name)
+for (row ) in cursor.fetchall():
+ total=row[0]
 
 
 cursor.close ()
@@ -70,17 +75,20 @@ comma=""
 
 
 print """
-{"success":true, "data":[""",
+{"success":true,"total":%s, "data":["""%(total),
 
 for (row ) in cursor.fetchall():
  print """%s{"""%(comma),
  c=""
  for i,item in enumerate(fields):
   if row[i] is None:
-#   print """%s"%s":"" """%(c,item),
-   print """%s"%s":"%s" """%(c,item,row[i]),
+   #print """%s"%s": """%(c,item),
+   continue
   else:
-   print """%s"%s":"%s" """%(c,item,row[i]),
+   if type(row[i]) is str:
+    print """%s"%s":"%s" """%(c,item,row[i].replace('"','\\"').replace('\n','\\n').replace('\t','\\t').replace('\r','\\r')),
+   else:
+    print """%s"%s":"%s" """%(c,item,row[i]),
   c=","
  comma=","
  print """}""",

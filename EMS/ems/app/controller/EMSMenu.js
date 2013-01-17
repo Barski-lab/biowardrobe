@@ -33,7 +33,7 @@ Ext.define('EMS.controller.EMSMenu', {
 
                views:['EMSMenu'],
                init: function() {
-                   Logger.log('Menu Initialized!');
+                   //Logger.log('Menu Initialized!');
                    this.control({
                                     'viewport > EMSMenu': {
                                         render: this.onPanelRendered
@@ -49,7 +49,7 @@ Ext.define('EMS.controller.EMSMenu', {
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   Logger.log('The panel was rendered');
+                   //Logger.log('The panel was rendered');
                    Ext.getCmp('MenuWorkers').setVisible(USER_GNAME==="porter");
                },
 

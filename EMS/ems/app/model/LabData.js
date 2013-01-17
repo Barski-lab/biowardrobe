@@ -22,6 +22,9 @@
 
 Ext.define( 'EMS.model.LabData', {
                extend: 'Ext.data.Model',
+
+               idProperti: 'id',
+
                requires : [
                    'EMS.model.ExperimentType',
                    'EMS.model.Genome',
@@ -33,9 +36,9 @@ Ext.define( 'EMS.model.LabData', {
 
                fields: [
                    { name: 'id', type: 'int' },
-                   'cells',
-                   'conditions',
-                   'spikeinspool',
+                   { name: 'cells', type: 'string' },
+                   { name: 'conditions', type: 'string' },
+                   { name: 'spikeinspool', type: 'string' },
                    'spikeins',
                    { name: 'tagstotal', type: 'int' },
                    { name: 'tagsmapped', type: 'int' },

@@ -99,20 +99,21 @@ create table if not exists labdata (
  spikeins DOUBLE,
  tagstotal INTEGER default 0,
  tagsmapped INTEGER default 0,
- libcode varchar(50),
- name4browser varchar(200),
  notes TEXT,
  protocol TEXT,
  filename varchar(2000),
  dateadd datetime not null,
  libstatus INTEGER default 0,
  libstatustxt varchar(200) default 'created',
- genome_id INTEGER,
- crosslink_id INTEGER,
- fragmentation_id INTEGER,
- antibody_id INTEGER,
+ libcode varchar(200),
+ name4browser varchar(300),
+ group_id varchar(300),
+ genome_id INTEGER default 1,
+ crosslink_id INTEGER default 1,
+ fragmentation_id INTEGER default 1,
+ antibody_id INTEGER default 1,
+ experimenttype_id INTEGER default 1,
  worker_id INTEGER,
- experimenttype_id INTEGER,
  PRIMARY KEY(id),
  index(worker_id), FOREIGN KEY (worker_id)
   REFERENCES worker(id),
@@ -158,26 +159,6 @@ insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,c
 values(4,'ABYR15','Anergic_rested CD4',2,5,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,'',0,now());
 insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
 values(4,'ABYR16','Naïve CD4',2,5,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,'',0,now());
-
-
-#14	ABYR14	Activated_rested CD4 	Human	Done-Analysis	10	RNA-Seq	HumanCD4 T cells				Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d	N/A	Covaris, 3min	N/A			dUTP			Anergy7_1
-#15	ABYR15	Anergic_rested CD4	Human	Done-Analysis	11	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d	N/A	Covaris, 3min	N/A			dUTP			Anergy7_1
-#16	ABYR16	Naïve CD4 	Human	In -20ref big	21	RNA-Seq	HumanCD4 T cells Naïve				Rested with APC 1d, purified 	N/A	Covaris, 3.2min	N/A			dUTP			Anergy7_3
-#17	ABYR17	Activated_rested CD4 	Human	In -20ref big	22	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d	N/A	Covaris, 3.2min	N/A			dUTP			Anergy7_3
-#18	ABYR18	Anergic_rested CD4	Human	In -20ref big	23	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d	N/A	Covaris, 3.2min	N/A			dUTP			Anergy7_3
-#19	ABYR19	Naïve CD4 	Human	Done-Analysis	8	RNA-Seq	Human CD4 T cells Naïve				Rested with APC 14h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#20	ABYR20	Activated Ist CD4  3h	Human	Done-Analysis	9	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28 3h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#21	ABYR21	Anergic Ist CD4 3h	Human	Done-Analysis	10	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 3h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#22	ABYR22	Activated Ist CD4 7h	Human	Done-Analysis	11	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28 7h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#23	ABYR23	Anergic Ist CD4 7h	Human	Done-Analysis	21	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 7h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#24	ABYR24	Activated Ist CD4 14h	Human	Done-Analysis	22	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28 14h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#25	ABYR25	Anergic Ist CD4 14h	Human	Done-Analysis	23	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 14h, purified Invitrogen 10min	N/A	Covaris, 3min	N/A			dUTP			Anergy8_1
-#26	ABAB26	EM resting Pol2	Human	In seq	25	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- resting	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance
-#27	ABAB27	EM activated 150 min Pol2	Human	In seq	27	ChIP-Seq	Human CD4 TEM cells				CD4+, CD45RO+, CD27- 150 min activated w CD3/28	FA, 10min, RT	Covaris, 10min	Pol2, 8WG16, Covance
-#28	ABYR28	Naïve CD4	Human	In seq	20	RNA-Seq	Human CD4 T cells Naïve				Cultured with APC 4d, purified StemCell, rest 2d	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
-#29	ABYR29	Activated CD4+2od Act 4h	Human	In seq	21	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/aCD28/IL2 5d, purifiedStemCell, rested 3d, Act4h	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
-#30	ABYR30	Anergic CD4	Human	In seq	22	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 5d, purifiedStemCell, rested 3d	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
-#31	ABYR31	Activated CD4+2od Act 4h	Human	In seq	23	RNA-Seq	Human CD4 T cells				Activated with APC & aCD3/CTLA4Ig 5d, purifiedStemCell, rested 3d, Act4h	N/A	Covaris, 3min	N/A			dUTP	2ul/1M cells	spike-in mix1	Anergy17_4
 
 
 

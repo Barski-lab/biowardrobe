@@ -25,21 +25,17 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                alias : 'widget.EMSMenu',
 
                tbar: [
-                   { xtype: 'button',
+                   {
+                       xtype: 'button',
                        text:'Forms',
                        tooltip:'Laboratory data edit',
                        menu: [
                            { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'form-blue-edit' },
-                           { text: 'Experiment type', action: 'ExpType', tooltip: 'Experiment type',iconCls: 'bottle-pills' },
-                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'Experiment type',iconCls: 'atom' },
-                           { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Experiment type',iconCls: 'army-knife' },
-                           { text: 'Genome type', action: 'GenomeType', tooltip: 'Experiment type',iconCls: '' },
                            '-',
                            { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit', id: "MenuWorkers" }
                        ],
                        iconCls:'form-blue'
-                   },
-                   { xtype: 'button',
+                   } /*, { xtype: 'button',
                        text:'Reports',
                        tooltip:'Some reports',
                        menu: [
@@ -47,8 +43,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                            { text: 'Average Tag Density', action: 'ATD', tooltip: '',iconCls: 'chart-line' }
                        ],
                        iconCls:'magazine-folder'
-                   },
-                   { xtype: 'button',
+                   } */, { xtype: 'button',
                        text:'Genome Browsers',
                        tooltip:'Genome browsers',
                        menu: [
@@ -68,6 +63,10 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Catalogues',
                        tooltip:'',
                        menu: [
+                           { text: 'Experiment type', action: 'ExpType', tooltip: 'Experiment type',iconCls: 'bottle-pills' },
+                           { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Fragmentation type',iconCls: 'army-knife' },
+                           { text: 'Genome type', action: 'GenomeType', tooltip: 'Genome type',iconCls: '' },
+                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'Crosslink type',iconCls: 'atom' },
                            { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green' }
                        ],
                        iconCls:'folder-document'

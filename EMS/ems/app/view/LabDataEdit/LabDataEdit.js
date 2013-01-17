@@ -70,7 +70,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                 id: 'labdata-edit-save'
                             } , {
                                 text: 'Cancel',
-                                //scope: this,
                                 handler: function() {
                                     me.down('form').getForm().reset();
                                     me.close();
