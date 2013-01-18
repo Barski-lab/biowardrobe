@@ -21,177 +21,155 @@
 ****************************************************************************/
 
 Ext.require('Ext.chart.*');
-Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit', 'Ext.window.MessageBox']);
+//Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit', 'Ext.window.MessageBox']);
 
 
-Ext.define( 'EMS.model.Fence', {
-               extend: 'Ext.data.Model',
+Ext.define('EMS.view.charts.Fence',
+           {
+               extend: 'Ext.chart.Chart',
+               xtype: 'chart',
+               style: 'background:#fff',
+               animate: true,
+               legend: {
+                   position: 'right'
+               },
 
-               fields:
-                   [
-                   { name: 'id', type: 'int' },
-                   { name: 'A', type: 'int' },
-                   { name: 'C', type: 'int' },
-                   { name: 'T', type: 'int' },
-                   { name: 'G', type: 'int' }
-               ],
-               proxy:{
-                   type: 'ajax',
-                   api: {
-                       read : '/cgi-bin/barski/fence.json',
-                   },
-                   reader: {
-                       type: 'json',
-                       root: 'data',
-                       successProperty: 'success'
-                   }
+               initComponent: function() {
+                   var me=this;
+                   Ext.applyIf(me, {
+
+                                   store: EMS.store.Fence,
+                                   shadow: true,
+                                   theme: 'Category1',
+                                   axes: [{
+                                           type: 'Numeric',
+                                           minimum: 0,
+                                           position: 'left',
+                                           fields: ['A', 'C', 'T', 'G'],
+                                           title: 'Number of Hits',
+                                           minorTickSteps: 1,
+                                           grid: {
+                                               odd: {
+                                                   opacity: 1,
+                                                   fill: '#ddd',
+                                                   stroke: '#bbb',
+                                                   'stroke-width': 0.5
+                                               }
+                                           }
+                                       }, {
+                                           type: 'Category',
+                                           position: 'bottom',
+                                           fields: ['id'],
+                                           title: 'Nucleotide position in read',
+                                           majorTickSteps: 10
+                                       }],
+                                   series: [{
+                                           type: 'line',
+                                           highlight: {
+                                               size: 7,
+                                               radius: 7
+                                           },
+                                           axis: 'left',
+                                           xField: 'id',
+                                           yField: 'A',
+                                           markerConfig: {
+                                               type: 'circle',
+                                               size: 1,
+                                               radius: 1,
+                                               'stroke-width': 0
+                                           }
+                                       }, {
+                                           type: 'line',
+                                           highlight: {
+                                               size: 7,
+                                               radius: 7
+                                           },
+                                           axis: 'left',
+                                           //                smooth: true,
+                                           xField: 'id',
+                                           yField: 'C',
+                                           markerConfig: {
+                                               type: 'circle',
+                                               size: 1,
+                                               radius: 1,
+                                               'stroke-width': 0
+                                           }
+                                       }, {
+                                           type: 'line',
+                                           highlight: {
+                                               size: 7,
+                                               radius: 7
+                                           },
+                                           axis: 'left',
+                                           //                smooth: true,
+                                           //                fill: true,
+                                           xField: 'id',
+                                           yField: 'T',
+                                           markerConfig: {
+                                               type: 'circle',
+                                               size: 1,
+                                               radius: 1,
+                                               'stroke-width': 0
+                                           }
+                                       },{
+                                           type: 'line',
+                                           highlight: {
+                                               size: 7,
+                                               radius: 7
+                                           },
+                                           axis: 'left',
+                                           //                smooth: true,
+                                           //                fill: true,
+                                           xField: 'id',
+                                           yField: 'G',
+                                           markerConfig: {
+                                               type: 'circle',
+                                               size: 1,
+                                               radius: 1,
+                                               'stroke-width': 0
+                                           }
+                                       }]
+                               });
+                   me.callParent(arguments);
                }
            });
 
 
-var chart = Ext.create('Ext.chart.Chart', {
-                           xtype: 'chart',
-                           style: 'background:#fff',
-                           animate: true,
-                           store: {
-                               autoLoad: true,
-                               model: 'EMS.model.Fence',
-                               listeners: {
-                                   load: function() {
-                                       Logger.log('Fence store loaded');
-                                   }
-                               }
-                           },
-                           shadow: true,
-                           theme: 'Category1',
-                           legend: {
-                               position: 'right'
-                           },
-                           axes: [{
-                                   type: 'Numeric',
-                                   minimum: 0,
-                                   position: 'left',
-                                   fields: ['A', 'C', 'T', 'G'],
-                                   title: 'Number of Hits',
-                                   minorTickSteps: 1,
-                                   grid: {
-                                       odd: {
-                                           opacity: 1,
-                                           fill: '#ddd',
-                                           stroke: '#bbb',
-                                           'stroke-width': 0.5
-                                       }
-                                   }
-                               }, {
-                                   type: 'Category',
-                                   position: 'bottom',
-                                   fields: ['id'],
-                                   title: 'Nucleotide position in read'
-                               }],
-                           series: [{
-                                   type: 'line',
-                                   highlight: {
-                                       size: 7,
-                                       radius: 7
-                                   },
-                                   axis: 'left',
-                                   xField: 'id',
-                                   yField: 'A',
-                                   markerConfig: {
-                                       type: 'circle',
-                                       size: 1,
-                                       radius: 1,
-                                       'stroke-width': 0
-                                   }
-                               }, {
-                                   type: 'line',
-                                   highlight: {
-                                       size: 7,
-                                       radius: 7
-                                   },
-                                   axis: 'left',
-                                   //                smooth: true,
-                                   xField: 'id',
-                                   yField: 'C',
-                                   markerConfig: {
-                                       type: 'circle',
-                                       size: 1,
-                                       radius: 1,
-                                       'stroke-width': 0
-                                   }
-                               }, {
-                                   type: 'line',
-                                   highlight: {
-                                       size: 7,
-                                       radius: 7
-                                   },
-                                   axis: 'left',
-                                   //                smooth: true,
-                                   //                fill: true,
-                                   xField: 'id',
-                                   yField: 'T',
-                                   markerConfig: {
-                                       type: 'circle',
-                                       size: 1,
-                                       radius: 1,
-                                       'stroke-width': 0
-                                   }
-                               },{
-                                   type: 'line',
-                                   highlight: {
-                                       size: 7,
-                                       radius: 7
-                                   },
-                                   axis: 'left',
-                                   //                smooth: true,
-                                   //                fill: true,
-                                   xField: 'id',
-                                   yField: 'G',
-                                   markerConfig: {
-                                       type: 'circle',
-                                       size: 1,
-                                       radius: 1,
-                                       'stroke-width': 0
-                                   }
-                               }]
-                       });
 
+//Ext.define('EMS.view.charts.Fence', {
+//               extend: 'Ext.window.Window',
+//               alias : 'widget.FenceChart',
 
+//               requires: ['Ext.form.Panel'],
 
-Ext.define('EMS.view.charts.Fence', {
-               extend: 'Ext.window.Window',
-               alias : 'widget.FenceChart',
+//               width: 800,
+//               height: 500,
+//               minHeight: 400,
+//               minWidth: 550,
+//               hidden: true,
+//               closeAction: 'hide',
+//               constrain: true,
+//               maximizable: true,
+//               title: 'Adaptor Contamenation',
+//               //        renderTo: Ext.getBody(),
+//               layout: 'fit',
 
-               requires: ['Ext.form.Panel'],
-
-               width: 800,
-               height: 500,
-               minHeight: 400,
-               minWidth: 550,
-               hidden: true,
-               closeAction: 'hide',
-               constrain: true,
-               maximizable: true,
-               title: 'Adaptor Contamenation',
-               //        renderTo: Ext.getBody(),
-               layout: 'fit',
-
-               tbar: [{
-                       text: 'Save Chart',
-                       handler: function() {
-                           Ext.MessageBox.confirm('Confirm Download', 'Would you like to download the chart as an image?', function(choice){
-                               if(choice == 'yes'){
-                                   chart.save({
-                                                  type: 'image/png'
-                                              });
-                               }
-                           });
-                       }
-                   }, {
-                       text: 'Reload Data',
-                       handler: function() {
-                           chart.store.load();
-                       }
-                   }],
-               items: chart
-           });
+//               tbar: [{
+//                       text: 'Save Chart',
+//                       handler: function() {
+//                           Ext.MessageBox.confirm('Confirm Download', 'Would you like to download the chart as an image?', function(choice){
+//                               if(choice == 'yes'){
+//                                   chart.save({
+//                                                  type: 'image/png'
+//                                              });
+//                               }
+//                           });
+//                       }
+//                   }, {
+//                       text: 'Reload Data',
+//                       handler: function() {
+//                           chart.store.load();
+//                       }
+//                   }],
+//               items: chart
+//           });

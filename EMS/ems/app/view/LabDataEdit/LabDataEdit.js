@@ -40,9 +40,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                    var me=this;
                    var labDataForm = Ext.create('EMS.view.LabDataEdit.LabDataEditForm');
 
+                   var chartDataForm = Ext.create('EMS.view.charts.Fence');
+
                    me.items= [
                             {
                                 xtype: 'tabpanel',
+                                id: 'labdataedit-main-tab-panel',
                                 frame: true,
                                 border: false,
                                 plain: true,
@@ -57,7 +60,8 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                     {
                                         xtype: 'panel',
                                         layout: 'fit',
-                                        title: 'Processed data'
+                                        title: 'Processed data',
+                                        items: chartDataForm
                                     }
                                 ]
                             }

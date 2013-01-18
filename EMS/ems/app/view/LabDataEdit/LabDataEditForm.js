@@ -20,7 +20,7 @@
 **
 ****************************************************************************/
 
-
+Ext.require('Ext.chart.*');
 
 Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                extend: 'Ext.form.Panel',
@@ -175,13 +175,43 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                           layout: 'hbox',
                                                           items: [
                                                               {
+                                                                  xtype     : 'datefield',
+                                                                  name      : 'dateadd',
+                                                                  fieldLabel: 'Experiment date',
+                                                                  afterLabelTextTpl: required,
+                                                                  allowBlank: false,
+                                                                  flex: 2
+                                                              } , {
+                                                                  xtype: 'splitter'
+                                                              } , {
+                                                                  xtype: 'textfield',
+                                                                  name : 'spikeinspool',
+                                                                  fieldLabel: 'Spikeins pool',
+                                                                  flex: 2
+                                                              } , {
+                                                                  xtype: 'splitter'
+                                                              } , {
                                                                   xtype: 'textfield',
                                                                   name : 'spikeins',
                                                                   fieldLabel: 'Spikeins',
-                                                                  //afterLabelTextTpl: required,
-                                                                  //allowBlank: false,
                                                                   flex: 2
-                                                                  //margin: '0 0 10 0'
+                                                              }
+                                                          ]
+                                                      } , {
+                                                          xtype: 'fieldcontainer',
+                                                          defaults: {
+                                                              labelWidth: 120,
+                                                              labelAlign: 'top',
+                                                              margin: '10 0 0 0'
+                                                          },
+                                                          layout: 'hbox',
+                                                          items: [
+                                                              {
+                                                                  xtype: 'filefield',
+                                                                  name: 'westernblot',
+                                                                  fieldLabel: 'Western blot',
+                                                                  buttonText: 'Select picture...',
+                                                                  flex: 2
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
@@ -195,7 +225,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   editable: false,
                                                                   valueField: 'id',
                                                                   triggerAction: 'all',
-                                                                  //margin: '0 10 0 0',
                                                                   queryMode: 'local',
                                                                   flex: 2
                                                               } , {
@@ -211,22 +240,13 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   editable: false,
                                                                   valueField: 'id',
                                                                   triggerAction: 'all',
-                                                                  //margin: '0 0 10 0',
                                                                   queryMode: 'local',
                                                                   flex: 2
                                                               }
                                                           ]
-                                                      },
-                                                      //items: [
-                                                          {
-                                                              xtype     : 'datefield',
-                                                              name      : 'dateadd',
-                                                              fieldLabel: 'Experiment date',
-                                                              margin: '10 5 0 0',
-                                                              allowBlank: false
-                                                              //value: new Date()
-                                                          }
-                                                  ]
+                                                      }
+
+                                                  ] // field set experiment description
 
                                               }, {
                                                   xtype:'fieldset',

@@ -21,21 +21,18 @@
 ****************************************************************************/
 
 Ext.require([
-    'Ext.grid.*',
-    'Ext.data.*',
-    'Ext.ux.grid.FiltersFeature'
-]);
-//'Ext.toolbar.Paging',
-//'Ext.ux.ajax.JsonSimlet',
-//'Ext.ux.ajax.SimManager'
-
+                'Ext.grid.*',
+                'Ext.data.*',
+                'Ext.ux.grid.FiltersFeature'
+            ]);
 
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation'],
-               views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm','EMS.view.LabDataEdit.LabDataEdit'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
+               views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
+                   'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence'],
 
                init: function()
                {
@@ -103,14 +100,42 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form = obj.down('form').getForm();
                    if( form.findField('genome_id').getRawValue().indexOf('spike') !== -1 ) {
                        form.findField('spikeins').enable();
+                       form.findField('spikeinspool').enable();
                    }
                    else {
                        form.findField('spikeins').disable();
+                       form.findField('spikeinspool').disable();
                    }
                },
+
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
                    this.setDisabledCombo(obj);
+
+                   var form=obj.down('form').getForm();
+                   var record = form.getRecord();
+                   var panel=Ext.getCmp('labdataedit-main-tab-panel');
+
+                   if (parseInt(record.raw['libstatus']) === 0) {
+
+                       form.findField('cells').focus(false,10);
+                       for(var i=1; i< Ext.getCmp('labdataedit-main-tab-panel').items.length; i++) {
+                           panel.items.getAt(i).setDisabled(true);
+                       }
+                       panel.setActiveTab(0);
+
+                   } else if (parseInt(record.raw['libstatus']) > 0) {
+
+                       this.getFenceStore().load(
+                                {
+                                    params: {
+                                        recordid: record.raw['id']
+                                    }
+                                });
+                       panel.setActiveTab(1);
+
+                   }
+
                },
                onEditClose: function(obj) {
                    this.getLabDataStore().load();
@@ -158,7 +183,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
 
-                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false,modal:true});
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, jstedit: parseInt(record.raw['libstatus']) === 0, modal:true });
                    edit.down('form').loadRecord(record);
                    edit.show();
                },
@@ -177,6 +202,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        if(form.getForm().isValid())
                        {
                            EMS.store.LabData.insert(0, values);
+                           this.getLabDataStore().sync();
                        }
                        else
                        {
@@ -191,9 +217,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    else
                    {
-                       record.set(values);
+                       if(form.getForm().isDirty()) {
+                           record.set(values);
+                           this.getLabDataStore().sync();
+                       }
                    }
-                   this.getLabDataStore().sync();
                    win.close();
                }
 

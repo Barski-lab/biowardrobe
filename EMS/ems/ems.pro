@@ -145,4 +145,6 @@ OTHER_FILES += \
     app/view/Genome/Genome.js \
     ../sql/EMS.sql \
     store_defs.js \
-    app/view/LabDataEdit/LabDataEditForm.js
+    app/view/LabDataEdit/LabDataEditForm.js \
+    app/store/Fence.js \
+    app/model/Fence.js
