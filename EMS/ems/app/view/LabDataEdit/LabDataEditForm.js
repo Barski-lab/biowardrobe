@@ -20,8 +20,6 @@
 **
 ****************************************************************************/
 
-Ext.require('Ext.chart.*');
-
 Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                extend: 'Ext.form.Panel',
 

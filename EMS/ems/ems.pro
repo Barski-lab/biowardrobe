@@ -147,4 +147,5 @@ OTHER_FILES += \
     store_defs.js \
     app/view/LabDataEdit/LabDataEditForm.js \
     app/store/Fence.js \
-    app/model/Fence.js
+    app/model/Fence.js \
+    app/view/LabDataEdit/LabDataDescription.js

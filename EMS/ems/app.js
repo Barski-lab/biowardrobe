@@ -93,13 +93,13 @@ Ext.application({
 
                                        items:
                                            [
-                                           { region: 'north',
+                                           {
+                                               region: 'north',
                                                title: '<div style="float: left; text-align: left;">Allergy department experiments management software (dr. Barski laboratory)</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
                                                       "<a href=login.php>&nbsp;logout</a></div>",
                                                autoHeight: true
-                                           },
-
-                                           { region: 'south',
+                                           } , {
+                                               region: 'south',
                                                title: '',
                                                collapsible: true,
                                                collapsed: true,
@@ -112,14 +112,13 @@ Ext.application({
                                                listeners: {
                                                    render: Logger.init
                                                }
-                                           },
-                                           { xtype: 'EMSMenu',
+                                           } , {
+                                               xtype: 'EMSMenu',
                                                id: 'EMSMenu',
                                                region: 'center',
                                                border: false,
                                                layout: 'fit'
                                            }
-
                                        ]//items Viewport
 
                                    });//ext create

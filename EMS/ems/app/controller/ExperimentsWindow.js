@@ -32,7 +32,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
                stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
-                   'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence'],
+                   'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription'],
 
                init: function()
                {
@@ -119,7 +119,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    if (parseInt(record.raw['libstatus']) === 0) {
 
                        form.findField('cells').focus(false,10);
-                       for(var i=1; i< Ext.getCmp('labdataedit-main-tab-panel').items.length; i++) {
+                       for(var i=1; i< panel.items.length; i++) {
                            panel.items.getAt(i).setDisabled(true);
                        }
                        panel.setActiveTab(0);
@@ -134,9 +134,17 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                 });
                        panel.setActiveTab(1);
 
+                       var panelD=Ext.getCmp('experiment-description');
+                           panelD.tpl.overwrite(panelD.body, record.data);
+
                    }
 
                },
+
+               //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
                onEditClose: function(obj) {
                    this.getLabDataStore().load();
                },

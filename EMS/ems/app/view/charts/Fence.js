@@ -48,19 +48,21 @@ Ext.define('EMS.view.charts.Fence',
                                            fields: ['A', 'C', 'T', 'G'],
                                            title: 'Number of Hits',
                                            minorTickSteps: 1,
-                                           grid: {
-                                               odd: {
-                                                   opacity: 1,
-                                                   fill: '#ddd',
-                                                   stroke: '#bbb',
-                                                   'stroke-width': 0.5
-                                               }
-                                           }
+                                           grid: true,
+//                                           grid: {
+//                                               odd: {
+//                                                   opacity: 1,
+//                                                   fill: '#ddd',
+//                                                   stroke: '#bbb',
+//                                                   'stroke-width': 0.5
+//                                               }
+//                                           }
                                        }, {
                                            type: 'Category',
                                            position: 'bottom',
                                            fields: ['id'],
                                            title: 'Nucleotide position in read',
+                                           grid: true,
                                            majorTickSteps: 10
                                        }],
                                    series: [{
