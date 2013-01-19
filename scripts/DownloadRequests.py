@@ -175,7 +175,7 @@ except Exception, e:
 cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e from labdata a, worker w,experimenttype e "
 "where a.worker_id =w.id and e.id=experimenttype_id and dnalogin is not null and dnapass is not null and libstatus in (0,1000)")
 for ( row ) in cursor.fetchall():
-    print row
+    #print row
     
     PAIR=('pair' in row[5])
     SUBDIR='/DNA'
@@ -187,7 +187,7 @@ for ( row ) in cursor.fetchall():
 	
     basedir=BASE_DIR+'/'+row[3].upper()+SUBDIR
     a=get_file(row[0],row[1],row[2],basedir,PAIR)
-    print a,"---",a[0]
+    #print a
 
     if 'Error' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",(a[0]+":"+a[1],row[4]))
