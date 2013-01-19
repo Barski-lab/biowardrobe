@@ -32,8 +32,8 @@ STORE_DEFS = {
                 destroy: '/cgi-bin/barski/recordsDel.json'
             },
             extraParams: {
-                tablename:  TBL,
-                workerid: (USER_LNAME!=='porter')?USER_ID:0
+                tablename:  TBL/*,
+                workerid: (USER_LNAME!=='porter')?USER_ID:0*/
             },
             reader: {
                 type: 'json',

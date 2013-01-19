@@ -32,14 +32,16 @@ Ext.define( 'EMS.model.Worker', {
                    { name: 'lname', type: 'string' },
                    { name: 'dnalogin', type: 'string' },
                    { name: 'dnapass', type: 'string' },
-                   { name: 'fullname', mapping: null, type: 'string', persist: false, convert: function(value, record) {
-                       var fn = record.get('fname');
-                       var ln = record.get('lname');
-                       if( ln !== ""){
-                       return ln+', '+fn;}
-                       else
-                       {return fn;}
-                   }}
-                 ]
+                   { name: 'fullname', mapping: null, type: 'string', persist: false,
+                       convert: function(value, record) {
+                           var fn = record.get('fname');
+                           var ln = record.get('lname');
+                           if( ln !== ""){
+                               return ln+', '+fn;}
+                           else
+                           {return fn;}
+                       }
+                   }
+               ]
 
            });

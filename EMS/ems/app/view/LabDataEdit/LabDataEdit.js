@@ -55,12 +55,14 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                         xtype: 'panel',
                                         title: 'Change info',
                                         layout: 'fit',
+                                        iconCls: 'form-blue-edit',
                                         items: labDataForm
                                     },
                                     {
                                         xtype: 'panel',
                                         layout: 'fit',
                                         title: 'Processed data',
+                                        iconCls: 'chart',
                                         items: descriptionDataForm
                                     }
                                 ]

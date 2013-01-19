@@ -34,9 +34,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription'],
 
+               refresh: false,
+               comboselected: -1,
+
                init: function()
                {
-                   Logger.log('Experiments Control Loaded.');
                    this.control({
                                     'ExperimentsWindow': {
                                         show: this.onPanelRendered
@@ -57,6 +59,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     'LabDataEdit combobox': {
                                         select: this.onComboBoxSelect
+                                    },
+                                    '#labdata-grid-user-filter': {
+                                        select: this.onComboBoxSelectMakeFilter
                                     }
                                 });
                },
@@ -72,6 +77,10 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        this.setVisibleSpike(combo.up('window'));
                    }
 
+               },
+               onComboBoxSelectMakeFilter: function(combo, records, options) {
+                   this.comboselected=combo.value;
+                   this.getLabDataStore().load({params:{workerid: combo.value}});
                },
 
                //-----------------------------------------------------------------------
@@ -116,16 +125,25 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var record = form.getRecord();
                    var panel=Ext.getCmp('labdataedit-main-tab-panel');
 
-                   if (parseInt(record.raw['libstatus']) === 0) {
+                   if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && USER_LNAME!=='porter')
+                   {
+                       form.getFields().each (function (field) {
+                           field.setReadOnly (true);
+                       });
+                       Ext.getCmp('labdata-edit-save').disable();
+                   }
 
+                   var sts=parseInt(record.raw['libstatus']);
+                   var base=sts/1000|0;
+                   sts=sts%1000;
+
+                   if ( sts < 11) {
                        form.findField('cells').focus(false,10);
                        for(var i=1; i< panel.items.length; i++) {
                            panel.items.getAt(i).setDisabled(true);
                        }
                        panel.setActiveTab(0);
-
-                   } else if (parseInt(record.raw['libstatus']) > 0) {
-
+                   } else if (sts > 11) {
                        this.getFenceStore().load(
                                 {
                                     params: {
@@ -136,7 +154,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                        var panelD=Ext.getCmp('experiment-description');
                            panelD.tpl.overwrite(panelD.body, record.data);
-
                    }
 
                },
@@ -146,7 +163,17 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onEditClose: function(obj) {
-                   this.getLabDataStore().load();
+                   if(this.refresh) {
+                       Logger.log('refreshed')
+                       if(this.comboselected !== -1) {
+                           this.getLabDataStore().load({params:{workerid: this.comboselected}});
+
+                       } else {
+                           this.getLabDataStore().load({params:{workerid: (USER_LNAME!=='porter')?USER_ID:0}});
+                       }
+
+                       this.refresh=false;
+                   }
                },
 
                //-----------------------------------------------------------------------
@@ -160,7 +187,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   this.getLabDataStore().load();
+                   //this.getLabDataStore().load();
+                   this.getLabDataStore().load({params:{workerid: (USER_LNAME!=='porter')?USER_ID:0}});
                },
 
                //-----------------------------------------------------------------------
@@ -176,10 +204,15 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           fragmentation_id: 1,
                                           antibody_id: 1,
                                           experimenttype_id: 1,
-                                          libstatustxt: 'created',
+                                          libstatustxt: 'new',
                                           dateadd: new Date()
                                       });
                    edit.down('form').loadRecord(r);
+                   var panel=Ext.getCmp('labdataedit-main-tab-panel');
+                   for(var i=1; i< panel.items.length; i++) {
+                       panel.items.getAt(i).setDisabled(true);
+                   }
+                   panel.setActiveTab(0);
                    edit.show();
                },
 
@@ -188,10 +221,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onItemDblClick: function(grid,record) {
-
-                   Logger.log('onDblClicked grd:'+grid.self.getName()+' rec:'+record.self.getName());
-
-                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, jstedit: parseInt(record.raw['libstatus']) === 0, modal:true });
+                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
                    edit.down('form').loadRecord(record);
                    edit.show();
                },
@@ -211,11 +241,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        {
                            EMS.store.LabData.insert(0, values);
                            this.getLabDataStore().sync();
+                           this.refresh=true;
                        }
                        else
                        {
                            Ext.Msg.show({
-                                            title: 'Save Failed',
+                                            title: 'Save failed',
                                             msg: 'Empty fields are not allowed',
                                             icon: Ext.Msg.ERROR,
                                             buttons: Ext.Msg.OK
@@ -228,6 +259,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        if(form.getForm().isDirty()) {
                            record.set(values);
                            this.getLabDataStore().sync();
+                           this.refresh=true;
                        }
                    }
                    win.close();

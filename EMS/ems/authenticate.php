@@ -2,7 +2,7 @@
 
   function getDataForUser($username) {
   //json query
-    $config_file  = file_get_contents("https://localhost/cgi-bin/barski/params.json?tablename=worker&params=where%20worker%20like%20'".$username."'");
+    $config_file  = file_get_contents("http://localhost/cgi-bin/barski/params.json?tablename=worker&params=where%20worker%20like%20'".$username."'");
     $config_array = json_decode($config_file, true);
     return $config_array["data"][0];
   }

@@ -28,6 +28,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                frame: false,
                layout: 'border',
                plain: true,
+               trackResetOnLoad : true,
                fieldDefaults: {
                    //flex: 1,
                    labelWidth: 120,
@@ -313,7 +314,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                               }];
                    me.callParent(arguments);
                }
-
 
            });
 

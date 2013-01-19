@@ -23,7 +23,7 @@
 Ext.define( 'EMS.model.LabData', {
                extend: 'Ext.data.Model',
 
-               idProperti: 'id',
+               idProperty: 'id',
 
                requires : [
                    'EMS.model.ExperimentType',

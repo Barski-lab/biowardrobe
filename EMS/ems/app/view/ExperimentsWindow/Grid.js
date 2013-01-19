@@ -19,6 +19,7 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+Ext.require('EMS.model.Worker');
 
 Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                extend: 'Ext.grid.Panel',
@@ -30,17 +31,23 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                remoteSort: true,
 
                initComponent: function() {
+                   var me = this;
+
                    var filters = {
                        ftype: 'filters',
                        // encode and local configuration options defined previously for easier reuse
                        encode: true, // json encode the filter query
                        local: false   // defaults to false (remote filtering)
                    };
-                   Ext.apply(this, {
+
+                   Ext.apply(me, {
                                  store: EMS.store.LabData,
 
                                  features: [filters],
-
+                                 viewConfig: {
+                                     stripeRows: true,
+                                     enableTextSelection: true
+                                 },
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
 
@@ -56,63 +63,93 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              return rec?rec.data.genome:'';
                                          }
                                      },
-                                     {   header: "Cells",                  sortable: false,  width: 120,   dataIndex: 'cells',        flex: 1,
-                                         filterable: true,
-                                         filter: {
-                                             type: 'string'
-                                             // specify disabled to disable the filter menu
-                                             //, disabled: true
-                                         }
-                                     },
-                                     {   header: "Condition",              sortable: false,  width: 140,   dataIndex: 'conditions',   flex: 1,
-                                         filterable: true,
-                                         filter: {
-                                             type: 'string'
-                                             // specify disabled to disable the filter menu
-                                             //, disabled: true
-                                         },
-                                     },
                                      {   header: "Type",                   sortable: false,  width: 90,    dataIndex: 'experimenttype_id',
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.ExperimentType.findRecord('id',value);
                                              return rec?rec.data.etype:'';
                                          }
-
-                                         /*          editor: {
-                                            xtype: 'combobox',
-                                            typeAhead: true,
-                                            displayField: 'Type',
-                                            triggerAction: 'all',
-                                            selectOnTab: true,
-                                            store: types_store,
-                                            lazyRender: true,
-                                            listClass: 'x-combo-list-small'
-                                        }
-                                        */
                                      },
-                                     {   header: "status",                 sortable: false,  width: 50,    dataIndex: 'libstatustxt'},
-                                     {   header: "Tags total",             sortable: false,  width: 70,    dataIndex: 'tagstotal' },
-                                     {   header: "Tags mapped",            sortable: false,  width: 70,    dataIndex: 'tagsmapped' },
-                                     {   header: "Name for browser",       sortable: false,  width: 80,    dataIndex: 'name4browser', flex: 1},
-                                     {   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'libcode'   },
-                                     {   header: "Date",                   sortable: true,   width: 70,    dataIndex: 'dateadd', renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true },
+                                     {   header: "Cells",                  sortable: false,  width: 280,   dataIndex: 'cells',
+                                         filterable: true,
+                                         filter: {
+                                             type: 'string'
+                                         }
+                                     },
+                                     {   header: "Condition",              sortable: false,  width: 400,   dataIndex: 'conditions',
+                                         filterable: true,
+                                         filter: {
+                                             type: 'string'
+                                         },
+                                     },
+                                     {   header: "Name for browser",       sortable: false,  width: 180,    dataIndex: 'name4browser'},
+                                     {   header: "Tags total",             sortable: false,  width: 80,    dataIndex: 'tagstotal' },
+                                     {   header: "Tags mapped",            sortable: false,  width: 80,    dataIndex: 'tagsmapped' },
+                                     //{   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'libcode'   },
+                                     {
+                                         header: "status",
+                                         width: 80,
+                                         xtype: 'actioncolumn',
+                                         sortable: false,
+                                         menuDisabled: true,
+                                         items: [
+                                             {
+                                                 getClass: function(v, meta, rec) {          // Or return a class from a function
+                                                     var sts=rec.get('libstatus');
+                                                     var base=(sts/1000)|0;
+                                                     sts=sts%1000;
+                                                     if(sts<10){
+                                                         this.items[0].tooltip = rec.get('libstatustxt');
+                                                         return 'data-'+base.toString()+'-'+sts.toString();
+                                                     } else {
+                                                         this.items[0].tooltip = 'complete';
+                                                         return 'data-0-2';
+                                                     }
+                                                 },
+                                                 handler: function(grid, rowIndex, colIndex) {
+                                                     //var rec = store.getAt(rowIndex);
+                                                 }
+                                             } , {
+                                                 getClass: function(v, meta, rec) {          // Or return a class from a function
+                                                     var sts=rec.get('libstatus');
+                                                     var base=(sts/1000)|0;
+                                                     sts=sts%1000;
+                                                     if(sts < 20 && sts >= 10 ){
+                                                         this.items[1].tooltip = rec.get('libstatustxt');
+                                                         return 'gear-'+base.toString()+'-'+sts.toString();
+                                                     } else if (sts > 20){
+                                                         this.items[1].tooltip = 'complete';
+                                                         return 'gear-0-2';
+                                                     }
+                                                 }
+                                             }
+                                         ]
+
+                                     },
+                                     {   header: "Date",                   sortable: true,   width: 70,    dataIndex: 'dateadd',
+                                         renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true
+                                     },
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
                                          sortable: false,
-                                         items: [{
-                                                 iconCls: 'table-row-delete',
-                                                 tooltip: 'Delete record',
-                                                 handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.LabData.removeAt(rowIndex);
-                                                 }
-                                             }]
-                                     }
+                                         menuDisabled: true,
+                                         items: [
+                                             {
+                                                 //tooltip: 'Delete record',
+                                                 getClass: function(v, meta, rec) {
+                                                     this.items[0].tooltip='Delete record'
+                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
+                                                         this.items[0].handler = function(grid, rowIndex, colIndex) {
 
-                                         /*                 , xtype: "datecolumn",
-                 editor: { xtype: 'datefield',  allowBlank: false,
-                 minValue: '01/01/2011', maxValue: Ext.Date.format(new Date(), 'm/d/Y'),
-                 format: 'm/d/Y',minText: 'Cannot have a start date before the company existed!'}*/
+                                                                 EMS.store.LabData.removeAt(rowIndex);
+                                                         }
+                                                         return 'table-row-delete';
+                                                     }
+                                                 },
+
+                                             }
+                                         ]
+                                     }
                                  ],//columns
 
                                  tbar: [
@@ -136,7 +173,35 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      }, '-' ,
                                      Ext.create('Ext.PagingToolbar', {
                                                     store: EMS.store.LabData
-                                                })
+                                                }),
+                                     {
+                                         xtype: 'combobox',
+                                         id: 'labdata-grid-user-filter',
+                                         displayField: 'fullname',
+                                         editable: false,
+                                         valueField: 'id',
+                                         listeners: {
+                                             render : function(){
+                                                 var data=new Array();
+                                                 data.push({id:0,fullname:'All'});
+                                                 var name='All';
+                                                 var num=0;
+                                                 EMS.store.Worker.data.each(function (field) {
+                                                     data.push({id:field.data['id'],fullname:field.data['fullname']});
+                                                     if(parseInt(field.data['id'])===parseInt(USER_ID)) {
+                                                         name=field.data['fullname'];
+                                                         num=parseInt(field.data['id']);
+                                                     }
+                                                 });
+                                                 this.store = Ext.create('Ext.data.Store', {
+                                                     fields: ['id', 'fullname'],
+                                                     data : data
+                                                 });
+                                                 this.setValue(num);
+                                                 this.setRawValue(name);
+                                             }
+                                         }
+                                     }
                                  ]//tbar
 
                              });  //grid/paging.js

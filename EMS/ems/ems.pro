@@ -148,4 +148,21 @@ OTHER_FILES += \
     app/view/LabDataEdit/LabDataEditForm.js \
     app/store/Fence.js \
     app/model/Fence.js \
-    app/view/LabDataEdit/LabDataDescription.js
+    app/view/LabDataEdit/LabDataDescription.js \
+    images/application_enterprise_warning.png \
+    images/application_enterprise_ok.png \
+    images/application_enterprise_new.png \
+    images/application_enterprise_error.png \
+    images/gear_warning.png \
+    images/gear_run.png \
+    images/gear_ok.png \
+    images/gear_new.png \
+    images/gear_error.png \
+    images/data_yellow.png \
+    images/data_warning.png \
+    images/data_red.png \
+    images/data_ok.png \
+    images/data_new.png \
+    images/data_green.png \
+    images/data_error.png \
+    images/application_enterprise_run.png

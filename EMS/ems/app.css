@@ -225,8 +225,106 @@
     width: 16px;
     height: 16px;
 }
+
 .garbage-delete {
     background-image: url( images/garbage_delete.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.application-enterprise-error {
+    background-image: url( images/application_enterprise_error.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.application-enterprise-new {
+    background-image: url( images/application_enterprise_new.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.application-enterprise-ok {
+    background-image: url( images/application_enterprise_ok.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.application-enterprise-warning {
+    background-image: url( images/application_enterprise_warning.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+
+.data-0-0 {
+    background-image: url( images/data_new.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.data-0-1 {
+    background-image: url( images/data_copy.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.data-0-2 {
+    background-image: url( images/data_ok.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.data-2-0 {
+    background-image: url( images/data_error.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.data-1-0 {
+    background-image: url( images/data_warning.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.data-down {
+    background-image: url( images/data_down.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear {
+    background-image: url( images/gear.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear-0-10 {
+    background-image: url( images/gear_new.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear-0-11 {
+    background-image: url( images/gear_run.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear-0-12 {
+    background-image: url( images/gear_ok.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear-2-10 {
+    background-image: url( images/gear_error.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.gear-1-10 {
+    background-image: url( images/gear_warning.png ) !important;
     width: 16px;
     height: 16px;
 }
