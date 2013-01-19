@@ -12,6 +12,7 @@ import requests
 import re
 import random
 
+
 main_page='http://dna.cchmc.org/www/main.php'
 login_page='http://dna.cchmc.org/www/logon.php'
 request_page='http://dna.cchmc.org/www/results/nextgen_results.php'

@@ -161,13 +161,9 @@ insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,c
 values(4,'ABYR14','Activated_rested CD4',2,5,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,'','0',date(now()));
 insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
 values(4,'ABYR15','Anergic_rested CD4',2,5,'Human CD4 T cells','Activated with APC & aCD3/CTLA4Ig 4d, purified, rested 3d',4,'','0',date(now()));
-insert into labdata(worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd)
-values(4,'ABYR16','Naïve CD4',2,5,'Human CD4 T cells Naïve','Rested with APC 1d, purified',5,'','0',date(now()));
-
-
 
 insert into labdata (worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd) values
-(4,'ABYR16','Naive CD4 ',2,5,'HumanCD4 T cells Naive','Rested with APC 1d, purified ',4,'','',date(now()));
+(4,'ABYR16','Naive CD4 ',2,5,'Human CD4 T cells Naive','Rested with APC 1d, purified ',4,'','',date(now()));
 insert into labdata (worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd) values
 (4,'ABYR17','Activated_rested CD4 ',2,5,'Human CD4 T cells','Activated with APC & aCD3/aCD28/IL2 4d, purified, rested 3d',4,'','',date(now()));
 insert into labdata (worker_id,libcode,name4browser,genome_id,experimenttype_id,cells,conditions,fragmentation_id,spikeinspool,spikeins,dateadd) values
