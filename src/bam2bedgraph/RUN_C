@@ -56,12 +56,15 @@ case ${2} in
   ;;
   "BARSKI")
    export GROUP="barskii2"
+   export ADD_TOPHAT=" "
   ;;
   "CLARK")
    export GROUP="barskii2"
+   export ADD_TOPHAT=" "
   ;;
   "SATOSHI")
-   export GROUP="NamekawaSatoshi"
+    export GROUP="NamekawaSatoshi"
+    export ADD_TOPHAT=" -T "
   ;;
   "FILIPI")
    export GROUP="filipi"
@@ -76,6 +79,10 @@ case ${2} in
   ;;
   "RAHUL")
    export GROUP="rahul"
+   export ADD_TOPHAT=" -T "
+  ;;
+  "JOE")
+   export GROUP="joe"
    export ADD_TOPHAT=" -T "
   ;;
   *)
@@ -113,9 +120,9 @@ case ${RUN_ON} in
  "mm9")
    export GENOME=mm9
    export SQLDB=" -sql_dbname=mm9 "
-   export GFT_FILE=" -G ${BOWTIE_INDEXES}/mm9_genes.gtf "
-#   export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/gtf/mm9_genes "
-    export TRANSCRIPTOME=" --keep-tmp  "
+   export GFT_FILE=" -G ${BOWTIE_INDEXES}/gtf/mm9_refsec_genes_2012.gtf "
+   export TRANSCRIPTOME=" --transcriptome-index ${BOWTIE_INDEXES}/gtf/mm9_refsec_genes_2012 "
+#    export TRANSCRIPTOME=" --keep-tmp  "
  ;;
  "hg19_lupus")
    export GENOME=hg19_lupus

@@ -89,7 +89,7 @@ if jsondata is None:
     error_msg("No data")
 
 try:
-    conn = MySQLdb.connect (host = arguments.readString("SQL/HOST"),user = arguments.readString("SQL/USER"), passwd=arguments.readPass("SQL/PASS"), db=arguments.readString("SQL/DB"))
+    conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
     conn.set_character_set('utf8')
     cursor = conn.cursor ()
 except Exception, e: 

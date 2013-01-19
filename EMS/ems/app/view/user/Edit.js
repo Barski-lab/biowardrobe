@@ -31,7 +31,7 @@ Ext.define('EMS.view.user.Edit', {
                width: 290,
 
                initComponent: function() {
-
+		   var me = this;
                    this.items = [
                             {
                                 xtype: 'form',
@@ -77,7 +77,7 @@ Ext.define('EMS.view.user.Edit', {
                             }
                         ];
 
-                   this.buttons = [
+                   me.buttons = [
                             {
                                 text: 'Save',
                                 action: 'save',
@@ -85,10 +85,12 @@ Ext.define('EMS.view.user.Edit', {
                             },
                             {
                                 text: 'Cancel',
-                                handler: this.close
+                                handler: function() { 
+                            	    me.close(); 
+                            	}
                             }
                         ];
 
-                   this.callParent(arguments);
+                   me.callParent(arguments);
                }
            });
