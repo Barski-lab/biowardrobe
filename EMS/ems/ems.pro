@@ -165,4 +165,22 @@ OTHER_FILES += \
     images/data_new.png \
     images/data_green.png \
     images/data_error.png \
-    images/application_enterprise_run.png
+    images/application_enterprise_run.png \
+    images/table_row_preferences.png \
+    images/table_row_edit.png \
+    images/table_row_delete.png \
+    images/step.png \
+    images/step_stop.png \
+    images/step_run.png \
+    images/step_pause.png \
+    images/step_new.png \
+    images/step_edit.png \
+    images/step_delete.png \
+    images/step_add.png \
+    images/genome_browser.png \
+    images/garbage_delete.png \
+    images/floppy_disk_add.png \
+    images/delete.png \
+    images/data_down.png \
+    images/data_copy.png \
+    images/cube_molecule_view.png
