@@ -328,3 +328,9 @@
     width: 16px;
     height: 16px;
 }
+
+.floppy-disk-add {
+    background-image: url( images/floppy_disk_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}

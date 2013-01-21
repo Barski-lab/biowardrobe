@@ -92,7 +92,7 @@ except Exception, e:
 
 #DEBUG
 #output=open('/tmp/UPDATE.ERROR','wb')
-#json.dump(jsondata, output)
+json.dump(jsondata, output)
 #output.write("\n\n")
 
 try:

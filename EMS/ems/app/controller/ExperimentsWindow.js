@@ -35,7 +35,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription'],
 
                refresh: false,
-               comboselected: -1,
 
                init: function()
                {
@@ -79,7 +78,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                },
                onComboBoxSelectMakeFilter: function(combo, records, options) {
-                   this.comboselected=combo.value;
                    this.getLabDataStore().getProxy().setExtraParam('workerid',combo.value);
                    this.getLabDataStore().load();
                },
@@ -119,7 +117,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                },
                //-----------------------------------------------------------------------
                // Setting to read only all elements in form panel (except image upload why ?)
-               //
+               // and disabling save button if current user and record owner are not the same
                //-----------------------------------------------------------------------
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
@@ -232,13 +230,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form   = win.down('form');
                    var record = form.getRecord();
                    var values = form.getValues();
+                   form=form.getForm();
 
                    if(win.addnew)
                    {
-                       if(form.getForm().isValid())
+                       if(form.isValid())
                        {
                            EMS.store.LabData.insert(0, values);
-                           this.getLabDataStore().sync();
                            this.refresh=true;
                        }
                        else
@@ -254,11 +252,21 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    else
                    {
-                       if(form.getForm().isDirty()) {
+                       if(form.isDirty()) {
                            record.set(values);
-                           this.getLabDataStore().sync();
                            this.refresh=true;
                        }
+                   }
+                   if(this.refresh) {
+                       this.getLabDataStore().sync();
+
+//                       form.submit({
+//                                       url: '/cgi-bin/barski/recordsTST.json',
+//                                       waitMsg: 'Uploading file',
+//                                       success: function(fp, o) {
+//                                           Ext.Msg.alert('Success', o.result.file);
+//                                       }
+//                                   });
                    }
                    win.close();
                }

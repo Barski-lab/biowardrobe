@@ -53,7 +53,7 @@ limit=int(form["limit"].value)
 
 
 #DEBUG
-output=open('/tmp/UPDATE.ERROR','wb')
+output=open('/tmp/SELECT.ERROR','wb')
 #json.dump(jsondata, output)
 #output.write(form['sort'].value+"\n\n")
 #output.write("\n\n")

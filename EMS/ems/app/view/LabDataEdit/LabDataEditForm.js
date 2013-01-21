@@ -29,6 +29,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                layout: 'border',
                plain: true,
                trackResetOnLoad : true,
+               fileUpload:true,
                fieldDefaults: {
                    //flex: 1,
                    labelWidth: 120,
@@ -208,8 +209,14 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                               {
                                                                   xtype: 'filefield',
                                                                   name: 'westernblot',
+                                                                  id: 'westernblot',
                                                                   fieldLabel: 'Western blot',
-                                                                  buttonText: 'Select picture...',
+                                                                  buttonText: '',
+                                                                  emptyText: 'Select an image',
+                                                                  disabled: true,
+                                                                  buttonConfig: {
+                                                                      iconCls: 'floppy-disk-add'
+                                                                  },
                                                                   flex: 2
                                                               } , {
                                                                   xtype: 'splitter'

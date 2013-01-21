@@ -24,5 +24,6 @@
  <script type="text/javascript" src="app.js"></script>
 </head>
 
-<body></body>
+<body>
+</body>
 </html>
