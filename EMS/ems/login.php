@@ -1,4 +1,9 @@
 <?php
+unset($_SESSION["timeout"]);
+$_SESSION = array();
+session_destroy();
+session_unset();
+session_start();
 
   $TITLE="EMS login";
 
@@ -7,8 +12,6 @@
    $TITLE="session expired";
   }
 
-  session_destroy();
-  session_start();
 ?>
 <html>
   <head>

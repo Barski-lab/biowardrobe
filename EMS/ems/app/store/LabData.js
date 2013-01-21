@@ -46,7 +46,6 @@ Ext.define('EMS.store.LabData', {
                        direction: 'ASC'
                    }],
                pageSize: 30,
-
                proxy: STORE_DEFS.proxy('labdata')
 
            });

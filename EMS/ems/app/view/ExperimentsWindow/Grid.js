@@ -166,7 +166,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              EMS.store.LabData.sync({
                                                              success: function (batch, options) {
                                                                  console.log('Sync successed' ,batch, options);
-                                                                 EMS.store.LabData.load();
+                                                                 //EMS.store.LabData.load();
                                                              }
                                              });
                                          }

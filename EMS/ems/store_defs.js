@@ -32,8 +32,7 @@ STORE_DEFS = {
                 destroy: '/cgi-bin/barski/recordsDel.json'
             },
             extraParams: {
-                tablename:  TBL/*,
-                workerid: (USER_LNAME!=='porter')?USER_ID:0*/
+                tablename:  TBL
             },
             reader: {
                 type: 'json',
@@ -48,13 +47,10 @@ STORE_DEFS = {
             },
             listeners: {
                 exception: function(proxy, response, operation) {
-                    // response contains responseText, which has the message
-                    // but in unparsed Json (see below)
                     console.log(proxy, response, operation);
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {
-                            //detl.getForm().markInvalid(json.errors);
                             Ext.MessageBox.show({
                                                     title: operation.action+' failed',
                                                     msg: json.message,

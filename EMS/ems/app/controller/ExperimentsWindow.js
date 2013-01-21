@@ -80,7 +80,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                },
                onComboBoxSelectMakeFilter: function(combo, records, options) {
                    this.comboselected=combo.value;
-                   this.getLabDataStore().load({params:{workerid: combo.value}});
+                   this.getLabDataStore().getProxy().setExtraParam('workerid',combo.value);
+                   this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
@@ -165,13 +166,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onEditClose: function(obj) {
                    if(this.refresh) {
                        Logger.log('refreshed')
-                       if(this.comboselected !== -1) {
-                           this.getLabDataStore().load({params:{workerid: this.comboselected}});
-
-                       } else {
-                           this.getLabDataStore().load({params:{workerid: (USER_LNAME!=='porter')?USER_ID:0}});
-                       }
-
+                       this.getLabDataStore().load();
                        this.refresh=false;
                    }
                },
@@ -187,8 +182,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   //this.getLabDataStore().load();
-                   this.getLabDataStore().load({params:{workerid: (USER_LNAME!=='porter')?USER_ID:0}});
+                   this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('labdata-grid-user-filter').getValue());
+                   this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
