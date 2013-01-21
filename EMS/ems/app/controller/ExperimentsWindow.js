@@ -117,7 +117,10 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('spikeinspool').disable();
                    }
                },
-
+               //-----------------------------------------------------------------------
+               // Setting to read only all elements in form panel (except image upload why ?)
+               //
+               //-----------------------------------------------------------------------
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
                    this.setDisabledCombo(obj);

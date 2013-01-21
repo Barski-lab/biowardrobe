@@ -164,6 +164,7 @@ session_start();
             items: [loginForm]
         });
         loginWindow.show();
+        loginForm.getForm().findField('username').focus(false,20);
         });
         </script>
 
