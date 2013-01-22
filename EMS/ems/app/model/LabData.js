@@ -42,6 +42,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'spikeins', type: 'string' },
                    { name: 'tagstotal', type: 'int' },
                    { name: 'tagsmapped', type: 'int' },
+                   { name: 'tagsribo', type: 'int' },
                    { name: 'notes', type: 'string' },
                    { name: 'protocol', type: 'string' },
                    { name: 'filename', type: 'string' },
@@ -56,6 +57,29 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'fragmentation_id', type: 'int' },
                    { name: 'worker_id', type: 'int' },
                    { name: 'antibody_id', type: 'int' },
-                   { name: 'experimenttype_id', type: 'int' }
+                   { name: 'experimenttype_id', type: 'int' },
+                   { name: 'tagspercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagsmapped');
+                           var total = record.get('tagstotal');
+                           if( total !== 0){
+                               return ((mapped/total)*100.0).toFixed(2);
+                           } else {
+                               return 0;
+                           }
+                       }
+                   },
+                   { name: 'tagsribopercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagsribo');
+                           var total = record.get('tagstotal');
+                           if( total !== 0){
+                               return ((mapped/total)*100.0).toFixed(2);
+                           } else {
+                               return 0;
+                           }
+                       }
+                   }
+
                ]
            });

@@ -251,3 +251,4 @@ update `ems`.`genome` set `db`='mm9',`findex`='mm9',`annotation`='mm9_refsec_gen
 #
 
 ALTER TABLE `ems`.`labdata` CHANGE COLUMN `browsergrp_id` `browsergrp` VARCHAR(150) NULL DEFAULT ''  ;
+ALTER TABLE `ems`.`labdata` ADD COLUMN `tagsribo` INT(11) NULL DEFAULT '0'  AFTER `tagsmapped` ;
