@@ -39,7 +39,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                    xtype: 'panel',
                                    frame: false,
                                    border: true,
-                                   height: 160,
+                                   height: 180,
                                    layout: 'fit',
                                    region: 'north',
                                    id: 'experiment-description',
