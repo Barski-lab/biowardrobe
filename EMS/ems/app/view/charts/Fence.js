@@ -61,7 +61,7 @@ Ext.define('EMS.view.charts.Fence',
                                            type: 'Category',
                                            position: 'bottom',
                                            fields: ['id'],
-                                           title: 'Nucleotide position in read',
+                                           title: 'Nucleotide position',
                                            grid: true,
                                            majorTickSteps: 10
                                        }],

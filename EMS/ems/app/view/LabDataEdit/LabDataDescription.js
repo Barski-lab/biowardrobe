@@ -39,7 +39,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                    xtype: 'panel',
                                    frame: false,
                                    border: true,
-                                   height: 150,
+                                   height: 160,
                                    layout: 'fit',
                                    region: 'north',
                                    id: 'experiment-description',
@@ -51,9 +51,11 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{tagstotal}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
-                                                   '<tpl if="tagsribosomal &gt; 0">',
-                                                   '<tr><td class="experiment-descr-1">Ribosomal contamination:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
-                                                   '</tpl>'
+                                                   '<tpl if="tagsribo &gt; 0">',
+                                                   '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                                                   '</tpl>',
+                                                   '</table>'
                                                    )
                                } , {
                                    xtype: 'panel',
