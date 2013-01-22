@@ -99,6 +99,21 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('antibody_id').disable();
                    }
                },
+               //-----------------------------------------------------------------------
+               // Disabling/enabling antibody and fragmentation comboboxes
+               //
+               //-----------------------------------------------------------------------
+               setDisabledByStatus: function(obj,sts) {
+                   var form=obj.down('form').getForm();
+                   if(sts >= 1) {
+                       form.findField('libcode').setReadOnly(true);
+                   }
+                   if(sts >= 11) {
+                       form.findField('experimenttype_id').setReadOnly(true);
+                       form.findField('genome_id').setReadOnly(true);
+                       form.findField('name4browser').setReadOnly(true);
+                   }
+               },
 
                //-----------------------------------------------------------------------
                // Disabling/enabling spikeins field
@@ -139,7 +154,10 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var base=sts/1000|0;
                    sts=sts%1000;
 
-                   if ( sts < 11) {
+
+                   this.setDisabledByStatus(obj,sts);
+
+                   if ( sts <= 11) {
                        form.findField('cells').focus(false,10);
                        for(var i=1; i< panel.items.length; i++) {
                            panel.items.getAt(i).setDisabled(true);

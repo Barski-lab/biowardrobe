@@ -135,12 +135,10 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          menuDisabled: true,
                                          items: [
                                              {
-                                                 //tooltip: 'Delete record',
                                                  getClass: function(v, meta, rec) {
                                                      this.items[0].tooltip='Delete record'
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
                                                          this.items[0].handler = function(grid, rowIndex, colIndex) {
-
                                                                  EMS.store.LabData.removeAt(rowIndex);
                                                          }
                                                          return 'table-row-delete';
@@ -165,7 +163,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          handler : function() {
                                              EMS.store.LabData.sync({
                                                              success: function (batch, options) {
-                                                                 console.log('Sync successed' ,batch, options);
+                                                                 //console.log('Sync successed' ,batch, options);
                                                                  //EMS.store.LabData.load();
                                                              }
                                              });

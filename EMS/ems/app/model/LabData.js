@@ -47,7 +47,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'filename', type: 'string' },
                    { name: 'libcode', type: 'string' },
                    { name: 'name4browser', type: 'string' },
-                   { name: 'browsergrp_id', type: 'int' },
+                   { name: 'browsergrp', type: 'string' },
                    { name: 'dateadd', type: 'date' },
                    { name: 'libstatus', type: 'int' },
                    { name: 'libstatustxt', type: 'string' },

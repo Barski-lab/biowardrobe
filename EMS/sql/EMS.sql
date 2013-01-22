@@ -247,3 +247,7 @@ update `ems`.`genome` set `db`='hg19',`findex`='hg19',`annotation`='hg19_refsec_
 update `ems`.`genome` set `db`='hg19',`findex`='hg19c',`annotation`='hg19_refsec_genes_control' where id=2;
 update `ems`.`genome` set `db`='mm9',`findex`='mm9',`annotation`='mm9_refsec_genes_2012' where id=3;
 
+#Patch two
+#
+
+ALTER TABLE `ems`.`labdata` CHANGE COLUMN `browsergrp_id` `browsergrp` VARCHAR(150) NULL DEFAULT ''  ;
