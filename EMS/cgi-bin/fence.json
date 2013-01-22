@@ -1,17 +1,55 @@
 #! /usr/bin/env python
 
-#import os
-#import sys
-#import MySQLdb
+import os
+import sys
+import MySQLdb
 #import warnings
+import cgitb; cgitb.enable()
 import cgi
+import urllib
+import urlparse
+import simplejson as json
+import Arguments
+
+
+def error_msg(msg):
+ print """
+   {"success": false, "message": "%s" }"""%(msg)
+ sys.exit()
+
+arguments = Arguments.Arguments(sys.argv)
+
+
+#stdinbuf = sys.stdin.read()
+#if stdinbuf is None:
+# error_msg("No data")
 
 form = cgi.FieldStorage()
-#table_name=str(form["tablename"].value)
+recordid=int(form["recordid"].value)
 
+try:
+ conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
+ cursor = conn.cursor ()
+except Exception, e: 
+ error_msg("Error database connection")
+
+
+cursor.execute ("select filename,w.worker,e.etype from labdata l,experimenttype e,worker w "
+" where e.id=experimenttype_id and w.id=worker_id and l.id=%s",recordid)
+SUBDIR='/DNA/'
+NAME=''
+FNAME=''
+for ( row ) in cursor.fetchall():
+    FNAME=row[0]
+    if 'RNA' in row[2]:
+	SUBDIR='/RNA/'
+    NAME=row[1].upper()
+    break
+
+FULLNAME='/data/DATA/FASTQ-DATA/'+NAME+SUBDIR+FNAME+'.fence'
 
 #FP_N=open(sys.argv[1],'r')
-FP_N=open('test.fence','r')
+FP_N=open(FULLNAME,'r')
 
 FP_N.readline()
 
