@@ -6,6 +6,27 @@
             color: green;
 }
 
+.experiment-descr{
+  width:100%;
+  border-collapse: collapse;
+  margin-left: 1em;
+  margin-top: 1em;
+}
+
+.experiment-descr-1{
+  width:auto;
+  font-size: 85%;
+  font-weight: bold;
+  border-bottom: 1px solid #eeeeee;
+}
+.experiment-descr-2{
+  width:auto;
+  font-size: 85%;
+  font-style: italic;
+  margin-left: 1em;
+  border-bottom: 1px solid #eeeeee;
+}
+
 .users3 {
     background-image: url( images/users3.png ) !important;
     width: 16px;

@@ -44,12 +44,16 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                    region: 'north',
                                    id: 'experiment-description',
                                    tpl: Ext.create('Ext.XTemplate',
-                                                   '<b>Experiment date:</b> {dateadd}<br>',
-                                                   '<b>Cells type:</b> {cells}<br>',
-                                                   '<b>Conditions:</b> {conditions}<br>',
-                                                   '<b>Tags mapped:</b> {tagsmapped}<br>',
-                                                   '<b>Tags total:</b> {tagstotal}<br>'
-                                                   //'<b>Ribosomal contamination:</b> {ribosomal}<br>'
+                                                   '<table class="experiment-descr">',
+                                                   '<tr><td class="experiment-descr-1">Experiment date:</td><td class="experiment-descr-2">{dateadd:date("m/d/Y")}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Cells type:</td><td class="experiment-descr-2">{cells}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Conditions:</td><td class="experiment-descr-2">{conditions}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{tagstotal}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
+                                                   '<tpl if="tagsribosomal &gt; 0">',
+                                                   '<tr><td class="experiment-descr-1">Ribosomal contamination:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                                                   '</tpl>'
                                                    )
                                } , {
                                    xtype: 'panel',

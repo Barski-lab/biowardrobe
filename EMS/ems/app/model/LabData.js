@@ -49,7 +49,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'libcode', type: 'string' },
                    { name: 'name4browser', type: 'string' },
                    { name: 'browsergrp', type: 'string' },
-                   { name: 'dateadd', type: 'date' },
+                   { name: 'dateadd', type: 'date'},
                    { name: 'libstatus', type: 'int' },
                    { name: 'libstatustxt', type: 'string' },
                    { name: 'genome_id', type: 'int' },
