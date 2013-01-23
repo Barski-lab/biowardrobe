@@ -35,22 +35,22 @@ Ext.define('EMS.view.Genome.List' ,{
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
                                      {header: 'Genome', dataIndex: 'genome', flex: 1, editor: { allowBlank: false} },
-                                     {
-                                         xtype: 'actioncolumn',
-                                         width:35,
-                                         sortable: false,
-                                         items: [{
-                                                 iconCls: 'table-row-delete',
-                                                 tooltip: 'Delete Genome',
-                                                 handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.Genome.removeAt(rowIndex);
-                                                 }
-                                             }]
-                                     }
+//                                     {
+//                                         xtype: 'actioncolumn',
+//                                         width:35,
+//                                         sortable: false,
+//                                         items: [{
+//                                                 iconCls: 'table-row-delete',
+//                                                 tooltip: 'Delete Genome',
+//                                                 handler: function(grid, rowIndex, colIndex) {
+//                                                     EMS.store.Genome.removeAt(rowIndex);
+//                                                 }
+//                                             }]
+//                                     }
                                  ],
-                                 plugins: [cellEditing],
+                                 //plugins: [cellEditing],
                                  tbar: [
-                                     {
+                                     /*{
                                          text:'New',
                                          tooltip:'Add a new Genome type',
                                          handler : function(){
@@ -73,7 +73,7 @@ Ext.define('EMS.view.Genome.List' ,{
                                                                            }});
                                          },
                                          iconCls:'table2-check'
-                                     }, '-',
+                                     },*/ '-',
                                      Ext.create('Ext.PagingToolbar', {
                                                     store: EMS.store.Genome
                                                 })

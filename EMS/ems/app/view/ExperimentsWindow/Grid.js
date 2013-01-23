@@ -131,7 +131,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          items: [
                                              {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[0].tooltip='Add record'
+                                                     this.items[0].tooltip='Duplicate record'
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
                                                          this.items[0].handler = function(grid, rowIndex, colIndex) {
                                                              var data=EMS.store.LabData.getAt(rowIndex).raw;
