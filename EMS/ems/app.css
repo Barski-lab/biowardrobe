@@ -9,22 +9,32 @@
 .experiment-descr{
   width:100%;
   border-collapse: collapse;
-  margin-left: 1em;
-  margin-top: 1em;
+  margin-left: 5pt;
+  margin-top: 5pt;
 }
 
 .experiment-descr-1{
-  width:auto;
+  width:200;
   font-size: 85%;
   font-weight: bold;
-  border-bottom: 1px solid #eeeeee;
+  border-bottom: 1px solid #cccccc;
+  padding-top: 4pt;
 }
 .experiment-descr-2{
   width:auto;
+  height: auto;
   font-size: 85%;
   font-style: italic;
   margin-left: 1em;
-  border-bottom: 1px solid #eeeeee;
+  padding-top: 4pt;
+  border-bottom: 1px solid #cccccc;
+}
+.experiment-descr-3{
+  width:200;
+  height:112;
+  align: center;
+  margin: '0 0 0 0';
+  padding: '0 0 0 0';
 }
 
 .users3 {

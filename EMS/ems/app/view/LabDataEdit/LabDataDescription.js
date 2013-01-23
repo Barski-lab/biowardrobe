@@ -30,32 +30,39 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                frame: false,
                layout: 'border',
                plain: true,
-
                initComponent: function() {
                    var me=this;
+
 
                    me.items= [
                                {
                                    xtype: 'panel',
                                    frame: false,
                                    border: true,
-                                   height: 180,
+                                   height: 200,
                                    layout: 'fit',
                                    region: 'north',
                                    id: 'experiment-description',
                                    tpl: Ext.create('Ext.XTemplate',
                                                    '<table class="experiment-descr">',
-                                                   '<tr><td class="experiment-descr-1">Experiment date:</td><td class="experiment-descr-2">{dateadd:date("m/d/Y")}</td></tr>',
-                                                   '<tr><td class="experiment-descr-1">Cells type:</td><td class="experiment-descr-2">{cells}</td></tr>',
-                                                   '<tr><td class="experiment-descr-1">Conditions:</td><td class="experiment-descr-2">{conditions}</td></tr>',
-                                                   '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{tagstotal}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Experiment date:</td><td colspan=2 class="experiment-descr-2">{dateadd:date("m/d/Y")}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Cells type:</td><td colspan=2 class="experiment-descr-2">{cells}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Conditions:</td><td colspan=2 class="experiment-descr-2">{conditions}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{tagstotal}</td>',
+                                                   '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3" id="exp-chart"></td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
                                                    '<tpl if="tagsribo &gt; 0">',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '</tpl>',
-                                                   '</table>'
+                                                   '</table>', {
+                                                       rowspan: function(values) {
+                                                           if(values>0)
+                                                               return 5;
+                                                           return 3;
+                                                       }
+                                                   }
                                                    )
                                } , {
                                    xtype: 'panel',
