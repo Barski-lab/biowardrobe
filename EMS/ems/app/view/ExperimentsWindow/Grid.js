@@ -51,7 +51,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
 
-                                     {   header: "Belongs to",             sortable: true,  width: 110,    dataIndex: 'worker_id',
+                                     {   header: "Belongs to",             sortable: true,  width: 85,    dataIndex: 'worker_id',
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.Worker.findRecord('id',value);
                                              return rec?rec.data.fullname:'';
@@ -69,26 +69,24 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              return rec?rec.data.etype:'';
                                          }
                                      },
-                                     {   header: "Cells",                  sortable: false,  width: 280,   dataIndex: 'cells',
+                                     {   header: "Cells",                  sortable: false,  width: 230,   dataIndex: 'cells',
                                          filterable: true,
                                          filter: {
                                              type: 'string'
                                          }
                                      },
-                                     {   header: "Condition",              sortable: false,  width: 400,   dataIndex: 'conditions',
+                                     {   header: "Condition",              sortable: false,  width: 380,   dataIndex: 'conditions',
                                          filterable: true,
                                          filter: {
                                              type: 'string'
                                          },
                                      },
-                                     {   header: "Name for browser",       sortable: false,  width: 180,    dataIndex: 'name4browser'},
+                                     {   header: "Name for browser",       sortable: false,  width: 160,   dataIndex: 'name4browser'},
                                      {   header: "Lib. Code",              sortable: false,  width: 60,    dataIndex: 'libcode'},
-                                     {   header: "Mapped",            sortable: false,  width: 80,    dataIndex: 'tagspercent' },
+                                     {   header: "Mapped",                 sortable: false,  width: 50,    dataIndex: 'tagspercent' },
                                      {
-                                         header: "status",
-                                         width: 80,
+                                         header: "status",                 sortable: false,  width: 40,
                                          xtype: 'actioncolumn',
-                                         sortable: false,
                                          menuDisabled: true,
                                          items: [
                                              {
@@ -128,22 +126,53 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true
                                      },
                                      {
-                                         xtype: 'actioncolumn',
-                                         width:35,
-                                         sortable: false,
+                                         xtype: 'actioncolumn',            sortable: false,  width:55,
                                          menuDisabled: true,
                                          items: [
                                              {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[0].tooltip='Delete record'
+                                                     this.items[0].tooltip='Add record'
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
                                                          this.items[0].handler = function(grid, rowIndex, colIndex) {
+                                                             var data=EMS.store.LabData.getAt(rowIndex).raw;
+
+                                                             var r = Ext.create('EMS.model.LabData', {
+                                                                                    worker_id: USER_ID,
+                                                                                    genome_id:  data['genome_id'],
+                                                                                    crosslink_id: data['crosslink_id'],
+                                                                                    fragmentation_id: data['fragmentation_id'],
+                                                                                    antibody_id: data['antibody_id'],
+                                                                                    experimenttype_id: data['experimenttype_id'],
+                                                                                    cells: data['cells'],
+                                                                                    conditions: data['conditions'],
+                                                                                    spikeinspool: data['spikeinspool'],
+                                                                                    spikeins: data['spikeins'],
+                                                                                    notes: data['notes'],
+                                                                                    protocol: data['protocol'],
+                                                                                    libstatus: 0,
+                                                                                    libstatustxt: 'new',
+                                                                                    dateadd: new Date()
+                                                                                });
+                                                              EMS.store.LabData.insert(rowIndex+1, r);
+                                                         }
+                                                         return 'table-row-add';
+                                                     }
+                                                 }
+                                             } , {
+                                                 getClass: function(v, meta, rec) {
+                                                     this.items[1].tooltip='Delete record'
+                                                     return 'space';
+                                                 }
+                                             } , {
+                                                 getClass: function(v, meta, rec) {
+                                                     this.items[2].tooltip='Delete record'
+                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
+                                                         this.items[2].handler = function(grid, rowIndex, colIndex) {
                                                                  EMS.store.LabData.removeAt(rowIndex);
                                                          }
                                                          return 'table-row-delete';
                                                      }
-                                                 },
-
+                                                 }
                                              }
                                          ]
                                      }
@@ -162,8 +191,12 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          handler : function() {
                                              EMS.store.LabData.sync({
                                                              success: function (batch, options) {
-                                                                 //console.log('Sync successed' ,batch, options);
-                                                                 //EMS.store.LabData.load();
+                                                                 Ext.Msg.show({
+                                                                                  title: 'Data saved',
+                                                                                  msg: 'Records successfully stored',
+                                                                                  icon: Ext.Msg.INFO,
+                                                                                  buttons: Ext.Msg.OK
+                                                                              });
                                                              }
                                              });
                                          }

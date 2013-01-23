@@ -37,6 +37,12 @@
   padding: '0 0 0 0';
 }
 
+.space {
+    background-image: url( images/space123.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .users3 {
     background-image: url( images/users3.png ) !important;
     width: 16px;
