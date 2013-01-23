@@ -175,6 +175,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body, record.data);
 
+                       this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&'+record.data['filename']+'=full';
+
                        if (record.data['tagsribo'] >0)
                        {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -192,41 +194,41 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                                       data: PIE
                                                   });
 
-                           chart = Ext.create('Ext.chart.Chart', {
-                                                  xtype: 'chart',
-                                                  animate: false,
-                                                  renderTo: 'exp-chart',
-                                                  height:110,
-                                                  width: 110,
-                                                  padding:0,
-                                                  margin:0,
-                                                  store: store,
-                                                  shadow: false,
-                                                  border: false,
-                                                  plain: true,
-                                                  layout: 'fit',
-                                                  insetPadding: 5,
-                                                  theme: 'Base:gradients',
-                                                  series: [{
-                                                          type: 'pie',
-                                                          field: 'percent',
-                                                          tips: {
-                                                              trackMouse: true,
-                                                              width: 120,
-                                                              height: 28,
-                                                              font: '9px Arial',
-                                                              renderer: function(storeItem, item) {
-                                                                  this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
-                                                              }
-                                                          },
-                                                          label: {
-                                                              field: 'percent',
-                                                              display: 'rotate',
-                                                              contrast: true,
-                                                              font: '9px Arial'
-                                                          }
-                                                      }]
-                                              });
+                           Ext.create('Ext.chart.Chart', {
+                                          xtype: 'chart',
+                                          animate: false,
+                                          renderTo: 'exp-chart',
+                                          height:110,
+                                          width: 110,
+                                          padding:0,
+                                          margin:0,
+                                          store: store,
+                                          shadow: false,
+                                          border: false,
+                                          plain: true,
+                                          layout: 'fit',
+                                          insetPadding: 5,
+                                          theme: 'Base:gradients',
+                                          series: [{
+                                                  type: 'pie',
+                                                  field: 'percent',
+                                                  tips: {
+                                                      trackMouse: true,
+                                                      width: 120,
+                                                      height: 28,
+                                                      font: '9px Arial',
+                                                      renderer: function(storeItem, item) {
+                                                          this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
+                                                      }
+                                                  },
+                                                  label: {
+                                                      field: 'percent',
+                                                      display: 'rotate',
+                                                      contrast: true,
+                                                      font: '9px Arial'
+                                                  }
+                                              }]
+                                      });
 
                        }
                    }//if ribosomal chart
@@ -290,9 +292,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //
                //-----------------------------------------------------------------------
                onItemDblClick: function(grid,record) {
-                   var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
-                   edit.down('form').loadRecord(record);
-                   edit.show();
+                   this.LabDataEdit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
+                   this.LabDataEdit.down('form').loadRecord(record);
+                   this.LabDataEdit.show();
                },
                //-----------------------------------------------------------------------
                //

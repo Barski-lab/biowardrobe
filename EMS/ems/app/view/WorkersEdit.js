@@ -31,7 +31,7 @@ Ext.define('EMS.view.WorkersEdit', {
                maximizable: true,
                closeAction: 'hide',
                constrain: true,
-
+               iconCls: 'users3-edit',
                layout: 'fit',
                items: [{
                        xtype: 'userlist'

@@ -41,47 +41,60 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                    var labDataForm = Ext.create('EMS.view.LabDataEdit.LabDataEditForm');
 
                    var descriptionDataForm = Ext.create('EMS.view.LabDataEdit.LabDataDescription');
+                   me.targetFrame=Ext.create('Ext.ux.IFrame',{
+                                                 xtype: 'uxiframe',
+                                                 //src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&'+record.data['filename']+'=full'
+                                                 src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
+                                             });
 
                    me.items= [
-                            {
-                                xtype: 'tabpanel',
-                                id: 'labdataedit-main-tab-panel',
-                                frame: true,
-                                border: false,
-                                plain: true,
-                                activeTab: 0,
-                                items: [
-                                    {
-                                        xtype: 'panel',
-                                        title: 'Change info',
-                                        layout: 'fit',
-                                        iconCls: 'form-blue-edit',
-                                        items: labDataForm
-                                    },
-                                    {
-                                        xtype: 'panel',
-                                        layout: 'fit',
-                                        title: 'Processed data',
-                                        iconCls: 'chart',
-                                        items: descriptionDataForm
-                                    }
-                                ]
-                            }
-                        ];
+                               {
+                                   xtype: 'tabpanel',
+                                   id: 'labdataedit-main-tab-panel',
+                                   frame: true,
+                                   border: false,
+                                   plain: true,
+                                   activeTab: 0,
+                                   items: [
+                                       {
+                                           xtype: 'panel',
+                                           title: 'Change info',
+                                           layout: 'fit',
+                                           iconCls: 'form-blue-edit',
+                                           items: labDataForm
+                                       } , {
+                                           xtype: 'panel',
+                                           layout: 'fit',
+                                           title: 'Processed data',
+                                           iconCls: 'chart',
+                                           items: descriptionDataForm
+                                       } , {
+                                           xtype: 'panel',
+                                           layout: 'fit',
+                                           title: 'Genome browser',
+                                           iconCls: 'genome-browser',
+                                           items: me.targetFrame
+                                       }
+
+
+
+                                   ]
+                               }
+                           ];
 
                    me.buttons = [
-                            {
-                                text: 'Save',
-                                action: 'save',
-                                id: 'labdata-edit-save'
-                            } , {
-                                text: 'Cancel',
-                                handler: function() {
-                                    me.down('form').getForm().reset();
-                                    me.close();
-                                }
-                            }
-                        ];
+                               {
+                                   text: 'Save',
+                                   action: 'save',
+                                   id: 'labdata-edit-save'
+                               } , {
+                                   text: 'Cancel',
+                                   handler: function() {
+                                       me.down('form').getForm().reset();
+                                       me.close();
+                                   }
+                               }
+                           ];
 
                    me.callParent(arguments);
                }

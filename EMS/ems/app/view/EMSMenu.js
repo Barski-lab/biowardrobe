@@ -45,10 +45,10 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        iconCls:'magazine-folder'
                    } */, { xtype: 'button',
                        text:'Genome Browsers',
-                       tooltip:'Genome browsers',
+                       tooltip:'Genome browsers'/*,
                        menu: [
                            { text: 'UCSC Genome browser', action: 'GenomeBrowser', tooltip: '',iconCls: 'genome-browser' }
-                       ],
+                       ]*/,
                        iconCls:'genome-browser'
                    },
                    { xtype: 'button',
