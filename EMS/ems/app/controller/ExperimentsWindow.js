@@ -173,74 +173,63 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        panel.setActiveTab(1);
 
                        var panelD=Ext.getCmp('experiment-description');
-                           panelD.tpl.overwrite(panelD.body, record.data);
+                       panelD.tpl.overwrite(panelD.body, record.data);
 
-                       var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
-                       var PIE = [
-                                   ['Mapped',record.data['tagspercent']],
-                                   ['Ribosomal',record.data['tagsribopercent']],
-                                   ['Others',others.toFixed(2)]
-                               ];
+                       if (record.data['tagsribo'] >0)
+                       {
+                           var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
+                           var PIE = [
+                                       ['Mapped',record.data['tagspercent']],
+                                       ['Ribosomal',record.data['tagsribopercent']],
+                                       ['Others',others.toFixed(2)]
+                                   ];
 
-                       var store = Ext.create('Ext.data.ArrayStore', {
-                                                   fields:[
-                                                       'name',
-                                                       {name: 'percent', type: 'float'}
-                                                   ],
-                                                   data: PIE
+                           var store = Ext.create('Ext.data.ArrayStore', {
+                                                      fields:[
+                                                          'name',
+                                                          {name: 'percent', type: 'float'}
+                                                      ],
+                                                      data: PIE
+                                                  });
+
+                           chart = Ext.create('Ext.chart.Chart', {
+                                                  xtype: 'chart',
+                                                  animate: false,
+                                                  renderTo: 'exp-chart',
+                                                  height:110,
+                                                  width: 110,
+                                                  padding:0,
+                                                  margin:0,
+                                                  store: store,
+                                                  shadow: false,
+                                                  border: false,
+                                                  plain: true,
+                                                  layout: 'fit',
+                                                  insetPadding: 5,
+                                                  theme: 'Base:gradients',
+                                                  series: [{
+                                                          type: 'pie',
+                                                          field: 'percent',
+                                                          tips: {
+                                                              trackMouse: true,
+                                                              width: 120,
+                                                              height: 28,
+                                                              font: '9px Arial',
+                                                              renderer: function(storeItem, item) {
+                                                                  this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
+                                                              }
+                                                          },
+                                                          label: {
+                                                              field: 'percent',
+                                                              display: 'rotate',
+                                                              contrast: true,
+                                                              font: '9px Arial'
+                                                          }
+                                                      }]
                                               });
 
-                       chart = Ext.create('Ext.chart.Chart', {
-                                              xtype: 'chart',
-                                              animate: false,
-                                              renderTo: 'exp-chart',
-                                              height:110,
-                                              width: 110,
-                                              padding:0,
-                                              margin:0,
-                                              store: store,
-                                              shadow: false,
-                                              border: false,
-                                              plain: true,
-                                              layout: 'fit',
-//                                              legend: {
-//                                                  position: 'right'
-//                                              },
-                                              insetPadding: 5,
-                                              theme: 'Base:gradients',
-                                              series: [{
-                                                      type: 'pie',
-                                                      field: 'percent',
-//                                                      showInLegend: true,
-//                                                      donut: false,
-                                                      tips: {
-                                                          trackMouse: true,
-                                                          width: 120,
-                                                          height: 28,
-                                                          font: '9px Arial',
-                                                          renderer: function(storeItem, item) {
-                                                              this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
-                                                          }
-                                                      },
-//                                                      highlight: true, //{
-//                                                          segment: {
-//                                                              margin: 5
-//                                                          }
-//                                                      },
-                                                      label: {
-                                                          field: 'percent',
-                                                          display: 'rotate',
-                                                          contrast: true,
-                                                          font: '9px Arial'
-                                                      }
-                                                  }]
-                                          });
-
-
-
-
-//---------------------------------------------------------------------------------------------------------------------------------------------
-                   }
+                       }
+                   }//if ribosomal chart
 
                },
 
@@ -344,13 +333,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    if(this.refresh) {
                        this.getLabDataStore().sync();
 
-//                       form.submit({
-//                                       url: '/cgi-bin/barski/recordsTST.json',
-//                                       waitMsg: 'Uploading file',
-//                                       success: function(fp, o) {
-//                                           Ext.Msg.alert('Success', o.result.file);
-//                                       }
-//                                   });
+                       //                       form.submit({
+                       //                                       url: '/cgi-bin/barski/recordsTST.json',
+                       //                                       waitMsg: 'Uploading file',
+                       //                                       success: function(fp, o) {
+                       //                                           Ext.Msg.alert('Success', o.result.file);
+                       //                                       }
+                       //                                   });
                    }
                    win.close();
                }
