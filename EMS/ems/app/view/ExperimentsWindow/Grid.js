@@ -82,8 +82,8 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          },
                                      },
                                      {   header: "Name for browser",       sortable: false,  width: 180,    dataIndex: 'name4browser'},
+                                     {   header: "Lib. Code",              sortable: false,  width: 60,    dataIndex: 'libcode'},
                                      {   header: "Mapped",            sortable: false,  width: 80,    dataIndex: 'tagspercent' },
-                                     //{   header: "Lib. Code",              sortable: false,  width: 70,    dataIndex: 'libcode'   },
                                      {
                                          header: "status",
                                          width: 80,
