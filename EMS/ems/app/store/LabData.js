@@ -42,7 +42,7 @@ Ext.define('EMS.store.LabData', {
                        property: 'dateadd',
                        direction: 'DESC'
                    },{
-                       property: 'libcode',
+                       property: 'cells',
                        direction: 'ASC'
                    }],
                pageSize: 30,

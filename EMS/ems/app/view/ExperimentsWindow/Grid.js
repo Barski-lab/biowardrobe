@@ -57,25 +57,25 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              return rec?rec.data.fullname:'';
                                          }
                                      },
-                                     {   header: "Genome",                 sortable: false,  width: 80,    dataIndex: 'genome_id',
+                                     {   header: "Genome",                 sortable: true,  width: 80,    dataIndex: 'genome_id',
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.Genome.findRecord('id',value);
                                              return rec?rec.data.genome:'';
                                          }
                                      },
-                                     {   header: "Type",                   sortable: false,  width: 90,    dataIndex: 'experimenttype_id',
+                                     {   header: "Type",                   sortable: true,  width: 90,    dataIndex: 'experimenttype_id',
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.ExperimentType.findRecord('id',value);
                                              return rec?rec.data.etype:'';
                                          }
                                      },
-                                     {   header: "Cells",                  sortable: false,  width: 230,   dataIndex: 'cells',
+                                     {   header: "Cells",                  sortable: true,  width: 230,   dataIndex: 'cells',
                                          filterable: true,
                                          filter: {
                                              type: 'string'
                                          }
                                      },
-                                     {   header: "Condition",              sortable: false,  width: 380,   dataIndex: 'conditions',
+                                     {   header: "Condition",              sortable: true,  width: 380,   dataIndex: 'conditions',
                                          filterable: true,
                                          filter: {
                                              type: 'string'
