@@ -67,13 +67,15 @@ var Rights = (function(){
     var worker;
     return {
         check: function(user,place){
+            if( typeof worker === 'undefined')
+                worker=store.findRecord('id',USER_ID).data.worker;
             if(worker === 'porter')
                 return 1;
             return 0;
         },
-        init: function(stor){
-            store=stor;
-            var worker=stor.findRecord('id',USER_ID).data.worker;
+        init: function(s){
+            s.load();
+            store=s;
         }
     };
 })();
