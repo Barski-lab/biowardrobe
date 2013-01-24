@@ -151,7 +151,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                                                     protocol: data['protocol'],
                                                                                     libstatus: 0,
                                                                                     libstatustxt: 'new',
-                                                                                    dateadd: new Date()
+                                                                                    dateadd: data['dateadd']
                                                                                 });
                                                               EMS.store.LabData.insert(rowIndex+1, r);
                                                          }
