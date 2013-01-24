@@ -37,15 +37,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                border: false,
 
                initComponent: function() {
-                   var me=this;
-                   var labDataForm = Ext.create('EMS.view.LabDataEdit.LabDataEditForm');
 
-                   var descriptionDataForm = Ext.create('EMS.view.LabDataEdit.LabDataDescription');
-                   me.targetFrame=Ext.create('Ext.ux.IFrame',{
-                                                 xtype: 'uxiframe',
-                                                 //src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&'+record.data['filename']+'=full'
-                                                 src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
-                                             });
+                   var me=this;
+
+                   me.labDataForm = Ext.create('EMS.view.LabDataEdit.LabDataEditForm');
+                   me.descriptionDataForm = Ext.create('EMS.view.LabDataEdit.LabDataDescription');
+                   me.targetFrame=Ext.create('Ext.ux.IFrame',{ xtype: 'uxiframe', src: 'about:blank' });
 
                    me.items= [
                                {
@@ -61,13 +58,13 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                            title: 'Change info',
                                            layout: 'fit',
                                            iconCls: 'form-blue-edit',
-                                           items: labDataForm
+                                           items: me.labDataForm
                                        } , {
                                            xtype: 'panel',
                                            layout: 'fit',
                                            title: 'Processed data',
                                            iconCls: 'chart',
-                                           items: descriptionDataForm
+                                           items: me.descriptionDataForm
                                        } , {
                                            xtype: 'panel',
                                            layout: 'fit',
@@ -90,7 +87,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                                } , {
                                    text: 'Cancel',
                                    handler: function() {
-                                       me.down('form').getForm().reset();
+                                       me.labDataForm.getForm().reset();
                                        me.close();
                                    }
                                }

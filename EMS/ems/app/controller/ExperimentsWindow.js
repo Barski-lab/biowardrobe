@@ -175,7 +175,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body, record.data);
 
-                       this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=900&'+record.data['filename']+'=full';
+                       var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
+                       Logger.log()
+                       this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
 
                        if (record.data['tagsribo'] >0)
                        {
@@ -241,7 +243,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //-----------------------------------------------------------------------
                onEditClose: function(obj) {
                    if(this.refresh) {
-                       Logger.log('refreshed')
                        this.getLabDataStore().load();
                        this.refresh=false;
                    }
@@ -278,7 +279,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           libstatustxt: 'new',
                                           dateadd: new Date()
                                       });
-                   edit.down('form').loadRecord(r);
+                   edit.labDataForm.loadRecord(r);
                    var panel=Ext.getCmp('labdataedit-main-tab-panel');
                    for(var i=1; i< panel.items.length; i++) {
                        panel.items.getAt(i).setDisabled(true);

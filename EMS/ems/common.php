@@ -1,7 +1,7 @@
 <?php
 
   function require_authentication() {
-    if (!isset($_SESSION["timeout"])) {
+    if (!isset($_SESSION["timeout"]) || $_SESSION["timeout"]=="") {
       session_destroy();
       header("Location:login.php");
       exit;
