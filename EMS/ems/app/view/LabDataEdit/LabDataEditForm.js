@@ -49,7 +49,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                   valueField: 'id',
                                   region: 'north',
                                   margin: '5 5 5 5',
-                                  readOnly: USER_LNAME!=='porter',
+                                  readOnly: !Rights.check(USER_ID,'ExperimentsWindow'),
                                   readOnlyCls: ''
                               } , {
                                   xtype: 'tabpanel',

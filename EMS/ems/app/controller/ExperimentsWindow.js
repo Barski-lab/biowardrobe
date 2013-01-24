@@ -142,7 +142,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var record = form.getRecord();
                    var panel=Ext.getCmp('labdataedit-main-tab-panel');
 
-                   if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && USER_LNAME!=='porter')
+                   if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && !Rights.check(USER_ID,'ExperimentsWindow'))
                    {
                        form.getFields().each (function (field) {
                            field.setReadOnly (true);
@@ -164,36 +164,28 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        }
                        panel.setActiveTab(0);
                    } else if (sts > 11) {
-                       this.getFenceStore().load(
-                                {
-                                    params: {
-                                        recordid: record.raw['id']
-                                    }
-                                });
+                       this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
                        panel.setActiveTab(1);
 
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body, record.data);
 
                        var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
-                       Logger.log()
                        this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
 
-                       if (record.data['tagsribo'] >0)
-                       {
+                       if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
-                           var PIE = [
-                                       ['Mapped',record.data['tagspercent']],
-                                       ['Ribosomal',record.data['tagsribopercent']],
-                                       ['Others',others.toFixed(2)]
-                                   ];
 
                            var store = Ext.create('Ext.data.ArrayStore', {
-                                                      fields:[
+                                                      fields: [
                                                           'name',
                                                           {name: 'percent', type: 'float'}
                                                       ],
-                                                      data: PIE
+                                                      data: [
+                                                          ['Mapped',record.data['tagspercent']],
+                                                          ['Ribosomal',record.data['tagsribopercent']],
+                                                          ['Others',others.toFixed(2)]
+                                                      ]
                                                   });
 
                            Ext.create('Ext.chart.Chart', {
@@ -232,8 +224,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                               }]
                                       });
 
-                       }
-                   }//if ribosomal chart
+                       }//if ribosomal chart
+                   }//sts>11
 
                },
 

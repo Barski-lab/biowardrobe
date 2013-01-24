@@ -62,6 +62,21 @@ var Logger = (function(){
     };
 })();
 
+var Rights = (function(){
+    var store;
+    var worker;
+    return {
+        check: function(user,place){
+            if(worker === 'porter')
+                return 1;
+            return 0;
+        },
+        init: function(stor){
+            store=stor;
+            var worker=stor.findRecord('id',USER_ID).data.worker;
+        }
+    };
+})();
 
 
 Ext.application({
@@ -122,6 +137,7 @@ Ext.application({
                                        ]//items Viewport
 
                                    });//ext create
+                        Rights.init(Ext.getStore('Worker'));
                     }//launch func
 
                 });//application

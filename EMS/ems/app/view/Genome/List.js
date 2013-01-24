@@ -26,60 +26,50 @@ Ext.define('EMS.view.Genome.List' ,{
 
                initComponent: function() {
 
-                   var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
-                                                    clicksToEdit: 1
-                                                });
+                   var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', { clicksToEdit: 1 } );
 
-                   Ext.apply(this, {
-                                 store: EMS.store.Genome,
-                                 columns: [
-                                     Ext.create('Ext.grid.RowNumberer'),
-                                     {header: 'Genome', dataIndex: 'genome', flex: 1, editor: { allowBlank: false} },
-//                                     {
-//                                         xtype: 'actioncolumn',
-//                                         width:35,
-//                                         sortable: false,
-//                                         items: [{
-//                                                 iconCls: 'table-row-delete',
-//                                                 tooltip: 'Delete Genome',
-//                                                 handler: function(grid, rowIndex, colIndex) {
-//                                                     EMS.store.Genome.removeAt(rowIndex);
-//                                                 }
-//                                             }]
-//                                     }
-                                 ],
-                                 //plugins: [cellEditing],
-                                 tbar: [
-                                     /*{
-                                         text:'New',
-                                         tooltip:'Add a new Genome type',
-                                         handler : function(){
-                                             var r = Ext.create('EMS.model.Genome', {
-                                                                    genome: 'New Genome Type'
-                                                                });
-                                             EMS.store.Genome.insert(0, r);
-                                             cellEditing.startEditByPosition({row: 0, column: 1});
-                                         },
-                                         iconCls:'table-row-add'
-                                     },
-                                     {
-                                         text:'Save',
-                                         tooltip:'Save changes',
-                                         handler : function(){
-                                             EMS.store.Genome.sync({
-                                                                           success: function (batch, options) {
-                                                                               console.log('Sync successed' ,batch, options);
-                                                                               EMS.store.Genome.load();
-                                                                           }});
-                                         },
-                                         iconCls:'table2-check'
-                                     },*/ '-',
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Genome
-                                                })
-                                 ]//tbar
+                   this.columns=[];
+                   this.tbar=[];
+                   this.columns.push(Ext.create('Ext.grid.RowNumberer'));
+                   this.columns.push({header: 'Genome', dataIndex: 'genome', flex: 1, editor: { allowBlank: false} });
+                   if(Rights.check(USER_ID,'Genome')) {
+                       this.columns.push(
+                                {
+                                    xtype: 'actioncolumn',
+                                    width:35,
+                                    sortable: false,
+                                    items: [{
+                                            iconCls: 'table-row-delete',
+                                            tooltip: 'Delete record',
+                                            handler: function(grid, rowIndex, colIndex) { EMS.store.Genome.removeAt(rowIndex); }
+                                        }]
+                                }
+                                );
+                       this.plugins = [cellEditing];
+                       this.tbar.push({
+                                          text:'New',
+                                          tooltip:'Add a new Genome type',
+                                          handler : function(){
+                                              var r = Ext.create('EMS.model.Genome', { genome: 'New Genome Type' } );
+                                              EMS.store.Genome.insert(0, r);
+                                              cellEditing.startEditByPosition({row: 0, column: 1});
+                                          },
+                                          iconCls:'table-row-add'
+                                      });
+                       this.tbar.push({
+                                          text:'Save',
+                                          tooltip:'Save changes',
+                                          handler : function(){
+                                              EMS.store.Genome.sync({ success: function (batch, options) { EMS.store.Genome.load(); } });
+                                          },
+                                          iconCls:'table2-check'
+                                      });
+                       this.tbar.push('-');
+                   }
+                   this.tbar.push(Ext.create('Ext.PagingToolbar', { store: EMS.store.Genome }) );
 
-                             });
+                   Ext.apply(this, { store: EMS.store.Genome });
+
                    this.callParent(arguments);
                }
            });

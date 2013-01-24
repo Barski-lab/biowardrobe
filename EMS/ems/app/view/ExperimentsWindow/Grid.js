@@ -132,7 +132,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              {
                                                  getClass: function(v, meta, rec) {
                                                      this.items[0].tooltip='Duplicate record'
-                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
+                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID,'ExperimentsWindow')) {
                                                          this.items[0].handler = function(grid, rowIndex, colIndex) {
                                                              var data=EMS.store.LabData.getAt(rowIndex).raw;
 
@@ -160,13 +160,13 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                  }
                                              } , {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[1].tooltip='Delete record'
+                                                     this.items[1].tooltip=''
                                                      return 'space';
                                                  }
                                              } , {
                                                  getClass: function(v, meta, rec) {
                                                      this.items[2].tooltip='Delete record'
-                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || USER_LNAME === 'porter') {
+                                                     if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID,'ExperimentsWindow')) {
                                                          this.items[2].handler = function(grid, rowIndex, colIndex) {
                                                                  EMS.store.LabData.removeAt(rowIndex);
                                                          }
