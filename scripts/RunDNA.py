@@ -5,37 +5,43 @@
 ##
 ##
 
+
 import os
 import sys
 import Arguments
-#import requests
+import DefFunctions as d
 import re
 import random
+import MySQLdb 
+import glob
+import subprocess as s # import call
+
+BOWTIE_INDEXES="/data/DATA/indexes"
+ANNOTATION_BASE=BOWTIE_INDEXES+"gtf"
+BASE_DIR="/data/DATA/FASTQ-DATA"
 
 arguments = Arguments.Arguments(sys.argv)
 
+pidfile = "/tmp/runDNA.pid"
 
-def check_pid(pid):
-    """ Check For the existence of a unix pid. """
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
+d.check_running(pidfile)
 
-def check_running(fname):
-
-    if os.path.isfile(fname):
-        old_pid=file(fname, 'r').readline()
-        if check_pid(int(old_pid)):
-            sys.exit()
-
-    file(fname, 'w').write(str(os.getpid()))
+error=list()
+error.append('Error')
+error.append('')
+warning=list()
+warning.append('Warning')
+warning.append('')
+success=list()
+success.append('Success')
+success.append('')
 
 
 
-pidfile = "/tmp/BowTie.pid"
 
-check_running(pidfile)
+def file_exist(basedir,fname,extension):
+    LIST=glob.glob(basedir+'/'+fname+'.'+extension)
+    return LIST
+
+
 

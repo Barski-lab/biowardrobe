@@ -171,11 +171,21 @@ except Exception, e:
     Error_str=str(e)
     error_msg("Error database connection"+Error_str)
 
+    
+#in future if exist stus 1 delete temporary donloaded files
+cursor.execute ("update labdata set libstatus=0 where libstatus in (1,1000)")
 
-cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e from labdata a, worker w,experimenttype e "
-"where a.worker_id =w.id and e.id=experimenttype_id and dnalogin is not null and dnapass is not null and libstatus in (0,1000)")
-for ( row ) in cursor.fetchall():
-    #print row
+
+while True:
+    row=[]
+    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e from labdata a, worker w,experimenttype e "
+	" where a.worker_id =w.id and e.id=experimenttype_id "
+	" and dnalogin is not null and dnalogin <> '' "
+	" and dnapass is not null and dnapass <> '' and libstatus in (0) limit 1")
+    row = cursor.fetchone()
+
+    if not row:
+	break
     
     PAIR=('pair' in row[5])
     SUBDIR='/DNA'
@@ -186,6 +196,11 @@ for ( row ) in cursor.fetchall():
     conn.commit()
 	
     basedir=BASE_DIR+'/'+row[3].upper()+SUBDIR
+    try:
+	os.makedirs(basedir,0775)
+    except:
+	pass
+    print row[0]
     a=get_file(row[0],row[1],row[2],basedir,PAIR)
     #print a
 
