@@ -138,7 +138,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                },
                genomeGroupStoreLoad: function(db){
                    this.getGenomeGroupStore().getProxy().setExtraParam('genomedb',db);
-                   this.getGenomeGroupStore().getProxy().setExtraParam('genomenm',USER_LNAME);
+                   if(Rights.check(USER_ID,'ExperimentsWindow')) {
+                       this.getGenomeGroupStore().getProxy().setExtraParam('genomenm','');
+                   } else {
+                       this.getGenomeGroupStore().getProxy().setExtraParam('genomenm',USER_LNAME);
+                   }
                    this.getGenomeGroupStore().load();
                },
                //-----------------------------------------------------------------------
