@@ -23,7 +23,7 @@
 //Ext.require('Ext.chart.*');
 
 Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
-               extend: 'Ext.form.Panel',
+               extend: 'Ext.Panel',
 
                bodyPadding: 5,
                border: false,
@@ -52,9 +52,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3" id="exp-chart"></td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
-                                                   '<tpl if="tagsribo &gt; 0">',
+                                                   '<tpl if="isRNA &gt; 0">',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                                                   '<tpl else>',
+                                                   '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '</tpl>',
                                                    '</table>', {
                                                        rowspan: function(values) {

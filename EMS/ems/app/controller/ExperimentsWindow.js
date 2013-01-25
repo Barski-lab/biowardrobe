@@ -185,10 +185,16 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
                        panel.setActiveTab(1);
 
+                       var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id']).data.etype;
+                       var isRNA=(etype.indexOf('RNA') !== -1);
+
                        var panelD=Ext.getCmp('experiment-description');
-                       panelD.tpl.overwrite(panelD.body, record.data);
+
+                       panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
+
 
                        this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
+
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -200,7 +206,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                                       ],
                                                       data: [
                                                           ['Mapped',record.data['tagspercent']],
-                                                          ['Ribosomal',record.data['tagsribopercent']],
+                                                          [isRNA?'Ribosomal':'Suppresed',record.data['tagsribopercent']],
                                                           ['Others',others.toFixed(2)]
                                                       ]
                                                   });
