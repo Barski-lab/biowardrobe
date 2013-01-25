@@ -371,3 +371,9 @@
     width: 16px;
     height: 16px;
 }
+
+.element-edit {
+    background-image: url( images/element_edit.png ) !important;
+    width: 16px;
+    height: 16px;
+}

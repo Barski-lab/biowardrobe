@@ -39,14 +39,35 @@ jsondata = json.loads(url_parse['data'][0])
 #DEBUG
 json.dump(jsondata, output)
 
+genomedb=''
+genomenm=''
+try:
+    genomedb=url_parse['genomedb'][0]
+    genomenm=url_parse['genomenm'][0]
+except Exception, e:
+    pass
+
 if jsondata is None:
  error_msg("No data")
 
-try:
- conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
- cursor = conn.cursor ()
-except Exception, e: 
- error_msg("Error database connection")
+
+
+if genomedb != '' and table_name == 'grp_local':
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLG/HOST"),user = arguments.readString("SQLG/USER"), passwd=arguments.readPass("SQLG/PASS"), db=genomedb)
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
+else:
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
 
 
 try:
@@ -58,24 +79,27 @@ try:
 
   #if just one new record
   if type(rows) is str:
-   if rows != 'id':
-    continue
-   pair+=str(rows).replace("'","").replace('"','').replace(';','')+"="+str(int(jsondata[rows]))
+
+   if rows == 'id' and table_name != 'grp_local':
+    pair+=str(rows).replace("'","").replace('"','').replace(';','')+"="+str(int(jsondata[rows]))
+   if rows == 'name' and table_name == 'grp_local':
+    pair+=str(rows).replace("'","").replace('"','').replace(';','')+"='"+str(jsondata[rows])+"'"
+
    is_str=is_str+1
-   continue
+
   else:
   #if many records
    for i in rows:
-    if str(i) != 'id':
-     continue
+    if str(i) == 'id' and table_name != 'grp_local':
+     pair+=str(i).replace("'","").replace('"','').replace(';','')+"="+str(int(rows[i]))+" and "
+    if str(i) == 'name' and table_name == 'grp_local':
+     pair+=str(i).replace("'","").replace('"','').replace(';','')+"='"+str(rows[i])+"' and "
 
-    pair+=str(i).replace("'","").replace('"','').replace(';','')+"="+str(int(rows[i]))+" and "
-
-  #remove last [ or ]
-  pair=pair[:-4]
-  STR="""delete from `%s` where %s;"""%(table_name,pair)
-  SQL+=STR
-  pair=str()
+   #remove last [ or ]
+   pair=pair[:-4]
+   STR="""delete from `%s` where %s;"""%(table_name,pair)
+   SQL+=STR
+   pair=str()
 
  if is_str > 0:
   STR="""delete from `%s` where %s;"""%(table_name,pair)
@@ -94,7 +118,7 @@ except Exception, e:
  cursor.close()
  conn.rollback()
  conn.close()
- #Error_str=str(e).replace('"','')
+ Error_str=str(e)
  output.write("\n"+"Error in deletion: " +Error_str+"<br>'"+SQL+"' "+"\n")
  error_msg("Error in deletion: " +Error_str+"<br>'"+SQL+"' ")
 

@@ -29,7 +29,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                columnLines: true,
                frame: false,
                remoteSort: true,
-
+               id: 'ExperimentsWindowGrid',
                initComponent: function() {
                    var me = this;
 
@@ -39,6 +39,10 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                        encode: true, // json encode the filter query
                        local: false   // defaults to false (remote filtering)
                    };
+                   me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
+                                                                           store: EMS.store.LabData,
+                                                                           displayInfo: true
+                                                                       });
 
                    Ext.apply(me, {
                                  store: EMS.store.LabData,
@@ -149,6 +153,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                                                     spikeins: data['spikeins'],
                                                                                     notes: data['notes'],
                                                                                     protocol: data['protocol'],
+                                                                                    browsergrp: data['browsergrp'],
                                                                                     libstatus: 0,
                                                                                     libstatustxt: 'new',
                                                                                     dateadd: data['dateadd']
@@ -201,10 +206,12 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              });
                                          }
                                      }, '-' ,
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.LabData
-                                                }),
-                                     {
+                                     me.m_PagingToolbar,
+                                     /*Ext.create('Ext.PagingToolbar', {
+                                                    store: EMS.store.LabData,
+                                                    displayInfo: true
+                                                }),*/ '-' ,
+                                      {
                                          xtype: 'combobox',
                                          id: 'labdata-grid-user-filter',
                                          displayField: 'fullname',

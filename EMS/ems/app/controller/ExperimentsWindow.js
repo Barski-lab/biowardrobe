@@ -29,10 +29,11 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
-                   'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription'],
+                   'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
+                   'EMS.view.GenomeGroup.List'],
 
                refresh: false,
 
@@ -61,6 +62,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     '#labdata-grid-user-filter': {
                                         select: this.onComboBoxSelectMakeFilter
+                                    },
+                                    '#borwser-grp-edit': {
+                                        click: this.onBrowserGroupEdit
                                     }
                                 });
                },
@@ -74,12 +78,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    if(combo.name==='genome_id'){
                        this.setVisibleSpike(combo.up('window'));
+                       var db=this.getGenomeStore().findRecord('id',combo.value).data.db;
+                       this.genomeGroupStoreLoad(db);
                    }
 
                },
                onComboBoxSelectMakeFilter: function(combo, records, options) {
                    this.getLabDataStore().getProxy().setExtraParam('workerid',combo.value);
-                   this.getLabDataStore().load();
+                   Ext.getCmp('ExperimentsWindowGrid').m_PagingToolbar.moveFirst()
                },
 
                //-----------------------------------------------------------------------
@@ -130,6 +136,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('spikeinspool').disable();
                    }
                },
+               genomeGroupStoreLoad: function(db){
+                   this.getGenomeGroupStore().getProxy().setExtraParam('genomedb',db);
+                   this.getGenomeGroupStore().getProxy().setExtraParam('genomenm',USER_LNAME);
+                   this.getGenomeGroupStore().load();
+               },
                //-----------------------------------------------------------------------
                // Setting to read only all elements in form panel (except image upload why ?)
                // and disabling save button if current user and record owner are not the same
@@ -141,6 +152,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
                    var panel=Ext.getCmp('labdataedit-main-tab-panel');
+
+                   var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
+                   this.genomeGroupStoreLoad(db);
 
                    if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && !Rights.check(USER_ID,'ExperimentsWindow'))
                    {
@@ -170,7 +184,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body, record.data);
 
-                       var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                        this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
 
                        if (record.data['tagsribo'] >0) {
@@ -252,7 +265,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
                    this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('labdata-grid-user-filter').getValue());
-                   this.getLabDataStore().load();
+                   Ext.getCmp('ExperimentsWindowGrid').m_PagingToolbar.moveFirst()
+                   //this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
@@ -300,6 +314,27 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var values = form.getValues();
                    form=form.getForm();
 
+                   //var browsergrp=form.findField('browsergrp');
+
+                   if(this.getGenomeGroupStore().findRecord('name',values['browsergrp']) === null) {
+                       Ext.Msg.show({
+                                        title: 'Save failed',
+                                        msg: 'Field "Browser group name" should be saved separately<br> press button at the right to edit',
+                                        icon: Ext.Msg.ERROR,
+                                        buttons: Ext.Msg.OK
+                                    });
+                       return;
+                   }
+
+                   //                   if()
+                   //                   {
+                   //                       Logger.log('Dirty');
+                   //                       Logger.log(browsergrp.getValue());
+                   //                       Logger.log(browsergrp.getRawValue());
+                   //                   }
+
+                   //this.getGenomeGroupStore().sync();
+
                    if(win.addnew)
                    {
                        if(form.isValid())
@@ -337,6 +372,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        //                                   });
                    }
                    win.close();
+               },
+               onBrowserGroupEdit: function(button) {
+                   var edit = Ext.create('EMS.view.GenomeGroup.GenomeGroup',{addnew: true,modal:true});
+                   Logger.log(button);
+                   edit.show();
                }
+
 
            });

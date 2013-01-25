@@ -31,6 +31,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        tooltip:'Laboratory data edit',
                        menu: [
                            { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'form-blue-edit' },
+                           { text: 'Experiment design', action: 'ExperimentDesign', tooltip: 'Experement design',iconCls: '' },
                            '-',
                            { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit', id: "MenuWorkers" }
                        ],
@@ -43,14 +44,14 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                            { text: 'Average Tag Density', action: 'ATD', tooltip: '',iconCls: 'chart-line' }
                        ],
                        iconCls:'magazine-folder'
-                   } */, { xtype: 'button',
+                   } , { xtype: 'button',
                        text:'Genome Browsers',
-                       tooltip:'Genome browsers'/*,
+                       tooltip:'Genome browsers',
                        menu: [
                            { text: 'UCSC Genome browser', action: 'GenomeBrowser', tooltip: '',iconCls: 'genome-browser' }
-                       ]*/,
+                       ],
                        iconCls:'genome-browser'
-                   },
+                   }*/,
                    { xtype: 'button',
                        text:'Patients',
                        tooltip:'Patient\'s data',

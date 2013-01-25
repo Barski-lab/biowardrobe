@@ -22,7 +22,7 @@ def error_msg(msg):
 
 #
 # function uploads data to SQL
-def upload_data(cursor,jsondata,table_name):
+def upload_data(cursor,jsondata,table_name,genomenm):
     fields=list()
     fields_values=list()
     fields_sql=""
@@ -31,23 +31,33 @@ def upload_data(cursor,jsondata,table_name):
     for (row ) in cursor.fetchall():
 	if row[0] == 'id':
 	    continue
-	if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
-	    fields_sql+=str(row[0])+'=%s,'
-	    fields_values.append('')
-	    continue
+
 	if 'id' in row[0] and jsondata[row[0]] == 0:
 	    continue
+
+	if table_name == 'grp_local' and row[0] == 'name':
+	    continue
+
         fields_sql+=str(row[0])+'=%s,'
-        fields_values.append(jsondata[row[0]])
+
+        if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
+            fields_values.append('')
+        else:
+            fields_values.append(jsondata[row[0]])
 
     fields_sql=fields_sql[:-1]
     #output.write("\n" +str(fields_sql)+"\n\n")
     #output.write("\n" +str(fields_values)+"\n\n")
+    SQL=""
+    if table_name == 'grp_local':
+        SQL="""UPDATE `%s` SET %s WHERE `name`=%s"""%(table_name,fields_sql,'%s;')
+        fields_values.append(jsondata['name'])
+    else:
+        SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,fields_sql,'%s;')
+        fields_values.append(jsondata['id'])
 
-    SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,fields_sql,'%s;')
     output.write("\n" +SQL+"\n\n")
 
-    fields_values.append(jsondata['id'])
     cursor.execute(SQL,tuple(fields_values))
 
 
@@ -55,6 +65,9 @@ arguments = Arguments.Arguments(sys.argv)
 
 
 stdinbuf = sys.stdin.read()
+output.write(stdinbuf)
+output.write("\n\n")
+
 if stdinbuf is None:
     error_msg("No data")
 
@@ -76,18 +89,37 @@ try:
 except Exception, e:
     pass
 
+genomedb=''
+genomenm=''
+try:
+    genomedb=url_parse['genomedb'][0]
+    genomenm=url_parse['genomenm'][0]
+except Exception, e:
+    pass
+
+
 jsondata = json.loads(url_parse['data'][0])
 
 if jsondata is None:
     error_msg("No data")
 
-try:
-    conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
-    conn.set_character_set('utf8')
-    cursor = conn.cursor ()
-except Exception, e: 
-    Error_str=str(e).replace('"','')
-    error_msg("Error database connection"+Error_str)
+
+if genomedb != '' and table_name == 'grp_local':
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLG/HOST"),user = arguments.readString("SQLG/USER"), passwd=arguments.readPass("SQLG/PASS"), db=genomedb)
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
+else:
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
 
 
 #DEBUG
@@ -99,10 +131,10 @@ try:
     #output.write("\n\n"+str(len(jsondata))+"-"+str(type(jsondata))+"\n\n")
     #if just one new record
     if type(jsondata) is dict:
-	upload_data(cursor,jsondata,table_name)
+	upload_data(cursor,jsondata,table_name,genomenm)
     else:
 	for i in range(len(jsondata)):
-	    upload_data(cursor,jsondata[i],table_name)
+	    upload_data(cursor,jsondata[i],table_name,genomenm)
     cursor.close()
     conn.commit()
     conn.close()
@@ -117,13 +149,13 @@ except Exception, e:
     Error_str=str(e)
 
     #output.write("Error updating: \n" +Error_str+"\n\n")
-    #output.close()
+    output.close()
     if 'Duplicate' in Error_str:
 	error_msg(Error_str)
 
-    error_msg("Error updating:"+Error_str)
+    error_msg("Error updating: "+Error_str)
 
  #error_msg("Error updating: " +Error_str+"<br>'"+SQL+"' ")
 
 
-#output.close()
+output.close()

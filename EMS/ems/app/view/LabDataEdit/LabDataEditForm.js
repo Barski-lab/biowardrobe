@@ -122,14 +122,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   name : 'genome_id',
                                                                   displayField: 'genome',
                                                                   store: EMS.store.Genome,
-                                                                  mode: 'local',
                                                                   typeAhead: false,
                                                                   editable: false,
                                                                   valueField: 'id',
                                                                   triggerAction: 'all',
                                                                   queryMode: 'local',
                                                                   flex: 2
-                                                                  //margin: '0 10 0 0'
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
@@ -138,14 +136,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   name : 'experimenttype_id',
                                                                   displayField: 'etype',
                                                                   store: EMS.store.ExperimentType,
-                                                                  mode: 'local',
                                                                   typeAhead: false,
                                                                   editable: false,
                                                                   valueField: 'id',
                                                                   triggerAction: 'all',
                                                                   queryMode: 'local',
                                                                   flex: 2
-                                                                  //margin: '0 10 10 0'
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
@@ -154,14 +150,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   name : 'fragmentation_id',
                                                                   displayField: 'fragmentation',
                                                                   store: EMS.store.Fragmentation,
-                                                                  mode: 'local',
                                                                   typeAhead: false,
                                                                   editable: false,
                                                                   valueField: 'id',
                                                                   triggerAction: 'all',
                                                                   queryMode: 'local',
                                                                   flex: 2
-                                                                  //margin: '0 0 10 0'
                                                               }
                                                           ]
                                                       }, {
@@ -226,7 +220,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   name : 'crosslink_id',
                                                                   fieldLabel: 'Crosslink',
                                                                   store: EMS.store.Crosslinking,
-                                                                  mode: 'local',
                                                                   typeAhead: false,
                                                                   editable: false,
                                                                   valueField: 'id',
@@ -241,7 +234,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   displayField: 'antibody',
                                                                   fieldLabel: 'Antibody',
                                                                   store: EMS.store.Antibodies,
-                                                                  mode: 'local',
                                                                   typeAhead: false,
                                                                   editable: false,
                                                                   valueField: 'id',
@@ -263,7 +255,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                       {
                                                           xtype: 'fieldcontainer',
                                                           defaults: {
-                                                              flex: 1,
                                                               labelWidth: 120,
                                                               labelAlign: 'top'
                                                           },
@@ -275,18 +266,66 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   name : 'name4browser',
                                                                   fieldLabel: 'Name for browser',
                                                                   afterLabelTextTpl: required,
-                                                                  margin: '0 10 0 0',
+                                                                  flex: 3,
                                                                   allowBlank: false
+                                                              } , {
+                                                                  xtype: 'splitter'
                                                               } , {
                                                                   xtype: 'textfield',
                                                                   name : 'libcode',
                                                                   fieldLabel: 'Library Code',
                                                                   afterLabelTextTpl: required,
-                                                                  margin: '0 0 10 0',
+                                                                  flex: 3,
                                                                   allowBlank: false
                                                               }
                                                           ]
+                                                      } , {
+                                                          xtype: 'fieldcontainer',
+                                                          layout: 'hbox',
+
+                                                          items: [
+
+                                                              {
+                                                                  xtype: 'fieldcontainer',
+                                                                  layout: 'hbox',
+                                                                  flex: 3,
+                                                                  items: [
+
+                                                                      {
+                                                                          xtype: 'combobox',
+                                                                          name : 'browsergrp',
+                                                                          displayField: 'label',
+                                                                          fieldLabel: 'Browser group name',
+                                                                          store: EMS.store.GenomeGroup,
+                                                                          typeAhead: true,
+                                                                          editable: true,
+                                                                          valueField: 'name',
+                                                                          triggerAction: 'all',
+                                                                          queryMode: 'local',
+                                                                          flex: 4,
+                                                                          afterLabelTextTpl: required,
+                                                                          allowBlank: false,
+                                                                          labelWidth: 120,
+                                                                          labelAlign: 'top'
+                                                                      } , {
+                                                                          xtype: 'button',
+                                                                          text: '',
+                                                                          id: 'borwser-grp-edit',
+                                                                          iconCls: 'element-edit',
+                                                                          margin: '20 0 0 10'
+                                                                      }
+                                                                  ]},
+
+
+
+                                                              {
+                                                                  xtype: 'tbspacer',
+                                                                  flex: 3,
+                                                              }
+
+                                                          ]
                                                       }
+
                                                   ]
                                               }
                                           ]

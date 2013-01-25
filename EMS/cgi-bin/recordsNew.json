@@ -22,26 +22,36 @@ def error_msg(msg):
 
 #
 # function uploads data to SQL
-def upload_data(cursor,jsondata,table_name):
+def upload_data(cursor,jsondata,table_name,genomenm):
     fields=list()
     fields_values=list()
     fields_n=""
     fields_v=""
 
+    total=0
+    if table_name == 'grp_local':
+        cursor.execute ("select count(*) from "+table_name)
+        total=cursor.fetchone()[0]
+
     cursor.execute ("describe "+table_name)
     for (row ) in cursor.fetchall():
-	if row[0] in ('id','libstatustxt'):
-	    continue
-	if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
-	    fields_n+=str(row[0])+','
-	    fields_v+='%s,'
-	    fields_values.append('')
-	    continue
-	if 'id' in row[0] and jsondata[row[0]] == 0:
-	    continue
+        if row[0] in ('id','libstatustxt'):
+            continue
+        if 'id' in row[0] and jsondata[row[0]] == 0:
+            continue
+
         fields_n+=str(row[0])+','
         fields_v+='%s,'
-        fields_values.append(jsondata[row[0]])
+
+        if table_name == 'grp_local' and 'name' in row[0]:
+            fields_values.append(genomenm+'_'+str(total))
+            continue
+
+        if jsondata[row[0]] is None or (type(jsondata[row[0]]) is str and jsondata[row[0]] in 'None'):
+            fields_values.append('')
+        else:
+            fields_values.append(jsondata[row[0]])
+
 
     fields_n=fields_n[:-1]
     fields_v=fields_v[:-1]
@@ -49,10 +59,8 @@ def upload_data(cursor,jsondata,table_name):
     output.write("\n" +str(fields_v)+"\n\n")
 
     SQL="""INSERT INTO `%s` (%s) VALUES(%s);"""%(table_name,fields_n,fields_v)
-    #SQL="""UPDATE `%s` SET %s WHERE id=%s"""%(table_name,,fields_sql,'%s;')
     output.write("\n" +SQL+"\n\n")
 
-    #fields_values.append(jsondata['id'])
     cursor.execute(SQL,tuple(fields_values))
 
 
@@ -60,6 +68,10 @@ arguments = Arguments.Arguments(sys.argv)
 
 
 stdinbuf = sys.stdin.read()
+output.write(stdinbuf)
+output.write("\n\n")
+
+
 if stdinbuf is None:
     error_msg("No data")
 
@@ -74,10 +86,18 @@ table_name=str()
 try:
     table_name=url_parse['tablename'][0]
 except Exception, e: 
-    error_msg("Table name is ebsent!!! Error:"+Error_str)
+    error_msg("Table name is absent!!! Error:"+Error_str)
 
 try:
     filter_data=url_parse['filter'][0]
+except Exception, e:
+    pass
+
+genomedb=''
+genomenm=''
+try:
+    genomedb=url_parse['genomedb'][0]
+    genomenm=url_parse['genomenm'][0]
 except Exception, e:
     pass
 
@@ -88,28 +108,37 @@ json.dump(jsondata, output)
 if jsondata is None:
     error_msg("No data")
 
-try:
-    conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
-    conn.set_character_set('utf8')
-    cursor = conn.cursor ()
-except Exception, e: 
-    Error_str=str(e).replace('"','')
-    error_msg("Error database connection"+Error_str)
+
+if genomedb != '' and table_name == 'grp_local':
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLG/HOST"),user = arguments.readString("SQLG/USER"), passwd=arguments.readPass("SQLG/PASS"), db=genomedb)
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
+else:
+    try:
+        conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
+        conn.set_character_set('utf8')
+        cursor = conn.cursor ()
+    except Exception, e: 
+        Error_str=str(e).replace('"','')
+        error_msg("Error database connection"+Error_str)
 
 
-#DEBUG
-#output=open('/tmp/UPDATE.ERROR','wb')
-#json.dump(jsondata, output)
-#output.write("\n\n")
+
+
+
 
 try:
     #output.write("\n\n"+str(len(jsondata))+"-"+str(type(jsondata))+"\n\n")
     #if just one new record
     if type(jsondata) is dict:
-	upload_data(cursor,jsondata,table_name)
+	upload_data(cursor,jsondata,table_name,genomenm)
     else:
 	for i in range(len(jsondata)):
-	    upload_data(cursor,jsondata[i],table_name)
+	    upload_data(cursor,jsondata[i],table_name,genomenm)
     cursor.close()
     conn.commit()
     conn.close()
@@ -124,13 +153,13 @@ except Exception, e:
     Error_str=str(e)
 
     #output.write("Error updating: \n" +Error_str+"\n\n")
-    #output.close()
+    output.close()
     if 'Duplicate' in Error_str:
 	error_msg(Error_str)
 
-    error_msg("Error updating:"+Error_str)
+    error_msg("Error inserting: "+Error_str)
 
  #error_msg("Error updating: " +Error_str+"<br>'"+SQL+"' ")
 
 
-#output.close()
+output.close()

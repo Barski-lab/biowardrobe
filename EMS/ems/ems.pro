@@ -183,4 +183,9 @@ OTHER_FILES += \
     images/delete.png \
     images/data_down.png \
     images/data_copy.png \
-    images/cube_molecule_view.png
+    images/cube_molecule_view.png \
+    app/model/GenomeGroup.js \
+    app/store/GenomeGroup.js \
+    images/element_edit.png \
+    app/view/GenomeGroup/List.js \
+    app/view/GenomeGroup/GenomeGroup.js
