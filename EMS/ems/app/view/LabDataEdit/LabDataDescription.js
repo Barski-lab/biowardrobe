@@ -33,7 +33,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                initComponent: function() {
                    var me=this;
 
-
                    me.items= [
                                {
                                    xtype: 'panel',
@@ -52,7 +51,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3" id="exp-chart"></td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
-                                                   '<tpl if="isRNA &gt; 0">',
+                                                   '<tpl if="isRNA">',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '<tpl else>',
@@ -73,7 +72,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                    border: true,
                                    region: 'center',
                                    collapsible: false,
-                                   title: 'Nucleotide frequency in sequence',
+                                   title: 'Nucleotide frequency in sequences',
                                    layout: 'fit',
                                    items: [ Ext.create('EMS.view.charts.Fence') ]/*,
                                    listeners: {

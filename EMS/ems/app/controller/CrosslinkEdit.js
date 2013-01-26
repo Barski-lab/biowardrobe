@@ -26,5 +26,5 @@ Ext.define('EMS.controller.CrosslinkEdit', {
                models: ['Crosslinking'],
                init: function() {
                    this.getCrosslinkingStore().load();
-               },
+               }
            });

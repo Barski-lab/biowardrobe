@@ -26,5 +26,5 @@ Ext.define('EMS.controller.FragmentationEdit', {
                models: ['Fragmentation'],
                init: function() {
                    this.getFragmentationStore().load();
-               },
+               }
            });

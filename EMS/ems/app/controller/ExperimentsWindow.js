@@ -172,11 +172,10 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var base=sts/1000|0;
                    sts=sts%1000;
 
-
                    this.setDisabledByStatus(obj,sts);
 
                    if ( sts <= 11) {
-                       form.findField('cells').focus(false,10);
+                       form.findField('cells').focus(false,100);
                        for(var i=1; i< panel.items.length; i++) {
                            panel.items.getAt(i).setDisabled(true);
                        }
@@ -189,12 +188,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var isRNA=(etype.indexOf('RNA') !== -1);
 
                        var panelD=Ext.getCmp('experiment-description');
-
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
 
-
                        this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
-
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -269,6 +265,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //-----------------------------------------------------------------------
                onSelectionChanged: function() {
                },
+
                //-----------------------------------------------------------------------
                //
                //
@@ -276,7 +273,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onPanelRendered: function() {
                    this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('labdata-grid-user-filter').getValue());
                    Ext.getCmp('ExperimentsWindowGrid').m_PagingToolbar.moveFirst()
-                   //this.getLabDataStore().load();
                },
 
                //-----------------------------------------------------------------------
@@ -336,15 +332,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        return;
                    }
 
-                   //                   if()
-                   //                   {
-                   //                       Logger.log('Dirty');
-                   //                       Logger.log(browsergrp.getValue());
-                   //                       Logger.log(browsergrp.getRawValue());
-                   //                   }
-
-                   //this.getGenomeGroupStore().sync();
-
                    if(win.addnew)
                    {
                        if(form.isValid())
@@ -365,9 +352,17 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    else
                    {
-                       if(form.isDirty()) {
+                       if(form.isDirty() && form.isValid()) {
                            record.set(values);
                            this.refresh=true;
+                       } else {
+                           Ext.Msg.show({
+                                            title: 'Save failed',
+                                            msg: 'Please fill required filds',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK
+                                        });
+                           return;
                        }
                    }
                    if(this.refresh) {
@@ -385,9 +380,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                },
                onBrowserGroupEdit: function(button) {
                    var edit = Ext.create('EMS.view.GenomeGroup.GenomeGroup',{addnew: true,modal:true});
-                   Logger.log(button);
                    edit.show();
                }
-
 
            });

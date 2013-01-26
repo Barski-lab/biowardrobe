@@ -26,5 +26,5 @@ Ext.define('EMS.controller.ExperimentTypeEdit', {
                models: ['ExperimentType'],
                init: function() {
                    this.getExperimentTypeStore().load();
-               },
+               }
            });

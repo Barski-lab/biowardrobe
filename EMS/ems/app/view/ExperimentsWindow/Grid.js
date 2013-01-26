@@ -83,7 +83,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          filterable: true,
                                          filter: {
                                              type: 'string'
-                                         },
+                                         }
                                      },
                                      {   header: "Name for browser",       sortable: false,  width: 160,   dataIndex: 'name4browser'},
                                      {   header: "Lib. Code",              sortable: false,  width: 60,    dataIndex: 'libcode'},

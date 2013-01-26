@@ -290,7 +290,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   layout: 'hbox',
                                                                   flex: 3,
                                                                   items: [
-
                                                                       {
                                                                           xtype: 'combobox',
                                                                           name : 'browsergrp',
@@ -320,7 +319,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
 
                                                               {
                                                                   xtype: 'tbspacer',
-                                                                  flex: 3,
+                                                                  flex: 3
                                                               }
 
                                                           ]
