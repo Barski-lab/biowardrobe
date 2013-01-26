@@ -17,7 +17,7 @@ import subprocess as s # import call
 import time
 
 BOWTIE_INDEXES="/data/DATA/indexes"
-ANNOTATION_BASE=BOWTIE_INDEXES+"gtf"
+ANNOTATION_BASE=BOWTIE_INDEXES+"/gtf/"
 BASE_DIR="/data/DATA/FASTQ-DATA"
 
 arguments = Arguments.Arguments(sys.argv)
@@ -187,7 +187,7 @@ cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10
 
 while True:
     row=[]
-    cursor.execute ("select e.etype,l.name4browser,g.db,g.findex,g.annotation,filename,w.worker,w.worker,l.id "
+    cursor.execute ("select e.etype,l.name4browser,g.db,g.findex,g.annotation,filename,w.worker,browsergrp,l.id "
     " from labdata l,experimenttype e,genome g,worker w "
     " where e.id=experimenttype_id and g.id=genome_id and w.id=worker_id and e.etype like 'RNA%' and libstatus in (10,1010) order by dateadd limit 1")
     row = cursor.fetchone()
@@ -209,6 +209,8 @@ while True:
     BEDFORMAT='4'
     ADD_TOPHAT=" -T "
     #ADD_TOPHAT=''
+    if GROUP == "":
+	GROUP=row[6]
     if DUTP:
         ADD_TOPHAT=" --library-type fr-firststrand " #DUTP
 	BEDFORMAT='8'
@@ -216,13 +218,12 @@ while True:
 
     ADD_TOPHAT=" -g 1 --no-novel-juncs "+ADD_TOPHAT
 
-    basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR    
+    basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
 
 
-    ANN_BASE=BOWTIE_INDEXES+'/gtf/'+ANNOTATION
-    TRANSCRIPTOME=' --transcriptome-index '+ANN_BASE+' '
-    GFT_FILE='-G '+ANN_BASE+'.gtf '
-    
+    TRANSCRIPTOME=' --transcriptome-index '+ANNOTATION_BASE+ANNOTATION+' '
+    GFT_FILE='-G '+ANNOTATION_BASE+ANNOTATION+'.gtf '
+        
     TOPHAT_PARAM=' --num-threads 24 '+GFT_FILE+ADD_TOPHAT+TRANSCRIPTOME+BOWTIE_INDEXES+'/'+FINDEX+' '
 
 
