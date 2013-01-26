@@ -91,6 +91,10 @@ BEDHandler<Storage,Result>::BEDHandler(Storage& sam,Result &_output):
         qWarning()<<qPrintable("Select query error. "+q.lastError().text());
     }
 
+    if(!q.exec("DELETE IGNORE FROM "+trackDb_table+" WHERE tableName like '"+gArgs().getArgs("sql_table").toString()+"';"))
+    {
+        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+    }
 
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
     {
