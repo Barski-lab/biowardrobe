@@ -136,9 +136,10 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('spikeinspool').disable();
                    }
                },
-               genomeGroupStoreLoad: function(db){
+               genomeGroupStoreLoad: function(db,all){
                    this.getGenomeGroupStore().getProxy().setExtraParam('genomedb',db);
-                   if(Rights.check(USER_ID,'ExperimentsWindow')) {
+                   all=(typeof all !== 'undefined')?all:false;
+                   if(Rights.check(USER_ID,'ExperimentsWindow') || all ) {
                        this.getGenomeGroupStore().getProxy().setExtraParam('genomenm','');
                    } else {
                        this.getGenomeGroupStore().getProxy().setExtraParam('genomenm',USER_LNAME);
@@ -158,13 +159,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var panel=Ext.getCmp('labdataedit-main-tab-panel');
 
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
-                   this.genomeGroupStoreLoad(db);
+                   this.genomeGroupStoreLoad(db,parseInt(record.raw['worker_id']) !== parseInt(USER_ID));
 
                    if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && !Rights.check(USER_ID,'ExperimentsWindow'))
                    {
                        form.getFields().each (function (field) {
                            field.setReadOnly (true);
                        });
+                       Ext.getCmp('borwser-grp-edit').disable();
                        Ext.getCmp('labdata-edit-save').disable();
                    }
 

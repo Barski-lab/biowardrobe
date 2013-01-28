@@ -274,9 +274,8 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   xtype: 'textfield',
                                                                   name : 'libcode',
                                                                   fieldLabel: 'Library Code',
-                                                                  afterLabelTextTpl: required,
                                                                   flex: 3,
-                                                                  allowBlank: false
+                                                                  allowBlank: true
                                                               }
                                                           ]
                                                       } , {
@@ -310,6 +309,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                           xtype: 'button',
                                                                           text: '',
                                                                           id: 'borwser-grp-edit',
+                                                                          submitValue: false,
                                                                           iconCls: 'element-edit',
                                                                           margin: '20 0 0 10'
                                                                       }
