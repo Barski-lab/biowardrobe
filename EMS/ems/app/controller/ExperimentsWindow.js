@@ -19,6 +19,10 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+Ext.Loader.setPath(
+            {'EMS': 'app'},
+            {'Ext.ux': 'ux/'}
+            );
 
 Ext.require([
                 'Ext.grid.*',
