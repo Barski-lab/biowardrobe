@@ -112,7 +112,7 @@ Ext.application({
                                            [
                                            {
                                                region: 'north',
-                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software (dr. Barski laboratory)</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
+                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
                                                       "<a href=login.php>&nbsp;logout</a></div>",
                                                autoHeight: true
                                            } , {

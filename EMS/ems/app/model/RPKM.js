@@ -20,11 +20,17 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.Protocol', {
+Ext.define( 'EMS.model.RPKM', {
                extend: 'Ext.data.Model',
 
                fields: [
                    { name: 'id', type: 'int' },
-                   { name: 'protocol', type: 'string' }
+                   { name: 'refsec_id', type: 'string' },
+                   { name: 'gene_id', type: 'string' },
+                   { name: 'chrom', type: 'string' },
+                   { name: 'txStart', type: 'int' },
+                   { name: 'txEnd', type: 'int' },
+                   { name: 'strand', type: 'string' },
+                   { name: 'RPKM_0', type: 'double' }
                ]
            });

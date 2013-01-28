@@ -102,7 +102,6 @@ OTHER_FILES += \
     images/apple.png \
     images/ambulance.png \
     app/model/Worker.js \
-    app/model/Protocol.js \
     app/model/LabData.js \
     app/model/Genome.js \
     app/model/Fragmentation.js \
@@ -110,7 +109,6 @@ OTHER_FILES += \
     app/model/Crosslinking.js \
     app/model/Antibodies.js \
     app/store/Worker.js \
-    app/store/Protocol.js \
     app/store/LabData.js \
     app/store/Genome.js \
     app/store/Fragmentation.js \
@@ -188,4 +186,6 @@ OTHER_FILES += \
     app/store/GenomeGroup.js \
     images/element_edit.png \
     app/view/GenomeGroup/List.js \
-    app/view/GenomeGroup/GenomeGroup.js
+    app/view/GenomeGroup/GenomeGroup.js \
+    app/store/RPKM.js \
+    app/model/RPKM.js

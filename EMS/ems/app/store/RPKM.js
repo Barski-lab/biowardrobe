@@ -21,16 +21,14 @@
 ****************************************************************************/
 
 
-Ext.define( 'EMS.store.Protocol', {
+Ext.define( 'EMS.store.RPKM', {
                extend: 'Ext.data.Store',
 
-//               requires: ['EMS.model.Protocol'],
-//               storeId: 'Protocol',
-//               model:  'EMS.model.Protocol',
-//               autoLoad: false,
-//               singleton: true,
-
-//               proxy: STORE_DEFS.proxy('protocol')
+               requires: ['EMS.model.RPKM'],
+               model:  'EMS.model.RPKM',
+               autoLoad: false,
+               singleton: true,
+               proxy: STORE_DEFS.proxy('RPKM')
 
            });
 
