@@ -13,6 +13,7 @@ import re
 import random
 import MySQLdb 
 import glob
+import DefFunctions as d
 
 
 
@@ -43,24 +44,6 @@ def error_msg(msg):
     sys.exit()
 
 
-def check_pid(pid):
-    """ Check For the existence of a unix pid. """
-    try:
-        os.kill(pid, 0)
-    except OSError:
-        return False
-    else:
-        return True
-
-def check_running(fname):
-
-    if os.path.isfile(fname):
-        old_pid=file(fname, 'r').readline()
-        if check_pid(int(old_pid)):
-            sys.exit()
-
-    file(fname, 'w').write(str(os.getpid()))
-
 def file_exist(basedir,libcode):
     LIST=glob.glob(basedir+'/*'+libcode+'*.fastq')
     return LIST
@@ -83,11 +66,12 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 	flist.append(mf)
     if len(flist)==2 and pair: #should we check that the name are the same ?
 	return flist
+    if len(flist)==1 and not pair:
+	return flist
+
     if len(flist) > 2 and pair: #should we check that the name are the same ?
 	error[1]='incorrect number of files for pair end reads'
 	return error
-    if len(flist)==1 and not pair:
-	return flist
     if len(flist) > 1 and not pair: #should we check that the name are the same ?
 	error[1]='incorrect number of files for single end reads'
 	return error
@@ -161,7 +145,7 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 #PASSWORD=''
 
 pidfile = "/tmp/DownloadRequests.pid"
-check_running(pidfile)
+d.check_running(pidfile)
 
 try:
     conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))

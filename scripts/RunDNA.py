@@ -51,13 +51,20 @@ def make_fname(fname):
 
 def run_bowtie(infile,findex,pair):
 
-    FL=file_exist('.',infile,'bam')
-    
-    if len(FL) == 1:
-	success[1]='Bam file exists'
-	return success
+    if pair:
+	#FL=file_exist('.',infile,'bam')
+	FN=infile.split(";")
+        if len(file_exist('.',FN[0],'bam')) == 1 and len(file_exist('.',FN[1],'bam')) == 1:
+            success[1]='Bam file exists'
+	    return success
 
-    PAR='bowtie -q -v 2 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' '+infile+'.fastq 2>./'+infile+'.bw | samtools view -Sb - >./'+infile+'.bam 2>/dev/null'
+	PAR='bowtie -q -v 3 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' -1 '+FN[0]+'.fastq -2 '+FN[1]+'.fastq 2>./'+FN[0]+'.bw | samtools view -Sb - >./'+FN[0]+'.bam 2>/dev/null'
+    else:
+        if len(file_exist('.',infile,'bam')) == 1:
+            success[1]='Bam file exists'
+	    return success
+	PAR='bowtie -q -v 2 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' '+infile+'.fastq 2>./'+infile+'.bw | samtools view -Sb - >./'+infile+'.bam 2>/dev/null'
+    	
     RET=''
     try:
 	RET=s.check_output(PAR,shell=True)
@@ -70,14 +77,21 @@ def run_bowtie(infile,findex,pair):
 
 
 def run_fence(infile):
-
-    FL=file_exist('.',infile,'fence')
+    PAR=''
     
-    if len(FL) == 1:
-	success[1]='Fence file exists'
-	return success
+    if ";" in infile:
+	FN=infile.split(";")
+	if len(file_exist('.',FN[0],'fence')) == 1:
+	    success[1]='Fence file exists'
+	    return success
+	PAR='fence.py --in="'+infile+'" >'+FN[0]+'.fence'
+    else:	
+	FL=file_exist('.',infile,'fence')
+	if len(FL) == 1:
+	    success[1]='Fence file exists'
+	    return success
+	PAR='fence.py --in=./'+infile+'.fastq >'+infile+'.fence'
 
-    PAR='fence.py --in=./'+infile+'.fastq >'+infile+'.fence'
     RET=''
     try:
 	RET=s.Popen(PAR,shell=True)
@@ -168,9 +182,8 @@ while True:
 	break
 
     PAIR=('pair' in row[0])
-    FNAME=''
-    if not PAIR:
-	FNAME=row[5]
+    #FNAME=''
+    FNAME=row[5]
     DB=row[2]
     FINDEX=row[3]
     ANNOTATION=row[4]
@@ -188,8 +201,10 @@ while True:
     basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
 
     os.chdir(basedir)
-
-    FL=file_exist('.',FNAME,'fastq')
+    
+    FL=[]
+    if not PAIR:
+	FL=file_exist('.',FNAME,'fastq')
 
     if not PAIR and len(FL) == 1:
 	run_fence(FNAME)
@@ -224,6 +239,50 @@ while True:
 	    continue
         cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
 	conn.commit()
+
+    OK=False
+    FN=[]
+    if PAIR:
+	FN=FNAME.split(";")
+	FL1=file_exist('.',FN[0],'fastq')
+	FL2=file_exist('.',FN[1],'fastq')
+	if len(FL1)==1 and len(FL2)==1:
+	    OK=True
+
+    if PAIR and OK:
+	run_fence(FNAME)
+
+	a=run_bowtie(FNAME,FINDEX,PAIR)
+	
+	if 'Error' in a[0]:
+	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+	    conn.commit()
+	    continue
+	if 'Warning' in a[0]:
+	    cursor.execute("update labdata set libstatustxt=%s,libstatus=1010 where id=%s",(a[0]+": "+a[1],LID))
+	    conn.commit()
+	    continue
+
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
+	conn.commit()
+
+        #a=run_bedgraph(FL[0],GROUP,NAME,BEDFORMAT,DB,PAIR)
+	#if 'Error' in a[0]:
+	#    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+	#    conn.commit()
+	#    continue
+
+	#cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
+	#conn.commit()
+
+	a=get_stat(FN[0])
+	if type(a[0]) == str and 'Error' in a[0]:
+	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+	    conn.commit()
+	    continue
+        cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
+	conn.commit()
+
 
     #cursor.execute("update labdata set libstatustxt='processing',libstatus=10 where id=%s",LID)
     #conn.commit()    

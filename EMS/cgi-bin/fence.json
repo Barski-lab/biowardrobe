@@ -39,17 +39,26 @@ cursor.execute ("select filename,w.worker,e.etype from labdata l,experimenttype 
 SUBDIR='/DNA/'
 NAME=''
 FNAME=''
-for ( row ) in cursor.fetchall():
-    FNAME=row[0]
-    if 'RNA' in row[2]:
-	SUBDIR='/RNA/'
-    NAME=row[1].upper()
-    break
+row = cursor.fetchone()
+
+if not row:
+    error_msg('Record id does not exists '+str(recordid))
+
+FNAME=row[0]
+if ";" in FNAME:
+    FNAME=row[0].split(";")[0]
+    
+if 'RNA' in row[2]:
+    SUBDIR='/RNA/'
+NAME=row[1].upper()
 
 FULLNAME='/data/DATA/FASTQ-DATA/'+NAME+SUBDIR+FNAME+'.fence'
 
 #FP_N=open(sys.argv[1],'r')
-FP_N=open(FULLNAME,'r')
+try:
+    FP_N=open(FULLNAME,'r')
+except e:
+    error_msg('Cant open file '+str(e))
 
 FP_N.readline()
 
