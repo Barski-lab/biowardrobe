@@ -16,16 +16,23 @@ arguments = Arguments.Arguments(sys.argv)
 arguments.checkArguments(2)
 #print arguments.readPass("SQL/PASS")
 
+
 align=10
 length=0
 error_len=False
 
 alfa_pos={}
 
-FP_N=open(arguments.opt.infile)
+infile=arguments.opt.infile
+infile2=""
 
+if ";" in arguments.opt.infile:
+    FN=infile.split(";")
+    infile=FN[0]+'.fastq'
+    infile2=FN[1]+'.fastq'
+    
 b=0
-for line in FP_N:
+for line in open(infile):
  b=b+1
  if b%2 == 0 and b%4 !=0:
 
@@ -51,7 +58,38 @@ for line in FP_N:
       ap={a:{i:1}}
       alfa_pos.update(ap)
 
-FP_N.close()
+
+if infile2 != "":
+ b=0
+ for line in open(infile2):
+  b=b+1
+  if b%2 == 0 and b%4 !=0:
+
+   if length == 0:
+    length=len(line)-1
+
+   if len(line)-1 != length:
+    error_len=true
+    continue
+   else:
+
+    for i in range(length):
+     a=line[i:i+1]
+
+     try: 
+      alfa_pos[a][i] += 1
+     except KeyError:
+      try:
+       app={i:1}
+       alfa_pos[a].update(app)
+      except:
+       ap={a:{i:1}}
+       alfa_pos.update(ap)
+
+
+
+
+
 
 FIN=str()
 
