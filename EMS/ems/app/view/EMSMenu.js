@@ -64,13 +64,22 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Catalogues',
                        tooltip:'',
                        menu: [
+                           { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green' },
+                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'Crosslink type',iconCls: 'atom' },
                            { text: 'Experiment type', action: 'ExpType', tooltip: 'Experiment type',iconCls: 'bottle-pills' },
                            { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Fragmentation type',iconCls: 'army-knife' },
                            { text: 'Genome type', action: 'GenomeType', tooltip: 'Genome type',iconCls: '' },
-                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'Crosslink type',iconCls: 'atom' },
-                           { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green' }
+                           { text: 'Spikeins', action: 'Spikeins', tooltip: 'Spikeins',iconCls: '' }
                        ],
                        iconCls:'folder-document'
+                   },
+                   { xtype: 'button',
+                       text:'Notes for supplemental',
+                       tooltip:'',
+                       menu: [
+                           { text: 'Notes', action: 'SuppNotes', tooltip: 'Notes about pipelines for supplemental material',iconCls: 'notebook-edit' },
+                       ],
+                       iconCls:'notebook-edit'
                    }
                ]
            });
