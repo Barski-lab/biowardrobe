@@ -53,9 +53,10 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      enableTextSelection: true
                                  },
                                  columns: [
-                                     Ext.create('Ext.grid.RowNumberer'),
+                                     //Ext.create('Ext.grid.RowNumberer'),
 
-                                     {   header: "Belongs to",             sortable: true,  width: 85,    dataIndex: 'worker_id',
+                                     {   header: "Record ID",             sortable: true,  width: 60,    dataIndex: 'id'                                     },
+                                     {   header: "Belongs to",            sortable: true,  width: 85,    dataIndex: 'worker_id', hidden: true,
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.Worker.findRecord('id',value);
                                              return rec?rec.data.fullname:'';
@@ -68,6 +69,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          }
                                      },
                                      {   header: "Type",                   sortable: true,  width: 90,    dataIndex: 'experimenttype_id',
+                                         filterable: true,
                                          renderer: function(value,meta,record) {
                                              var rec=EMS.store.ExperimentType.findRecord('id',value);
                                              return rec?rec.data.etype:'';
@@ -85,9 +87,9 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                              type: 'string'
                                          }
                                      },
-                                     {   header: "Name for browser",       sortable: false,  width: 160,   dataIndex: 'name4browser'},
-                                     {   header: "Lib. Code",              sortable: false,  width: 60,    dataIndex: 'libcode'},
-                                     {   header: "Mapped",                 sortable: false,  width: 50,    dataIndex: 'tagspercent' },
+                                     {   header: "Name for browser",       sortable: true,  width: 160,   dataIndex: 'name4browser'},
+                                     {   header: "Lib. Code",              sortable: true,  width: 60,    dataIndex: 'libcode'},
+                                     {   header: "Mapped",                 sortable: false, width: 50,    dataIndex: 'tagspercent' },
                                      {
                                          header: "status",                 sortable: false,  width: 40,
                                          xtype: 'actioncolumn',
