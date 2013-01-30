@@ -366,6 +366,31 @@
     height: 16px;
 }
 
+
+.step-0-20 {
+    background-image: url( images/step_new.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.step-0-21 {
+    background-image: url( images/step_run.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.step-0-22 {
+    background-image: url( images/step.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.step-2-20 {
+    background-image: url( images/step_delete.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .floppy-disk-add {
     background-image: url( images/floppy_disk_add.png ) !important;
     width: 16px;

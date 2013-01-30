@@ -196,7 +196,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
 
-                       this.LabDataEdit.targetFrame.src='https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
+                       this.LabDataEdit.targetFrame.src='https://barskilab:barskilab@genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];

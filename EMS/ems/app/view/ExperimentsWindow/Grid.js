@@ -91,12 +91,12 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      {   header: "Lib. Code",              sortable: true,  width: 60,    dataIndex: 'libcode'},
                                      {   header: "Mapped",                 sortable: false, width: 50,    dataIndex: 'tagspercent' },
                                      {
-                                         header: "status",                 sortable: false,  width: 40,
+                                         header: "status",                 sortable: false,  width: 60,
                                          xtype: 'actioncolumn',
                                          menuDisabled: true,
                                          items: [
                                              {
-                                                 getClass: function(v, meta, rec) {          // Or return a class from a function
+                                                 getClass: function(v, meta, rec) {
                                                      var sts=rec.get('libstatus');
                                                      var base=(sts/1000)|0;
                                                      sts=sts%1000;
@@ -107,21 +107,31 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                          this.items[0].tooltip = 'complete';
                                                          return 'data-0-2';
                                                      }
-                                                 },
-                                                 handler: function(grid, rowIndex, colIndex) {
-                                                     //var rec = store.getAt(rowIndex);
                                                  }
                                              } , {
-                                                 getClass: function(v, meta, rec) {          // Or return a class from a function
+                                                 getClass: function(v, meta, rec) {
                                                      var sts=rec.get('libstatus');
                                                      var base=(sts/1000)|0;
                                                      sts=sts%1000;
                                                      if(sts < 20 && sts >= 10 ){
                                                          this.items[1].tooltip = rec.get('libstatustxt');
                                                          return 'gear-'+base.toString()+'-'+sts.toString();
-                                                     } else if (sts > 20){
+                                                     } else if (sts >= 20){
                                                          this.items[1].tooltip = 'complete';
-                                                         return 'gear-0-2';
+                                                         return 'gear-0-12';
+                                                     }
+                                                 }
+                                             }, {
+                                                 getClass: function(v, meta, rec) {
+                                                     var sts=rec.get('libstatus');
+                                                     var base=(sts/1000)|0;
+                                                     sts=sts%1000;
+                                                     if(sts < 30 && sts >= 20 ){
+                                                         this.items[2].tooltip = rec.get('libstatustxt');
+                                                         return 'step-'+base.toString()+'-'+sts.toString();
+                                                     } else if (sts >= 30){
+                                                         this.items[2].tooltip = 'complete';
+                                                         return 'step-0-22';
                                                      }
                                                  }
                                              }
