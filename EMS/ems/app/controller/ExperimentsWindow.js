@@ -33,8 +33,8 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
                    'EMS.view.GenomeGroup.List'],
@@ -160,10 +160,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
-                   var panel=Ext.getCmp('labdataedit-main-tab-panel');
+                   var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
 
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    this.genomeGroupStoreLoad(db,parseInt(record.raw['worker_id']) !== parseInt(USER_ID));
+
+                   var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id']).data.etype;
+                   var isRNA=(etype.indexOf('RNA') !== -1);
 
                    if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && !Rights.check(USER_ID,'ExperimentsWindow'))
                    {
@@ -182,16 +185,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    if ( sts <= 11) {
                        form.findField('cells').focus(false,100);
-                       for(var i=1; i< panel.items.length; i++) {
-                           panel.items.getAt(i).setDisabled(true);
+                       for(var i=1; i< maintabpanel.items.length; i++) {
+                           maintabpanel.items.getAt(i).setDisabled(true);
                        }
-                       panel.setActiveTab(0);
+                       maintabpanel.setActiveTab(0);
                    } else if (sts > 11) {
                        this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
-                       panel.setActiveTab(1);
+                       maintabpanel.setActiveTab(1);
 
-                       var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id']).data.etype;
-                       var isRNA=(etype.indexOf('RNA') !== -1);
 
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
@@ -251,6 +252,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                        }//if ribosomal chart
                    }//sts>11
+                   if (sts >20 && isRNA) {
+                       var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
+                       maintabpanel.add(RPKMtab);
+                       this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']);
+                       this.getRPKMStore().load();
+                   }
 
                },
 

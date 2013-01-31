@@ -1,4 +1,6 @@
 <?php
+include('/etc/settings/config.php');
+
 session_start();
 
 if(isset($_SESSION["timeout"])) {

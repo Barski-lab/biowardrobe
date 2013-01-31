@@ -26,9 +26,26 @@ Ext.define( 'EMS.store.RPKM', {
 
                requires: ['EMS.model.RPKM'],
                model:  'EMS.model.RPKM',
+               storeId: 'RPKM',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('RPKM')
-
+               remoteSort: true,
+               remoteFilter: true,
+               sorters: [{
+                       property: 'RPKM_0',
+                       direction: 'DESC'
+                   }],
+               pageSize: 100,
+               proxy: Ext.apply(STORE_DEFS.proxy(''), {
+                                    api: {
+                                        read : 'data/RPKM.php',
+                                        update: '',
+                                        create: '',
+                                        destroy: ''
+                                    }
+                                })
            });
+
+//direction: 'ASC'
+
 

@@ -188,4 +188,8 @@ OTHER_FILES += \
     app/view/GenomeGroup/List.js \
     app/view/GenomeGroup/GenomeGroup.js \
     app/store/RPKM.js \
-    app/model/RPKM.js
+    app/model/RPKM.js \
+    app/view/LabDataEdit/LabDataRPKM.js \
+    data/response.php \
+    data/RPKM.php \
+    data/database_connection.php
