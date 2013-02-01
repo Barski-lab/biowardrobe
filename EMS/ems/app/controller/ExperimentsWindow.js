@@ -32,6 +32,8 @@ Ext.require([
                 'Ext.ux.grid.FiltersFeature'
             ]);
 
+
+
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
@@ -416,12 +418,15 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    maintabpanel.setActiveTab(2);
                    var url='https://barskilab:barskilab@genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
-                           url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
+                   url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
                    this.LabDataEdit.targetFrame.load(url);
 
 
                },
-               onRpkmSave: function(button) {
+               onRpkmSave: function (btn) {
+                   var form=btn.up('window').down('form').getForm();
+                   var record = form.getRecord();
+                    window.location="data/csv.php?tablename="+record.data['filename'];
                }
 
            });

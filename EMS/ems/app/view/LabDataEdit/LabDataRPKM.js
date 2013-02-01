@@ -125,6 +125,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                                    xtype: 'button',
                                                    store: EMS.store.RPKM,
                                                    text: 'save',
+                                                   href:'',
                                                    id: 'rpkm-save',
                                                    width: 80,
                                                    submitValue: false,
