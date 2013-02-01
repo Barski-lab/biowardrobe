@@ -193,4 +193,5 @@ OTHER_FILES += \
     data/response.php \
     data/RPKM.php \
     data/database_connection.php \
-    data/csv.php
+    data/csv.php \
+    data/def_vars.php

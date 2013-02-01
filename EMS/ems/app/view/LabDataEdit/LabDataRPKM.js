@@ -41,6 +41,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                {   header: 'txStart',   sortable: true,  width: 80,    dataIndex: 'txStart', align: 'right' },
                                {   header: 'txEnd',     sortable: true,  width: 85,    dataIndex: 'txEnd', align: 'right'   },
                                {   header: 'strand',    sortable: true, filterable: true, width: 40,    dataIndex: 'strand', align: 'center'  },
+                               {   header: 'TOT_R',      sortable: true, filterable: true, width: 85,    dataIndex: 'TOT_R_0', align: 'right', hidden: true },
                                {   header: 'RPKM',      sortable: true, filterable: true, width: 85,    dataIndex: 'RPKM_0', align: 'right' }
                            ];
 
@@ -82,6 +83,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                            columns: me.columns
                                        }
                                    ],
+
                                    tbar: [
                                        me.m_PagingToolbar,
                                        '-' ,
@@ -92,7 +94,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                            queryMode: 'local',
                                            displayField: 'name',
                                            valueField: 'prefix',
-                                           value: "",
+                                           value: "_genes",
                                            width: 110,
                                            store:Ext.create('Ext.data.Store', {
                                                                 fields: ['prefix', 'name'],
@@ -100,13 +102,10 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                                                     {"prefix":"", "name":"Isoforms"},
                                                                     {"prefix":"_genes", "name":"Genes"},
                                                                     {"prefix":"_common_tss", "name":"Common Tss"}
-                                                                    //...
                                                                 ]
                                                             }),
                                            margin: "5 5 5 10"
                                        } ,
-
-
                                        {
                                            xtype: 'fieldcontainer',
                                            layout: 'hbox',
@@ -134,13 +133,9 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                                }
                                            ]
                                        }
-
-
-
                                    ]//tbar
                                }
                            ];//me.items
-
                    me.callParent(arguments);
                }
            });

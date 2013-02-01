@@ -29,6 +29,6 @@ class Response {
             'success'   => $this->success,
             'message'   => $this->message
         )));
-        die($this->message);
+        die();
     }
 }
