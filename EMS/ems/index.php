@@ -14,6 +14,7 @@
 
  <script type="text/javascript" src="ext/ext-debug.js"></script>
 
+
  <script type="text/javascript">
   var USER_NAME="<?php echo $_SESSION["fullname"] ?>";
   var USER_ID="<?php echo $_SESSION["user_id"] ?>";

@@ -10,7 +10,7 @@ import urllib
 import urlparse
 import simplejson as json
 import Arguments
-
+import time
 
 def error_msg(msg):
  print """
@@ -178,7 +178,9 @@ for (row ) in cursor.fetchall():
    #print """%s"%s": """%(c,item),
    continue
   else:
-   if type(row[i]) is str:
+   if 'date' in item:
+    print """%s"%s":"%s" """%(c,item,row[i].strftime("%m/%d/%Y %H:%M:%S")),
+   elif type(row[i]) is str:
     print """%s"%s":"%s" """%(c,item,row[i].replace('"','\\"').replace('\n','\\n').replace('\t','\\t').replace('\r','\\r')),
    else:
     print """%s"%s":"%s" """%(c,item,row[i]),

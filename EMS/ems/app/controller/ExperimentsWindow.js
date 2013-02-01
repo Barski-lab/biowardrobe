@@ -19,6 +19,8 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+Ext.Loader.setConfig({enabled: true});
+
 Ext.Loader.setPath(
             {'EMS': 'app'},
             {'Ext.ux': 'ux/'}
@@ -69,6 +71,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     '#borwser-grp-edit': {
                                         click: this.onBrowserGroupEdit
+                                    },
+                                    '#borwser-jump': {
+                                        click: this.onBrowserJump
+                                    },
+                                    '#rpkm-save': {
+                                        click: this.onRpkmSave
                                     }
                                 });
                },
@@ -190,6 +198,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        }
                        maintabpanel.setActiveTab(0);
                    } else if (sts > 11) {
+                       obj.setWidth(1000);
                        this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
                        maintabpanel.setActiveTab(1);
 
@@ -197,7 +206,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
 
-                       this.LabDataEdit.targetFrame.src='https://barskilab:barskilab@genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=1000&refGene=full&'+record.data['filename']+'=full';
+                       this.LabDataEdit.targetFrame.src='https://barskilab:barskilab@genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -394,6 +403,25 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onBrowserGroupEdit: function(button) {
                    var edit = Ext.create('EMS.view.GenomeGroup.GenomeGroup',{addnew: true,modal:true});
                    edit.show();
+               },
+               onBrowserJump: function(button) {
+                   var grid=button.up('panel').down('grid');
+                   var model=grid.getSelectionModel().getSelection();
+                   if(model.length<1) {
+                       return;
+                   }
+                   var form=button.up('window').down('form').getForm();
+                   var record = form.getRecord();
+                   var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
+                   var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
+                   maintabpanel.setActiveTab(2);
+                   var url='https://barskilab:barskilab@genomebrowser.research.cchmc.org/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
+                           url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
+                   this.LabDataEdit.targetFrame.load(url);
+
+
+               },
+               onRpkmSave: function(button) {
                }
 
            });

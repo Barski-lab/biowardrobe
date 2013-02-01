@@ -31,7 +31,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                title: 'RPKM list',
                activeTab: 0,
                iconCls: 'table2',
-
                initComponent: function() {
                    var me=this;
 
@@ -53,6 +52,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
 
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: EMS.store.RPKM,
+                                                       margin: "5 10 5 5",
                                                        displayInfo: true
                                                    });
 
@@ -89,8 +89,53 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                            xtype: 'combobox',
                                            id: 'rpkm-group-filter',
                                            editable: false,
-                                           margin: "0 10 10 0"
+                                           queryMode: 'local',
+                                           displayField: 'name',
+                                           valueField: 'prefix',
+                                           value: "",
+                                           width: 110,
+                                           store:Ext.create('Ext.data.Store', {
+                                                                fields: ['prefix', 'name'],
+                                                                data : [
+                                                                    {"prefix":"", "name":"Isoforms"},
+                                                                    {"prefix":"_genes", "name":"Genes"},
+                                                                    {"prefix":"_common_tss", "name":"Common Tss"}
+                                                                    //...
+                                                                ]
+                                                            }),
+                                           margin: "5 5 5 10"
+                                       } ,
+
+
+                                       {
+                                           xtype: 'fieldcontainer',
+                                           layout: 'hbox',
+
+                                           items: [
+                                               {
+                                                   xtype: 'button',
+                                                   text: 'jump',
+                                                   id: 'borwser-jump',
+                                                   width: 80,
+                                                   submitValue: false,
+                                                   iconCls: 'genome-browser',
+                                                   iconAlign:'left',
+                                                   margin: '5 10 5 10'
+                                               } , {
+                                                   xtype: 'button',
+                                                   store: EMS.store.RPKM,
+                                                   text: 'save',
+                                                   id: 'rpkm-save',
+                                                   width: 80,
+                                                   submitValue: false,
+                                                   iconCls: 'disk',
+                                                   margin: '5 10 5 10'
+                                               }
+                                           ]
                                        }
+
+
+
                                    ]//tbar
                                }
                            ];//me.items
