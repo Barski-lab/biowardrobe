@@ -12,4 +12,5 @@ INCLUDEPATH +=  . \
                 ../../thirdparty/bamtools
 
 # Input
-SOURCES += a1.cpp
+SOURCES += \
+    inversions.cpp
