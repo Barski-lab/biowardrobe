@@ -135,6 +135,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('experimenttype_id').setReadOnly(true);
                        form.findField('genome_id').setReadOnly(true);
                        form.findField('name4browser').setReadOnly(true);
+                       form.findField('browsergrp').setReadOnly(true);
+                       Ext.getCmp('browser-grp-edit').disable();
                    }
                },
 
@@ -186,7 +188,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.getFields().each (function (field) {
                            field.setReadOnly (true);
                        });
-                       Ext.getCmp('borwser-grp-edit').disable();
+                       Ext.getCmp('browser-grp-edit').disable();
                        Ext.getCmp('labdata-edit-save').disable();
                    }
 
