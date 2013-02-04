@@ -14,7 +14,7 @@ function logmsg($log_string){
       header("Location:".$rootdir."/login.php");
       exit;
     }
-    if($_SESSION["timeout"] + 600 < time()){
+    if($_SESSION["timeout"] + 1200 < time()){
       session_destroy();
       header("Location:".$rootdir."/login.php?timeout=true");
       exit;
