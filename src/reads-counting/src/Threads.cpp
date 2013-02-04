@@ -74,19 +74,16 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
-    double bMu=(double)(sam_data->total-sam_data->notAligned)/(sam_data->tot_len*0.70);
+//    double bMu=(double)(sam_data->total-sam_data->notAligned)/(sam_data->tot_len*0.70);
     bool arithmetic=(gArgs().getArgs("math_converging").toString()=="arithmetic");
 
-    double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
-    double cut_val=gArgs().getArgs("rpkm_cutoff_val").toDouble();
+//    double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
+//    double cut_val=gArgs().getArgs("rpkm_cutoff_val").toDouble();
 
     foreach(const QString key,isoforms[0].keys())/*Iterating trough chromosomes*/
-        for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/
-        {
-            if(isoforms[0][key][i]->testNeeded) continue;
-            if(isoforms[0][key][i]->intersects)
-            {
-
+        for(int i=0; i< isoforms[0][key].size();i++)/*Iterating trough isoforms on chromosomes*/ {
+            if(isoforms[0][key][i]->testNeeded) continue; //already processed
+            if(isoforms[0][key][i]->intersects) {
                 Math::Matrix<double> matrix(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
                 Math::Matrix<double> matrix_orig(isoforms[0][key][i]->intersects_isoforms->size(),isoforms[0][key][i]->intersects_count->iterative_size());
                 QVector<double> rowCol;
@@ -95,9 +92,6 @@ void sam_reader_thread::run(void)
                 /*
                  * Counting total reads
                  */
-                //chrom_coverage::domain_type le=isoforms[0][key][i]->txStart-50000,ri=isoforms[0][key][i]->txEnd+50000;
-                //quint64 totReads=getTotal(key,i,le,ri);
-                double lambda=bMu;//(double)totReads/(ri-le+1);
 
                 /*
                  * it is cycle trought column
@@ -113,25 +107,6 @@ void sam_reader_thread::run(void)
                     chrom_coverage::domain_type l=itv.lower(), u=itv.upper();
                     correctBoundings(itv,l,u);
                     chrom_coverage::domain_type exon_len=u-l+1;
-
-                    /*
-                     * Testing if next fragment prolongs current
-                     */
-                    /*
-                    bool next_is_close=false;
-                    if(isoforms[0][key][i]->strand==QChar('+') && it_count!=isoforms[0][key][i]->intersects_count->end())
-                    {
-                        it_count++;
-                        if(it_count!=isoforms[0][key][i]->intersects_count->end())
-                        {
-                            chrom_coverage::interval_type itv1  =
-                                    bicl::key_value<chrom_coverage >(it_count);
-                            if(u+1 >= itv1.lower())
-                                next_is_close=true & (column>0);
-                        }
-                        it_count--;
-                    }
-                    */
 
                     tot=getTotal(key,i,l,u);
 
@@ -157,7 +132,7 @@ void sam_reader_thread::run(void)
                             double cur_density=((double)tot/exon_len)/it_count->second;
                             //if(exon_len<25 && (double)tot/exon_len < 0.5 && !next_is_close)
                             //if(lambda<bMu || exon_len >= (ri-le+1)) lambda=bMu; /*if exon_len eq or greater then whole isoform length*/
-                            double p_val=1;
+                            //double p_val=1;
 
 
                             /* Should be changed in future, if exon length less then 2*read length
@@ -170,23 +145,23 @@ void sam_reader_thread::run(void)
                                 matrix.setElement(c,column,0.0);
                             }
                             else
-                            if( ((exon_len<300) && tot<50 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
-                                    || ( exon_len>=300 && tot< 10) )
-                            { /*trying to ignore not relevant data*/
+//                            if( ((exon_len<300) && tot<50 && (p_val=Math::Poisson_cdist<double>(tot,lambda*(double)exon_len))>0.01 )
+//                                    || ( exon_len>=300 && tot< 10) )
+//                            { /*trying to ignore not relevant data*/
 
-                                matrix.setElement(c,column,matrix.getLimit());
-                                //matrix.setElement(c,column,0.0);
+//                                matrix.setElement(c,column,matrix.getLimit());
+//                                //matrix.setElement(c,column,0.0);
 
-                                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
-                                {
-                                    qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu
-                                           <<" curReads:"<<tot<<" exonLen:"<<exon_len
-                                          <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
-                                         <<" mu:"<<lambda*(double)exon_len
-                                        <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
-                                }
-                            }
-                            else
+//                                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
+//                                {
+//                                    qDebug()<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name<<" lambda:"<<lambda <<" bLambda:"<<bMu
+//                                           <<" curReads:"<<tot<<" exonLen:"<<exon_len
+//                                          <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
+//                                         <<" mu:"<<lambda*(double)exon_len
+//                                        <<" p_val"<<p_val<<" density:"<<(double)tot/exon_len;
+//                                }
+//                            }
+//                            else
                             {
                                 matrix.setElement(c,column,cur_density==0.0?matrix.getLimit():cur_density);
                             }
@@ -258,9 +233,9 @@ void sam_reader_thread::run(void)
                     isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
                             isoforms[0][key][i]->intersects_isoforms->at(c)->density/pm;
 
-                    /*Wich RPKM is meaningfull ?*/
-                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff)
-                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
+//                    /*Wich RPKM is meaningfull ?*/
+//                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff)
+//                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
 
                     if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->intersects_isoforms->at(c)->name2) )
                     {
@@ -290,9 +265,9 @@ void sam_reader_thread::run(void)
                 isoforms[0][key][i]->RPKM=
                         ((double)(tot)/((double)(isoforms[0][key][i]->isoform.size())/1000.0))/((double)(sam_data->total-sam_data->notAligned)/1000000.0);
 
-                /*Wich RPKM is meaningfull ?*/
-                if(isoforms[0][key][i]->RPKM < cutoff)
-                    isoforms[0][key][i]->RPKM=cut_val;
+//                /*Wich RPKM is meaningfull ?*/
+//                if(isoforms[0][key][i]->RPKM < cutoff)
+//                    isoforms[0][key][i]->RPKM=cut_val;
             }
         }
     qDebug()<<fileName<<"- finished";

@@ -38,8 +38,8 @@ private:
     IsoformsOnChromosome* isoforms;
     bool dUTP;
 
-void correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
-quint64 getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
+    void correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
+    quint64 getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
 
 public:
 

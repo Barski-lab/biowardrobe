@@ -66,8 +66,7 @@ void FSTM::start()
 //------------------------------------------------------------------------------------
 void FSTM::FillUpData()
 {
-    for(int i=0;i<m_ThreadNum;i++)
-    {
+    for(int i=0;i<m_ThreadNum;i++) {
         isoforms[i]=new IsoformsOnChromosome ();
         sam_data[i]=new gen_lines();
     }
@@ -75,289 +74,152 @@ void FSTM::FillUpData()
     TSS_organized_list.resize(m_ThreadNum);
     GENES_organized_list.resize(m_ThreadNum);
 
-    /* fill from one sql or file
-      * or from sum of segments from sql queries or files*/
-    if(gArgs().getArgs("batch").toString().isEmpty() || !gArgs().fileInfo("batch").exists())
-    {
-        QString sql_str;
-        if(gArgs().getArgs("sql_query1").toString().isEmpty())
-        {
-            sql_str="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from refGene "
-                    " where chrom not like '%\\_%' order by chrom,strand,txStart,txEnd";
-            //sql_str="select CONCAT_WS(',',CONCAT('\\\"',refsec,'\\\"'),CONCAT('\\\"',gene,'\\\"'),CONCAT('\\\"',CONVERT(txStart,CHAR),'\\\"')) as name,gene as name2,chrom,strand,txStart,txStart as txEnd from expirements.RNASEQ_CD4_CUFFLINKS";
-        }
-        else
-        {
-            sql_str=gArgs().getArgs("sql_query1").toString();
-        }
-        if(!q.exec(sql_str))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
-            emit finished();
-        }
-        //int tot_isoforms=q.size()+1;
+    if(gArgs().getArgs("sql_query1").toString().isEmpty()) {
+        qDebug()<<"Query string cannot be empty.";
+        emit finished();
+        return;
+    }
 
-        int fieldExCount = q.record().indexOf("exonCount");
-        int fieldExStarts = q.record().indexOf("exonStarts");
-        int fieldExEnds = q.record().indexOf("exonEnds");
-        int fieldName = q.record().indexOf("name");
-        int fieldName2 = q.record().indexOf("name2");
-        int fieldChrom = q.record().indexOf("chrom");
-        int fieldStrand = q.record().indexOf("strand");
-        int fieldTxStart= q.record().indexOf("txStart");
-        int fieldTxEnd= q.record().indexOf("txEnd");
-        int fieldCdsStart= q.record().indexOf("cdsStart");
-        int fieldCdsEnd= q.record().indexOf("cdsEnd");
+    if(!q.exec(gArgs().getArgs("sql_query1").toString())) {
+        qDebug()<<"Query error: "<<q.lastError().text();
+        emit finished();
+        return;
+    }
 
-        while(q.next())
-        {
-            //-------------------------------------------
-            // If counting exons
-            //-------------------------------------------
-            /*
-              Preparing data arrays for multi threading calculation
-              each data set for each thread
-             */
-            /*exon start positions*/
-            QStringList q_starts=q.value(fieldExStarts).toString().split(QChar(','));
-            /*exon end positions*/
-            QStringList q_ends=q.value(fieldExEnds).toString().split(QChar(','));
-            /*exon count*/
-            int exCount=q.value(fieldExCount).toInt();
-            /*exon name*/
-            /*chromosome name*/
-            QString chr=q.value(fieldChrom).toString();
-            QChar strand=q.value(fieldStrand).toString().at(0);
-            /*iso name*/
-            QString iso_name=q.value(fieldName).toString();
-            /*gene name*/
-            QString g_name=q.value(fieldName2).toString();
-            quint64 txStart=q.value(fieldTxStart).toInt()+1;
-            quint64 txEnd=q.value(fieldTxEnd).toInt();
-            quint64 cdsStart=q.value(fieldCdsStart).toInt();
-            quint64 cdsEnd=q.value(fieldCdsEnd).toInt();
-            /*Variables to store start/end exon positions*/
-            bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
+    int fieldExCount = q.record().indexOf("exonCount");
+    int fieldExStarts = q.record().indexOf("exonStarts");
+    int fieldExEnds = q.record().indexOf("exonEnds");
+    int fieldName = q.record().indexOf("name");
+    int fieldName2 = q.record().indexOf("name2");
+    int fieldChrom = q.record().indexOf("chrom");
+    int fieldStrand = q.record().indexOf("strand");
+    int fieldTxStart= q.record().indexOf("txStart");
+    int fieldTxEnd= q.record().indexOf("txEnd");
+    int fieldCdsStart= q.record().indexOf("cdsStart");
+    int fieldCdsEnd= q.record().indexOf("cdsEnd");
 
-            if(gArgs().getArgs("sam_ignorechr").toString().contains(chr))
-            {
-                continue;
-            }
-
-            for(int j=0;j<exCount;j++)
-            {
-                quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
-                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s+1,e),1));
-            }
-
-            for(int i=0;i<m_ThreadNum;i++)
-            {
-
-                QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
-                isoforms[i][0][chr].append( p );
-                QString str;
-                if(strand==QChar('+'))
-                {
-                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txStart);
-                }
-                else
-                {
-                    str=QString("%1%2%3").arg(chr).arg(strand).arg(txEnd);
-                }
-
-                TSS_organized_list[i][str].append(p);
-                GENES_organized_list[i][g_name].append(p);
-            }
-        }
-
+    while(q.next()) {
         /*
-            do intersections !!!
+         *      Preparing data arrays for multi threading calculation
+         *      each data set for each thread
          */
-        foreach(const QString key, isoforms[0][0].keys()) /*How many chromosomes ?*/
-        {
-            qDebug()<<"chr:"<<key;
-            for(int i=0; i<isoforms[0][0][key].size();i++) /*How many refsec pointers (QVector< IsoformPtr > refsec;), isoforms for current chromosome*/
-            {
-                for(int j=i+1; j<isoforms[0][0][key].size();j++) /*Compare all isoforms with the others*/
-                {
-                    if(isoforms[0][0][key][i]->intersects_count.isNull())
-                    {
-                        if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
-                                bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform))
-                        {
-                            /*repeat this part for multithread*/
-                            for(int t=0;t<m_ThreadNum;t++)
-                            {
-                                isoforms[t][0][key][i]->intersects=true;
-                                isoforms[t][0][key][j]->intersects=true;
+        /*exon start positions*/
+        QStringList q_starts=q.value(fieldExStarts).toString().split(QChar(','));
+        /*exon end positions*/
+        QStringList q_ends=q.value(fieldExEnds).toString().split(QChar(','));
+        /*exon count*/
+        int exCount=q.value(fieldExCount).toInt();
+        /*exon name*/
+        /*chromosome name*/
+        QString chr=q.value(fieldChrom).toString();
+        QChar strand=q.value(fieldStrand).toString().at(0);
+        /*iso name*/
+        QString iso_name=q.value(fieldName).toString();
+        /*gene name*/
+        QString g_name=q.value(fieldName2).toString();
+        quint64 txStart=q.value(fieldTxStart).toInt()+1;
+        quint64 txEnd=q.value(fieldTxEnd).toInt();
+        quint64 cdsStart=q.value(fieldCdsStart).toInt();
+        quint64 cdsEnd=q.value(fieldCdsEnd).toInt();
+        /*Variables to store start/end exon positions*/
+        bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
 
-                                if(isoforms[t][0][key][j]->intersects_count.isNull())
-                                {
-                                    bicl::interval_map<t_genome_coordinates,unsigned int> * p = new bicl::interval_map<t_genome_coordinates,unsigned int>();
-                                    p[0] += isoforms[t][0][key][i]->isoform ;
-                                    p[0] += isoforms[t][0][key][j]->isoform ;
-
-                                    //qDebug()<<"inter i:"<<isoforms[0][0][key][i].data()->name<<" inter j:"<<isoforms[0][0][key][j].data()->name;
-                                    isoforms[t][0][key][i]->intersects_count=QSharedPointer<bicl::interval_map<t_genome_coordinates,unsigned int> >(p);
-                                    isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
-
-                                    QList<IsoformPtr> *p0 = new QList<IsoformPtr>();
-
-                                    p0->append(isoforms[t][0][key][i]);
-                                    p0->append(isoforms[t][0][key][j]);
-
-                                    isoforms[t][0][key][i]->intersects_isoforms=QSharedPointer<QList<IsoformPtr> >( p0 );
-                                    isoforms[t][0][key][j]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
-                                }
-                                else
-                                {
-                                    isoforms[t][0][key][j]->intersects_count.data()[0] += isoforms[t][0][key][i]->isoform ;
-                                    isoforms[t][0][key][i]->intersects_count=isoforms[t][0][key][j]->intersects_count;
-
-                                    isoforms[t][0][key][j]->intersects_isoforms->append(isoforms[t][0][key][i]);
-                                    isoforms[t][0][key][i]->intersects_isoforms=isoforms[t][0][key][j]->intersects_isoforms;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if(bicl::intersects(isoforms[0][0][key][i]->intersects_count.data()[0],isoforms[0][0][key][j]->isoform))
-                        {
-                            /*repeat this part for multithread*/
-                            for(int t=0;t<m_ThreadNum;t++)
-                            {
-                                isoforms[t][0][key][j]->intersects=true;
-                                if(isoforms[t][0][key][j]->intersects_count.isNull())
-                                {
-                                    isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][j]->isoform ;
-                                    isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
-
-                                    isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][j]);
-                                    isoforms[t][0][key][j]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
-                                }
-                                else if(isoforms[t][0][key][j]->intersects_count==isoforms[t][0][key][i]->intersects_count)
-                                {
-                                    qDebug()<<"Upps, bug happend!";
-                                }
-                                else
-                                {
-                                    for(int c=0;c<isoforms[t][0][key][j]->intersects_isoforms->size();c++)
-                                    {
-                                        isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][c]->isoform ;
-                                        isoforms[t][0][key][c]->intersects_count=isoforms[t][0][key][i]->intersects_count;
-
-                                        isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][c]);
-                                        isoforms[t][0][key][c]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
-                                    }
-
-                                }
-
-                            }
-                            //qDebug()<<"inter i:"<<isoforms[0][0][key][i].data()->name<<" inter j:"<<isoforms[0][0][key][j].data()->name;
-                            break;
-                        }
-                    }
-                }
-            }/*loop trough isoforms on chromosome*/
-        }/*foreach trough chromosomes*/
-    }//if not a batch
-    else
-    {
-        /* This type of reads count is just simple counting within segment and it is does not metter
-          * is this segment from + or - strand. If segments intersects then it become single segment that overlaps
-          * all intersects one
-          */
-
-        /* Working on batch file filling QL and PFL
-          * if line starts from "select" than it is query
-          * if other then it is bed file
-          */
-        QFile batchFile;
-        batchFile.setFileName(gArgs().getArgs("batch").toString());
-        batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
-        QStringList QL,PFL;/*QL-Query list, PFL - file list*/
-        QTextStream in(&batchFile);
-        while (!in.atEnd())
-        {
-            QString Q = in.readLine();
-            if(Q.isEmpty() || Q.at(0)==QChar('#')) continue;
-            if(Q.startsWith("select"))
-            {
-                QL<<Q;
-            }
-            else
-            {
-                PFL<<Q;
-            }
+        if(gArgs().getArgs("sam_ignorechr").toString().contains(chr)) {
+            continue;
         }
-        batchFile.close();
-        QMap<QString,bicl::interval_set<t_genome_coordinates> >segments_lists;
-        if(QL.size()>0)
-        {
-            for(int i=0;i<QL.size();i++)
-            {
-                if(!q.exec(QL.at(i)))
-                {
-                    qDebug()<<"Query error batch: "<<q.lastError().text();
-                    emit finished();
-                }
-                int fieldChrom = q.record().indexOf("chrom");
-                int fieldTxStart = q.record().indexOf("chromStart");
-                int fieldTxEnd= q.record().indexOf("chromEnd");
-                while(q.next())
-                {
-                    /*chromosome name*/
-                    QString chr=q.value(fieldChrom).toString();
-                    quint64 txStart=q.value(fieldTxStart).toInt();
-                    quint64 txEnd=q.value(fieldTxEnd).toInt();
-                    segments_lists[chr]+=bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd);
-                }
-            }
+
+        for(int j=0;j<exCount;j++) {
+            quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
+            iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s+1,e),1));
         }
-        if(PFL.size()>0)
-        {
-            for(int i=0;i<PFL.size();i++)
-            {
 
+        for(int i=0;i<m_ThreadNum;i++) {
+            QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
+            isoforms[i][0][chr].append( p );
+            QString str;
+            if(strand==QChar('+')) {
+                str=QString("%1%2%3").arg(chr).arg(strand).arg(txStart);
+            } else {
+                str=QString("%1%2%3").arg(chr).arg(strand).arg(txEnd);
             }
-        }
-        /* Going through all the chromosomes and copying all segments into uniform struct Isoforms
-          */
-        foreach(const QString key, segments_lists.keys())
-        {
-            bicl::interval_set<t_genome_coordinates>::const_iterator it = (segments_lists[key]).begin();
-            while(it != (segments_lists[key]).end())
-            {
-                /*chromosome name*/
-                QString chr=key;
-                quint64 txStart=(*it).lower();
-                quint64 txEnd=(*it).upper();
-                quint64 cdsStart=txStart;
-                quint64 cdsEnd=txEnd;
-                /*iso name*/
-                QString iso_name=QString("%1:%2-%3").arg(chr).arg(txStart).arg(txEnd);
-                /*gene name*/
-                QString g_name=iso_name;
-                /*Variables to store start/end exon positions*/
-                bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
-
-                QChar strand='+';
-
-                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(txStart,txEnd),1));
-
-                /*Duplicate data for each multithreaded bam reader*/
-                for(int i=0;i<m_ThreadNum;i++)
-                {
-                    QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
-                    isoforms[i][0][chr].append( p );
-                }
-                it++;
-            }
-
+            TSS_organized_list[i][str].append(p);
+            GENES_organized_list[i][g_name].append(p);
         }
     }
+
+    /*
+     *       do intersections !!!
+     */
+    foreach(const QString key, isoforms[0][0].keys()) /*How many chromosomes ?*/
+    {
+        qDebug()<<"chr:"<<key;
+        for(int i=0; i<isoforms[0][0][key].size();i++) /*How many refsec pointers (QVector< IsoformPtr > refsec;), isoforms for current chromosome*/
+        {
+            for(int j=i+1; j<isoforms[0][0][key].size();j++) /*Compare all isoforms with the others*/
+            {
+                if(isoforms[0][0][key][i]->intersects_count.isNull()) {
+                    if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
+                            bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform)) {
+                        /*repeat this part for multithread*/
+                        for(int t=0;t<m_ThreadNum;t++) {
+                            isoforms[t][0][key][i]->intersects=true;
+                            isoforms[t][0][key][j]->intersects=true;
+
+                            if(isoforms[t][0][key][j]->intersects_count.isNull()) {
+                                bicl::interval_map<t_genome_coordinates,unsigned int> * p = new bicl::interval_map<t_genome_coordinates,unsigned int>();
+                                p[0] += isoforms[t][0][key][i]->isoform ;
+                                p[0] += isoforms[t][0][key][j]->isoform ;
+
+                                //qDebug()<<"inter i:"<<isoforms[0][0][key][i].data()->name<<" inter j:"<<isoforms[0][0][key][j].data()->name;
+                                isoforms[t][0][key][i]->intersects_count=QSharedPointer<bicl::interval_map<t_genome_coordinates,unsigned int> >(p);
+                                isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
+
+                                QList<IsoformPtr> *p0 = new QList<IsoformPtr>();
+
+                                p0->append(isoforms[t][0][key][i]);
+                                p0->append(isoforms[t][0][key][j]);
+
+                                isoforms[t][0][key][i]->intersects_isoforms=QSharedPointer<QList<IsoformPtr> >( p0 );
+                                isoforms[t][0][key][j]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
+                            } else {
+                                isoforms[t][0][key][j]->intersects_count.data()[0] += isoforms[t][0][key][i]->isoform ;
+                                isoforms[t][0][key][i]->intersects_count=isoforms[t][0][key][j]->intersects_count;
+
+                                isoforms[t][0][key][j]->intersects_isoforms->append(isoforms[t][0][key][i]);
+                                isoforms[t][0][key][i]->intersects_isoforms=isoforms[t][0][key][j]->intersects_isoforms;
+                            }
+                        }
+                        break;
+                    } //if intersects
+                } else { //if intersects_count is null
+                    if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
+                            bicl::intersects(isoforms[0][0][key][i]->intersects_count.data()[0],isoforms[0][0][key][j]->isoform)) {
+                        /*repeat this part for multithread*/
+                        for(int t=0;t<m_ThreadNum;t++) {
+                            isoforms[t][0][key][j]->intersects=true;
+                            if(isoforms[t][0][key][j]->intersects_count.isNull()) {
+                                isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][j]->isoform ;
+                                isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
+
+                                isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][j]);
+                                isoforms[t][0][key][j]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
+                            } else {
+                                for(int c=0;c<isoforms[t][0][key][j]->intersects_isoforms->size();c++) {
+                                    isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][c]->isoform ;
+                                    isoforms[t][0][key][c]->intersects_count=isoforms[t][0][key][i]->intersects_count;
+
+                                    isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][c]);
+                                    isoforms[t][0][key][c]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
+                                }
+                            }
+                        }
+                        //qDebug()<<"inter i:"<<isoforms[0][0][key][i].data()->name<<" inter j:"<<isoforms[0][0][key][j].data()->name;
+                        break;
+                    } //
+                }//intersects count null or not null
+            }
+        }/*loop trough isoforms on chromosome*/
+    }/*foreach trough chromosomes*/
 }
 
 //------------------------------------------------------------------------------------
