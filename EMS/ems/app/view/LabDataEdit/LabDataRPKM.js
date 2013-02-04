@@ -114,7 +114,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                                                {
                                                    xtype: 'button',
                                                    text: 'jump',
-                                                   id: 'borwser-jump',
+                                                   id: 'browser-jump',
                                                    width: 80,
                                                    submitValue: false,
                                                    iconCls: 'genome-browser',

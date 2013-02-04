@@ -71,14 +71,17 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     '#labdata-grid-user-filter': {
                                         select: this.onComboBoxSelectMakeFilter
                                     },
-                                    '#borwser-grp-edit': {
+                                    '#browser-grp-edit': {
                                         click: this.onBrowserGroupEdit
                                     },
-                                    '#borwser-jump': {
+                                    '#browser-jump': {
                                         click: this.onBrowserJump
                                     },
                                     '#rpkm-save': {
                                         click: this.onRpkmSave
+                                    },
+                                    '#rpkm-group-filter': {
+                                        select: this.onRpkmGroupFilter
                                     }
                                 });
                },
@@ -266,7 +269,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    if (sts >20 && isRNA) {
                        var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
                        maintabpanel.add(RPKMtab);
-                       this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']);
+                       this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']+'_genes');
                        this.getRPKMStore().load();
                    }
 
@@ -426,7 +429,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                onRpkmSave: function (btn) {
                    var form=btn.up('window').down('form').getForm();
                    var record = form.getRecord();
-                    window.location="data/csv.php?tablename="+record.data['filename'];
+                   var combo=Ext.getCmp('rpkm-group-filter');
+                    window.location="data/csv.php?tablename="+record.data['filename']+combo.value;
+               },
+               onRpkmGroupFilter: function(combo, records, options) {
+                   var form=combo.up('window').down('form').getForm();
+                   var record = form.getRecord();
+                   this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']+combo.value);
+                   this.getRPKMStore().load();
                }
-
            });

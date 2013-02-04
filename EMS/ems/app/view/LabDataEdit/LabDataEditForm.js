@@ -308,7 +308,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                       } , {
                                                                           xtype: 'button',
                                                                           text: '',
-                                                                          id: 'borwser-grp-edit',
+                                                                          id: 'browser-grp-edit',
                                                                           submitValue: false,
                                                                           iconCls: 'element-edit',
                                                                           margin: '20 0 0 10'
