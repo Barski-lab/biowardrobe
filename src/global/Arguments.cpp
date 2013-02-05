@@ -239,6 +239,7 @@ void Arguments::argsList(void)
     Arguments::addArg("bed_trackname","bed_trackname","BED/TRACKNAME",QVariant::String,"Track name which will appear in genome browser","");
 
     Arguments::addArg("no-bed-file","no-bed-file","",QVariant::Bool,"Do not create bed file",false);
+    Arguments::addArg("no-file","no-file","",QVariant::Bool,"Do not produce file output",false);
     Arguments::addArg("no-sql-upload","no-sql-upload","",QVariant::Bool,"Do not upload to SQL",false);
 
     Arguments::addArg("sql_table","sql_table","",QVariant::String,"Sql table to create for bed graph","");
@@ -262,7 +263,7 @@ void Arguments::argsList(void)
 
     Arguments::addArg("window","window","WINDOW",QVariant::Int,"Window",2000);
 
-    Arguments::addArg("threads","threads","",QVariant::Int,"Max number of threads",4);
+    Arguments::addArg("threads","threads","",QVariant::Int,"Max number of threads",0);
 
     Arguments::addArg("sam_siteshift","sam_siteshift","SAM/SITESHIFT",QVariant::Int,"Default siteshift",0);
     Arguments::addArg("sam_mapped_limit","sam_mapped_limit","SAM/MAPPEDLIMIT",QVariant::Int,"Default limit to mapped data",0);

@@ -29,6 +29,7 @@ sam_reader_thread::sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromoso
     isoforms(io)
 {
     dUTP=(gArgs().getArgs("rna_seq").toString()=="dUTP");
+    this->setAutoDelete(true);
 }
 
 
@@ -89,13 +90,9 @@ void sam_reader_thread::run(void)
                 QVector<double> rowCol;
                 rowCol.resize(isoforms[0][key][i]->intersects_isoforms->size());
 
-                /*
-                 * Counting total reads
-                 */
 
-                /*
-                 * it is cycle trought column
-                 */
+
+
                 chrom_coverage::iterator it_count = isoforms[0][key][i]->intersects_count->begin();
                 for(quint64 column=0; it_count != isoforms[0][key][i]->intersects_count->end(); it_count++,column++)
                 {
@@ -271,6 +268,4 @@ void sam_reader_thread::run(void)
             }
         }
     qDebug()<<fileName<<"- finished";
-    QTimer::singleShot(10, this, SLOT(quit()));
-    this->exec();
 }

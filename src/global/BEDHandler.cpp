@@ -188,76 +188,59 @@ void BEDHandler<Storage,Result>::Load()
         //+ strand
         QMap <int,int> bed;
         QVector<int> cover;
-        //cover.resize();
         cover.fill(0,sam_input->getLength('+',chrome)+1);
 
         {
             genome::cover_map::iterator i=sam_input->getLineCover(chrome+QChar('+')).getBeginIterator();
             genome::cover_map::iterator e=sam_input->getLineCover(chrome+QChar('+')).getEndIterator();
 
-            if(gArgs().getArgs("bed_type").toInt()==0)
-            {
-                while(i!=e)
-                {
+            if(gArgs().getArgs("bed_type").toInt()==0) {
+                while(i!=e) {
                     int val=i.key()+shift;
-                    genome::Cover::countReads<int>(i.value(),bed[val-val%w_h]);
-                    //                    for(int c=0;c<i.value().size();c++)
-                    //                    {
-                    //                        bed[val-val%w_h]+=i.value()[c].getLevel();
-                    //                    }
+                    int index=val-val%w_h;
+                    genome::Cover::countReads<int>(i.value(),bed[index<0?0:index]);
                     ++i;
                 }
-            }
-            else if(gArgs().getArgs("bed_type").toInt()==1)
-            {
-                while(i!=e)
-                {
-                    for(int c=0;c<i.value().size();c++)
-                    {
+            } else if(gArgs().getArgs("bed_type").toInt()==1) {
+                while(i!=e) {
+                    for(int c=0;c<i.value().size();c++) {
                         int val=i.key()+i.value()[c].getLength()/2+shift;
-                        bed[val-val%w_h]+=i.value()[c].getLevel();
+                        int index=val-val%w_h;
+                        bed[index<0?0:index]+=i.value()[c].getLevel();
                     }
                     ++i;
                 }
-            }
-            else if(gArgs().getArgs("bed_type").toInt()==2)
-            {
+            } else if(gArgs().getArgs("bed_type").toInt()==2) {
                 for(;i!=e;i++)//thru start positions
-                    for(int c=0;c<i.value().size();c++)//thru different reads at the same position
-                    {
+                    for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
                         genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
-                        for(;it!=i.value()[c].getInterval().end();it++)
-                        {
+                        for(;it!=i.value()[c].getInterval().end();it++) {
                             genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
                             for(quint64 l=itv.lower(); l<=itv.upper(); l++)
-                                cover[l]+=(*it).second;
+                                cover[l]+=i.value()[c].getLevel();
                         }
                     }
             }
         }
 
         /* if bed format not eq to 4 then output data for strand + */
-        if(gArgs().getArgs("bed_format").toInt()!=4)
-        {
+        if(gArgs().getArgs("bed_format").toInt()!=4) {
             //-----------------------------------------------------------------------------------
             QString appe;
             QMap<int,int>::iterator i = bed.begin();
             for(;i!=bed.end();i++)
             {
                 if(!create_file)
-                {
                     _outFile.write(QString(chrome+"\t%1\t%2\t%3\t0\t+\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
-                }
+
                 if(!no_sql_upload)
                     appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("+");
             }
             //-----------------------------------------------------------------------------------
 #ifdef _SQL_
-            if(!no_sql_upload)
-            {
+            if(!no_sql_upload) {
                 appe.chop(1);
-                if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                {
+                if(!q.exec(sql_prep+appe+"; COMMIT;")) {
                     qWarning()<<qPrintable("Select query error. "+q.lastError().text());
                 }
             }
@@ -271,44 +254,30 @@ void BEDHandler<Storage,Result>::Load()
             genome::cover_map::iterator i=sam_input->getLineCover(chrome+QChar('-')).getBeginIterator();
             genome::cover_map::iterator e=sam_input->getLineCover(chrome+QChar('-')).getEndIterator();
 
-            if(gArgs().getArgs("bed_type").toInt()==0)
-            {
-                while(i!=e)
-                {
+            if(gArgs().getArgs("bed_type").toInt()==0) {
+                while(i!=e) {
                     int val=i.key()-shift;
-                    if(val<0) val=0;
-                    genome::Cover::countReads<int>(i.value(),bed[val-val%w_h]);
-                    //                    for(int c=0;c<i.value().size();c++)
-                    //                    {
-                    //                        bed[val-val%w_h]+=i.value()[c].getLevel();
-                    //                    }
+                    int index=val-val%w_h;
+                    genome::Cover::countReads<int>(i.value(),bed[index<0?0:index]);
                     ++i;
                 }
-            }
-            else if(gArgs().getArgs("bed_type").toInt()==1)
-            {
-                while(i!=e)
-                {
-                    for(int c=0;c<i.value().size();c++)
-                    {
+            } else if(gArgs().getArgs("bed_type").toInt()==1) {
+                while(i!=e) {
+                    for(int c=0;c<i.value().size();c++) {
                         int val=i.key()+i.value()[c].getLength()/2-shift;
-                        if(val<0) val=0;
-                        bed[val-val%w_h]+=i.value()[c].getLevel();
+                        int index=val-val%w_h;
+                        bed[index<0?0:index]+=i.value()[c].getLevel();
                     }
                     ++i;
                 }
-            }
-            else if(gArgs().getArgs("bed_type").toInt()==2)
-            {
+            } else if(gArgs().getArgs("bed_type").toInt()==2) {
                 for(;i!=e;i++)//thru start positions
-                    for(int c=0;c<i.value().size();c++)//thru different reads at the same position
-                    {
+                    for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
                         genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
-                        for(;it!=i.value()[c].getInterval().end();it++)
-                        {
+                        for(;it!=i.value()[c].getInterval().end();it++) {
                             genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
                             for(quint64 l=itv.lower(); l<=itv.upper(); l++)
-                                cover[l]+=(*it).second;
+                                cover[l]+=i.value()[c].getLevel();
                         }
                     }
             }
@@ -321,63 +290,47 @@ void BEDHandler<Storage,Result>::Load()
 
 
         /* if bed format not eq to 4 then output data for strand - */
-        if(gArgs().getArgs("bed_format").toInt()!=4)
-        {
+        if(gArgs().getArgs("bed_format").toInt()!=4) {
             QString appe;
-            for(;i!=bed.end();i++)
-            {
+            for(;i!=bed.end();i++) {
                 if(!create_file)
-                {
                     _outFile.write(QString(chrome+"\t%1\t%2\t-%3\t0\t-\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
-                }
                 if(!no_sql_upload)
                     appe+=QString(" (0,'%1',%2,%3,-%4,0,'%5'),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value()).arg("-");
             }
 #ifdef _SQL_
-            if(!no_sql_upload)
-            {
+            if(!no_sql_upload) {
                 appe.chop(1);
-                if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                {
+                if(!q.exec(sql_prep+appe+"; COMMIT;")) {
                     qWarning()<<qPrintable("Select query error. "+q.lastError().text());
                 }
             }
 #endif
-        }
-        else
-            /* if bed format eq to 4 then output data for both strand */
-        {
+        } else {    /* if bed format eq to 4 then output data for both strand */
+
             QString appe;
 
             /*If bed type is 2 then special handling*/
-            if(gArgs().getArgs("bed_type").toInt()==2)
-            {
+            if(gArgs().getArgs("bed_type").toInt()==2) {
                 quint64 begin=0;
                 int sql_groupping=0;
-                for(qint64 i=0;i<cover.size()-1;i++)
-                {
+                for(qint64 i=0;i<cover.size()-1;i++) {
                     if(cover[i] == 0 && cover[i+1] == 0) continue;
                     if(cover[i] == cover[i+1] ) continue;
                     if(cover[i] == 0) { begin=i+1; continue;}
 
-
                     if(!create_file)
-                    {
                         _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(begin).arg(i).arg(cover[i]).toLocal8Bit());
-                    }
+
 #ifdef _SQL_
-                    if(!no_sql_upload)
-                    {
+                    if(!no_sql_upload) {
                         sql_groupping++;
                         appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(begin).arg(i).arg(cover[i]);
-                        if(sql_groupping==3000)
-                        {
+                        if(sql_groupping==3000) {
                             sql_groupping=0;
                             appe.chop(1);
                             if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                            {
                                 qWarning()<<qPrintable("Select query error. "+q.lastError().text());
-                            }
                             appe="";
                         }
 
@@ -386,38 +339,26 @@ void BEDHandler<Storage,Result>::Load()
                     begin=i;
                 }
 #ifdef _SQL_
-                if(!no_sql_upload && sql_groupping>0)
-                {
+                if(!no_sql_upload && sql_groupping>0) {
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                    {
                         qWarning()<<qPrintable("Select query error. "+q.lastError().text());
-                    }
                 }
 #endif
-
-            }
-            else
-            {
-                for(;i!=bed.end();i++)
-                {
+            } else {
+                for(;i!=bed.end();i++) {
                     if(!create_file)
-                    {
                         _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
-                    }
 #ifdef _SQL_
                     if(!no_sql_upload)
                         appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(i.key()).arg(i.key()+window).arg(i.value());
 #endif
                 }
 #ifdef _SQL_
-                if(!no_sql_upload)
-                {
+                if(!no_sql_upload) {
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                    {
                         qWarning()<<qPrintable("Select query error. "+q.lastError().text());
-                    }
                 }
 #endif
             }//bed_type

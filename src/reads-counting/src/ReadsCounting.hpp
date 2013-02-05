@@ -109,7 +109,8 @@ private:
 
     IsoformsOnChromosome** isoforms; //QVector<QVector<> > ???
     gen_lines** sam_data;
-    sam_reader_thread** threads;
+    //sam_reader_thread** threads;
+    //QList<sam_reader_thread*>   t_queue;
     QVector<QMap<QString, QVector< IsoformPtr > > > TSS_organized_list;
     QVector<QMap<QString, QVector< IsoformPtr > > > GENES_organized_list;
     bool dUTP;
@@ -123,9 +124,7 @@ public slots:
 
 protected slots:
 
-    void ThreadCount(void);
     void FillUpData(void);
-    void StartingThreads(void);
     void WriteResult(void);
     void CreateTablesViews(void);
 

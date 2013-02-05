@@ -45,21 +45,31 @@ void FSTM::start()
     QStringList bam_names=gArgs().split("in",',');
     int num_bam=bam_names.size();
     m_ThreadNum=num_bam;
+
     isoforms=new IsoformsOnChromosome* [num_bam];
     sam_data=new gen_lines* [num_bam];
-    threads =new sam_reader_thread* [num_bam];
 
     FillUpData();
 
-    for(int i=0;i<num_bam;i++)
-    {
-        threads[i]=new sam_reader_thread(bam_names[i],sam_data[i],isoforms[i]);
-        connect(threads[i],SIGNAL(finished()),this,SLOT(ThreadCount()));
-        connect(threads[i],SIGNAL(terminated()),this,SLOT(ThreadCount()));
+    int max_thr=gArgs().getArgs("threads").toInt();
+    QThreadPool *t_pool=QThreadPool::globalInstance();
+    if(max_thr>0 && max_thr < t_pool->maxThreadCount())
+        t_pool->setMaxThreadCount(max_thr);
+
+    for(int i=0;i<m_ThreadNum;i++) {
+        t_pool->start(new sam_reader_thread(bam_names[i],sam_data[i],isoforms[i]));
     }
 
-    StartingThreads();
+    if(t_pool->activeThreadCount()!=0) {
+        qDebug()<<"waiting threads";
+        t_pool->waitForDone();
+    }
+
     WriteResult();
+
+    qDebug()<<"Complete";
+    emit finished();
+    return;
 }//end func
 
 //------------------------------------------------------------------------------------
@@ -222,43 +232,6 @@ void FSTM::FillUpData()
     }/*foreach trough chromosomes*/
 }
 
-//------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
-void FSTM::StartingThreads()
-{
-    int max_thr=gArgs().getArgs("threads").toInt();
-    if(QThread::idealThreadCount()!=-1)
-    {
-        max_thr=QThread::idealThreadCount()-1;
-        qDebug()<<"idealThreadCount:"<<max_thr;
-    }
-
-    for(int i=0; i<m_ThreadNum;i++)
-    {
-        while(m_ThreadCount>=max_thr)
-        {
-            QCoreApplication::processEvents();
-            sleep(10);
-        }
-
-        m_ThreadCount++;
-        threads[i]->start();
-    }
-
-    while(m_ThreadCount!=0)
-    {
-        QCoreApplication::processEvents();
-        sleep(10);
-    }
-}
-//------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------
-
-void FSTM::ThreadCount()
-{
-    m_ThreadCount--;
-    qDebug()<<"Thread count:"<<m_ThreadCount;
-}
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
@@ -452,12 +425,6 @@ void FSTM::WriteResult()
 
     outFile.close();
 
-    /*
-     *
-     */
-
-    qDebug()<<"Complete";
-    emit finished();
 }
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------

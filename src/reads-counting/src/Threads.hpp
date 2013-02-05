@@ -28,10 +28,8 @@
 #include <Math.hpp>
 
 //-------------------------------------------------------------------------------------------------------
-class sam_reader_thread: public QThread
+class sam_reader_thread: public QRunnable
 {
-    Q_OBJECT
-
 private:
     gen_lines *sam_data;
     QString fileName;

@@ -49,17 +49,26 @@ int&  Read::getLevel()
 /************************************************************************************
  *
 ************************************************************************************/
-//void  Read::plusLevel()
-//{
-//    ++multiplying;
-//}
-
+int   Read::getStart()
+{
+    if(strand) {
+        return bicl::key_value<read_representation>(m_read_representation.begin()).lower();
+    } else {
+        read_representation::iterator it=m_read_representation.end(); it--;
+        return bicl::key_value<read_representation>(it).upper();
+    }
+}
 /************************************************************************************
  *
 ************************************************************************************/
-int   Read::getStart()
+int   Read::getEnd()
 {
-    return bicl::key_value<read_representation>(m_read_representation.begin()).lower();
+    if(strand) {
+        read_representation::iterator it=m_read_representation.end(); it--;
+        return bicl::key_value<read_representation>(it).upper();
+    } else {
+        return bicl::key_value<read_representation>(m_read_representation.begin()).lower();
+    }
 }
 
 /************************************************************************************
@@ -92,12 +101,6 @@ Read& Read::getMyself(void)
 void  Read::operator+= (const int& c)
 {
     this->multiplying+=c;
-    read_representation::iterator it = this->m_read_representation.begin();
-    while(it!=this->m_read_representation.end())
-    {
-        (*it).second+=c;
-        it++;
-    }
 }
 
 /************************************************************************************
@@ -113,18 +116,19 @@ void  Read::operator++ (int)
 ************************************************************************************/
 bool  Read::operator== (const Read& r) const
 {
-    read_representation::const_iterator it = this->m_read_representation.begin();
-    read_representation::const_iterator it_other = r.m_read_representation.begin();
+    //    read_representation::const_iterator it = this->m_read_representation.begin();
+    //    read_representation::const_iterator it_other = r.m_read_representation.begin();
 
-    for(;it!=this->m_read_representation.end();it++,it_other++)
-    {
-        if(it_other==r.m_read_representation.end()) return false;
-        read_representation::interval_type itv1  = bicl::key_value<read_representation>(it);
-        read_representation::interval_type itv2  = bicl::key_value<read_representation>(it_other);
-        if(itv1!=itv2) return false;
-    }
-    if(it_other!=r.m_read_representation.end()) return false;
-    return true;
+    //    for(;it!=this->m_read_representation.end();it++,it_other++)
+    //    {
+    //        if(it_other==r.m_read_representation.end()) return false;
+    //        read_representation::interval_type itv1  = bicl::key_value<read_representation>(it);
+    //        read_representation::interval_type itv2  = bicl::key_value<read_representation>(it_other);
+    //        if(itv1!=itv2) return false;
+    //    }
+    //    if(it_other!=r.m_read_representation.end()) return false;
+    //    return true;
+    return this->m_read_representation==r.m_read_representation;
 }
 
 /************************************************************************************
@@ -141,22 +145,19 @@ bool  Read::operator!= (const Read& r) const
 //-----------------------------------------------------------------------------------
 void Cover::addRead(Read& r)
 {
-//    this->max_len=qMax<int>(this->max_len,r.getLength());
-
     iterator i = covering.find(r.getStart());
 
     if(covering.end()!=i)
     {
         for (int j=0; j<i.value().size(); j++)
         {
-         if(i.value().at(j)==r)
-         {
-             i.value()[j]++;
-             return;
-         }
+            if(i.value().at(j)==r)
+            {
+                i.value()[j]++;
+                return;
+            }
         }
     }
-
     covering[r.getStart()]<<r;
 }
 //-----------------------------------------------------------------------------------
@@ -189,8 +190,6 @@ int  Cover::getStarts(int s,int e)
 
     for(;covering.end()!=i && i.key()<=e;i++)
         countReads<int>(i.value(),a);
-//        for(int j=0; j<i.value().size();j++)
-//            a+=i.value()[j].getLevel();
     return a;
 }
 
@@ -251,13 +250,15 @@ QList<QString> Lines::getLines(void)
 
 void GenomeDescription::setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
 {
-    Read r(pos,len,num);
+    bool st=(sense==QChar('+'));
+    Read r(pos,len,num,st);
     addRead(chrName+sense,r);
 }
 
-void GenomeDescription::setGene(const QChar &sense,const QString &chrName,read_representation &r)
+void GenomeDescription::setGene(const QChar &sense,const QString &chrName,read_representation &r,const qint32 & num)
 {
-    Read read(r);
+    bool st=(sense==QChar('+'));
+    Read read(r,st,num);
     addRead(chrName+sense,read);
 }
 
