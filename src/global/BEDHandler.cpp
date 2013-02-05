@@ -314,18 +314,22 @@ void BEDHandler<Storage,Result>::Load()
             if(gArgs().getArgs("bed_type").toInt()==2) {
                 quint64 begin=0;
                 int sql_groupping=0;
-                for(qint64 i=0;i<cover.size()-1;i++) {
-                    if(cover[i] == 0 && cover[i+1] == 0) continue;
-                    if(cover[i] == cover[i+1] ) continue;
-                    if(cover[i] == 0) { begin=i+1; continue;}
+                int old=0;
+                for(qint64 i=0;i<cover.size();i++) {
+                    if(cover[i] == old) continue;
+                    if(begin == 0 ) { old=cover[i]; begin=i; continue; }
+
+//                    if(cover[i] == 0 && cover[i+1] == 0) continue;
+//                    if(cover[i] == cover[i+1] ) continue;
+//                    if(cover[i] == 0) { begin=i+1; continue;}
 
                     if(!create_file)
-                        _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(begin).arg(i).arg(cover[i]).toLocal8Bit());
+                        _outFile.write(QString(chrome+"\t%1\t%2\t%3\n").arg(begin).arg(i-1).arg(cover[i]).toLocal8Bit());
 
 #ifdef _SQL_
                     if(!no_sql_upload) {
                         sql_groupping++;
-                        appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(begin).arg(i).arg(cover[i]);
+                        appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrome).arg(begin).arg(i-1).arg(old);
                         if(sql_groupping==3000) {
                             sql_groupping=0;
                             appe.chop(1);
@@ -336,7 +340,9 @@ void BEDHandler<Storage,Result>::Load()
 
                     }
 #endif
+
                     begin=i;
+                    old=cover[i];
                 }
 #ifdef _SQL_
                 if(!no_sql_upload && sql_groupping>0) {
