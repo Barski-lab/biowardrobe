@@ -134,9 +134,9 @@ void SamReader<Storage>::Load(void)
             if(mapped>1)  mapped--;
 
 
-            qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str();
-            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] "
-                   <<"Len:"<<al.Length<<" InsSize:"<<abs(al.InsertSize)<<" strand:"<<(al.IsReverseStrand()?"-":"+");
+            //            qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str();
+            //            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] "
+            //                   <<"Len:"<<al.Length<<" InsSize:"<<abs(al.InsertSize)<<" strand:"<<(al.IsReverseStrand()?"-":"+");
 
 
             QChar strnd=QChar('+');
@@ -166,7 +166,7 @@ void SamReader<Storage>::Load(void)
 
             genome::read_representation rp;
 
-            QString _out;
+            //QString _out;
             const vector<CigarOp>& cigarData = al.CigarData;
             if (! cigarData.empty() && cigarData.size()>1) {
                 vector<CigarOp>::const_iterator cigarIter = cigarData.begin();
@@ -178,7 +178,7 @@ void SamReader<Storage>::Load(void)
                     if(QString(cigarIter->Type)=="N") {
                         position_b+=cigarIter->Length;
                     }
-                    _out+=QString("[Len=%1,Type=%2]").arg(cigarIter->Length).arg(cigarIter->Type);
+                    //_out+=QString("[Len=%1,Type=%2]").arg(cigarIter->Length).arg(cigarIter->Type);
                 }
             }
             else {
@@ -189,13 +189,13 @@ void SamReader<Storage>::Load(void)
                             references[al.RefID].RefName.c_str(),
                             rp,num);
 
-            for(genome::read_representation::iterator it=rp.begin();it!=rp.end();it++){
-                genome::read_representation::interval_type itv = bicl::key_value<genome::read_representation>(it);
-                qDebug()<<"["<<itv.lower()<<":"<<itv.upper()<<"]";
-            }
+            //            for(genome::read_representation::iterator it=rp.begin();it!=rp.end();it++){
+            //                genome::read_representation::interval_type itv = bicl::key_value<genome::read_representation>(it);
+            //                qDebug()<<"["<<itv.lower()<<":"<<itv.upper()<<"]";
+            //            }
 
-            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<position_b<<"-"<<position_e<<"] " <<
-                      " strand:"<<strnd <<" Cigar"<<_out<<"cigar size:"<<cigarData.size()<<"  shift:"<<shift;
+            //            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<position_b<<"-"<<position_e<<"] " <<
+            //                      " strand:"<<strnd <<" Cigar"<<_out<<"cigar size:"<<cigarData.size()<<"  shift:"<<shift;
 
         } else {
             output->notAligned++;
