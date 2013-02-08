@@ -37,7 +37,7 @@ namespace bicl = boost::icl;
 
 namespace genome {
 
-typedef unsigned int t_genome_coordinates;
+typedef quint64 t_genome_coordinates;
 typedef unsigned int t_reads_count;
 typedef bicl::discrete_interval<t_genome_coordinates> interval_type;
 typedef bicl::interval_set<t_genome_coordinates> read_representation;

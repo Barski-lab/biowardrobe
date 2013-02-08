@@ -132,19 +132,28 @@ void FSTM::FillUpData()
         quint64 cdsStart=q.value(fieldCdsStart).toInt();
         quint64 cdsEnd=q.value(fieldCdsEnd).toInt();
         /*Variables to store start/end exon positions*/
-        bicl::interval_map<t_genome_coordinates,t_reads_count> iso;
+
 
         if(gArgs().getArgs("sam_ignorechr").toString().contains(chr)) {
             continue;
         }
 
-        for(int j=0;j<exCount;j++) {
-            quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
-            iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s+1,e),1));
-        }
 
         for(int i=0;i<m_ThreadNum;i++) {
-            QSharedPointer<Isoform> p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd,iso,iso.size())   );
+            IsoformPtr p(   new Isoform(iso_name,g_name,chr,strand,txStart,txEnd,cdsStart,cdsEnd)   );
+
+            chrom_coverage iso;
+            QList<IsoformPtr> iptr; iptr.append(p);
+
+            for(int j=0;j<exCount;j++) {
+                quint64 s=q_starts.at(j).toInt(),e=q_ends.at(j).toInt();
+                iso.add(make_pair(bicl::discrete_interval<t_genome_coordinates>::closed(s+1,e),iptr));
+            }
+            p->exCount=iso.iterative_size();
+            p->isoform=iso;
+            p->len=iso.size();
+
+            //,iso,iso.size()
             isoforms[i][0][chr].append( p );
             QString str;
             if(strand==QChar('+')) {
@@ -176,12 +185,12 @@ void FSTM::FillUpData()
                             isoforms[t][0][key][j]->intersects=true;
 
                             if(isoforms[t][0][key][j]->intersects_count.isNull()) {
-                                bicl::interval_map<t_genome_coordinates,unsigned int> * p = new bicl::interval_map<t_genome_coordinates,unsigned int>();
+                                chrom_coverage * p = new chrom_coverage();
                                 p[0] += isoforms[t][0][key][i]->isoform ;
                                 p[0] += isoforms[t][0][key][j]->isoform ;
 
                                 //qDebug()<<"inter i:"<<isoforms[0][0][key][i].data()->name<<" inter j:"<<isoforms[0][0][key][j].data()->name;
-                                isoforms[t][0][key][i]->intersects_count=QSharedPointer<bicl::interval_map<t_genome_coordinates,unsigned int> >(p);
+                                isoforms[t][0][key][i]->intersects_count=QSharedPointer< chrom_coverage >(p);
                                 isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
 
                                 QList<IsoformPtr> *p0 = new QList<IsoformPtr>();
@@ -201,25 +210,29 @@ void FSTM::FillUpData()
                         }
                         break;
                     } //if intersects
-                } else { //if intersects_count is null
+                }
+                else { //if intersects_count is null
                     if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
                             bicl::intersects(isoforms[0][0][key][i]->intersects_count.data()[0],isoforms[0][0][key][j]->isoform)) {
                         /*repeat this part for multithread*/
                         for(int t=0;t<m_ThreadNum;t++) {
                             isoforms[t][0][key][j]->intersects=true;
                             if(isoforms[t][0][key][j]->intersects_count.isNull()) {
+
                                 isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][j]->isoform ;
                                 isoforms[t][0][key][j]->intersects_count=isoforms[t][0][key][i]->intersects_count;
 
                                 isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][j]);
                                 isoforms[t][0][key][j]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
-                            } else {
-                                for(int c=0;c<isoforms[t][0][key][j]->intersects_isoforms->size();c++) {
-                                    isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][c]->isoform ;
-                                    isoforms[t][0][key][c]->intersects_count=isoforms[t][0][key][i]->intersects_count;
 
-                                    isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][c]);
-                                    isoforms[t][0][key][c]->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
+                            } else {
+                                int sz=isoforms[t][0][key][j]->intersects_isoforms->size();
+                                for(int c=0;c<sz;c++) {
+                                    isoforms[t][0][key][i]->intersects_count.data()[0] += isoforms[t][0][key][j]->intersects_isoforms->at(c)->isoform ;
+                                    isoforms[t][0][key][j]->intersects_isoforms->at(c)->intersects_count=isoforms[t][0][key][i]->intersects_count;
+
+                                    isoforms[t][0][key][i]->intersects_isoforms->append(isoforms[t][0][key][j]->intersects_isoforms->at(c));
+                                    isoforms[t][0][key][j]->intersects_isoforms->at(c)->intersects_isoforms=isoforms[t][0][key][i]->intersects_isoforms;
                                 }
                             }
                         }

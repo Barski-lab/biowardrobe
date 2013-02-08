@@ -13,4 +13,6 @@ INCLUDEPATH +=  . \
 
 # Input
 SOURCES += \
-    inversions.cpp
+    a1.cpp
+#    inversions.cpp
+

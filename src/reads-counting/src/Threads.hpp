@@ -36,9 +36,9 @@ private:
     IsoformsOnChromosome* isoforms;
     bool dUTP;
 
-    void correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
-    quint64 getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
-
+    //void correctBoundings(chrom_coverage::interval_type &itv,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
+    //quint64 getTotal(const QString &key,int &i,chrom_coverage::domain_type &l,chrom_coverage::domain_type &u);
+    void fill_matrix(Math::Matrix<double>& matrix,QList<IsoformPtr>& g_qip,IsoformPtr i_ptr,QChar strand);
 public:
 
     sam_reader_thread(QString fn,gen_lines *sd,IsoformsOnChromosome* io);

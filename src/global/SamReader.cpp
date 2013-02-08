@@ -130,13 +130,13 @@ void SamReader<Storage>::Load(void)
             int num=1;
             if(tids.contains(al.RefID)) { num=2; output->total++;}
 
-            if(mapped==1) { abort (); break;}
+            if(mapped==1) { break;}
             if(mapped>1)  mapped--;
 
 
-            //            qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str();
-            //            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] "
-            //                   <<"Len:"<<al.Length<<" InsSize:"<<abs(al.InsertSize)<<" strand:"<<(al.IsReverseStrand()?"-":"+");
+//                        qDebug()<<"Name:"<<al.Name.c_str()<<"Seq:"<<al.QueryBases.c_str();
+//                        qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] "
+//                               <<"Len:"<<al.Length<<" InsSize:"<<abs(al.InsertSize)<<" strand:"<<(al.IsReverseStrand()?"-":"+");
 
 
             QChar strnd=QChar('+');
@@ -189,13 +189,13 @@ void SamReader<Storage>::Load(void)
                             references[al.RefID].RefName.c_str(),
                             rp,num);
 
-            //            for(genome::read_representation::iterator it=rp.begin();it!=rp.end();it++){
-            //                genome::read_representation::interval_type itv = bicl::key_value<genome::read_representation>(it);
-            //                qDebug()<<"["<<itv.lower()<<":"<<itv.upper()<<"]";
-            //            }
+            //                        for(genome::read_representation::iterator it=rp.begin();it!=rp.end();it++){
+            //                            genome::read_representation::interval_type itv = bicl::key_value<genome::read_representation>(it);
+            //                            qDebug()<<"["<<itv.lower()<<":"<<itv.upper()<<"]";
+            //                        }
 
-            //            qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<position_b<<"-"<<position_e<<"] " <<
-            //                      " strand:"<<strnd <<" Cigar"<<_out<<"cigar size:"<<cigarData.size()<<"  shift:"<<shift;
+            //                        qDebug()<<"+++++"<<" Position:["<<references[al.RefID].RefName.c_str()<<":"<<position_b<<"-"<<position_e<<"] " <<
+            //                                  " strand:"<<strnd <<" Cigar"<<_out<<"cigar size:"<<cigarData.size()<<"  shift:"<<shift;
 
         } else {
             output->notAligned++;
