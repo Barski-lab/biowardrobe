@@ -18,14 +18,15 @@ template <typename T>
 T Poisson_cdist(int k, T lambda)
 {
     T res = 1.0;
-    for(int i=0; i<k; i++){
-        T log_cur_p = -lambda + i*log(lambda) ;
+    for(int i=0; i<k && res>0; i++){
+        T log_cur_p = -lambda + i*logl(lambda) ;
         for(int j=1; j<=i; j++)//factorial
         {
-            log_cur_p = log_cur_p - log((T)j);
+            log_cur_p = log_cur_p - logl((T)j);
         }
-        res -= exp(log_cur_p);
+        res -= expl(log_cur_p);
     }
+    if(res<0) res=0;
     return res;
 }
 
@@ -105,6 +106,7 @@ a+=make_pair(bicl::discrete_interval<int>::closed((int)11874,(int)12227),c1);
 a+=make_pair(bicl::discrete_interval<int>::closed((int)12613,(int)12721),c1);
 a+=make_pair(bicl::discrete_interval<int>::closed((int)13221,(int)14409),c1);
 a+=make_pair(bicl::discrete_interval<int>::closed((int)69091,(int)70008),c1);
+b+=make_pair(bicl::discrete_interval<int>::closed((int)323890,(int)323892),c2);
 b+=make_pair(bicl::discrete_interval<int>::closed((int)323892,(int)324060),c2);
 b+=make_pair(bicl::discrete_interval<int>::closed((int)324288,(int)324345),c2);
 b+=make_pair(bicl::discrete_interval<int>::closed((int)324439,(int)326938),c2);
@@ -119,13 +121,16 @@ b+=make_pair(bicl::discrete_interval<int>::closed((int)367659,(int)368597),c2);
 
    bicl::interval_map<int, QList<int*> >::iterator it = b.begin();
     cout << "----- History of party guests -------------------------\n";
+    cout << " repeat:"<<b.iterative_size()<<endl;
+    cout << " len:"<<distance(b.begin(),b.end())<<endl;
     while(it != b.end())
     {
       bicl::discrete_interval<int> itv  = it->first;
       bool intersect=bicl::intersects(itv,b.rbegin()->first);
         // Who is at the party within the time interval 'when' ?
+        cout << "column:"<<distance(b.begin(),it);
         QList<int*> who = (*it++).second;
-        cout << itv << ": " << who.size() << " b:"<<intersect<<endl;
+        cout << itv << ": " << who.size() << " b:"<<intersect<<"len:"<<size(itv)<<endl;
     }
 
 
@@ -133,10 +138,10 @@ b+=make_pair(bicl::discrete_interval<int>::closed((int)367659,(int)368597),c2);
 
 
 
-return 0;
+//return 0;
 
-for(int i=0;i<10;i++)
- cout <<i<<":"<<Poisson_cdist<double>(i,(100.0/2000.0)*10.0) << endl;
+for(int i=0;i<55;i++)
+ cout <<i<<":"<<(double)Poisson_cdist<double>(i,13) << endl;
 
 
 

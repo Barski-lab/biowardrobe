@@ -215,7 +215,7 @@ void Arguments::argsList(void)
     Arguments::addArg("in","in","inFileName",QVariant::String,"Input filename, or list of filenames separated by comma without spaces.",QString(""));
     Arguments::addArg("bedin","bedin","inBedFileName",QVariant::String,"Input filename in bed format",QString(""));
     Arguments::addArg("batch","batch","batchFileName",QVariant::String,"Input Batchfile name, different structure for each programm","");
-    Arguments::addArg("out","out","outFileName",QVariant::String,"Base output file name",QString("./output"));
+    Arguments::addArg("out","out","outFileName",QVariant::String,"Base output file name",QString(""));
     Arguments::addArg("log","log","logFileName",QVariant::String,"log file name (default is ./logfile_def.log)",QString("./logfile_def.log"));
 
     Arguments::addArg("sql_driver","","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));

@@ -68,12 +68,13 @@ template <typename T>
 T Poisson_cdist(int k, T lambda)
 {
     T res = 1.0;
-    for(int i=0; i<k; i++){
+    for(int i=0; i<k+1 && res>0; i++){
         T log_cur_p = -lambda + i*mlog<T>(lambda) ;
         for(T j=1; j<=i; j+=1)//factorial
             log_cur_p -= mlog<T>(j);
         res -= mexp<T>(log_cur_p);
     }
+    if(res<0) res=0.0;
     return res;
 }
 

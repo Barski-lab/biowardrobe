@@ -45,6 +45,7 @@ void FSTM::start()
     QStringList bam_names=gArgs().split("in",',');
     int num_bam=bam_names.size();
     m_ThreadNum=num_bam;
+    totIsoLen=0.0;
 
     isoforms=new IsoformsOnChromosome* [num_bam];
     sam_data=new gen_lines* [num_bam];
@@ -57,7 +58,7 @@ void FSTM::start()
         t_pool->setMaxThreadCount(max_thr);
 
     for(int i=0;i<m_ThreadNum;i++) {
-        t_pool->start(new sam_reader_thread(bam_names[i],sam_data[i],isoforms[i]));
+        t_pool->start(new sam_reader_thread(bam_names[i],sam_data[i],isoforms[i],totIsoLen));
     }
 
     if(t_pool->activeThreadCount()!=0) {
@@ -153,7 +154,8 @@ void FSTM::FillUpData()
             p->isoform=iso;
             p->len=iso.size();
 
-            //,iso,iso.size()
+            if(i==0) totIsoLen+=iso.size();
+
             isoforms[i][0][chr].append( p );
             QString str;
             if(strand==QChar('+')) {
@@ -254,15 +256,16 @@ void FSTM::WriteResult()
     qDebug()<<" Writing a result";
 
     QFile outFile;
-    outFile.setFileName(gArgs().getArgs("out").toString());
-    outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-    outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
-
-    for(int i=1;i<m_ThreadNum;i++)
-    {
-        outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+    bool  wrtFile=!(gArgs().getArgs("out").toString().isEmpty() || gArgs().getArgs("no-file").toBool());
+    if(wrtFile) {
+        outFile.setFileName(gArgs().getArgs("out").toString());
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        for(int i=1;i<m_ThreadNum;i++) {
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+        }
+        outFile.write(QString("\n").toAscii());
     }
-    outFile.write(QString("\n").toAscii());
 
     this->CreateTablesViews();
 
@@ -284,33 +287,35 @@ void FSTM::WriteResult()
 
                 if(i==0)
                 {
-                    outFile.write((QString("\"%1\",=\"%2\",%3,%4,%5,%6,%7,%8").
-                                   arg(current.data()->name).
-                                   arg(current.data()->name2).
-                                   arg(current.data()->chrom).
-                                   arg(current.data()->txStart).
-                                   arg(current.data()->txEnd).
-                                   arg(current.data()->strand).
-                                   arg(current.data()->totReads).
-                                   arg(current.data()->RPKM)).toAscii());
+                    if(wrtFile)
+                        outFile.write((QString("\"%1\",=\"%2\",%3,%4,%5,%6,%7,%8").
+                                       arg(current.data()->name).
+                                       arg(current.data()->name2).
+                                       arg(current.data()->chrom).
+                                       arg(current.data()->txStart).
+                                       arg(current.data()->txEnd).
+                                       arg(current.data()->strand).
+                                       arg(current.data()->totReads).
+                                       arg(current.data()->RPKM)).toAscii());
                     if(!gArgs().getArgs("no-sql-upload").toBool())
-                        SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7").
+                        SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7,%8").
                                 arg(current.data()->name).
                                 arg(current.data()->name2).
                                 arg(current.data()->chrom).
                                 arg(current.data()->txStart).
                                 arg(current.data()->txEnd).
                                 arg(current.data()->strand).
+                                arg(current.data()->totReads).
                                 arg(current.data()->RPKM);
-                }
-                else
-                {
-                    outFile.write(QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM).toAscii());
+                } else {
+                    if(wrtFile)
+                        outFile.write(QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM).toAscii());
                     if(!gArgs().getArgs("no-sql-upload").toBool())
-                        SQL_QUERY+=QString(",%1").arg(current.data()->RPKM);
+                        SQL_QUERY+=QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM);
                 }
             }
-            outFile.write(QString("\n").toAscii());
+            if(wrtFile)
+                outFile.write(QString("\n").toAscii());
             SQL_QUERY+="),";
         }
         SQL_QUERY.chop(1);
@@ -319,125 +324,120 @@ void FSTM::WriteResult()
             qDebug()<<"Query error: "<<q.lastError().text();
         }
     }
-    outFile.close();
+    if(wrtFile)
+        outFile.close();
 
 
     /*
      *   Reporting isoforms with common TSS
      */
-    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_common_tss.csv");
-    outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-    outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+    if(wrtFile) {
+        outFile.setFileName(gArgs().fileInfo("out").baseName()+"_common_tss.csv");
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
-    for(int i=1;i<m_ThreadNum;i++)
-    {
-        outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
-    }
-    outFile.write(QString("\n").toAscii());
-
-    foreach(QString key,TSS_organized_list[0].keys())
-    {
-        for(int i=0;i<m_ThreadNum;i++)
-        {
-            QString name,name2;
-            double RPKM=0.0;
-            quint64 totReads=0;
-
-            QSharedPointer<Isoform> current;
-            for(int j=0;j<TSS_organized_list[i][key].size();j++)
-            {
-                current = TSS_organized_list[i][key].at(j);
-                name+=current.data()->name+",";
-                if(!name2.contains(current.data()->name2))
-                    name2+=current.data()->name2+",";
-                RPKM+=current.data()->RPKM;
-                totReads+=current.data()->totReads;
-            }
-            name.chop(1);
-            name2.chop(1);
-
-            if(i==0)
-            {
-                outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
-                               arg(name).
-                               arg(name2).
-                               arg(current.data()->chrom).
-                               arg(current.data()->txStart).
-                               arg(current.data()->txEnd).
-                               arg(current.data()->strand).
-                               arg(totReads).
-                               arg(RPKM)).toAscii());
-            }
-            else
-            {
-                QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
-                outFile.write(tmp.toAscii());
-            }
+        for(int i=1;i<m_ThreadNum;i++) {
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
         }
         outFile.write(QString("\n").toAscii());
-    }
 
-    outFile.close();
+        foreach(QString key,TSS_organized_list[0].keys()) {
+            for(int i=0;i<m_ThreadNum;i++) {
+                QString name,name2;
+                double RPKM=0.0;
+                quint64 totReads=0;
+
+                QSharedPointer<Isoform> current;
+                for(int j=0;j<TSS_organized_list[i][key].size();j++) {
+                    current = TSS_organized_list[i][key].at(j);
+                    name+=current.data()->name+",";
+                    if(!name2.contains(current.data()->name2))
+                        name2+=current.data()->name2+",";
+                    RPKM+=current.data()->RPKM;
+                    totReads+=current.data()->totReads;
+                }
+                name.chop(1);
+                name2.chop(1);
+
+                if(i==0) {
+                    outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
+                                   arg(name).
+                                   arg(name2).
+                                   arg(current.data()->chrom).
+                                   arg(current.data()->txStart).
+                                   arg(current.data()->txEnd).
+                                   arg(current.data()->strand).
+                                   arg(totReads).
+                                   arg(RPKM)).toAscii());
+                } else {
+                    QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
+                    outFile.write(tmp.toAscii());
+                }
+            }
+            outFile.write(QString("\n").toAscii());
+        }
+
+        outFile.close();
 
 
 
-    /*
-     *   Reporting GENES Expression
-     */
-    outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
-    outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-    outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+       /*
+        *   Reporting GENES Expression
+        */
+        outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
-    for(int i=1;i<m_ThreadNum;i++)
-    {
-        outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
-    }
-    outFile.write(QString("\n").toAscii());
-
-    foreach(QString key,GENES_organized_list[0].keys())
-    {
-        for(int i=0;i<m_ThreadNum;i++)
+        for(int i=1;i<m_ThreadNum;i++)
         {
-            QString name,name2;
-            double RPKM=0.0;
-            quint64 totReads=0;
-
-            QSharedPointer<Isoform> current;
-            for(int j=0;j<GENES_organized_list[i][key].size();j++)
-            {
-                current = GENES_organized_list[i][key].at(j);
-                name+=current.data()->name+",";
-                if(!name2.contains(current.data()->name2))
-                    name2+=current.data()->name2+",";
-                RPKM+=current.data()->RPKM;
-                totReads+=current.data()->totReads;
-            }
-            name.chop(1);
-            name2.chop(1);
-
-            if(i==0)
-            {
-                outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
-                               arg(name).
-                               arg(name2).
-                               arg(current.data()->chrom).
-                               arg(current.data()->txStart).
-                               arg(current.data()->txEnd).
-                               arg(current.data()->strand).
-                               arg(totReads).
-                               arg(RPKM)).toAscii());
-            }
-            else
-            {
-                QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
-                outFile.write(tmp.toAscii());
-            }
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
         }
         outFile.write(QString("\n").toAscii());
-    }
 
-    outFile.close();
+        foreach(QString key,GENES_organized_list[0].keys())
+        {
+            for(int i=0;i<m_ThreadNum;i++)
+            {
+                QString name,name2;
+                double RPKM=0.0;
+                quint64 totReads=0;
 
+                QSharedPointer<Isoform> current;
+                for(int j=0;j<GENES_organized_list[i][key].size();j++)
+                {
+                    current = GENES_organized_list[i][key].at(j);
+                    name+=current.data()->name+",";
+                    if(!name2.contains(current.data()->name2))
+                        name2+=current.data()->name2+",";
+                    RPKM+=current.data()->RPKM;
+                    totReads+=current.data()->totReads;
+                }
+                name.chop(1);
+                name2.chop(1);
+
+                if(i==0)
+                {
+                    outFile.write((QString("\"=\"\"%1\"\"\",\"=\"\"%2\"\"\",\"%3\",%4,%5,%6,%7,%8").
+                                   arg(name).
+                                   arg(name2).
+                                   arg(current.data()->chrom).
+                                   arg(current.data()->txStart).
+                                   arg(current.data()->txEnd).
+                                   arg(current.data()->strand).
+                                   arg(totReads).
+                                   arg(RPKM)).toAscii());
+                }
+                else
+                {
+                    QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
+                    outFile.write(tmp.toAscii());
+                }
+            }
+            outFile.write(QString("\n").toAscii());
+        }
+
+        outFile.close();
+    }//if wrtFile
 }
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
@@ -459,8 +459,8 @@ void FSTM::CreateTablesViews(void)
         }
 
         QString RPKM_FIELDS="";
-        for(int i=1;i<m_ThreadNum;i++)
-        {
+        for(int i=1;i<m_ThreadNum;i++) {
+            RPKM_FIELDS+=QString("TOT_R_%1 float,").arg(i);
             RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
         }
 
@@ -472,6 +472,7 @@ void FSTM::CreateTablesViews(void)
                                      "`txStart` INT NULL ,"
                                      "`txEnd` INT NULL ,"
                                      "`strand` char(1),"
+                                     "TOT_R_0   float,"
                                      "RPKM_0   float,"
                                      "%3 "
                                      "INDEX refsec_id_idx (refsec_id) using btree,"
@@ -494,6 +495,7 @@ void FSTM::CreateTablesViews(void)
         RPKM_FIELDS="";
         for(int i=1;i<m_ThreadNum;i++)
         {
+            RPKM_FIELDS+=QString(",coalesce(sum(TOT_R_%1),0) AS TOT_R_%2 ").arg(i).arg(i);
             RPKM_FIELDS+=QString(",coalesce(sum(RPKM_%1),0) AS RPKM_%2 ").arg(i).arg(i);
         }
 
@@ -507,6 +509,7 @@ void FSTM::CreateTablesViews(void)
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
+                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                     "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%2 "
                     "from %3 "
@@ -524,6 +527,7 @@ void FSTM::CreateTablesViews(void)
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
+                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                     "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%1 "
                     "from %2 "
@@ -545,6 +549,7 @@ void FSTM::CreateTablesViews(void)
                     "txStart AS txStart,"
                     "txEnd AS txEnd,"
                     "strand AS strand,"
+                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                     "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                     "%2 "
                     "from %3 "

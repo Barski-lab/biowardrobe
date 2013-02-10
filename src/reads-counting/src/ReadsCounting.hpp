@@ -116,7 +116,7 @@ private:
     int m_ThreadCount;
     int m_ThreadNum;
     QSqlQuery q;
-
+    double totIsoLen;
     IsoformsOnChromosome** isoforms; //QVector<QVector<> > ???
     gen_lines** sam_data;
     //sam_reader_thread** threads;
