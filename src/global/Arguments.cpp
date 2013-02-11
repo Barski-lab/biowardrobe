@@ -215,7 +215,7 @@ void Arguments::argsList(void)
     Arguments::addArg("in","in","inFileName",QVariant::String,"Input filename, or list of filenames separated by comma without spaces.",QString(""));
     Arguments::addArg("bedin","bedin","inBedFileName",QVariant::String,"Input filename in bed format",QString(""));
     Arguments::addArg("batch","batch","batchFileName",QVariant::String,"Input Batchfile name, different structure for each programm","");
-    Arguments::addArg("out","out","outFileName",QVariant::String,"Base output file name",QString("./output"));
+    Arguments::addArg("out","out","outFileName",QVariant::String,"Base output file name",QString(""));
     Arguments::addArg("log","log","logFileName",QVariant::String,"log file name (default is ./logfile_def.log)",QString("./logfile_def.log"));
 
     Arguments::addArg("sql_driver","","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));
@@ -239,6 +239,7 @@ void Arguments::argsList(void)
     Arguments::addArg("bed_trackname","bed_trackname","BED/TRACKNAME",QVariant::String,"Track name which will appear in genome browser","");
 
     Arguments::addArg("no-bed-file","no-bed-file","",QVariant::Bool,"Do not create bed file",false);
+    Arguments::addArg("no-file","no-file","",QVariant::Bool,"Do not produce file output",false);
     Arguments::addArg("no-sql-upload","no-sql-upload","",QVariant::Bool,"Do not upload to SQL",false);
 
     Arguments::addArg("sql_table","sql_table","",QVariant::String,"Sql table to create for bed graph","");
@@ -262,7 +263,7 @@ void Arguments::argsList(void)
 
     Arguments::addArg("window","window","WINDOW",QVariant::Int,"Window",2000);
 
-    Arguments::addArg("threads","threads","",QVariant::Int,"Max number of threads",4);
+    Arguments::addArg("threads","threads","",QVariant::Int,"Max number of threads",0);
 
     Arguments::addArg("sam_siteshift","sam_siteshift","SAM/SITESHIFT",QVariant::Int,"Default siteshift",0);
     Arguments::addArg("sam_mapped_limit","sam_mapped_limit","SAM/MAPPEDLIMIT",QVariant::Int,"Default limit to mapped data",0);

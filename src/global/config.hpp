@@ -84,10 +84,6 @@ using namespace std;
 namespace bicl = boost::icl;
 #endif
 
-#ifdef D_USE_SAM
-#include <sam.h>
-#endif
-
 #ifndef _WIN32
 #include <pwd.h>
 #include <fcntl.h>

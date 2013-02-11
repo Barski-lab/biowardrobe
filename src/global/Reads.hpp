@@ -37,10 +37,10 @@ namespace bicl = boost::icl;
 
 namespace genome {
 
-typedef unsigned int t_genome_coordinates;
+typedef quint64 t_genome_coordinates;
 typedef unsigned int t_reads_count;
 typedef bicl::discrete_interval<t_genome_coordinates> interval_type;
-typedef bicl::interval_map<t_genome_coordinates,t_reads_count> read_representation;
+typedef bicl::interval_set<t_genome_coordinates> read_representation;
 
 /**********************************************************************************
 
@@ -52,7 +52,8 @@ public:
     Read():
         multiplying(0),
         length(0),
-        m_read_representation(make_pair(interval_type::closed(0,0),0)),
+        strand(false),
+        m_read_representation(interval_type::closed(0,0)),
         sentenceRepresentation(""),
         qualityRepresentation("")
     {};
@@ -61,42 +62,46 @@ public:
         multiplying(r.multiplying),
         length(r.length)
     {
+        strand=r.strand;
         sentenceRepresentation=r.sentenceRepresentation;
         qualityRepresentation=r.qualityRepresentation;
         this->m_read_representation=r.m_read_representation;
     };
 
 
-    Read(int start,int len,QString sr="",QString qr=""):
+    Read(int start,int len,bool st=true,QString sr="",QString qr=""):
         multiplying(1),
         length(len),
+        strand(st),
         //position(interval_type::closed(start,start+len-1)),
-        m_read_representation(make_pair(interval_type::closed(start,start+len-1),1)),
+        m_read_representation(interval_type::closed(start,start+len-1)),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
 
-    Read(int start,int len,int num,QString sr="",QString qr=""):
+    Read(int start,int len,int num,bool st=true,QString sr="",QString qr=""):
         multiplying(num),
         length(len),
-        m_read_representation(make_pair(interval_type::closed(start,start+len-1),1)),
+        strand(st),
+        m_read_representation(interval_type::closed(start,start+len-1)),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
 
-    Read(read_representation p,QString sr="",QString qr=""):
-        multiplying(1),
+    Read(read_representation p,bool st=true,int num=1,QString sr="",QString qr=""):
+        multiplying(num),
         length(p.size()),
+        strand(st),
         m_read_representation(p),
         sentenceRepresentation(sr),
         qualityRepresentation(qr)
     {};
 
     int&  getLevel();//   {return multiplying;};
-    //void  plusLevel();//  {++multiplying;};
     int   getStart();//   {return bicl::key_value<read_representation>(m_read_representation.begin()).lower();};
+    int   getEnd();
     int&  getLength();//  {return length;};
-    read_representation& getInterval();//{return m_read_representation;};
+    read_representation& getInterval();
     Read& getMyself(void);// {return *this;};
 
     void  operator+= (const int& c);// {this->multiplying+=c;};
@@ -108,9 +113,10 @@ public:
 private:
     int multiplying;
     int length;
+    bool strand;
     //  read_position position;
     //interval_type position; //::closed(s,e)
-    read_representation m_read_representation;;
+    read_representation m_read_representation;
     QString sentenceRepresentation;
     QString qualityRepresentation;
 };
@@ -138,11 +144,8 @@ public:
     iterator getBeginIterator(){return covering.begin();};
     iterator getEndIterator(){return covering.end();};
 
-    /* Returns an iterator pointing to the item that immediately follows the last item with key key in the map.
-   * If the map contains no item with key key, the function returns an iterator to the nearest item with a greater key.*/
     iterator getUpperBound(int Key){return covering.upperBound(Key);};
-    /* Returns an iterator pointing to the first item with key key in the map.
-   * If the map contains no item with key key, the function returns an iterator to the nearest item with a greater key.*/
+
     iterator getLowerBound(int Key){return covering.lowerBound(Key);};
 
     bool  operator== (const Cover& c) const {return this==&c;};
@@ -151,8 +154,7 @@ public:
 
 
     template <typename T>
-    static void countReads(QList<Read> &qr,T &tot)
-    {
+    static void countReads(QList<Read> &qr,T &tot) {
         for(int c=0;c<qr.size();c++)
             tot+=qr[c].getLevel();
     };
@@ -201,7 +203,7 @@ public:
     /*
     */
     void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len);
-    void setGene(const QChar &sense,const QString &chrName,read_representation &r);
+    void setGene(const QChar &sense,const QString &chrName,read_representation &r,const qint32 & num);
 
     /*
     */
