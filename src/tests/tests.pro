@@ -13,6 +13,7 @@ INCLUDEPATH +=  . \
 
 # Input
 SOURCES += \
-    quicksort.cpp
+    a1.cpp
+#    quicksort.cpp
 #    inversions.cpp
 

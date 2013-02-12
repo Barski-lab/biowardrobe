@@ -35,20 +35,23 @@ typedef long double ldouble;
 template<typename T>
 inline T mlog(T& v)
 {   return log(v); }
+
 template<>
 inline float mlog<float>(float& v)
 {   return logf(v); }
+
 template<>
 inline long double mlog<long double>(long double& v)
 {   return logl(v); }
 
-
 template<typename T>
 inline T mexp(T& v)
 {   return exp(v); }
+
 template<>
 inline float mexp<float>(float& v)
 {   return expf(v); }
+
 template<>
 inline long double mexp<long double>(long double& v)
 {   return expl(v); }
@@ -57,18 +60,19 @@ inline long double mexp<long double>(long double& v)
 template<typename T>
 inline T mpow(T& x,T& y)
 {   return pow(x,y); }
+
 template<>
 inline float mpow<float>(float& x, float& y)
 {   return powf(x,y); }
+
 template<>
 inline long double mpow<long double>(long double& x,long double& y)
 {   return powl(x,y); }
 
 template <typename T>
-T Poisson_cdist(int k, T lambda)
-{
+T Poisson_cdist(int k, T lambda) {
     T res = 1.0;
-    for(int i=0; i<k+1 && res>0; i++){
+    for(int i=0; i<k+1 && res>0; i++) {
         T log_cur_p = -lambda + i*mlog<T>(lambda) ;
         for(T j=1; j<=i; j+=1)//factorial
             log_cur_p -= mlog<T>(j);

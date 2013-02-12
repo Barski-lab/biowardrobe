@@ -67,8 +67,8 @@ void sam_reader_thread::run(void)
     SamReader<gen_lines> (fileName,sam_data).Load();
     qDebug()<<fileName<<"- bam loaded";
 
-    double bMu=(double)(sam_data->total-sam_data->notAligned)/(totIsoLen);
-    double lambda=bMu;
+    double average=(double)(sam_data->total-sam_data->notAligned)/(totIsoLen);
+
     qDebug()<<"Total isoforms length:"<<totIsoLen;
 
     double cutoff=gArgs().getArgs("rpkm_cutoff").toDouble();
@@ -115,10 +115,14 @@ void sam_reader_thread::run(void)
                         if(bicl::intersects(isoforms[0][key][i]->intersects_isoforms->at(c)->isoform,itv) ) {
                             double cur_density=matrix.getElement(c,column)/size(itv);
                             double p_val=0;
-                            if(size(itv)<30 && (column==0 || column==distance(it_count_begin,it_count_end)-1) ) {
+                            bool miss=false;
+                            if( size(itv)<20
+                                    && (cur_density==0 || (cur_density!=0 && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) > 0.01)) )  {
                                 matrix.setElement(c,column,0.0);
+                                miss=true;
                             } else {
-                                if( size(itv)>=150 || (size(itv)<150 && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),lambda*(double)size(itv))) < 0.01) ) {
+#define min_exon_len 50
+                                if( size(itv)>=min_exon_len || (size(itv)<min_exon_len && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) < 0.05) ) {
                                     matrix.setElement(c,column,cur_density==0.0?matrix.getLimit():cur_density);
                                 }else {
                                     matrix.setElement(c,column,matrix.getLimit());
@@ -129,11 +133,11 @@ void sam_reader_thread::run(void)
                             /*DEBUG*/
                             if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->name2) )
                             {
-                                qDebug()<<"strand"<<isoforms[0][key][i]->strand<<"name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
+                                qDebug()<<"strand"<<isoforms[0][key][i]->strand<<" row: "<<c<<" col:"<<column <<" name:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->name
                                        <<" curReads:"<<cur_density*size(itv)<<" exonLen:"<<size(itv)<<" exon["<<itv.lower()<<":"<<itv.upper()<<"] "
                                       <<"totlen:"<<isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size()
-                                     <<" mu:"<<lambda*(double)size(itv)<<" lambda:"<<lambda
-                                    <<" p_val"<<p_val<<" density:"<<cur_density;
+                                     <<" mu:"<<average*(double)size(itv)<<" lambda:"<<average
+                                    <<" p_val"<<p_val<<" density:"<<cur_density <<" m:"<<miss;
                             }
                             /*DEBUG*/
                         } else {
@@ -248,16 +252,41 @@ void sam_reader_thread::run(void)
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 
-void inline repeat_fill_matrix(Math::Matrix<double>& matrix,chrom_coverage::iterator& it_count_begin,chrom_coverage::iterator& it_count,
+void inline repeat_fill_matrix(Math::Matrix<double>& matrix,QList<int>& columns,QList< IsoformPtr >& l_qip,
                                QList<IsoformPtr>& g_qip,double rp_level)
 {
-    for(int c=0;c<(*it_count).second.size();c++) {
-        matrix.setElement(g_qip.indexOf((*it_count).second.at(c)),distance(it_count_begin,it_count),
-                          matrix.getElement(g_qip.indexOf((*it_count).second.at(c)),
-                                            distance(it_count_begin,it_count))+rp_level/(*it_count).second.size());
+    //bool print=false;
+    int tot_col=columns.size();
+    for(int c=0;c<l_qip.size();c++) {
+        int idx=g_qip.indexOf(l_qip.at(c));//row
+
+        for(int co=0;co<tot_col;co++) {
+            matrix.setElement(idx,columns.at(co),matrix.getElement(idx,columns.at(co))+rp_level/(l_qip.size()*tot_col));
+
+//            if( (!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(l_qip.at(c)->name2)) || print ) {
+//                print=true;
+//                qDebug()<<"I: row:"<<idx<<" column:"<<columns.at(co)<<" val:"<<rp_level/(l_qip.size()*tot_col);
+//            }
+        }
     }
 }
 
+QList< IsoformPtr >& collect_index(chrom_coverage::iterator it_count,bool reset=false) {
+    static QList< IsoformPtr > l_qip;
+    QList< IsoformPtr > qip = (*it_count).second;
+    if(reset) {
+        l_qip.clear();
+        l_qip.append(qip);
+        return l_qip;
+    }
+
+    for(int i=0;i<l_qip.size();i++)
+        if(qip.indexOf(l_qip.at(i)) == -1) {
+            l_qip.removeAt(i);
+            i--;
+        }
+    return l_qip;
+}
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------
@@ -287,157 +316,151 @@ void sam_reader_thread::fill_matrix(Math::Matrix<double>& matrix,IsoformPtr i_pt
             genome::read_representation::iterator rp_it=rp_it_begin;
 
             chrom_coverage::iterator it_count=it_count_begin;//current iterator through isoform
-            /*DEBUG*/
-            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-            {
-                genome::read_representation::interval_type  rritv = bicl::key_value< genome::read_representation >(rp_it_begin);
-                qDebug()<<" read start: "<<rritv.lower()<<" num of:"<<rp_level <<" rp.size:"<<rp.iterative_size();
-            }
-            /*DEBUG*/
+            //            /*DEBUG*/
+            //            if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
+            //            {
+            //                genome::read_representation::interval_type  rritv = bicl::key_value< genome::read_representation >(rp_it_begin);
+            //                qDebug()<<" read ["<<rritv.lower()<<":"<<rritv.upper()<<" num of:"<<rp_level <<" rp.size:"<<rp.iterative_size();
+            //            }
+            //            /*DEBUG*/
 
+            QList<int> columns;
             for(;it_count != it_count_end; it_count++) { //isoform segments
 
                 chrom_coverage::interval_type itv  = bicl::key_value<chrom_coverage >(it_count);
-                QList< IsoformPtr > qip = (*it_count).second; //current list of isoforms pointers of exon's intersections
-
-                chrom_coverage::iterator old_index = it_count;
-                int old_size=0;
-
                 genome::read_representation::interval_type  rritv = bicl::key_value< genome::read_representation >(rp_it_begin);
+
                 if(rp.iterative_size()==1) {
                     if(within(rritv,itv)) {
-                        repeat_fill_matrix(matrix,it_count_begin,it_count,g_qip,rp_level);
-                        if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                            qDebug()<<"R1: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
+                        columns<<distance(it_count_begin,it_count);
+                        repeat_fill_matrix(matrix,columns,collect_index(it_count,true),g_qip,rp_level);
                         break;
-                    } else if (within(rritv.lower(),itv) && itv.bounds().bits() != bicl::interval_bounds::_right_open) {
-                        old_size=qip.size();
+                    } else if (within(rritv.lower(),itv) && itv.bounds().bits() != bicl::interval_bounds::_closed) {
+                        columns<<distance(it_count_begin,it_count);
+                        collect_index(it_count,true);
                         it_count++;
-                        if(it_count==it_count_end) break;
-                        itv=bicl::key_value<chrom_coverage >(it_count);
-                        if(within(rritv.upper(),itv)) {
-                            if(old_size > (*it_count).second.size()) {
-                                repeat_fill_matrix(matrix,it_count_begin,it_count,g_qip,rp_level);
-                                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                    qDebug()<<"R2: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                            } else {
-                                repeat_fill_matrix(matrix,it_count_begin,old_index,g_qip,rp_level);
-                                if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                    qDebug()<<"R3: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,old_index);
+                        while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
+                            columns<<distance(it_count_begin,it_count);
+                            collect_index(it_count,true);
+                            itv=bicl::key_value<chrom_coverage >(it_count);
+                            if(within(itv,rritv)) {
+                                it_count++;
+                                continue;
                             }
+                            if(within(rritv.upper(),itv)) {
+                                repeat_fill_matrix(matrix,columns,collect_index(it_count),g_qip,rp_level);
+                                break;
+                            }
+                            it_count++;
                         }
                         break;
                     }//right open
                     continue;
-                } else
+                } else if(rp.iterative_size() > 1) {
 
-                    if(rp.iterative_size() > 1) {
-                        for(;rp_it!=rp_it_end && it_count!=it_count_end; ) {//cycle through current reads segments
-                            rritv = bicl::key_value< genome::read_representation >(rp_it);// read's current segemnt
-                            qip = (*it_count).second; //current list of intersections
-                            itv  = bicl::key_value<chrom_coverage >(it_count); //current isoform segment
+                    for(;rp_it!=rp_it_end && it_count!=it_count_end; ) {//cycle through current reads segments
 
-                            unsigned int its=distance(rp_it_begin,rp_it)+1;
-                            if( its == 1) {//begin
-                                if(within_upper_equal(rritv,itv)) {
-                                    old_size  = qip.size();
-                                    old_index = it_count;
-                                    rp_it++;
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"B1: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                                }else if(within(rritv.lower(),itv) && itv.bounds().bits() == bicl::interval_bounds::_right_open) {
-                                    old_size  = qip.size();
-                                    old_index = it_count;
+                        rritv = bicl::key_value< genome::read_representation >(rp_it);// read's current segemnt
+                        itv  = bicl::key_value<chrom_coverage >(it_count); //current isoform segment
 
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"B2: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                                    it_count++;
-                                    if(it_count==it_count_end) break;
+                        unsigned int its=distance(rp_it_begin,rp_it)+1;
+                        if( its == 1) {//begin
 
-                                    itv=bicl::key_value<chrom_coverage >(it_count);
-                                    qip = (*it_count).second;
+                            if(within_upper_equal(rritv,itv)) {
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count,true);
+                                rp_it++;
+                            }else if(within(rritv.lower(),itv) && itv.bounds().bits() != bicl::interval_bounds::_closed) {
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count,true);
 
-                                    if( rritv.upper() != itv.upper() ) break;
-                                    if(old_size>qip.size()) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
-                                    }
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"B3: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"] column:"<<distance(it_count_begin,it_count);
-                                    rp_it++;
-                                }
                                 it_count++;
-                                continue;
-                            }
-
-                            if( its > 1 && its < rp.iterative_size() ) {//middle
-                                if(within_equal(rritv,itv)) {
-                                    if( old_size>qip.size() ) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
+                                while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
+                                    columns<<distance(it_count_begin,it_count);
+                                    collect_index(it_count,true);
+                                    itv=bicl::key_value<chrom_coverage >(it_count);
+                                    if(within(itv,rritv)) {
+                                        it_count++;
+                                        continue;
                                     }
-                                    rp_it++;
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"M1: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                                } else if(rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open ) {
-                                    if( old_size>qip.size() ) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
+                                    if( rritv.upper() == itv.upper() ) {
+                                        break;
                                     }
                                     it_count++;
-                                    if(it_count==it_count_end) break;
-                                    itv=bicl::key_value<chrom_coverage >(it_count);
-                                    qip = (*it_count).second;
-
-                                    if( rritv.upper() != itv.upper() ) break;
-                                    if( old_size>qip.size() ) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
-                                    }
-                                    rp_it++;
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"M1: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
                                 }
-                                it_count++;
-                                continue;
-                            }
+                                if(it_count==it_count_end || itv.bounds().bits() == bicl::interval_bounds::_closed) break;
 
-                            if( its == rp.iterative_size() ) {//end
-
-                                if( within_lower_equal(rritv,itv) ) {
-                                    if(old_size>qip.size()) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
-                                    }
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"E1: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                                    repeat_fill_matrix(matrix,it_count_begin,old_index,g_qip,rp_level);
-                                    break;
-                                } else if( rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open) {
-                                    if(old_size>qip.size()) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
-                                    }
-                                    it_count++;
-                                    if(it_count==it_count_end) break;
-                                    itv=bicl::key_value<chrom_coverage >(it_count);
-                                    qip = (*it_count).second;
-
-                                    if( rritv.upper() > itv.upper() ) break;
-                                    if( old_size>qip.size() ) {
-                                        old_size  = qip.size();
-                                        old_index = it_count;
-                                    }
-                                    if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(i_ptr->name2) )
-                                        qDebug()<<"E2: ["<<itv.lower()<<":"<<itv.upper()<<"]...["<<rritv.lower()<<":"<<rritv.upper()<<"]"<<" column:"<<distance(it_count_begin,it_count);
-                                    repeat_fill_matrix(matrix,it_count_begin,old_index,g_qip,rp_level);
-                                    break;
-                                }
+                                rp_it++;
                             }
                             it_count++;
-                        }//cycle through current reads segments
-                        break;
-                    } //if rp.iterative_size > 1
+                            continue;
+                        }
+
+                        if( its > 1 && its < rp.iterative_size() ) {//middle
+                            if(within_equal(rritv,itv)) {
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count);
+                                rp_it++;
+                            } else if(rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open ) {
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count);
+
+                                it_count++;
+                                while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
+                                    columns<<distance(it_count_begin,it_count);
+                                    collect_index(it_count,true);
+                                    itv=bicl::key_value<chrom_coverage >(it_count);
+                                    if(within(itv,rritv)) {
+                                        it_count++;
+                                        continue;
+                                    }
+                                    if( rritv.upper() == itv.upper() ) {
+                                        break;
+                                    }
+                                    it_count++;
+                                }
+                                if(it_count==it_count_end || itv.bounds().bits() == bicl::interval_bounds::_closed) break;
+                                rp_it++;
+                            }
+                            it_count++;
+                            continue;
+                        }
+
+                        if( its == rp.iterative_size() ) {//end
+
+                            if( within_lower_equal(rritv,itv) ) {
+                                columns<<distance(it_count_begin,it_count);
+                                repeat_fill_matrix(matrix,columns,collect_index(it_count),g_qip,rp_level);
+                                break;
+                            } else if( rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open) {
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count);
+
+                                it_count++;
+                                bool ok=false;
+                                while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
+                                    columns<<distance(it_count_begin,it_count);
+                                    collect_index(it_count,true);
+                                    itv=bicl::key_value<chrom_coverage >(it_count);
+                                    if(within(itv,rritv)) {
+                                        it_count++;
+                                        continue;
+                                    }
+                                    if( rritv.upper() <= itv.upper() ) {
+                                        repeat_fill_matrix(matrix,columns,collect_index(it_count),g_qip,rp_level);
+                                        ok=true;
+                                        break;
+                                    }
+                                    it_count++;
+                                }
+                                if(it_count==it_count_end || itv.bounds().bits() == bicl::interval_bounds::_closed || ok) break;
+                                break;
+                            }
+                        }
+                        it_count++;
+                    }//cycle through current reads segments
+                    break;
+                } //if rp.iterative_size > 1
             }//isoform segments
         }
     }

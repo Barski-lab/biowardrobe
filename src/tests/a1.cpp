@@ -95,13 +95,28 @@ int main(void)
 bicl::interval_map<int,QList<int*> > a,b,c; 
 
 QList<int*> c1,c2,c3;
-int ccc=1;
-int* cc=&ccc;
-c1.append(cc);
+int ccc=1,bbb=1,cb=1;
+int  *cc=&ccc,*bb=&bbb;
 c2.append(cc);
+c2.append(bb);
 c2.append(cc);
-c3.append(cc);
+c2.append(bb);
+c2.append(cc);
+c2.append(bb);
 
+qDebug()<<" size:"<<c2.size();
+for(int i=0; i<c2.size();i++) {
+    qDebug()<<" point:"<<c2.at(i)<<" i:"<<i;
+    if(c2.indexOf(&cb) == -1 ) {
+        c2.removeAt(i);
+        i--;
+        }
+}
+
+for(int i=0; i<c2.size();i++) {
+    qDebug()<<" pointN:"<<c2.at(i);
+}
+return 0;
 a+=make_pair(bicl::discrete_interval<int>::closed((int)11874,(int)12227),c1);
 a+=make_pair(bicl::discrete_interval<int>::closed((int)12613,(int)12721),c1);
 a+=make_pair(bicl::discrete_interval<int>::closed((int)13221,(int)14409),c1);
