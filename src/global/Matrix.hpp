@@ -103,13 +103,6 @@ Matrix<T>::Matrix(qint64 row,qint64 col)
     init(row,col);
 }
 
-template <class T>
-T Matrix<T>::getLimit()
-{
-    //static T val=std::numeric_limits<T>::min()*1.0e+10;
-    static T val=(T)(gArgs().getArgs("rpkm_cutoff").toDouble()*1.0e-10);
-    return val;
-}
 /*
  *
  */
@@ -324,6 +317,16 @@ void Matrix<T>::fillColCond(qint64 col,T val,T cond)
             m_matrix_data[i][col]=val;
 }
 
+/*
+ *
+ */
+template <class T>
+T Matrix<T>::getLimit()
+{
+    //static T val=std::numeric_limits<T>::min()*1.0e+10;
+    static T val=(T)(gArgs().getArgs("rpkm_cutoff").toDouble()*1.0e-6);
+    return val;
+}
 
 /*
  * This function solving matrix using arithmetic mean
@@ -335,15 +338,11 @@ template <class T>
 qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
 {
     QVector<T> sumCol;
-    double cutoff=getLimit()*1.0e4;//gArgs().getArgs("rpkm_cutoff").toDouble()*1.0e-7;
-    /*calculating valuable fields in each row*/
-//    for(qint64 i=0;i<this->getRowCount();i++)
-//    {
-//        rowCol<<this->getRowColCount(i,(T)0);
-//    }
+    double cutoff=getLimit()*1.0e4;
+    double locLim=getLimit()/1.0e6;
     /*calculating original sums of each column*/
-    for(qint64 i=0;i<this->getColCount();i++)
-    {
+
+    for(qint64 i=0;i<this->getColCount();i++) {
         sumCol<<this->colSum(i);
     }
 
@@ -353,37 +352,32 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
     for(;cycles<2000;cycles++)
     {
         /*cycle trough rows, make average of all rows, and assign*/
-        if(arithmetic)
-        {
-            for(qint64 i=0; i<this->getRowCount(); i++)
-            {
+        if(arithmetic) {
+            for(qint64 i=0; i<this->getRowCount(); i++) {
                 T av=this->rowSum(i)/rowCol.at(i);
                 this->fillRowCond(i,av,(T)0);
             }
         }
-        else
-        {
-            for(qint64 i=0; i<this->getRowCount(); i++)
-            {
+        else {
+            for(qint64 i=0; i<this->getRowCount(); i++) {
                 T av=this->rowLogSum(i)/rowCol.at(i);
                 av=mexp<T>(av);
-                if(av<getLimit())
-                    av=getLimit();
+                if(av<locLim)
+                    av=locLim;
                 this->fillRowCond(i,av,(T)0);
             }
         }
         /*cycle trough column, sum of ratio of all columns should be original val */
-        for(qint64 j=0; j<this->getColCount(); j++)
-        {
+        for(qint64 j=0; j<this->getColCount(); j++) {
             T sum=this->colSum(j);
             if(sum==0) continue;
-            //T rat=sumCol.at(j)/sum;
-            for(qint64 r=0;r<this->getRowCount();r++)
-            {
+            T rat=sumCol.at(j)/sum;
+            for(qint64 r=0;r<this->getRowCount();r++) {
                 if(this->getElement(r,j)==(T)0) continue;
-                T av = sumCol.at(j)*this->getElement(r,j)/sum;
-                if(av<getLimit())
-                    av=getLimit();
+                //T av = sumCol.at(j)*this->getElement(r,j)/sum;
+                T av = rat*this->getElement(r,j);
+                //if(av<locLim)
+                //    av=locLim;
                 this->setElement(r,j,av);
             }
         }

@@ -114,19 +114,26 @@ void sam_reader_thread::run(void)
 
                         if(bicl::intersects(isoforms[0][key][i]->intersects_isoforms->at(c)->isoform,itv) ) {
                             double cur_density=matrix.getElement(c,column)/size(itv);
-                            double p_val=0;
+                            double p_val=0.0;
                             bool miss=false;
-                            if( size(itv)<20
-                                    && (cur_density==0 || (cur_density!=0 && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) > 0.01)) )  {
+#define min_exon_len 50
+                            if( size(itv)<6) {
+                                matrix.setElement(c,column,0.0);
+                                miss=true;
+                            } else if(size(itv)<36 && itv.bounds().bits() != bicl::interval_bounds::_closed
+                                    && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) > 0.01 )  {
                                 matrix.setElement(c,column,0.0);
                                 miss=true;
                             } else {
-#define min_exon_len 50
-                                if( size(itv)>=min_exon_len || (size(itv)<min_exon_len && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) < 0.05) ) {
-                                    matrix.setElement(c,column,cur_density==0.0?matrix.getLimit():cur_density);
-                                }else {
-                                    matrix.setElement(c,column,matrix.getLimit());
-                                }
+//                                if(size(itv)<=min_exon_len && p_val==0.0) {
+//                                    p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv));
+//                                }
+//                                if( size(itv)>min_exon_len || p_val<0.05 ) {
+                                    //matrix.setElement(c,column,cur_density==0.0?matrix.getLimit()/size(itv):cur_density);
+                                matrix.setElement(c,column,cur_density);
+//                                }else {
+//                                    matrix.setElement(c,column,matrix.getLimit()/size(itv));
+//                                }
                                 rowCol[c]+=1.0;
                             }
                             matrix_orig.setElement(c,column,cur_density);
@@ -401,14 +408,12 @@ void sam_reader_thread::fill_matrix(Math::Matrix<double>& matrix,IsoformPtr i_pt
                                 columns<<distance(it_count_begin,it_count);
                                 collect_index(it_count);
                                 rp_it++;
-                            } else if(rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open ) {
+                            } else if(rritv.lower()==itv.lower() && itv.bounds().bits() != bicl::interval_bounds::_closed ) {
                                 columns<<distance(it_count_begin,it_count);
                                 collect_index(it_count);
 
                                 it_count++;
                                 while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
-                                    columns<<distance(it_count_begin,it_count);
-                                    collect_index(it_count,true);
                                     itv=bicl::key_value<chrom_coverage >(it_count);
                                     if(within(itv,rritv)) {
                                         it_count++;
@@ -420,6 +425,8 @@ void sam_reader_thread::fill_matrix(Math::Matrix<double>& matrix,IsoformPtr i_pt
                                     it_count++;
                                 }
                                 if(it_count==it_count_end || itv.bounds().bits() == bicl::interval_bounds::_closed) break;
+                                columns<<distance(it_count_begin,it_count);
+                                collect_index(it_count,true);
                                 rp_it++;
                             }
                             it_count++;
@@ -432,21 +439,21 @@ void sam_reader_thread::fill_matrix(Math::Matrix<double>& matrix,IsoformPtr i_pt
                                 columns<<distance(it_count_begin,it_count);
                                 repeat_fill_matrix(matrix,columns,collect_index(it_count),g_qip,rp_level);
                                 break;
-                            } else if( rritv.lower()==itv.lower() && itv.bounds().bits() == bicl::interval_bounds::_right_open) {
+                            } else if( rritv.lower()==itv.lower() && itv.bounds().bits() != bicl::interval_bounds::_closed) {
                                 columns<<distance(it_count_begin,it_count);
                                 collect_index(it_count);
 
                                 it_count++;
                                 bool ok=false;
                                 while(itv.bounds().bits() != bicl::interval_bounds::_closed && it_count!=it_count_end) {
-                                    columns<<distance(it_count_begin,it_count);
-                                    collect_index(it_count,true);
                                     itv=bicl::key_value<chrom_coverage >(it_count);
                                     if(within(itv,rritv)) {
                                         it_count++;
                                         continue;
                                     }
                                     if( rritv.upper() <= itv.upper() ) {
+                                        columns<<distance(it_count_begin,it_count);
+                                        collect_index(it_count,true);
                                         repeat_fill_matrix(matrix,columns,collect_index(it_count),g_qip,rp_level);
                                         ok=true;
                                         break;
