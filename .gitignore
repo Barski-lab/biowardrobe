@@ -3,9 +3,7 @@ GeneratedFiles
 lib*
 ReadsCounting
 bamtools-toolkit
-bam2bedgraph
 SNP
 *.pyc
 RUN*
-averagedensity
 boost

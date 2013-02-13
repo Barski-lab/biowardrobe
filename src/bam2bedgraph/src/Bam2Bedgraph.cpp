@@ -28,7 +28,7 @@
 typedef genome::GenomeDescription gen_lines;
 
 typedef SamReader<gen_lines> sam_reader;
-typedef BEDHandler<gen_lines,QList<int> > bed_handler;
+typedef BEDHandler bed_handler;
 
 
 FSTM::FSTM(QObject *parent):
@@ -47,19 +47,18 @@ void FSTM::start()
         sam_reader   s(&sam_data);
         s.Load();
 
-        QList<int>   bed_data;
-        bed_handler  bed(sam_data,bed_data);
+        bed_handler  bed(sam_data);
         bed.Load();
 
     }
     catch(char *str)
     {
-        cerr << "Error rised:"<<str << endl;
+        qDebug() << "Error rised:"<<str;
     }
-    catch(...)
+    catch(exception& e)
     {
-        //cerr << "Caught " << e.what( ) << endl;
-        //cerr << "Type " << typeid( e ).name( ) << endl;
+        qDebug() << "Error rised:"<<e.what( );
+        qDebug() << "Type " << typeid( e ).name( );
     }
 
     emit finished();

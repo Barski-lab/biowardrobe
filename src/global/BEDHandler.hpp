@@ -33,26 +33,34 @@ GLOBALCALL{
 }();
 #endif
 
-template <class Storage, class Result>
+
 class BEDHandler
 {
 
 private:
+    typedef genome::GenomeDescription Storage;
 
     Storage *sam_input;
-    Result *output;
-
-    QSettings setup;
+    QList<int> *output;
+    QList<int> def_output;
 
     QFile _outFile;
+
     bool create_file;
     bool no_sql_upload;
+    int bed_type;
+    quint32 window;
 public:
 
-    BEDHandler(Storage &sam,Result &output);
+    BEDHandler(Storage &sam);
+    BEDHandler(Storage &sam,QList<int> &output);
     ~BEDHandler();
     void Load(void);
 protected:
+    void init(Storage &sam);
+    void fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString const& chrom,QChar const& strand,int shift=0);
+    void cover_save(QVector<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand);
+    void bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& chrom, QChar const& strand);
 
 #ifdef _SQL_
     QSqlQuery q;
@@ -62,6 +70,6 @@ protected:
 
 };
 
-#include <BEDHandler.cpp>
+//#include <BEDHandler.cpp>
 
 #endif //

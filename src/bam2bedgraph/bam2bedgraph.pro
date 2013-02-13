@@ -53,14 +53,16 @@ INCLUDEPATH += . \
 
 HEADERS +=     ../global/Arguments.hpp \
                ../global/Reads.hpp \
-               src/Bam2Bedgraph.hpp
+               src/Bam2Bedgraph.hpp \
+    ../global/BEDHandler.hpp
 
 
 # Input
 SOURCES +=     src/main.cpp \
                ../global/Reads.cpp \
                src/Bam2Bedgraph.cpp \
-	       ../global/Arguments.cpp
+	       ../global/Arguments.cpp \
+    ../global/BEDHandler.cpp
 
 
 QMAKE_CLEAN += $${TARGET} logfile.log *~ ./src/*~ *.txt ../global/*~
