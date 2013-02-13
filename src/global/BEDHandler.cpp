@@ -31,15 +31,7 @@ BEDHandler::~BEDHandler() {
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-BEDHandler::BEDHandler(Storage& sam,QList<int> &_output) {
-    output=&_output;
-    init(sam);
-}
-
-//-------------------------------------------------------------
-//-------------------------------------------------------------
 BEDHandler::BEDHandler(Storage& sam) {
-    output=&def_output;
     init(sam);
 }
 
@@ -51,6 +43,8 @@ void BEDHandler::init(Storage& sam)
     create_file=gArgs().getArgs("no-bed-file").toBool();
     bed_type=gArgs().getArgs("bed_type").toInt();
     window=gArgs().getArgs("bed_window").toUInt();
+    no_sql_upload=gArgs().getArgs("no-sql-upload").toBool();
+
     if(window<=0) window=0;
 
     if(!create_file) {
@@ -64,9 +58,7 @@ void BEDHandler::init(Storage& sam)
             _outFile.flush();
         }
     }
-#ifdef _SQL_
-    //QStringList  tbls=QSqlDatabase::database().tables();
-    no_sql_upload=gArgs().getArgs("no-sql-upload").toBool();
+
     if(no_sql_upload) return;
 
 #define trackDb_table QString("trackDb_local")
@@ -176,7 +168,7 @@ void BEDHandler::init(Storage& sam)
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name,score,strand) VALUES";
         break;
     }
-#endif
+
 }
 
 //-------------------------------------------------------------
@@ -204,7 +196,7 @@ void BEDHandler::Load()
             }
             if(bed_type==2) {
                 cover_save(cover,sql_prep,chrom, '+');
-                cover.clear();
+                cover.fill(0,sam_input->getLength('+',chrom)+1);
             }
         }
 

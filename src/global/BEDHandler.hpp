@@ -41,8 +41,6 @@ private:
     typedef genome::GenomeDescription Storage;
 
     Storage *sam_input;
-    QList<int> *output;
-    QList<int> def_output;
 
     QFile _outFile;
 
@@ -53,7 +51,6 @@ private:
 public:
 
     BEDHandler(Storage &sam);
-    BEDHandler(Storage &sam,QList<int> &output);
     ~BEDHandler();
     void Load(void);
 protected:
@@ -62,14 +59,11 @@ protected:
     void cover_save(QVector<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand);
     void bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& chrom, QChar const& strand);
 
-#ifdef _SQL_
+
     QSqlQuery q;
     QString sql_prep;
-#endif
 
 
 };
-
-//#include <BEDHandler.cpp>
 
 #endif //
