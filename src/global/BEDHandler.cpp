@@ -254,11 +254,11 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
             if(old == 0) { old=cover[i]; begin=i; continue; }
 
             if(!create_file)
-                _outFile.write(QString(chrom+"\t%1\t%2\t%3\t0\t"+strand+"\n").arg(begin-1).arg(i-1).arg(cover[i]).toLocal8Bit());
+                _outFile.write(QString(chrom+"\t%1\t%2\t"+"+strand+"+"%3\t0\t"+strand+"\n").arg(begin-1).arg(i-1).arg(cover[i]).toLocal8Bit());
 
             if(!no_sql_upload) {
                 sql_groupping++;
-                appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrom).arg(begin-1).arg(i-1).arg(old).arg(strand);
+                appe+=QString(" (0,'%1',%2,%3,%4%5,0,'%6'),").arg(chrom).arg(begin-1).arg(i-1).arg(strand).arg(old).arg(strand);
                 if(sql_groupping==3000) {
                     sql_groupping=0;
                     appe.chop(1);
@@ -304,10 +304,10 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
         for(;i!=bed.end();i++) {
 
             if(!create_file)
-                _outFile.write(QString(chrom+"\t%1\t%2\t%3\t0\t"+strand+"\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
+                _outFile.write(QString(chrom+"\t%1\t%2\t"+strand+"%3\t0\t"+strand+"\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
 
             if(!no_sql_upload)
-                appe+=QString(" (0,'%1',%2,%3,%4,0,'%5'),").arg(chrom).arg(i.key()).arg(i.key()+window).arg(i.value()).arg(strand);
+                appe+=QString(" (0,'%1',%2,%3,%4%5,0,'%6'),").arg(chrom).arg(i.key()).arg(i.key()+window).arg(strand).arg(i.value()).arg(strand);
         }
         break;
     }//switch
