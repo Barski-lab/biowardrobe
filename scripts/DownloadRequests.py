@@ -165,7 +165,7 @@ while True:
     cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e from labdata a, worker w,experimenttype e "
 	" where a.worker_id =w.id and e.id=experimenttype_id "
 	" and dnalogin is not null and dnalogin <> '' "
-	" and dnapass is not null and dnapass <> '' and libstatus in (0) limit 1")
+	" and dnapass is not null and dnapass <> '' and a.libcode <> '' and libstatus in (0) limit 1")
     row = cursor.fetchone()
 
     if not row:
@@ -184,7 +184,7 @@ while True:
 	os.makedirs(basedir,0775)
     except:
 	pass
-    print row[0]
+    #print row[0]
     a=get_file(row[0],row[1],row[2],basedir,PAIR)
     #print a
 
