@@ -129,8 +129,8 @@ void sam_reader_thread::run(void)
 //                                    p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv));
 //                                }
 //                                if( size(itv)>min_exon_len || p_val<0.05 ) {
-                                    //matrix.setElement(c,column,cur_density==0.0?matrix.getLimit()/size(itv):cur_density);
-                                matrix.setElement(c,column,cur_density);
+                                    matrix.setElement(c,column,cur_density==0.0?matrix.getLimit()*1.0e-10/size(itv):cur_density);
+//                                matrix.setElement(c,column,cur_density);
 //                                }else {
 //                                    matrix.setElement(c,column,matrix.getLimit()/size(itv));
 //                                }
@@ -190,7 +190,7 @@ void sam_reader_thread::run(void)
 
                     for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++) {
                         double val=matrix.getValue(c,column);
-                        if(val==0) val=matrix_orig.getValue(c,column);
+                        //if(val==0) val=matrix_orig.getValue(c,column);
                         isoforms[0][key][i]->intersects_isoforms->at(c)->density+=val*size(itv);
                     }
                 }
@@ -204,7 +204,7 @@ void sam_reader_thread::run(void)
                     /*Wich RPKM is meaningfull ?*/
                     if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff) {
                         isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
-                        isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=0;
+                        //isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=0;
                     }
                     if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->intersects_isoforms->at(c)->name2) )
                     {

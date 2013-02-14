@@ -70,7 +70,7 @@ public:
     void    fillRowCond(qint64,T,T);
     void    fillColCond(qint64,T,T);
 
-    qint64 convergeAverageMatrix(bool arithmetic,QVector<T> rowCol);
+    qint64 convergeAverageMatrix(bool arithmetic, QVector<T> rowCol);
     T getLimit(void);
 private:
     QVector<QVector<T> > m_matrix_data;
@@ -339,7 +339,7 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
 {
     QVector<T> sumCol;
     double cutoff=getLimit()*1.0e4;
-    double locLim=getLimit()/1.0e6;
+    double locLim=getLimit()/1.0e20;
     /*calculating original sums of each column*/
 
     for(qint64 i=0;i<this->getColCount();i++) {
@@ -393,6 +393,73 @@ qint64 Matrix<T>::convergeAverageMatrix(bool arithmetic,QVector<T> rowCol)
     return cycles;
 }
 
+
+#ifdef EM
+#if 0
+Matrix<T> tmp(*this);
+T N_tot=tmp.SumAll();
+QVector<T> Pk;
+QVector<T> Pk_old;
+T diff=1;
+int cycles=0;
+
+for(qint64 r=0; r<this->getRowCount(); r++) {
+    Pk<<this->rowSum(r)/N_tot;
+    Pk_old<<0;
+}
+
+while(diff>1.0e-6) {
+    cycles++;
+    diff=0.0;
+    for(qint64 c=0; c<this->getColCount(); c++) {
+        T column_sum=0.0;
+        for(qint64 r=0;r<this->getRowCount();r++) {
+            T el=tmp.getElement(r,c)*Pk[r];
+            column_sum+=el;
+            tmp.setElement(r,c,el);
+        }
+        if(column_sum==0) continue;
+        for(qint64 r=0;r<this->getRowCount();r++) {
+            T el=tmp.getElement(r,c)/column_sum;
+            tmp.setElement(r,c,el);
+        }
+    }
+    for(int i=0;i<Pk.size();i++)
+        Pk_old[i]=Pk[i];
+    //int N=this->getColCount();
+    T N=0.0;
+    for(int i=0; i<this->getRowCount(); i++) {
+        T el=tmp.rowSum(i);
+        //Pk[i]=el/iso_exons.at(i);
+        N+=el;
+        Pk[i]=el;
+        //diff+=abs(Pk_old[i]-Pk[i]);
+    }
+    for(int i=0; i<Pk.size(); i++) {
+        Pk[i]=Pk[i]/N;
+        diff+=abs(Pk_old[i]-Pk[i]);
+    }
+}
+        for(int r=0; r<this->getRowCount(); r++) {
+                this->setElement(r,0,N_tot*Pk[r]);
+        }
+//    for(int c=0; c<this->getColCount(); c++) {
+//        T sum=this->colSum(c);
+//        for(int r=0; r<this->getRowCount(); r++) {
+//            if(this->getElement(r,c)!=0)
+//                this->setElement(r,c,sum*Pk[r]);
+//        }
+//    }
+
+#endif
+#endif
+
+
+#if 0
+
+
+
+#endif
 
 /*
  * Make a printable string
