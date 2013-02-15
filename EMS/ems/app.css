@@ -78,6 +78,48 @@
     height: 16px;
 }
 
+.about {
+    background-image: url( images/about.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.cut {
+    background-image: url( images/cut.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.help {
+    background-image: url( images/unknown.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.wrench {
+    background-image: url( images/wrench.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.information {
+    background-image: url( images/information.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.question_and_answer {
+    background-image: url( images/question_and_answer.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.surveillance-camera {
+    background-image: url( images/surveillance_camera.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .users3 {
     background-image: url( images/users3.png ) !important;
     width: 16px;

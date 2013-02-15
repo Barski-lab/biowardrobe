@@ -69,7 +69,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                            { text: 'Experiment type', action: 'ExpType', tooltip: 'Experiment type',iconCls: 'bottle-pills' },
                            { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Fragmentation type',iconCls: 'army-knife' },
                            { text: 'Genome type', action: 'GenomeType', tooltip: 'Genome type',iconCls: '' },
-                           { text: 'Spikeins', action: 'Spikeins', tooltip: 'Spikeins',iconCls: '' }
+                           { text: 'Spikeins', action: 'Spikeins', tooltip: 'Spikeins',iconCls: 'surveillance-camera' }
                        ],
                        iconCls:'folder-document'
                    },
@@ -77,9 +77,9 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Tools',
                        tooltip:'',
                        menu: [
-                           { text: 'Sequence cutter', action: 'SeqCut', tooltip: 'Tool to cutting sequence into pieces',iconCls: '' },
+                           { text: 'Sequence cutter', action: 'SeqCut', tooltip: 'Tool to cutting sequence into pieces',iconCls: 'cut' },
                        ],
-                       iconCls:''
+                       iconCls:'wrench'
                    },
                    { xtype: 'button',
                        text:'Notes for supplemental',
@@ -94,10 +94,10 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Help',
                        tooltip:'',
                        menu: [
-                           { text: 'Help', action: 'Help', tooltip: '',iconCls: '' },
-                           { text: 'About', action: 'About', tooltip: '',iconCls: '' }
+                           { text: 'Help', action: 'Help', tooltip: '',iconCls: 'help' },
+                           { text: 'About', action: 'About', tooltip: '',iconCls: 'about' }
                        ],
-                       iconCls:''
+                       iconCls:'question_and_answer'
                    },
                ]
            });

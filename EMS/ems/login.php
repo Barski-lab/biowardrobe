@@ -184,7 +184,7 @@ Ext.onReady(function() {
     if('<?php echo $TIMEOUT;?>' === 'true') {
         Ext.Msg.show({
                          title: 'Your session has expired',
-                         msg: 'Your session has expired, please login again.',
+                         msg: 'Your session has expired, please login.',
                          icon: Ext.Msg.INFO,
                          buttons: Ext.Msg.OK,
                          fn:function(btn, text){

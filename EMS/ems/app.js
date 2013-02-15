@@ -55,9 +55,7 @@ var Timer = (function(){
             var cur_date=new Date();
             if(typeof time === 'undefined')
                 this.set();
-            if(cur_date- time >= 590000) {
-                Logger.log("Timer:"+time+" Cur_time:"+cur_date+" Diff:"+(cur_date-time));
-                Logger.log("Session expired");
+            if(cur_date- time >= 550000) {
                 window.location="login.php?timeout=true";
             }
         },
