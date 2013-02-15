@@ -194,4 +194,12 @@ OTHER_FILES += \
     data/RPKM.php \
     data/database_connection.php \
     data/csv.php \
-    data/def_vars.php
+    data/def_vars.php \
+    images/wrench.png \
+    images/virus.png \
+    images/unknown.png \
+    images/surveillance_camera.png \
+    images/question_and_answer.png \
+    images/information.png \
+    images/cut.png \
+    images/about.png
