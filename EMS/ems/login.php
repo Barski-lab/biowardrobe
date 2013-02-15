@@ -4,18 +4,16 @@ include('/etc/settings/config.php');
 session_start();
 
 if(isset($_SESSION["timeout"])) {
-unset($_SESSION["timeout"]);
-$_SESSION["timeout"]="";
-$_SESSION = array();
-session_destroy();
-session_unset();
+    unset($_SESSION["timeout"]);
+    $_SESSION = array();
+    session_destroy();
+    session_unset();
 }
 
 
   $TITLE="EMS login";
 
-  if($_REQUEST["timeout"]=="true")
-  {
+  if($_REQUEST["timeout"]=="true") {
    $TITLE="session expired";
   }
 
@@ -25,7 +23,7 @@ session_unset();
      <title>Login</title>
       <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css">
       <link rel="stylesheet" type="text/css" href="ext/examples/desktop/css/desktop.css"/>
-      <script type="text/javascript" src="ext/ext-debug.js"></script>
+      <script type="text/javascript" src="ext/ext.js"></script>
 
         <style type="text/css">
             body {
