@@ -6,6 +6,7 @@
       height:   100%;
       z-index:  20000;
       background-color: white;
+      cursor:wait;
 }
 
 #loading {
@@ -27,7 +28,7 @@
       margin:     0;
       text-align: center;
       height:     auto;
-      cursor:wait;
+      //cursor:wait;
       //border:1px solid #d0d0d0;
       //background-color:#eee;
 }

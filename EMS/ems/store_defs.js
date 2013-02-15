@@ -20,6 +20,41 @@
 **
 ****************************************************************************/
 
+
+var Logger = (function(){
+    var panel;
+    var queue;
+
+    return {
+        log: function(msg, color){
+            color = typeof color !== 'undefined' ? color : "blue";
+            if(typeof panel !== 'undefined')
+            {
+                panel.update({
+                                 now: new Date(),
+                                 cls: color,
+                                 msg: msg
+                             });
+                panel.body.scroll('b', 100000, true);
+                console.log(msg);
+            }
+            else
+            {
+                console.log(msg);
+            }
+        },
+        init: function(logv){
+            panel = logv;
+            panel.update({
+                             now: new Date(),
+                             cls: 'blue',
+                             msg: 'Logging is on'
+                         });
+            panel.body.scroll('b', 100000, true);
+        }
+    };
+})();
+
 STORE_DEFS = {
     //default parameters for store proxy
     proxy: function(TBL){
@@ -47,7 +82,7 @@ STORE_DEFS = {
             },
             listeners: {
                 exception: function(proxy, response, operation) {
-                    console.log(proxy, response, operation);
+                    Logger.log(proxy, response, operation);
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {
@@ -57,7 +92,7 @@ STORE_DEFS = {
                                                     icon: Ext.MessageBox.ERROR,
                                                     buttons: Ext.Msg.OK
                                                 });
-                            console.log('Save failed:',json.message,' error:',json.errors);
+                            Logger.log('Save failed:',json.message,' error:',json.errors);
                         } else {
                             Ext.MessageBox.show({
                                                     title: operation.action+' failed',

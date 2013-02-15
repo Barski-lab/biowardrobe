@@ -28,40 +28,6 @@ Ext.Loader.setPath(
             );
 
 
-var Logger = (function(){
-    var panel;
-    var queue;
-
-    return {
-        log: function(msg, color){
-            color = typeof color !== 'undefined' ? color : "blue";
-            if(typeof panel !== 'undefined')
-            {
-                panel.update({
-                                 now: new Date(),
-                                 cls: color,
-                                 msg: msg
-                             });
-                panel.body.scroll('b', 100000, true);
-                console.log(msg);
-            }
-            else
-            {
-                console.log(msg);
-            }
-        },
-        init: function(logv){
-            panel = logv;
-            panel.update({
-                             now: new Date(),
-                             cls: 'blue',
-                             msg: 'Logging is on'
-                         });
-            panel.body.scroll('b', 100000, true);
-        }
-    };
-})();
-
 var Rights = (function(){
     var store;
     var worker;
@@ -79,6 +45,38 @@ var Rights = (function(){
         }
     };
 })();
+
+var Timer = (function(){
+    var time;
+    var task;
+    var runner;
+    return {
+        get: function(){
+            var cur_date=new Date();
+            if(typeof time === 'undefined')
+                this.set();
+            if(cur_date- time >= 590000) {
+                Logger.log("Timer:"+time+" Cur_time:"+cur_date+" Diff:"+(cur_date-time));
+                Logger.log("Session expired");
+                window.location="login.php?timeout=true";
+            }
+        },
+        set: function(){
+            time=new Date();
+        },
+        init: function(){
+            if(typeof runner !== 'undefined') return;
+            this.set();
+            task = {
+                run: this.get,
+                interval: 60000 //once per min
+            }
+            runner = new Ext.util.TaskRunner();
+            runner.start(task);
+        }
+    };
+})();
+
 
 
 Ext.application({
@@ -140,6 +138,7 @@ Ext.application({
 
                                    });//ext create
                         Rights.init(Ext.getStore('Worker'));
+                        Timer.init();
                     }//launch func
 
                 });//application

@@ -74,12 +74,30 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        iconCls:'folder-document'
                    },
                    { xtype: 'button',
+                       text:'Tools',
+                       tooltip:'',
+                       menu: [
+                           { text: 'Sequence cutter', action: 'SeqCut', tooltip: 'Tool to cutting sequence into pieces',iconCls: '' },
+                       ],
+                       iconCls:''
+                   },
+                   { xtype: 'button',
                        text:'Notes for supplemental',
                        tooltip:'',
                        menu: [
-                           { text: 'Notes', action: 'SuppNotes', tooltip: 'Notes about pipelines for supplemental material',iconCls: 'notebook-edit' },
+                           { text: 'Notes', action: 'SuppNotes', tooltip: 'Notes about pipelines for supplemental material',iconCls: 'notebook-edit' }
                        ],
                        iconCls:'notebook-edit'
-                   }
+                   },
+                   { xtype: 'tbfill' },
+                   { xtype: 'button',
+                       text:'Help',
+                       tooltip:'',
+                       menu: [
+                           { text: 'Help', action: 'Help', tooltip: '',iconCls: '' },
+                           { text: 'About', action: 'About', tooltip: '',iconCls: '' }
+                       ],
+                       iconCls:''
+                   },
                ]
            });
