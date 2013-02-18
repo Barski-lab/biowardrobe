@@ -211,4 +211,6 @@ OTHER_FILES += \
     app/store/SpikeinsList.js \
     app/store/SpikeinsChart.js \
     app/store/Spikeins.js \
-    app/view/LabDataEdit/SpikeinsChart.js
+    app/view/LabDataEdit/SpikeinsChart.js \
+    data/SpikeinsChart.php \
+    data/spikeins.R
