@@ -13,10 +13,10 @@ Downloading genome browser databases
  
 DOWNLOAD GenomeBrowser sources
 
-StartÂ anÂ initialÂ GitÂ localÂ repository:
-  Â gitÂ cloneÂ git://genome-source.cse.ucsc.edu/kent.git
+Start an initial Git local repository:
+   git clone git://genome-source.cse.ucsc.edu/kent.git
    cd kent
-   git checkout -t -b beta origin/beta       
+   git checkout -t -b beta origin/beta
    git pull
    cd ../
    git clone http://genome-source.cse.ucsc.edu/samtabix.git samtabix
@@ -64,12 +64,29 @@ SETUP MYSQL:
  1. zypper in mysql
  2. /etc/init.d/mysql start
  3. setting root passwd
- 
+
  #!/bin/bash
  read PASS
  mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
  mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
  mysql -uroot -hlocalhost -P3306 -p -e "GRANT ALL ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" mysql
+
+ mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'readonly'@'localhost' IDENTIFIED BY 'readonly';FLUSH PRIVILEGES;" mysql
+
+ for DB in hgcentral hgFixed hg19 mm9 mm10
+ do
+    mysql -u root -p${PASS} -e "GRANT SELECT on ${DB}.* \
+        TO readonly@localhost \
+        IDENTIFIED BY 'readonly';" mysql
+ done
+
+ for DB in hgcentral hgFixed hg19 mm9 mm10
+ do
+    mysql -u root -p${SQL_PASSWORD} -e "GRANT SELECT, INSERT, UPDATE, DELETE, \
+        FILE, CREATE, DROP, ALTER, CREATE TEMPORARY TABLES on ${DB}.* \
+        TO browser@localhost \
+        IDENTIFIED BY 'genome';" mysql
+ done
 
  4. Useful tables hgcentral.defaultDb, hgcentral.genomeClade, hgcentral.dbDb
  5. Blat
@@ -79,12 +96,12 @@ SETUP APACHE2
  1. zypper in apache2
  2. in /etc/apache2 edit mod_mime-defaults.conf
  add following lines to make includes work
- AddType text/html .html                                                                                                                                              
- AddOutputFilter INCLUDES .html   
+ AddType text/html .html
+ AddOutputFilter INCLUDES .html
  
- 3. add 
- AllowOverride All                                                                                                                                            
- XBitHack on                                                                                                                                                  
- Options -Indexes +MultiViews +FollowSymLinks +Includes                                                                                                       
+ 3. add
+ AllowOverride All
+ XBitHack on
+ Options -Indexes +MultiViews +FollowSymLinks +Includes
 
 setfacl -Rm d:u::rwX,d:g::rwX,d:m:rwX,d:o:r-X ./gbdb/

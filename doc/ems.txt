@@ -1,0 +1,21 @@
+
+MYSQL
+
+
+ #!/bin/bash
+ read PASS
+ READONLYP='readonly'
+ mysql -uroot -hlocalhost -P3306 -p${PASS} -e "CREATE USER 'readonly'@'localhost' IDENTIFIED BY '${READONLYP}';FLUSH PRIVILEGES;" mysql
+
+ for DB in ems experiments
+ do
+    mysql -u root -p${PASS} -e "GRANT SELECT on ${DB}.* \
+        TO readonly@localhost \
+        IDENTIFIED BY '${READONLYP}';" mysql
+ done
+
+
+
+R additional packages
+
+install.packages('RMySQL',type='source')

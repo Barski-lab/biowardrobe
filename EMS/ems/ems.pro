@@ -202,4 +202,13 @@ OTHER_FILES += \
     images/question_and_answer.png \
     images/information.png \
     images/cut.png \
-    images/about.png
+    images/about.png \
+    ../sql/EMS_p3.sql \
+    app/view/charts/Spikeins.js \
+    app/model/SpikeinsList.js \
+    app/model/SpikeinsChart.js \
+    app/model/Spikeins.js \
+    app/store/SpikeinsList.js \
+    app/store/SpikeinsChart.js \
+    app/store/Spikeins.js \
+    app/view/LabDataEdit/SpikeinsChart.js

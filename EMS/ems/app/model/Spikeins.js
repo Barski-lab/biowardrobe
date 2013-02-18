@@ -20,17 +20,11 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.RPKM', {
+Ext.define( 'EMS.model.Spikeins', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'refsec_id', type: 'string' },
-                   { name: 'gene_id', type: 'string' },
-                   { name: 'chrom', type: 'string' },
-                   { name: 'txStart', type: 'int' },
-                   { name: 'txEnd', type: 'int' },
-                   { name: 'strand', type: 'string' },
-                   { name: 'TOT_R_0', type: 'int' },
-                   { name: 'RPKM_0', type: 'float' }
+                   { name: 'id', type: 'int' },
+                   { name: 'spikeins', type: 'string' }
                ]
            });

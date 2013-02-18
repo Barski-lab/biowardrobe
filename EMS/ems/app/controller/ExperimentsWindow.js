@@ -37,8 +37,8 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
                    'EMS.view.GenomeGroup.List'],
@@ -177,11 +177,16 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var record = form.getRecord();
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
 
-                   var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
+                   var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id']).data;
+                   var db=gdata.db;
+                   var spike=(gdata.genome.indexOf('spike')!== -1);
+
                    this.genomeGroupStoreLoad(db,parseInt(record.raw['worker_id']) !== parseInt(USER_ID));
 
                    var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id']).data.etype;
                    var isRNA=(etype.indexOf('RNA') !== -1);
+
+
 
                    if(parseInt(record.raw['worker_id']) !== parseInt(USER_ID) && !Rights.check(USER_ID,'ExperimentsWindow'))
                    {
@@ -269,10 +274,39 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        }//if ribosomal chart
                    }//sts>11
                    if (sts >20 && isRNA) {
-                       var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
-                       maintabpanel.add(RPKMtab);
                        this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']+'_genes');
                        this.getRPKMStore().load();
+                       var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
+                       maintabpanel.add(RPKMtab);
+                       if(spike) {
+                           var SpikeinsChart = Ext.create("EMS.view.LabDataEdit.SpikeinsChart");
+                           maintabpanel.add(SpikeinsChart);
+                           var str=this.getSpikeinsChartStore();
+                           str.getProxy().setExtraParam('labdata_id',record.raw['id']);
+                           str.load({
+                                        scope: this,
+                                        callback: function(records, operation, success) {
+                                            SpikeinsChart.chart.items=[{
+                                                                           type  : 'text',
+                                                                           text  : 'F(X) = '+records[0].data.slope+'*X'+((records[0].data.inter>0)?"+":'')+records[0].data.inter,
+                                                                           font  : '14px Arial',
+                                                                           width : 100,
+                                                                           height: 30,
+                                                                           x : 200, //the sprite x position
+                                                                           y : 20  //the sprite y position
+                                                                       },{
+                                                                           type  : 'text',
+                                                                           text  : 'R='+records[0].data.R,
+                                                                           font  : '14px Arial',
+                                                                           width : 100,
+                                                                           height: 30,
+                                                                           x : 200, //the sprite x position
+                                                                           y : 50  //the sprite y position
+                                                                       }];
+
+                                        }
+                                    });
+                       }
                    }
 
                },
@@ -432,7 +466,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=btn.up('window').down('form').getForm();
                    var record = form.getRecord();
                    var combo=Ext.getCmp('rpkm-group-filter');
-                    window.location="data/csv.php?tablename="+record.data['filename']+combo.value;
+                   window.location="data/csv.php?tablename="+record.data['filename']+combo.value;
                },
                onRpkmGroupFilter: function(combo, records, options) {
                    var form=combo.up('window').down('form').getForm();

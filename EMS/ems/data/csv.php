@@ -2,11 +2,16 @@
 
 //Import Response Class
 require_once('response.php');
-//Make DB connection
-require_once('database_connection.php');
 
 require_once('def_vars.php');
 
+if(isset($_REQUEST['tablename']))
+    $tablename = $_REQUEST['tablename'];
+else
+    $res->print_error('Not enough required parameters.');
+
+//Make DB connection
+require_once('database_connection.php');
 
 $con->select_db($db_name_experiments);
 

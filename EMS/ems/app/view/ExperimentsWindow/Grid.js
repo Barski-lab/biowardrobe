@@ -147,7 +147,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          items: [
                                              {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[0].tooltip='Duplicate record'
+                                                     this.items[0].tooltip='Duplicate record';
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID,'ExperimentsWindow')) {
                                                          this.items[0].handler = function(grid, rowIndex, colIndex) {
                                                              var data=EMS.store.LabData.getAt(rowIndex).raw;
@@ -177,15 +177,21 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                  }
                                              } , {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[1].tooltip=''
+                                                     this.items[1].tooltip='';
                                                      return 'space';
                                                  }
                                              } , {
                                                  getClass: function(v, meta, rec) {
-                                                     this.items[2].tooltip='Delete record'
+                                                     this.items[2].tooltip='Delete record';
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID,'ExperimentsWindow')) {
                                                          this.items[2].handler = function(grid, rowIndex, colIndex) {
+                                                             var sts=rec.get('libstatus');
+                                                             sts=sts%1000;
+                                                             if(sts > 1 ) {
+                                                             } else {
                                                                  EMS.store.LabData.removeAt(rowIndex);
+                                                             }
+
                                                          }
                                                          return 'table-row-delete';
                                                      }
