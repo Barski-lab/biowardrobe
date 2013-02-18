@@ -5,9 +5,11 @@ MYSQL
  #!/bin/bash
  read PASS
  READONLYP='readonly'
+
+ mysql -uroot -hlocalhost -P3306 -p${PASS} -e "DROP USER 'readonly'@'localhost';FLUSH PRIVILEGES;" mysql 
  mysql -uroot -hlocalhost -P3306 -p${PASS} -e "CREATE USER 'readonly'@'localhost' IDENTIFIED BY '${READONLYP}';FLUSH PRIVILEGES;" mysql
 
- for DB in ems experiments
+ for DB in ems experiments hg19 mm9 mm10
  do
     mysql -u root -p${PASS} -e "GRANT SELECT on ${DB}.* \
         TO readonly@localhost \
