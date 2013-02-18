@@ -281,29 +281,28 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        if(spike) {
                            var SpikeinsChart = Ext.create("EMS.view.LabDataEdit.SpikeinsChart");
                            maintabpanel.add(SpikeinsChart);
-                           var str=this.getSpikeinsChartStore();
-                           str.getProxy().setExtraParam('labdata_id',record.raw['id']);
-                           str.load({
-                                        scope: this,
+                           var stor=this.getSpikeinsChartStore();
+                           stor.getProxy().setExtraParam('labdata_id',record.raw['id']);
+                           stor.load({
                                         callback: function(records, operation, success) {
                                             SpikeinsChart.chart.items=[{
                                                                            type  : 'text',
-                                                                           text  : 'F(X) = '+records[0].data.slope+'*X'+((records[0].data.inter>0)?"+":'')+records[0].data.inter,
-                                                                           font  : '14px Arial',
+                                                                           text  : 'Y = '+records[0].data.slope.toFixed(3)+'*X'+((records[0].data.inter>0)?"+":'')+records[0].data.inter.toFixed(3),
+                                                                           font  : 'italic bold 14px Arial',
                                                                            width : 100,
                                                                            height: 30,
-                                                                           x : 200, //the sprite x position
-                                                                           y : 20  //the sprite y position
-                                                                       },{
+                                                                           x : 180, //the sprite x position
+                                                                           y : 23  //the sprite y position
+                                                                       } , {
                                                                            type  : 'text',
-                                                                           text  : 'R='+records[0].data.R,
-                                                                           font  : '14px Arial',
+                                                                           text  : 'R = '+records[0].data.R.toFixed(3),
+                                                                           font  : 'italic bold 14px Arial',
+                                                                           style: 'italic',
                                                                            width : 100,
                                                                            height: 30,
-                                                                           x : 200, //the sprite x position
+                                                                           x : 180, //the sprite x position
                                                                            y : 50  //the sprite y position
                                                                        }];
-
                                         }
                                     });
                        }

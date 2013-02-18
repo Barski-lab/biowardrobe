@@ -40,9 +40,9 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                        local: false   // defaults to false (remote filtering)
                    };
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
-                                                                           store: EMS.store.LabData,
-                                                                           displayInfo: true
-                                                                       });
+                                                       store: EMS.store.LabData,
+                                                       displayInfo: true
+                                                   });
 
                    Ext.apply(me, {
                                  store: EMS.store.LabData,
@@ -170,7 +170,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                                                     libstatustxt: 'new',
                                                                                     dateadd: data['dateadd']
                                                                                 });
-                                                              EMS.store.LabData.insert(rowIndex+1, r);
+                                                             EMS.store.LabData.insert(rowIndex+1, r);
                                                          }
                                                          return 'table-row-add';
                                                      }
@@ -185,9 +185,15 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                      this.items[2].tooltip='Delete record';
                                                      if(parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID,'ExperimentsWindow')) {
                                                          this.items[2].handler = function(grid, rowIndex, colIndex) {
-                                                             var sts=rec.get('libstatus');
+                                                             var sts=EMS.store.LabData.getAt(rowIndex).raw['libstatus'];
                                                              sts=sts%1000;
                                                              if(sts > 1 ) {
+                                                                 Ext.Msg.show({
+                                                                                  title: 'Can\'t delete',
+                                                                                  msg: 'Deletion of processed data is not implemented yet.',
+                                                                                  icon: Ext.Msg.INFO,
+                                                                                  buttons: Ext.Msg.OK
+                                                                              });
                                                              } else {
                                                                  EMS.store.LabData.removeAt(rowIndex);
                                                              }
@@ -213,15 +219,15 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          tooltip:'Save changes',
                                          handler : function() {
                                              EMS.store.LabData.sync({
-                                                             success: function (batch, options) {
-                                                                 Ext.Msg.show({
-                                                                                  title: 'Data saved',
-                                                                                  msg: 'Records successfully stored',
-                                                                                  icon: Ext.Msg.INFO,
-                                                                                  buttons: Ext.Msg.OK
-                                                                              });
-                                                             }
-                                             });
+                                                                        success: function (batch, options) {
+                                                                            Ext.Msg.show({
+                                                                                             title: 'Data saved',
+                                                                                             msg: 'Records successfully stored',
+                                                                                             icon: Ext.Msg.INFO,
+                                                                                             buttons: Ext.Msg.OK
+                                                                                         });
+                                                                        }
+                                                                    });
                                          }
                                      }, '-' ,
                                      me.m_PagingToolbar,
@@ -229,7 +235,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                     store: EMS.store.LabData,
                                                     displayInfo: true
                                                 }),*/ '-' ,
-                                      {
+                                     {
                                          xtype: 'combobox',
                                          id: 'labdata-grid-user-filter',
                                          displayField: 'fullname',
@@ -249,9 +255,9 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                                      }
                                                  });
                                                  this.store = Ext.create('Ext.data.Store', {
-                                                     fields: ['id', 'fullname'],
-                                                     data : data
-                                                 });
+                                                                             fields: ['id', 'fullname'],
+                                                                             data : data
+                                                                         });
                                                  this.setValue(num);
                                                  this.setRawValue(name);
                                              }

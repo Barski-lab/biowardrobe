@@ -67,7 +67,7 @@ Ext.define('EMS.view.charts.Spikeins',
                                            axis: 'left',
                                            yField: 'concentration',
                                            xField: 'RPKM_0'
-                                       },{
+                                       } , {
                                            type: 'line',
                                            markerConfig: false,
                                            showMarkers: false,
@@ -75,11 +75,8 @@ Ext.define('EMS.view.charts.Spikeins',
                                            yField: 'concentration',
                                            xField: 'line',
                                            style: {
-                                               //fill: '#18428E',
-                                               //stroke: '#18428E',
-                                               'stroke-width': 1,
-                                               'stroke-dasharray': 5  // You need to add this!
-                                           },
+                                               fill: '#000000'
+                                           }
                                        }
                                    ]
                                });

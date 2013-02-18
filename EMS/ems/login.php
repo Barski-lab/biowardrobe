@@ -192,7 +192,6 @@ Ext.onReady(function() {
                              loginForm.getForm().findField('username').focus(false,20);
                          }
                      });
-
     } else {
         loginWindow.show();
         loginForm.getForm().findField('username').focus(false,20);
