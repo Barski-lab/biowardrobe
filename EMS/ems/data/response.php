@@ -11,7 +11,6 @@ class Response {
         $this->message  = isset($params["message"]) ? $params["message"] : '';
         $this->total    = isset($params["total"]) ? $params["total"] : '';
         $this->data     = isset($params["data"])    ? $params["data"]    : array();
-        $this->R     = isset($params["R"])    ? $params["R"]    : '';
     }
 
     public function to_json() {
@@ -20,9 +19,6 @@ class Response {
             'message'   => $this->message,
             'total'     => $this->total,
             'data'      => $this->data );
-            if($this->R!='') {
-                $DATA["R"] = $this->R;
-            }
         return json_encode($DATA);
     }
 
@@ -36,3 +32,5 @@ class Response {
         die();
     }
 }
+
+$res = new Response();

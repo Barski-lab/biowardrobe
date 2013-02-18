@@ -1,7 +1,7 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 library(RMySQL)
-con <- dbConnect(MySQL(), user="readonly", password="readonly",dbname="ems",host="localhost")
+con <- dbConnect(MySQL(), user=args[3], password=args[4],dbname=args[5],host=args[6])
 res<-dbGetQuery(con,paste("select concentration,TOT_R_0,RPKM_0 from ems.spikeinslist e2, 
  experiments.",args[1]," e where e2.name=e.refsec_id and e.chrom='control' and spikeins_id=",args[2]))
 

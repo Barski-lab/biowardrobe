@@ -3,8 +3,19 @@
 use ems;
 set foreign_key_checks = 0 ;
 
+ALTER TABLE `ems`.`worker` ADD COLUMN `email` VARCHAR(200) NULL DEFAULT NULL  AFTER `dnapass` , ADD COLUMN `notify` INT NULL DEFAULT 0  AFTER `email` ;
+
+
 drop table if exists spikeinslist;
 drop table if exists spikeins;
+drop table if exists info;
+
+create table if not exists info (
+id INTEGER AUTO_INCREMENT PRIMARY KEY,
+info  TEXT default ''
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+insert into info(info) values('');
+insert into info(info) values('');
 
 create table if not exists spikeins (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -12,6 +23,12 @@ spikeins varchar(200) UNIQUE KEY
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 insert into spikeins(spikeins) values ('spike-in mix1');
+
+ALTER TABLE `ems`.`labdata` CHANGE COLUMN `spikeins` `spikeins_id` INT NULL  ;
+UPDATE `ems`.`labdata` SET spikeins_id=NULL;
+UPDATE `ems`.`labdata` SET spikeins_id=1 where genome_id in (2,4);
+ALTER TABLE `ems`.`labdata` ADD CONSTRAINT
+  FOREIGN KEY ( `spikeins_id` ) REFERENCES `ems`.`spikeins` (`id` );
 
 create table if not exists spikeinslist (
 id INTEGER AUTO_INCREMENT PRIMARY KEY,

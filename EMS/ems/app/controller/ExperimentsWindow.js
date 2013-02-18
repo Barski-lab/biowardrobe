@@ -287,7 +287,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         callback: function(records, operation, success) {
                                             SpikeinsChart.chart.items=[{
                                                                            type  : 'text',
-                                                                           text  : 'Y = '+records[0].data.slope.toFixed(3)+'*X'+((records[0].data.inter>0)?"+":'')+records[0].data.inter.toFixed(3),
+                                                                           text  : 'Y = '+records[0].data.slope.toFixed(3)+' * X'+((records[0].data.inter>0)?" +":' ')+records[0].data.inter.toFixed(3),
                                                                            font  : 'italic bold 14px Arial',
                                                                            width : 100,
                                                                            height: 30,

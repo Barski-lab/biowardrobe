@@ -1,41 +1,46 @@
 <?php
+   include('/etc/settings/config.php');
+   require_once('data/response.php');
+   require_once('data/def_vars.php');
+   if (!(isset($_REQUEST["username"]) && isset($_REQUEST["password"])))
+       $res->print_error('Not enough required parameters.');
+   require_once('data/database_connection.php');
 
-  function getDataForUser($username) {
-  //json query
-    $config_file  = file_get_contents("http://localhost/cgi-bin/barski/params.json?tablename=worker&params=where%20worker%20like%20'".$username."'");
-    $config_array = json_decode($config_file, true);
-    return $config_array["data"][0];
-  }
+   $con->select_db($db_name_ems);
 
-  function validate($response, $data) {
-    return $data["passwd"]==$response;
-  }
+   if(! ($worker = $con->prepare("SELECT id,worker,lname,fname from worker where worker=? and passwd=?")) ) {
+       $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+   }
 
-  function authenticate() {
-    if (isset($_REQUEST["username"]) && isset($_REQUEST["password"])){
+   if(! $worker->bind_param("ss",$_REQUEST["username"],$_REQUEST["password"]) ) {
+       $res->print_error("Bind failed: (" . $con->errno . ") " . $con->error);
+   }
 
-      $data = getDataForUser($_REQUEST["username"]);
+   if(! $worker->execute() ) {
+       $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+   }
 
-      if (validate($_REQUEST["password"], $data)){
+   $worker->bind_result($ID,$WORKER,$LNAME,$FNAME);
+   $worker->fetch();
+   $worker->close();
+   $con->close();
 
-        $_SESSION["username"] = $data["worker"];
-        $_SESSION["usergroup"] = $data["worker"];
-        $_SESSION["fullname"] = $data["lname"].", ".$data["fname"];
-        $_SESSION["user_id"] = $data["id"];
-        $_SESSION["timeout"] = time();
+   if(!(isset($ID) && isset($WORKER)) ) {
+       $res->print_error("Incorrect user name or password");
+       exit();
+   }
 
-      } else {
-        echo '{"success":false,"message":"Incorrect user name or password '.$data["worker"].'"}';
-        exit;
-      }
-    } else {
-      echo '{"success":false,"message":"Incorrect parameters"}';
-      exit;
-    }
-  }
+   session_start();
 
-  session_start();
-  authenticate();
-  echo '{"success":true}';
-  exit();
+   $_SESSION["username"] = $WORKER;
+   $_SESSION["usergroup"] = $WORKER;
+   $_SESSION["fullname"] = $LNAME.", ".$FNAME;
+   $_SESSION["user_id"] = $ID;
+   $_SESSION["timeout"] = time();
+
+   $res->success = true;
+   $res->message = "auth";
+   print_r($res->to_json());
+
+   exit();
 ?>

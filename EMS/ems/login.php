@@ -12,8 +12,9 @@ if(isset($_SESSION["timeout"])) {
 
 
 $TITLE="EMS login";
+$TIMEOUT="";
 
-if($_REQUEST["timeout"]=="true") {
+if(isset($_REQUEST["timeout"]) && $_REQUEST["timeout"]=="true") {
     $TITLE="session expired";
     $TIMEOUT="true";
 }
@@ -35,7 +36,7 @@ if($_REQUEST["timeout"]=="true") {
     </div></div>
 
 
-<script type="text/javascript" src="ext/ext.js"></script>
+<script type="text/javascript" src="ext/ext-all.js"></script>
 <script type="text/javascript">
 
 Ext.require([
@@ -55,7 +56,7 @@ Ext.onReady(function() {
         Ext.get('loading-mask').fadeOut({remove:true});
     }, 250);
 
-    if( !(Ext.isChrome || Ext.isSafari) ) {
+    if( Ext.isIE) {
         Ext.Msg.show({
                          title: 'Your browser is not supported',
                          msg: 'Please use Google Chrome or Safari',

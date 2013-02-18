@@ -1,17 +1,16 @@
 <?php
 
-//Import Response Class
+require("common.php");
 require_once('response.php');
-
-
 require_once('def_vars.php');
+require_once('database_connection.php');
 
 if(isset($_REQUEST['labdata_id']))
     $labdata_id = $_REQUEST['labdata_id'];
 else
     $res->print_error('Not enough required parameters.');
 
-require_once('database_connection.php');
+
 
 
 $con->select_db($db_name_ems);
@@ -50,7 +49,7 @@ $result = $stmt->get_result();
 $query_array=array();
 
 
-exec("Rscript spikeins.R $tablename $spikeins_id",$output);
+exec("Rscript spikeins.R $tablename $spikeins_id readonly readonly ems localhost",$output);
 
 $inter=$output[1];
 $slope=$output[3];

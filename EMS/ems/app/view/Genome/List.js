@@ -31,9 +31,12 @@ Ext.define('EMS.view.Genome.List' ,{
                    this.columns=[];
                    this.tbar=[];
                    this.columns.push(Ext.create('Ext.grid.RowNumberer'));
-                   this.columns.push({header: 'Genome', dataIndex: 'genome', flex: 1, editor: { allowBlank: false} });
+                   this.columns.push({header: 'Genome', dataIndex: 'genome', width: 80, editor: { allowBlank: false} },
+                                     {header: 'DB', dataIndex: 'db',width: 45, editor: { allowBlank: false} });
                    if(Rights.check(USER_ID,'Genome')) {
                        this.columns.push(
+                                {header: 'Bowtie index', dataIndex: 'findex',width: 45, editor: { allowBlank: false} },
+                                {header: 'Annotation', dataIndex: 'annotation',width: 150, flex: 1, editor: { allowBlank: false} },
                                 {
                                     xtype: 'actioncolumn',
                                     width:35,

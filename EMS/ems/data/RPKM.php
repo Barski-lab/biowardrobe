@@ -1,10 +1,8 @@
 <?php
-
-//Import Response Class
+require('common.php');
 require_once('response.php');
-
-
 require_once('def_vars.php');
+require_once('database_connection.php');
 
 if(isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -13,15 +11,9 @@ else
 
 check_val($tablename);
 
-require_once('database_connection.php');
-
-
 $con->select_db($db_name_experiments);
 
-
-
 //logmsg(print_r($_REQUEST,true));
-
 
 if (!($stmt = $con->prepare("describe `$tablename`"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
@@ -39,8 +31,6 @@ $row=$totalquery->fetch_row();
 $total=$row[0];
 $totalquery->close();
 
-//logmsg("SELECT * FROM `$tablename` $order LIMIT $offset,$limit");
-
 if (!($stmt = $con->prepare("SELECT * FROM `$tablename` $where $order LIMIT $offset,$limit"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
 }
@@ -53,7 +43,6 @@ $result = $stmt->get_result();
 //$row = $res->fetch_assoc();
 
 $query_array=array();
-
 
 $i=0;
 //Iterate all Select

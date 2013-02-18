@@ -134,7 +134,6 @@ OTHER_FILES += \
     app/controller/FragmentationEdit.js \
     index.php \
     login.php \
-    common.php \
     authenticate.php \
     app/view/Crosslink/List.js \
     app/view/Crosslink/Crosslink.js \
@@ -213,4 +212,5 @@ OTHER_FILES += \
     app/store/Spikeins.js \
     app/view/LabDataEdit/SpikeinsChart.js \
     data/SpikeinsChart.php \
-    data/spikeins.R
+    data/spikeins.R \
+    data/common.php

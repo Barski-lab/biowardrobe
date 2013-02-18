@@ -17,13 +17,6 @@ if(isset($_REQUEST['limit']))
 else
     $limit = 0;
 
-//if(isset($_REQUEST['tablename']))
-//    $tablename = $_REQUEST['tablename'];
-//else
-//    $res->print_error('Not enough required parameters.');
-
-//check_val($tablename);
-
 if(isset($_REQUEST['sort']))
     $sort = json_decode($_REQUEST['sort']);
 
