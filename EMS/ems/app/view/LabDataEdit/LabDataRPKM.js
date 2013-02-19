@@ -29,7 +29,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                plain: true,
                layout: 'fit',
                title: 'RPKM list',
-               //activeTab: 0,
                iconCls: 'table2',
                initComponent: function() {
                    var me=this;

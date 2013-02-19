@@ -33,18 +33,11 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                            { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'form-blue-edit' },
                            { text: 'Experiment design', action: 'ExperimentDesign', tooltip: 'Experement design',iconCls: '' },
                            '-',
+                           { text: 'Settings', action: 'Worker', tooltip: 'settings',iconCls: 'user-preferences', id: "MenuWorker" },
                            { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit', id: "MenuWorkers" }
                        ],
                        iconCls:'form-blue'
-                   } /*, { xtype: 'button',
-                       text:'Reports',
-                       tooltip:'Some reports',
-                       menu: [
-                           { text: 'Adaptor contamination', action: 'AdaptorCont', tooltip: '',iconCls: 'chart' },
-                           { text: 'Average Tag Density', action: 'ATD', tooltip: '',iconCls: 'chart-line' }
-                       ],
-                       iconCls:'magazine-folder'
-                   } , { xtype: 'button',
+                   } /* { xtype: 'button',
                        text:'Genome Browsers',
                        tooltip:'Genome browsers',
                        menu: [

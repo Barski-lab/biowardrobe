@@ -65,11 +65,17 @@ Ext.define('EMS.view.Genome.List' ,{
                                           handler : function(){
                                               EMS.store.Genome.sync({ success: function (batch, options) { EMS.store.Genome.load(); } });
                                           },
-                                          iconCls:'table2-check'
+                                          iconCls:'table-ok'
                                       });
-                       this.tbar.push('-');
                    }
-                   this.tbar.push(Ext.create('Ext.PagingToolbar', { store: EMS.store.Genome }) );
+                   this.tbar.push({
+                                      text:'Reload',
+                                      tooltip:'Reload',
+                                      handler : function(){
+                                          EMS.store.Genome.load();
+                                      },
+                                      iconCls:'table-refresh'
+                                  });
 
                    Ext.apply(this, { store: EMS.store.Genome });
 

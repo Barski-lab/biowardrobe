@@ -23,7 +23,7 @@ Ext.define( 'EMS.model.ExperimentType', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'id', type: 'int' },
+                   { name: 'id', type: 'int', persist: true },
                    { name: 'etype', type: 'string' },
                    { name: 'command', type: 'string' }
                ]

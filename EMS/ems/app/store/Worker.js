@@ -28,7 +28,19 @@ Ext.define( 'EMS.store.Worker', {
                model:  'EMS.model.Worker',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('worker')
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: Ext.apply(STORE_DEFS.proxy('',true), {
+                                    api: {
+                                        read : 'data/Worker.php',
+                                        update: 'data/WorkerUp.php',
+                                        create: '',
+                                        destroy: ''
+                                    }
+                                })
 
            });
 

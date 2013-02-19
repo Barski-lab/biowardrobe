@@ -35,6 +35,7 @@ Ext.define('EMS.view.user.List' ,{
                                      {header: 'Worker',  dataIndex: 'worker',  flex: 1},
                                      {header: 'First name', dataIndex: 'fname', flex: 1},
                                      {header: 'Last name', dataIndex: 'lname', flex: 1},
+                                     {header: 'Email', dataIndex: 'email', flex: 1},
                                      {
                                          xtype: 'actioncolumn',
                                          width:35,
@@ -65,12 +66,15 @@ Ext.define('EMS.view.user.List' ,{
                                                                            EMS.store.Worker.load();
                                                                        }});
                                          },
-                                         iconCls:'table2-check'
+                                         iconCls:'table-ok'
+                                     } , {
+                                         text:'Reload',
+                                         tooltip:'Reload',
+                                         handler : function(){
+                                             EMS.store.Worker.load();
+                                         },
+                                         iconCls:'table-refresh'
                                      }
-                                     , '-',
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Worker
-                                                })
                                  ]//tbar
                              })
                    this.callParent(arguments);

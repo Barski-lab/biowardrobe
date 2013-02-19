@@ -37,8 +37,8 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart','Spikeins'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart','Spikeins'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
                    'EMS.view.GenomeGroup.List'],
@@ -147,11 +147,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                setVisibleSpike: function(obj) {
                    var form = obj.down('form').getForm();
                    if( form.findField('genome_id').getRawValue().indexOf('spike') !== -1 ) {
-                       form.findField('spikeins').enable();
+                       form.findField('spikeins_id').enable();
                        form.findField('spikeinspool').enable();
                    }
                    else {
-                       form.findField('spikeins').disable();
+                       form.findField('spikeins_id').disable();
                        form.findField('spikeinspool').disable();
                    }
                },
@@ -349,6 +349,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                           crosslink_id: 1,
                                           fragmentation_id: 1,
                                           antibody_id: 1,
+                                          spikeins_id: 1,
                                           experimenttype_id: 1,
                                           libstatustxt: 'new',
                                           dateadd: new Date()

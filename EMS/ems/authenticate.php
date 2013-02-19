@@ -6,36 +6,24 @@
        $res->print_error('Not enough required parameters.');
    require_once('data/database_connection.php');
 
+   $con=def_connect();
    $con->select_db($db_name_ems);
 
-   if(! ($worker = $con->prepare("SELECT id,worker,lname,fname from worker where worker=? and passwd=?")) ) {
-       $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
-   }
 
-   if(! $worker->bind_param("ss",$_REQUEST["username"],$_REQUEST["password"]) ) {
-       $res->print_error("Bind failed: (" . $con->errno . ") " . $con->error);
-   }
-
-   if(! $worker->execute() ) {
-       $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-   }
-
-   $worker->bind_result($ID,$WORKER,$LNAME,$FNAME);
-   $worker->fetch();
-   $worker->close();
+   $query_array=execSQL($con,"SELECT id,worker,lname,fname from worker where worker=? and passwd=?",array("ss",$_REQUEST["username"],$_REQUEST["password"]),false);
    $con->close();
 
-   if(!(isset($ID) && isset($WORKER)) ) {
+   if( $query_array[0]['id']=='' || $query_array[0]['worker']=='' ) {
        $res->print_error("Incorrect user name or password");
-       exit();
    }
+
 
    session_start();
 
-   $_SESSION["username"] = $WORKER;
-   $_SESSION["usergroup"] = $WORKER;
-   $_SESSION["fullname"] = $LNAME.", ".$FNAME;
-   $_SESSION["user_id"] = $ID;
+   $_SESSION["username"] = $query_array[0]['worker'];
+   $_SESSION["usergroup"] = $query_array[0]['worker'];
+   $_SESSION["fullname"] = $query_array[0]['lname'].", ".$query_array[0]['fname'];
+   $_SESSION["user_id"] = $query_array[0]['id'];
    $_SESSION["timeout"] = time();
 
    $res->success = true;

@@ -26,7 +26,7 @@ Ext.define( 'EMS.store.Spikeins', {
 
                requires: ['EMS.model.Spikeins'],
                model:  'EMS.model.Spikeins',
-               storeId: 'id',
+               storeId: 'Spikeins',
                autoLoad: false,
                singleton: true,
                remoteSort: true,
@@ -35,20 +35,12 @@ Ext.define( 'EMS.store.Spikeins', {
                        property: 'spikeins',
                        direction: 'ASC'
                    }],
-               pageSize: 25,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
                    }
                },
-               proxy: Ext.apply(STORE_DEFS.proxy(''), {
-                                    api: {
-                                        read : 'data/Spikeins.php',
-                                        update: '',
-                                        create: '',
-                                        destroy: ''
-                                    }
-                                })
+               proxy: STORE_DEFS.proxy('spikeins',true)
            });
 
 

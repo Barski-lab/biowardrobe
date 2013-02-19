@@ -57,11 +57,11 @@ var Logger = (function(){
 
 STORE_DEFS = {
     //default parameters for store proxy
-    proxy: function(TBL){
-        return {
+    proxy: function(TBL,UNL){
+        var prx= {
             type: 'ajax',
             api: {
-                read : '/cgi-bin/barski/records.json',
+                read : 'data/GeneralList.php',
                 update: '/cgi-bin/barski/recordsUp.json',
                 create: '/cgi-bin/barski/recordsNew.json',
                 destroy: '/cgi-bin/barski/recordsDel.json'
@@ -114,6 +114,15 @@ STORE_DEFS = {
                 }
             } //listeners
         }//return
+        if(UNL) {
+            prx.filterParam = undefined;
+            prx.groupParam= undefined;
+            prx.pageParam=undefined;
+            prx.startParam=undefined;
+            prx.sortParam=undefined;
+            prx.limitParam=undefined;
+        }
+        return prx;
     }//proxy function
 
 

@@ -4,6 +4,7 @@ use ems;
 set foreign_key_checks = 0 ;
 
 ALTER TABLE `ems`.`worker` ADD COLUMN `email` VARCHAR(200) NULL DEFAULT NULL  AFTER `dnapass` , ADD COLUMN `notify` INT NULL DEFAULT 0  AFTER `email` ;
+ALTER TABLE `ems`.`labdata` CHANGE COLUMN `dateadd` `dateadd` DATE NOT NULL  ;
 
 
 drop table if exists spikeinslist;

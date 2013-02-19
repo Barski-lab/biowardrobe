@@ -29,6 +29,11 @@ Ext.define( 'EMS.store.Crosslinking', {
                model:  'EMS.model.Crosslinking',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('crosslink')
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('crosslink',true)
            });
 

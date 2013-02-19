@@ -28,11 +28,9 @@ Ext.define('EMS.controller.WorkersEdit', {
 
                init: function() {
                    this.control({
-                                    //Double click event on a grid
                                     'WorkersEdit > grid': {
-                                        itemdblclick: this.edit
+                                        itemdblclick: this.gridedit
                                     },
-                                    //Button pressed save
                                     '#worker-edit-save': {
                                         click: this.update
                                     },
@@ -43,14 +41,24 @@ Ext.define('EMS.controller.WorkersEdit', {
                    this.getWorkerStore().load();
                },
 
-               edit: function(grid, record) {
-                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});//.show();
+               gridedit: function(grid, record) {
+                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});
                    edit.down('form').loadRecord(record);
                    edit.show();
                },
 
+               edit: function() {
+                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});
+                   var form=edit.down('form');
+                   form.getForm().findField('worker').setReadOnly(true);
+                   var record = this.getWorkerStore().findRecord('id',USER_ID);
+                   form.loadRecord(record);
+                   edit.show();
+                   return edit;
+               },
+
                newworkerwin: function(button) {
-                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: true,modal: true});//.show();
+                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: true,modal: true});
                    edit.show();
                },
                update: function(button) {
@@ -59,26 +67,49 @@ Ext.define('EMS.controller.WorkersEdit', {
                    var record = form.getRecord();
                    var values = form.getValues();
 
-                   if(win.newcomp)
-                   {
-                       if(values.Worker !== '' || values.fname !== '' || values.lname !== '')
-                       {
+                   if(win.newcomp) {
+                       if(values.Worker !== '' || values.fname !== '' || values.lname !== '') {
                            EMS.store.Worker.insert(0, values);
-                       }
-                       else
-                       {
+                       } else {
                            Ext.Msg.show({
                                             title: 'Save Failed',
-                                            msg: 'Empty fields not allowed',
+                                            msg: 'Empty fields are not allowed',
                                             icon: Ext.Msg.ERROR,
                                             buttons: Ext.Msg.OK
                                         });
                            return;
                        }
-                   }
-                   else
-                   {
-                       record.set(values);
+                   } else {
+                       if(values.passwd === '' && !Rights.check(USER_ID,'WorkerEdit')) {
+                           Ext.Msg.show({
+                                            title: 'Empty password',
+                                            msg: 'Please fill password field',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK });
+                           return;
+                       }
+                       if(values.newpass !== values.newpassr) {
+                           Ext.Msg.show({
+                                            title: 'Password not match',
+                                            msg: 'New password does not match, please retype',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK });
+                           return;
+                       }
+                       if(values.notify && values.email==='') {
+                           Ext.Msg.show({
+                                            title: 'Cant notify',
+                                            msg: 'Cant notify without email',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK });
+                           return;
+                       }
+
+                       if (form.getForm().isValid()) {
+                           record.set(values);
+                       } else {
+                           return;
+                       }
                    }
                    win.close();
                    this.getWorkerStore().sync();

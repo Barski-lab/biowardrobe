@@ -22,6 +22,10 @@ function require_authentication() {
     $_SESSION["timeout"]=time();
 }
 
+function check_rights($place) {
+    return $_SESSION["username"] == "porter";
+}
+
 session_start();
 require_authentication();
 ?>

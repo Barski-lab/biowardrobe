@@ -79,12 +79,16 @@ Ext.define('EMS.controller.EMSMenu', {
                    if(menuitem.action === "Workers"){
                        if(typeof this.WorkersEditWindow === 'undefined' || !this.WorkersEditWindow){
                            this.WorkersEditWindow=Ext.create('EMS.view.WorkersEdit',{});
-                           Ext.getCmp('EMSMenu').add(this.ExperimentsWindow);
+                           Ext.getCmp('EMSMenu').add(this.WorkersEditWindow);
                        }
                        if(this.WorkersEditWindow.isVisible()){
                            this.WorkersEditWindow.focus(); }
                        else {
                            this.WorkersEditWindow.show(); }
+                   }
+                   if(menuitem.action === "Worker"){
+                           this.WorkerEditWindow=this.getController('WorkersEdit').edit();
+                           Ext.getCmp('EMSMenu').add(this.WorkerEditWindow);
                    }
 
                    /*

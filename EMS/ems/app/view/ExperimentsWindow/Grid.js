@@ -35,7 +35,6 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
 
                    var filters = {
                        ftype: 'filters',
-                       // encode and local configuration options defined previously for easier reuse
                        encode: true, // json encode the filter query
                        local: false   // defaults to false (remote filtering)
                    };
@@ -53,8 +52,6 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      enableTextSelection: true
                                  },
                                  columns: [
-                                     //Ext.create('Ext.grid.RowNumberer'),
-
                                      {   header: "Record ID",             sortable: true,  width: 60,    dataIndex: 'id'                                     },
                                      {   header: "Belongs to",            sortable: true,  width: 85,    dataIndex: 'worker_id', hidden: true,
                                          renderer: function(value,meta,record) {

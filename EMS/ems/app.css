@@ -102,6 +102,12 @@
     height: 16px;
 }
 
+.refresh {
+    background-image: url( images/refresh.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .information {
     background-image: url( images/information.png ) !important;
     width: 16px;
@@ -160,6 +166,11 @@
     width: 16px;
     height: 16px;
 }
+.user-new {
+    background-image: url( images/user_new.png ) !important;
+    width: 16px;
+    height: 16px;
+}
 .user-information {
     background-image: url( images/user_information.png ) !important;
     width: 16px;
@@ -201,6 +212,13 @@
     width: 16px;
     height: 16px;
 }
+
+.table-ok {
+    background-image: url( images/table_ok.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 
 .table-row-add {
     background-image: url( images/table_row_add.png ) !important;

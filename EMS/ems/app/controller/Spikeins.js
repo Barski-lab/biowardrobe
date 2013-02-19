@@ -20,23 +20,12 @@
 **
 ****************************************************************************/
 
+Ext.define('EMS.controller.Spikeins', {
+               extend: 'Ext.app.Controller',
+               stores: ['Spikeins'],
+               models: ['Spikeins'],
 
-Ext.define( 'EMS.store.GenomeGroup', {
-               extend: 'Ext.data.Store',
-
-               requires: ['EMS.model.Genome'],
-               storeId: 'GenomeGroup',
-               model:  'EMS.model.GenomeGroup',
-               autoLoad: false,
-               singleton: true,
-               proxy: Ext.apply(STORE_DEFS.proxy('grp_local'), {
-                                    api: {
-                                        read : 'data/GeneralList.php',
-                                        update: '',
-                                        create: '',
-                                        destroy: ''
-                                    }
-                                })
-
+               init: function() {
+                   this.getSpikeinsStore().load();
+               }
            });
-

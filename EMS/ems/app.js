@@ -89,7 +89,8 @@ Ext.application({
                         'EMS.controller.GenomeEdit',
                         'EMS.controller.AntibodiesEdit',
                         'EMS.controller.CrosslinkEdit',
-                        'EMS.controller.FragmentationEdit'
+                        'EMS.controller.FragmentationEdit',
+                        'EMS.controller.Spikeins'
                     ],
 
                     views: [

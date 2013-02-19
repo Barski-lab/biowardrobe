@@ -39,7 +39,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'cells', type: 'string' },
                    { name: 'conditions', type: 'string' },
                    { name: 'spikeinspool', type: 'string' },
-                   { name: 'spikeins', type: 'string' },
+                   { name: 'spikeins_id', type: 'int' },
                    { name: 'tagstotal', type: 'int' },
                    { name: 'tagsmapped', type: 'int' },
                    { name: 'tagsribo', type: 'int' },

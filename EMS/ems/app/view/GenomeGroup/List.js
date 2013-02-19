@@ -76,8 +76,14 @@ Ext.define('EMS.view.GenomeGroup.List' ,{
                                       },
                                       iconCls:'table2-check'
                                   });
-                   this.tbar.push('-');
-                   this.tbar.push(Ext.create('Ext.PagingToolbar', { store: EMS.store.GenomeGroup }) );
+                   this.tbar.push({
+                                      text:'Reload',
+                                      tooltip:'Reload',
+                                      handler : function(){
+                                          EMS.store.GenomeGroup.load();
+                                      },
+                                      iconCls:'table-refresh'
+                                  });
 
                    Ext.apply(this, { store: EMS.store.GenomeGroup });
 

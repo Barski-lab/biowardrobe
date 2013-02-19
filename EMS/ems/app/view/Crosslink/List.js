@@ -72,11 +72,15 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                                                                EMS.store.Crosslinking.load();
                                                                            }});
                                          },
-                                         iconCls:'table2-check'
-                                     }, '-',
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Crosslinking
-                                                })
+                                         iconCls:'table-ok'
+                                     } , {
+                                         text:'Reload',
+                                         tooltip:'Reload',
+                                         handler : function(){
+                                             EMS.store.Crosslinking.load();
+                                         },
+                                         iconCls:'table-refresh'
+                                     }
                                  ]//tbar
 
                              });

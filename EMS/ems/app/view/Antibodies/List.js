@@ -56,7 +56,6 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                      {
                                          text:'New',
                                          tooltip:'Add a new antibody',
-                                         //                                action: 'Add',
                                          handler : function(){
                                              var r = Ext.create('EMS.model.Antibodies', {
                                                                     antibody: 'New Antibody'
@@ -65,11 +64,9 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                              cellEditing.startEditByPosition({row: 0, column: 1});
                                          },
                                          iconCls:'table-row-add'
-                                     },
-                                     {
+                                     } , {
                                          text:'Save',
                                          tooltip:'Save changes',
-                                         //                                action: 'Add',
                                          handler : function(){
                                              EMS.store.Antibodies.sync({
                                                                            success: function (batch, options) {
@@ -77,11 +74,15 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                                                                EMS.store.Antibodies.load();
                                                                            }});
                                          },
-                                         iconCls:'table2-check'
-                                     }, '-',
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Antibodies
-                                                })
+                                         iconCls:'table-ok'
+                                     } , {
+                                         text:'Reload',
+                                         tooltip:'Reload',
+                                         handler : function(){
+                                             EMS.store.Antibodies.load();
+                                         },
+                                         iconCls:'table-refresh'
+                                     }
                                  ]//tbar
 
                              });

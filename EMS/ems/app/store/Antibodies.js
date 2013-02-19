@@ -27,6 +27,11 @@ Ext.define( 'EMS.store.Antibodies', {
                model:  'EMS.model.Antibodies',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('antibody')
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('antibody',true)
            });
 

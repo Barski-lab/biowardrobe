@@ -25,13 +25,16 @@ Ext.define( 'EMS.model.Worker', {
                idProperty: 'id',
                fields:
                  [
-                   { name: 'id', type: 'int' },
+                   { name: 'id', type: 'int', persist: true },
                    { name: 'worker', type: 'string' },
                    { name: 'passwd', type: 'string' },
                    { name: 'fname', type: 'string' },
                    { name: 'lname', type: 'string' },
                    { name: 'dnalogin', type: 'string' },
                    { name: 'dnapass', type: 'string' },
+                   { name: 'email', type: 'string' },
+                   { name: 'notify', type: 'int' },
+                   { name: 'newpass', type: 'string' },
                    { name: 'fullname', mapping: null, type: 'string', persist: false,
                        convert: function(value, record) {
                            var fn = record.get('fname');

@@ -31,7 +31,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                trackResetOnLoad : true,
                fileUpload:true,
                fieldDefaults: {
-                   //flex: 1,
                    labelWidth: 120,
                    labelAlign: 'top'
                },
@@ -94,7 +93,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   afterLabelTextTpl: required,
                                                                   allowBlank: false,
                                                                   flex: 1
-                                                                  //margin: '0 10 0 0'
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
@@ -104,7 +102,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   afterLabelTextTpl: required,
                                                                   allowBlank: false,
                                                                   flex: 1
-                                                                  //margin: '0 0 10 0'
                                                               }
                                                           ]
                                                       } , {
@@ -185,9 +182,16 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
-                                                                  xtype: 'textfield',
-                                                                  name : 'spikeins',
+                                                                  xtype: 'combobox',
+                                                                  displayField: 'spikeins',
+                                                                  name : 'spikeins_id',
                                                                   fieldLabel: 'Spikeins',
+                                                                  store: EMS.store.Spikeins,
+                                                                  typeAhead: false,
+                                                                  editable: false,
+                                                                  valueField: 'id',
+                                                                  triggerAction: 'all',
+                                                                  queryMode: 'local',
                                                                   flex: 2
                                                               }
                                                           ]

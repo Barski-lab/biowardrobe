@@ -66,11 +66,18 @@ Ext.define('EMS.view.ExperimentType.List' ,{
                                                                                     EMS.store.ExperimentType.load();
                                                                                 }});
                                           },
-                                          iconCls:'table2-check'
-                                      })
-                       this.tbar.push('-');
+                                          iconCls:'table-ok'
+                                      });
+                       //this.tbar.push('-');
                    }
-                   this.tbar.push(Ext.create('Ext.PagingToolbar', {store: EMS.store.ExperimentType}));
+                   this.tbar.push({
+                                      text:'Reload',
+                                      tooltip:'Reload',
+                                      handler : function(){
+                                          EMS.store.ExperimentType.load();
+                                      },
+                                      iconCls:'table-refresh'
+                                  });
                    Ext.apply(this, { store: EMS.store.ExperimentType });
                    this.callParent(arguments);
                }

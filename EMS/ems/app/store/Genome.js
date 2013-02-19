@@ -29,6 +29,11 @@ Ext.define( 'EMS.store.Genome', {
                model:  'EMS.model.Genome',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('genome')
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('genome',true)
            });
 

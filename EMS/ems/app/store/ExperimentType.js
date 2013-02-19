@@ -28,6 +28,11 @@ Ext.define( 'EMS.store.ExperimentType', {
                model:  'EMS.model.ExperimentType',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('experimenttype')
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('experimenttype',true)
            });
 

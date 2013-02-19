@@ -72,11 +72,15 @@ Ext.define('EMS.view.Fragmentation.List' ,{
                                                                                   EMS.store.Fragmentation.load();
                                                                               }});
                                          },
-                                         iconCls:'table2-check'
-                                     }, '-',
-                                     Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.Fragmentation
-                                                })
+                                         iconCls:'table-ok'
+                                     } , {
+                                         text:'Reload',
+                                         tooltip:'Reload',
+                                         handler : function(){
+                                             EMS.store.Fragmentation.load();
+                                         },
+                                         iconCls:'table-refresh'
+                                     }
                                  ]//tbar
 
                              });

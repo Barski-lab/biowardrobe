@@ -213,4 +213,8 @@ OTHER_FILES += \
     app/view/LabDataEdit/SpikeinsChart.js \
     data/SpikeinsChart.php \
     data/spikeins.R \
-    data/common.php
+    data/common.php \
+    app/controller/Spikeins.js \
+    data/GeneralList.php \
+    data/Worker.php \
+    data/WorkerUp.php

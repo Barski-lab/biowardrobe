@@ -10,34 +10,34 @@ if(isset($_REQUEST['tablename']))
 else
     $res->print_error('Not enough required parameters.');
 
+check_val($tablename);
+
+$con=def_connect();
 $con->select_db($db_name_experiments);
 
 if (!($stmt = $con->prepare("describe `$tablename`"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
 }
-
 if (!$stmt->execute()) {
     $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
 }
 $result = $stmt->get_result();
+
 $TYPE=array();
 $HEAD=array();
-while($row=$result->fetch_assoc())
-  {
-   $TYPE[$row['Field']]=$row['Type'];
-   $HEAD[$row['Field']]=$row['Field'];
-  }
+while($row=$result->fetch_assoc()) {
+    $TYPE[$row['Field']]=$row['Type'];
+    $HEAD[$row['Field']]=$row['Field'];
+}
 $stmt->close();
 
 
 if (!($stmt = $con->prepare("SELECT * FROM `$tablename`"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
 }
-
 if (!($stmt->execute())) {
     $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
 }
-
 $result = $stmt->get_result();
 
 header("Content-type: text/csv");
@@ -50,18 +50,17 @@ $i=0;
 $outstream = fopen("php://output", 'w');
 fputcsv($outstream, $HEAD,',','"');
 
-while($row=$result->fetch_assoc())
-  {
+while($row=$result->fetch_assoc()) {
     $RPKM = array();
     foreach($TYPE as $key => $val) {
-            if($val == 'float')
-                $RPKM[$key] = round($row[$key],2);
-            else
-                $RPKM[$key] = $row[$key];
+        if($val == 'float')
+            $RPKM[$key] = round($row[$key],2);
+        else
+            $RPKM[$key] = $row[$key];
     }
     fputcsv($outstream, $RPKM,',','"');
     $i++;
-  }
+}
 
 $stmt->close();
 $con->close();
