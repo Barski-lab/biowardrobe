@@ -14,7 +14,7 @@ function require_authentication() {
         header("Location:".$rootdir."/login.php");
         exit();
     }
-    if($_SESSION["timeout"] + 600 < time()){
+    if($_SESSION["timeout"] + 700 < time()){
         session_destroy();
         header("Location:".$rootdir."/login.php?timeout=true");
         exit();

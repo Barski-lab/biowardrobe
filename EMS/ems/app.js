@@ -47,20 +47,20 @@ var Rights = (function(){
 })();
 
 var Timer = (function(){
-    var time;
+    this.time=new Date();
     var task;
     var runner;
     return {
         get: function(){
             var cur_date=new Date();
-            if(typeof time === 'undefined')
+            if(typeof this.time === 'undefined')
                 this.set();
             if(cur_date- time >= 550000) {
                 window.location="login.php?timeout=true";
             }
         },
         set: function(){
-            time=new Date();
+            this.time=new Date();
         },
         init: function(){
             if(typeof runner !== 'undefined') return;

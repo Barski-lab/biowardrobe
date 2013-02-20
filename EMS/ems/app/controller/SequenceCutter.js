@@ -36,16 +36,16 @@ Ext.define('EMS.controller.SequenceCutter', {
                },
 
                run: function(button) {
+                   button.setDisabled(true);
                    var win    = button.up('window');
                    var me=this;
 
                    var len=parseInt(win.down('[name=length]').getValue());
                    var sequence=win.down('[name=sequence]').getValue();
-                   var result=win.down('[name=result]');
 
                    sequence=sequence.replace(/\n/g, "");
                    sequence=sequence.toUpperCase();
-                   if(sequence.length <= len) {
+                   if(sequence.length < len) {
                        Ext.Msg.show({
                                         title: 'For your information',
                                         msg: 'Length of sequence can not be smaller then '+len,
@@ -61,6 +61,9 @@ Ext.define('EMS.controller.SequenceCutter', {
                    stor.getProxy().setExtraParam('shift',win.down('[name=shift]').getValue());
                    stor.getProxy().setExtraParam('findex',win.down('[name=findex]').getValue());
                    stor.load();
+                   stor.on('load',function() {
+                       button.setDisabled(false);
+                   },this,{ single: true });
                }
 
            });

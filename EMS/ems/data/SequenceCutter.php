@@ -19,7 +19,7 @@ else
     $res->print_error('Not enough required parameters.');
 
 
-if(strlen($sequence)<=$cutlen)
+if(strlen($sequence)<$cutlen)
     $res->print_error('Sequence lenght is not enough');
 
 if(isset($_REQUEST['findex']))
