@@ -90,7 +90,8 @@ Ext.application({
                         'EMS.controller.AntibodiesEdit',
                         'EMS.controller.CrosslinkEdit',
                         'EMS.controller.FragmentationEdit',
-                        'EMS.controller.Spikeins'
+                        'EMS.controller.Spikeins',
+                        'EMS.controller.SequenceCutter',
                     ],
 
                     views: [

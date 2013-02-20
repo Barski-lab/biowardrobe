@@ -21,21 +21,16 @@
 ****************************************************************************/
 
 
-Ext.define( 'EMS.store.SpikeinsList', {
+Ext.define( 'EMS.store.SequenceCutter', {
                extend: 'Ext.data.Store',
 
-               requires: ['EMS.model.SpikeinsList'],
-               model:  'EMS.model.SpikeinsList',
-               storeId: 'SpikeinsList',
+               requires: ['EMS.model.SequenceCutter'],
+               model:  'EMS.model.SequenceCutter',
+               storeId: 'SequenceCutter',
                autoLoad: false,
                singleton: true,
-               remoteSort: true,
-               remoteFilter: true,
-               sorters: [{
-                       property: 'name',
-                       direction: 'ASC'
-                   }],
-               pageSize: 200,
+               remoteSort: false,
+               remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
@@ -43,7 +38,7 @@ Ext.define( 'EMS.store.SpikeinsList', {
                },
                proxy: Ext.apply(STORE_DEFS.proxy(''), {
                                     api: {
-                                        read : 'data/SpikeinsList.php',
+                                        read : 'data/SequenceCutter.php',
                                         update: '',
                                         create: '',
                                         destroy: ''

@@ -131,6 +131,20 @@ Ext.define('EMS.controller.EMSMenu', {
                            this.CrosslinkEditWindow.show(); }
                    }
                    /*
+                     Create window
+                   */
+                   if(menuitem.action === "SeqCut"){
+                       if(typeof this.SeqCutWindow === 'undefined' || !this.SeqCutWindow){
+                           this.SeqCutWindow=Ext.create('EMS.view.SequenceCutter.MainWindow',{});
+                           Ext.getCmp('EMSMenu').add(this.SeqCutWindow);
+                       }
+                       if(this.SeqCutWindow.isVisible()){
+                           this.SeqCutWindow.focus(); }
+                       else {
+                           this.SeqCutWindow.show(); }
+                   }
+
+                   /*
                      Create window with Fragmentation list
                    */
                    if(menuitem.action === "FragmentType"){

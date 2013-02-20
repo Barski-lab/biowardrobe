@@ -217,4 +217,9 @@ OTHER_FILES += \
     app/controller/Spikeins.js \
     data/GeneralList.php \
     data/Worker.php \
-    data/WorkerUp.php
+    data/WorkerUp.php \
+    app/view/SequenceCutter/MainWindow.js \
+    app/store/SequenceCutter.js \
+    app/model/SequenceCutter.js \
+    app/controller/SequenceCutter.js \
+    data/SequenceCutter.php
