@@ -30,6 +30,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
                iconCls: 'table2',
                buttonAlign: 'center',
                maximizable: true,
+               constrain: true,
 
                plain: true,
                height: 700,

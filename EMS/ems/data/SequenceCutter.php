@@ -1,6 +1,6 @@
 <?php
 
-   require("common.php");
+require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 
@@ -60,7 +60,7 @@ for($i=0;$i<=strlen($sequence)-$cutlen;$i+=$shift) {
     fwrite($temp,$str."\n");
 }
 
-$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 30 --suppres 2,3,4,5,6 --quiet $gpath/$findex - ");
+$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 30 --suppress 2,3,4,5,6 --quiet $gpath/$findex - ");
 
 if(!$output) {
     $res->print_error('Cant run bowtie');

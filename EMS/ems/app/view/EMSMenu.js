@@ -30,10 +30,10 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Forms',
                        tooltip:'Laboratory data edit',
                        menu: [
-                           { text: 'Laboratory data', action: 'LabData', tooltip: 'Laboratory data edit',iconCls: 'form-blue-edit' },
+                           { text: 'Laboratory data', action: 'LabData', tooltip: 'List of experiments',iconCls: 'form-blue-edit' },
                            { text: 'Experiment design', action: 'ExperimentDesign', tooltip: 'Experement design',iconCls: '' },
                            '-',
-                           { text: 'Settings', action: 'Worker', tooltip: 'settings',iconCls: 'user-preferences', id: "MenuWorker" },
+                           { text: 'Settings', action: 'Worker', tooltip: 'User settings',iconCls: 'user-preferences', id: "MenuWorker" },
                            { text: 'Workers', action: 'Workers', tooltip: 'List of workers',iconCls: 'users3-edit', id: "MenuWorkers" }
                        ],
                        iconCls:'form-blue'
@@ -58,11 +58,11 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        tooltip:'',
                        menu: [
                            { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green' },
-                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'Crosslink type',iconCls: 'atom' },
-                           { text: 'Experiment type', action: 'ExpType', tooltip: 'Experiment type',iconCls: 'bottle-pills' },
-                           { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'Fragmentation type',iconCls: 'army-knife' },
-                           { text: 'Genome type', action: 'GenomeType', tooltip: 'Genome type',iconCls: '' },
-                           { text: 'Spikeins', action: 'Spikeins', tooltip: 'Spikeins',iconCls: 'surveillance-camera' }
+                           { text: 'Crosslink type', action: 'CrossType', tooltip: 'List of crosslink types',iconCls: 'atom' },
+                           { text: 'Experiment type', action: 'ExpType', tooltip: 'List of experiment types',iconCls: 'bottle-pills' },
+                           { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'List of fragmentation types',iconCls: 'army-knife' },
+                           { text: 'Genome type', action: 'GenomeType', tooltip: 'List of genome types',iconCls: '' },
+                           { text: 'Spikeins', action: 'Spikeins', tooltip: 'List of spikeins controls',iconCls: 'surveillance-camera' }
                        ],
                        iconCls:'folder-document'
                    },
@@ -70,7 +70,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Tools',
                        tooltip:'',
                        menu: [
-                           { text: 'Sequence cutter', action: 'SeqCut', tooltip: 'Tool to cutting sequence into pieces',iconCls: 'cut' },
+                           { text: 'Sequence cutter', action: 'SeqCut', tooltip: 'Tool to cutting sequence into pieces and align them to the genome',iconCls: 'cut' },
                        ],
                        iconCls:'wrench'
                    },

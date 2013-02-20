@@ -33,6 +33,7 @@ Ext.define('EMS.view.ExperimentType.ExperimentType', {
                maximizable: true,
                closeAction: 'hide',
                iconCls: 'bottle-pills',
+               constrain: true,
 
                layout: 'fit',
 

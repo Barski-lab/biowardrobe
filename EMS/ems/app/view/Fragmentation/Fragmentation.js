@@ -33,6 +33,7 @@ Ext.define('EMS.view.Fragmentation.Fragmentation', {
                maximizable: true,
                closeAction: 'hide',
                iconCls: 'army-knife',
+               constrain: true,
 
                layout: 'fit',
 

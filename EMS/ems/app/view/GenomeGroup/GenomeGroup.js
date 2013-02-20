@@ -33,6 +33,7 @@ Ext.define('EMS.view.GenomeGroup.GenomeGroup', {
                maximizable: true,
                //iconCls: 'atom',
                layout: 'fit',
+               constrain: true,
 
 
                initComponent: function() {

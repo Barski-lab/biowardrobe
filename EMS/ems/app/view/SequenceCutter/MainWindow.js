@@ -28,6 +28,8 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                iconCls: 'cut',
                closeAction: 'hide',
                maximizable: true,
+               collapsible: true,
+               constrain: true,
                minHeight: 550,
                minWidth: 700,
                height: 550,
@@ -114,7 +116,7 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                         fieldLabel: 'Sequence without spaces',
                                         labelAlign: 'top',
                                         afterLabelTextTpl: required,
-                                        margin: '2 4 0 4',
+                                        margin: '6 4 0 4',
                                         name: 'sequence',
                                         allowBlank: false,
                                         flex: 1
@@ -140,12 +142,23 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                 ]
                             }];
 
-                   me.buttons = [{
-                                     text: 'Close',
-                                     handler: function() {
-                                         me.close();
-                                     }
-                                 }];
+
+
+                   me.dockedItems= [{
+                                        xtype: 'toolbar',
+                                        dock: 'bottom',
+                                        ui: 'footer',
+                                        layout: {
+                                            pack: 'center'
+                                        },
+                                        items: [{
+                                                minWidth: 90,
+                                                text: 'Close',
+                                                handler: function() {
+                                                    me.close();
+                                                }
+                                            }]
+                                    }];
                    me.callParent(arguments);
                }
            });

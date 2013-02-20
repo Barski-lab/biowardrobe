@@ -33,6 +33,7 @@ Ext.define('EMS.view.Genome.Genome', {
                maximizable: true,
                closeAction: 'hide',
                //iconCls: 'atom',
+               constrain: true,
 
                layout: 'fit',
 

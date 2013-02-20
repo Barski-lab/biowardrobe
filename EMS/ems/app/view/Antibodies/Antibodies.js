@@ -32,6 +32,7 @@ Ext.define('EMS.view.Antibodies.Antibodies', {
                closable: true,
                maximizable: true,
                closeAction: 'hide',
+               constrain: true,
                iconCls: 'battery-green',
 
                layout: 'fit',
