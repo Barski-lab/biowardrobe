@@ -43,12 +43,26 @@ if(isset($filter)) {
     $where="where ";
     foreach($filter as $val) {
         check_val($val->type);
-        check_val($val->value);
         check_val($val->field);
+        if($val->type == 'date') {
+            if(!preg_match('/^[0-9\/]+$/', $val->value))
+                $res->print_error('Incorrect required parameters.');
+            if($val->comparison == 'lt') {
+                $where=$where." $val->field < str_to_date('$val->value','%m/%d/%Y') and";
+            }
+            if($val->comparison == 'gt') {
+                $where=$where." $val->field > str_to_date('$val->value','%m/%d/%Y') and";
+            }
+            if($val->comparison == 'eq') {
+                $where=$where." $val->field = str_to_date('$val->value','%m/%d/%Y') and";
+            }
+        }
         if($val->type == 'string') {
+            check_val($val->value);
             $where=$where." $val->field like '%$val->value%' and";
         }
         if($val->type == 'numeric') {
+            check_val($val->value);
             if($val->comparison == 'lt') {
                 $where=$where." $val->field <= $val->value and";
             }

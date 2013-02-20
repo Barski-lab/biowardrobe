@@ -38,6 +38,11 @@ Ext.define('EMS.store.LabData', {
                singleton: true,
                remoteSort: true,
                remoteFilter: true,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
                sorters: [{
                        property: 'dateadd',
                        direction: 'DESC'
@@ -47,13 +52,5 @@ Ext.define('EMS.store.LabData', {
                    }],
                pageSize: 30,
                proxy: STORE_DEFS.proxy('labdata')
-//               proxy: Ext.apply(STORE_DEFS.proxy('labdata'), {
-//                                    api: {
-//                                        read : '/cgi-bin/barski/records.json',
-//                                        update: '/cgi-bin/barski/recordsUp1.json',
-//                                        create: '/cgi-bin/barski/recordsNew1.json',
-//                                        destroy: '/cgi-bin/barski/recordsDel1.json'
-//                                    }
-//                                })
            });
 

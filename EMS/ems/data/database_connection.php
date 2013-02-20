@@ -5,10 +5,20 @@
 require_once('response.php');
 
 function def_connect() {
-    global $db_host,$db_user,$db_pass;
+    global $db_host,$db_user,$db_pass,$res ;
     $con = new mysqli($db_host,$db_user,$db_pass);
     if ($con->connect_errno)
         $res->print_error('Could not connect: ' . $con->connect_error);
+    return $con;
+}
+
+function def_mssql_connect() {
+    global $db_host_mssql,$db_user_mssql,$db_pass_mssql, $res;
+
+    $con = mssql_connect($db_host_mssql,$db_user_mssql,$db_pass_mssql);
+    if (!$con)
+        $res->print_error('Could not connect');
+     //. mssql_get_last_message()
     return $con;
 }
 

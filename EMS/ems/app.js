@@ -47,27 +47,28 @@ var Rights = (function(){
 })();
 
 var Timer = (function(){
-    this.time=new Date();
+
     var task;
     var runner;
+    var me=this;
+    me.time=new Date();
+
     return {
         get: function(){
-            var cur_date=new Date();
-            if(typeof this.time === 'undefined')
-                this.set();
-            if(cur_date- time >= 550000) {
+            var cur_date = new Date();
+            if( cur_date - me.time >= 590000) {
                 window.location="login.php?timeout=true";
             }
         },
         set: function(){
-            this.time=new Date();
+            me.time=new Date();
         },
         init: function(){
             if(typeof runner !== 'undefined') return;
             this.set();
             task = {
                 run: this.get,
-                interval: 60000 //once per min
+                interval: 10000 //once per 10 sec
             }
             runner = new Ext.util.TaskRunner();
             runner.start(task);
