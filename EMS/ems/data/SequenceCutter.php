@@ -60,7 +60,7 @@ for($i=0;$i<=strlen($sequence)-$cutlen;$i+=$shift) {
     fwrite($temp,$str."\n");
 }
 
-$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 20 --suppres 2,3,4,5,6 --quiet $gpath/$findex - ");
+$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 30 --suppres 2,3,4,5,6 --quiet $gpath/$findex - ");
 
 if(!$output) {
     $res->print_error('Cant run bowtie');
@@ -73,7 +73,7 @@ foreach( $arr as $key => $val) {
     if(strlen($val)>0) {
     $DATA = array(
         'sequence' => substr($val,0,$cutlen),
-        'align' => intVal(trim(substr($val,$cutlen))) );
+        'align' => intVal(trim(substr($val,$cutlen)))+1 );
     $query_array[$i]=$DATA;
     }
     $i++;

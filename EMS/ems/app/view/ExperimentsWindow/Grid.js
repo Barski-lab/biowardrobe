@@ -48,8 +48,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
 
                                  features: [filters],
                                  viewConfig: {
-                                     stripeRows: true,
-                                     enableTextSelection: true
+                                     enableTextSelection: false
                                  },
                                  columns: [
                                      {   header: "Record ID",             sortable: true,  width: 60,    dataIndex: 'id'                                     },

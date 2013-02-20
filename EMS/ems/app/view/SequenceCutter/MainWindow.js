@@ -123,7 +123,12 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                     } , {
                                         xtype: 'grid',
                                         margin: '0 4 2 4',
+                                        border: false,
+                                        columnLines: true,
                                         store: EMS.store.SequenceCutter,
+                                        viewConfig: {
+                                            enableTextSelection: true
+                                        },
                                         columns: [
                                             {xtype: 'rownumberer',width: 40},
                                             {header: 'Sequence', dataIndex: 'sequence', flex: 1 },
