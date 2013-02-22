@@ -33,7 +33,7 @@ Ext.define( 'EMS.model.Worker', {
                    { name: 'dnalogin', type: 'string' },
                    { name: 'dnapass', type: 'string' },
                    { name: 'email', type: 'string' },
-                   { name: 'notify', type: 'int' },
+                   { name: 'notify', type: 'string' },
                    { name: 'newpass', type: 'string' },
                    { name: 'fullname', mapping: null, type: 'string', persist: false,
                        convert: function(value, record) {

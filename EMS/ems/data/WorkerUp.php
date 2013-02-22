@@ -19,11 +19,11 @@ if($data->passwd=='' && !check_rights('worker'))
 if(!check_rights('worker') && $_SESSION["username"]!=$data->worker)
     $res->print_error("How it is possible?");
 
-//logmsg(print_r($data,true));
+logmsg(print_r($data,true));
 //logmsg(print_r($_REQUEST,true));
 
 $SQL_STR="UPDATE `$tablename` set worker=?,fname=?,lname=?,dnalogin=?,dnapass=?,email=?,notify=?";
-$PARAMS=array("ssssssi",$data->worker,$data->fname,$data->lname,$data->dnalogin,$data->dnapass,$data->email,$data->notify);
+$PARAMS=array("ssssssi",$data->worker,$data->fname,$data->lname,$data->dnalogin,$data->dnapass,$data->email,($data->notify=='on'?1:0));
 
 if($data->newpass!='') {
     $SQL_STR=$SQL_STR.",passwd=? ";

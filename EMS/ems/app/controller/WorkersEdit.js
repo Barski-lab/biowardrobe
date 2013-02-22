@@ -115,18 +115,20 @@ Ext.define('EMS.controller.WorkersEdit', {
                        var Upper=0;
                        var Numbers=0;
                        var Symbols=0;
-                       for (i=0; i<values.newpass.length;i++) {
+                       if(values.newpass !== '') {
+                           for (i=0; i<values.newpass.length;i++) {
                                if (values.newpass[i].match(/[A-Z]/g)) {Upper++;}
                                if (values.newpass[i].match(/[0-9]/g)) {Numbers++;}
                                if (values.newpass[i].match(/(.*[!,@,#,$,%,^,&,*,?,_,~])/)) {Symbols++;}
                            }
-                       if(Upper+Numbers+Symbols < 4 || values.newpass.length === (Upper+Numbers+Symbols)) {
-                           Ext.Msg.show({
-                                            title: 'Password',
-                                            msg: 'Password should contain different characters<br> at least 4 uppercase letters or numbers',
-                                            icon: Ext.Msg.ERROR,
-                                            buttons: Ext.Msg.OK });
-                           return;
+                           if(Upper+Numbers+Symbols < 4 || values.newpass.length === (Upper+Numbers+Symbols)) {
+                               Ext.Msg.show({
+                                                title: 'Password',
+                                                msg: 'Password should contain different characters<br> at least 4 uppercase letters or numbers',
+                                                icon: Ext.Msg.ERROR,
+                                                buttons: Ext.Msg.OK });
+                               return;
+                           }
                        }
                        if(values.notify && values.email==='') {
                            Ext.Msg.show({

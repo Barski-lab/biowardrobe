@@ -28,23 +28,10 @@ if($data->dnalogin!='' && $data->dnapass!='') {
 }
 
 if($data->email!='') {
-    $SQL_STR_B=$SQL_STR_B.",email ";
+    $SQL_STR_B=$SQL_STR_B.",email,notify ";
     $SQL_STR_V=$SQL_STR_V.",? ";
-    array_push($PARAMS,$data->email);
-    $PARAMS[0]=$PARAMS[0]."s";
-    if(intVal($data->notify)!=0) {
-        $SQL_STR_B=$SQL_STR_B.",notify ";
-        $SQL_STR_V=$SQL_STR_V.",? ";
-        array_push($PARAMS,intVal($data->notify));
-        $PARAMS[0]=$PARAMS[0]."i";
-    }
-} else {
-    if(intVal($data->notify)==0) {
-        $SQL_STR_B=$SQL_STR_B.",notify ";
-        $SQL_STR_V=$SQL_STR_V.",? ";
-        array_push($PARAMS,intVal($data->notify));
-        $PARAMS[0]=$PARAMS[0]."i";
-    }
+    array_push($PARAMS,$data->email,($data->notify=='on'?1:0));
+    $PARAMS[0]=$PARAMS[0]."si";
 }
 
 if(execSQL($con,$SQL_STR_B.$SQL_STR_V.")",$PARAMS,true)==0) {
