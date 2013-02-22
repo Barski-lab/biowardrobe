@@ -162,7 +162,7 @@ cursor.execute ("update labdata set libstatus=0 where libstatus in (1,1000)")
 
 while True:
     row=[]
-    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e from labdata a, worker w,experimenttype e "
+    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e,w.email,w.notify from labdata a, worker w,experimenttype e "
 	" where a.worker_id =w.id and e.id=experimenttype_id "
 	" and dnalogin is not null and dnalogin <> '' "
 	" and dnapass is not null and dnapass <> '' and a.libcode <> '' and libstatus in (0) limit 1")
@@ -170,6 +170,9 @@ while True:
 
     if not row:
 	break
+    
+    notify=(int(row[7])==1)
+    email=row[6]
     
     PAIR=('pair' in row[5])
     SUBDIR='/DNA'
@@ -201,6 +204,9 @@ while True:
 
     if len(a)==2:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
+
+    if notify:
+	send_mail(email,'Record #'+row[4]+' has been downloaded')
 
     conn.commit()
 

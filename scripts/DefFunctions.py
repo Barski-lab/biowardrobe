@@ -24,6 +24,21 @@
 import os
 import sys
 
+import smtplib
+
+    
+def send_mail(toaddrs,body):
+    fromaddr='ems@ems.cchmc.org'
+    # Add the From: and To: headers at the start!
+    msg = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
+           % (fromaddr,toaddrs,body))
+    msg = msg + body
+                                                   
+    server = smtplib.SMTP('localhost')
+    server.set_debuglevel(1)
+    server.sendmail(fromaddr, toaddrs, msg)
+    server.quit()
+
 
 def error_msg(msg):
     #print """
