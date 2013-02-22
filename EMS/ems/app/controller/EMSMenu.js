@@ -33,7 +33,6 @@ Ext.define('EMS.controller.EMSMenu', {
 
                views:['EMSMenu'],
                init: function() {
-                   //Logger.log('Menu Initialized!');
                    this.control({
                                     'viewport > EMSMenu': {
                                         render: this.onPanelRendered
@@ -42,6 +41,7 @@ Ext.define('EMS.controller.EMSMenu', {
                                         click: this.onEMSMenuForms
                                     }
                                 });
+
                },
 
                //-----------------------------------------------------------------------
@@ -89,6 +89,10 @@ Ext.define('EMS.controller.EMSMenu', {
                    if(menuitem.action === "Worker"){
                            this.WorkerEditWindow=this.getController('WorkersEdit').edit();
                            Ext.getCmp('EMSMenu').add(this.WorkerEditWindow);
+//                       if(this.WorkerEditWindow.isVisible()){
+//                           this.WorkerEditWindow.focus(); }
+//                       else {
+//                           this.WorkerEditWindow.show(); }
                    }
 
                    /*

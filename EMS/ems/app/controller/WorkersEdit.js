@@ -38,6 +38,22 @@ Ext.define('EMS.controller.WorkersEdit', {
                                         click: this.newworkerwin
                                     }
                                 });
+                   var me=this;
+                   this.getWorkerStore().on('load',function() {
+                       if(CHPASS == 1){
+                           Ext.Msg.show({
+                                            title: 'Change password',
+                                            msg: 'Your password was not crypted please change it!',
+                                            icon: Ext.Msg.WARNING,
+                                            buttons: Ext.Msg.OK,
+                                            fn:function(btn, text){
+                                                //me.WorkerEditWindow=getController('WorkersEdit').edit();
+                                                Ext.getCmp('EMSMenu').add(me.edit());
+                                            }
+                                        });
+                       }
+                   },this,{ single: true });
+
                    this.getWorkerStore().load();
                },
 
@@ -92,6 +108,22 @@ Ext.define('EMS.controller.WorkersEdit', {
                            Ext.Msg.show({
                                             title: 'Password not match',
                                             msg: 'New password does not match, please retype',
+                                            icon: Ext.Msg.ERROR,
+                                            buttons: Ext.Msg.OK });
+                           return;
+                       }
+                       var Upper=0;
+                       var Numbers=0;
+                       var Symbols=0;
+                       for (i=0; i<values.newpass.length;i++) {
+                               if (values.newpass[i].match(/[A-Z]/g)) {Upper++;}
+                               if (values.newpass[i].match(/[0-9]/g)) {Numbers++;}
+                               if (values.newpass[i].match(/(.*[!,@,#,$,%,^,&,*,?,_,~])/)) {Symbols++;}
+                           }
+                       if(Upper+Numbers+Symbols < 4 || values.newpass.length === (Upper+Numbers+Symbols)) {
+                           Ext.Msg.show({
+                                            title: 'Password',
+                                            msg: 'Password should contain different characters<br> at least 4 uppercase letters or numbers',
                                             icon: Ext.Msg.ERROR,
                                             buttons: Ext.Msg.OK });
                            return;

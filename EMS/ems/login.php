@@ -6,8 +6,8 @@ session_start();
 if(isset($_SESSION["timeout"])) {
     unset($_SESSION["timeout"]);
     $_SESSION = array();
-    session_destroy();
-    session_unset();
+    //session_destroy();
+    //session_unset();
 }
 
 

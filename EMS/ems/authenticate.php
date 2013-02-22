@@ -10,15 +10,46 @@
    $con->select_db($db_name_ems);
 
 
-   $query_array=execSQL($con,"SELECT id,worker,lname,fname from worker where worker=? and passwd=?",array("ss",$_REQUEST["username"],$_REQUEST["password"]),false);
+   $query_array=execSQL($con,"SELECT id,passwd,worker,lname,fname from worker where worker=?",array("s",$_REQUEST["username"]),false);
    $con->close();
 
-   if( $query_array[0]['id']=='' || $query_array[0]['worker']=='' ) {
-       $res->print_error("Incorrect user name or password");
+   session_start();
+   if(!isset($_SESSION["attempt"])) {
+       $_SESSION["attempt"]=0;
+   }
+   $_SESSION["attempt"]=intVal($_SESSION["attempt"])+1;
+
+   if($_SESSION["attempt"]>6) {
+       if(!isset($_SESSION["attempttime"])) $_SESSION["attempttime"]=time();
+       $diff=time()-$_SESSION["attempttime"];
+       if($diff < 300 ) {
+        $res->print_error("You should wait ".intVal(((300-$diff)/60))." min, before next attempt");
+       } else {
+           $_SESSION["attempt"]=1;
+       }
    }
 
+   $_SESSION["changepass"]=0;
+   if($_REQUEST["password"]==$query_array[0]['passwd']) {
+        $_SESSION["changepass"]=1;
+   } else {
+       $salt = substr($query_array[0]['passwd'], 0, 64);
+       $hash = $salt . $_REQUEST["password"];
+       for ( $i = 0; $i < 100000; $i ++ ) {
+           $hash = hash('sha256', $hash);
+       }
+       $hash = $salt . $hash;
+       if ( $hash != $query_array[0]['passwd'] ) {
+           $res->print_error("Incorrect user name or password<br>".$hash."<br>".$query_array[0]['passwd']);
+       }
+   }
 
-   session_start();
+//   if( $query_array[0]['id']=='' || $query_array[0]['worker']=='' ) {
+//       $res->print_error("Incorrect user name or password");
+//   }
+
+
+
 
    $_SESSION["username"] = $query_array[0]['worker'];
    $_SESSION["usergroup"] = $query_array[0]['worker'];
