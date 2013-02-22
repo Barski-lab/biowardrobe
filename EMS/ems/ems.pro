@@ -223,4 +223,5 @@ OTHER_FILES += \
     app/model/SequenceCutter.js \
     app/controller/SequenceCutter.js \
     data/SequenceCutter.php \
-    data/WorkerAdd.php
+    data/WorkerAdd.php \
+    data/WorkerDel.php

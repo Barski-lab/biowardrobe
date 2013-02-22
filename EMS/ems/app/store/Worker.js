@@ -38,9 +38,8 @@ Ext.define( 'EMS.store.Worker', {
                                         read : 'data/Worker.php',
                                         update: 'data/WorkerUp.php',
                                         create: 'data/WorkerAdd.php',
-                                        destroy: ''
+                                        destroy: 'data/WorkerDel.php'
                                     }
                                 })
-
            });
 
