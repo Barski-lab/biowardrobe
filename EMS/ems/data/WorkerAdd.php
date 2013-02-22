@@ -38,7 +38,7 @@ if(execSQL($con,$SQL_STR_B.$SQL_STR_V.")",$PARAMS,true)==0) {
     $res->print_error("Cant insert");
 } else {
     $res->success = true;
-    $res->message = "Data inserted";
+    $res->message = "Data has been inserted";
     print_r($res->to_json());
     exit();
 }
