@@ -8,17 +8,6 @@ $con=def_connect();
 $con->select_db($db_name_ems);
 $tablename="worker";
 
-function crypt_pass($U,$P) {
-    $salt = hash('sha256', uniqid(mt_rand(), true) . strtolower($U));
-
-    $hash = $salt . $P;
-    for ( $i = 0; $i < 100000; $i ++ ) {
-      $hash = hash('sha256', $hash);
-    }
-    $hash = $salt . $hash;
-    return $hash;
-}
-
 $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");

@@ -37,7 +37,7 @@ Ext.define( 'EMS.store.Worker', {
                                     api: {
                                         read : 'data/Worker.php',
                                         update: 'data/WorkerUp.php',
-                                        create: '',
+                                        create: 'data/WorkerAdd.php',
                                         destroy: ''
                                     }
                                 })

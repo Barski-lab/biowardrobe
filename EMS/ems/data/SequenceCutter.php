@@ -5,7 +5,7 @@ require_once('response.php');
 require_once('def_vars.php');
 
 
-logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($_REQUEST,true));
 
 if(isset($_REQUEST['sequence']))
     $sequence = $_REQUEST['sequence'];

@@ -55,7 +55,6 @@ function execSQL($mysqli,$sql, $params, $close){
         }
 
         call_user_func_array(array($stmt, 'bind_result'), refValues($parameters));
-
         while ( $stmt->fetch() ) {
             $x = array();
             foreach( $row as $key => $val ) {

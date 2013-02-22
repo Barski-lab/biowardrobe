@@ -2,7 +2,7 @@
    include('/etc/settings/config.php');
    require_once('data/response.php');
    require_once('data/def_vars.php');
-   if (!(isset($_REQUEST["username"]) && isset($_REQUEST["password"])))
+   if (!(isset($_REQUEST["username"]) && isset($_REQUEST["password"]) && $_REQUEST["username"]!='' && $_REQUEST["password"]!=''))
        $res->print_error('Not enough required parameters.');
    require_once('data/database_connection.php');
 
@@ -10,7 +10,7 @@
    $con->select_db($db_name_ems);
 
 
-   $query_array=execSQL($con,"SELECT id,passwd,worker,lname,fname from worker where worker=?",array("s",$_REQUEST["username"]),false);
+   $query_array=execSQL($con,"SELECT id,passwd,worker,lname,fname from worker where worker=? and passwd is not NULL",array("s",$_REQUEST["username"]),false);
    $con->close();
 
    session_start();
@@ -40,16 +40,9 @@
        }
        $hash = $salt . $hash;
        if ( $hash != $query_array[0]['passwd'] ) {
-           $res->print_error("Incorrect user name or password<br>".$hash."<br>".$query_array[0]['passwd']);
+           $res->print_error("Incorrect user name or password");
        }
    }
-
-//   if( $query_array[0]['id']=='' || $query_array[0]['worker']=='' ) {
-//       $res->print_error("Incorrect user name or password");
-//   }
-
-
-
 
    $_SESSION["username"] = $query_array[0]['worker'];
    $_SESSION["usergroup"] = $query_array[0]['worker'];
