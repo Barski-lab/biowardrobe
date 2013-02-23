@@ -145,7 +145,16 @@ Ext.define('EMS.controller.WorkersEdit', {
                            return;
                        }
                    }
-                   win.close();
+
+                   this.getWorkerStore().on('datachanged',function(thestore,eopts) {
+                       Ext.Msg.show({
+                                        title: 'Password',
+                                        msg: 'Operation complete successfully',
+                                        icon: Ext.Msg.OK,
+                                        buttons: Ext.Msg.OK });
+                       win.close();
+                   },this,{ single: true });
+
                    this.getWorkerStore().sync();
                }
            });

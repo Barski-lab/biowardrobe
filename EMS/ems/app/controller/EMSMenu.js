@@ -175,6 +175,16 @@ Ext.define('EMS.controller.EMSMenu', {
                            this.GenomeEditWindow.show(); }
                    }
 
+                   if(menuitem.action === "EGIDPatients"){
+                       if(typeof this.PatientsWindow === 'undefined' || !this.PatientsWindow){
+                           this.PatientsWindow=Ext.create('EMS.view.Patients.MainWindow',{});
+                           Ext.getCmp('EMSMenu').add(this.PatientsWindow);
+                       }
+                       if(this.PatientsWindow.isVisible()){
+                           this.PatientsWindow.focus(); }
+                       else {
+                           this.PatientsWindow.show(); }
+                   }
                    /*
                      Create chart window for adaptor contamination
                    */
