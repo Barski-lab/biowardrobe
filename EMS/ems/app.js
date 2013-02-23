@@ -27,6 +27,7 @@ Ext.Loader.setPath(
             {'Ext.ux': 'ux/'}
             );
 
+var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
 var Rights = (function(){
     var store;

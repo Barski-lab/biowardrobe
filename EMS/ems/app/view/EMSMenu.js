@@ -49,7 +49,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Patients',
                        tooltip:'Patient\'s data',
                        menu: [
-                           { text: 'List', action: 'List', tooltip: '',iconCls: 'icon-grid' }
+                           { text: 'EGID Patients', action: 'EGIDPatients', tooltip: '',iconCls: 'users3' }
                        ],
                        iconCls:'users3'
                    },
