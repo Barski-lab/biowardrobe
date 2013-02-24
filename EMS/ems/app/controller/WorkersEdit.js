@@ -121,10 +121,10 @@ Ext.define('EMS.controller.WorkersEdit', {
                                if (values.newpass[i].match(/[0-9]/g)) {Numbers++;}
                                if (values.newpass[i].match(/(.*[!,@,#,$,%,^,&,*,?,_,~])/)) {Symbols++;}
                            }
-                           if(Upper+Numbers+Symbols < 4 || values.newpass.length === (Upper+Numbers+Symbols)) {
+                           if(Upper<2 || Numbers+Symbols < 2 || values.newpass.length === (Upper+Numbers+Symbols)) {
                                Ext.Msg.show({
                                                 title: 'Password',
-                                                msg: 'Password should contain different characters<br> at least 4 uppercase letters or numbers',
+                                                msg: 'Password should contain different characters<br> at least 2 uppercase letters and numbers/symbols',
                                                 icon: Ext.Msg.ERROR,
                                                 buttons: Ext.Msg.OK });
                                return;
