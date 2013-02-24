@@ -94,6 +94,7 @@ Ext.application({
                         'EMS.controller.FragmentationEdit',
                         'EMS.controller.Spikeins',
                         'EMS.controller.SequenceCutter',
+                        'EMS.controller.Info'
                     ],
 
                     views: [

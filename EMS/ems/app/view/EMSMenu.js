@@ -78,7 +78,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Notes for supplemental',
                        tooltip:'',
                        menu: [
-                           { text: 'Notes', action: 'SuppNotes', tooltip: 'Notes about pipelines for supplemental material',iconCls: 'notebook-edit' }
+                           { text: 'Notes', action: 'SuppInfo', tooltip: 'Notes about pipelines for supplemental material',iconCls: 'notebook-edit' }
                        ],
                        iconCls:'notebook-edit'
                    },

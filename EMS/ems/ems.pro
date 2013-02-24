@@ -226,4 +226,6 @@ OTHER_FILES += \
     data/WorkerAdd.php \
     data/WorkerDel.php \
     app/view/Patients/MainWindow.js \
-    app/controller/Patients.js
+    app/controller/Patients.js \
+    app/view/Info/Supplemental.js \
+    app/controller/Info.js
