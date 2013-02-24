@@ -39,7 +39,7 @@ Ext.define( 'EMS.model.SpikeinsChart', {
                            var inter = record.get('inter');
                            var conc = record.get('concentration');
                            if(slope!==0) {
-                               return conc/slope-inter;//.toFixed(2);
+                               return (conc-inter)/slope;//.toFixed(2);
                            } else {
                                return 0.0;
                            }
