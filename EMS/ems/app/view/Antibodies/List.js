@@ -70,7 +70,6 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                          handler : function(){
                                              EMS.store.Antibodies.sync({
                                                                            success: function (batch, options) {
-                                                                               console.log('Sync successed' ,batch, options);
                                                                                EMS.store.Antibodies.load();
                                                                            }});
                                          },

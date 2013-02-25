@@ -21,14 +21,22 @@
 ****************************************************************************/
 
 
-Ext.define( 'EMS.store.GenomeGroup', {
+Ext.define( 'EMS.store.Info', {
                extend: 'Ext.data.Store',
 
-               requires: ['EMS.model.Genome'],
-               storeId: 'GenomeGroup',
-               model:  'EMS.model.GenomeGroup',
+               requires: ['EMS.model.Info'],
+               model:  'EMS.model.Info',
+               storeId: 'Info',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('grp_local',false)
+               remoteSort: false,
+               remoteFilter: false,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('info',true)
            });
+
 

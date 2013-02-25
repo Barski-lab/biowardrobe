@@ -22,8 +22,8 @@
 
 Ext.define('EMS.controller.Info', {
                extend: 'Ext.app.Controller',
-               //stores: ['Worker'],
-               //models: ['Worker'],
+               stores: ['Info'],
+               models: ['Info'],
                views:  ['Info.Supplemental'],
 
                init: function() {
@@ -31,42 +31,37 @@ Ext.define('EMS.controller.Info', {
                    me.control({
                                   '#save-supplemental-info': {
                                       click: me.update
+                                  },
+                                  '#InfoSupplemental': {
+                                      render: me.onRender
                                   }
+
                               });
                },
-
-               //               edit: function() {
-               //                   var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});
-               //                   var form=edit.down('form');
-               //                   form.getForm().findField('worker').setReadOnly(true);
-               //                   var record = this.getWorkerStore().findRecord('id',USER_ID);
-               //                   form.loadRecord(record);
-               //                   edit.show();
-               //                   return edit;
-               //               },
+               onRender: function(view) {
+                   var me=this;
+                   var store=me.getInfoStore();
+                   store.getProxy().setExtraParam('id',1);
+                   store.load();
+                   store.on('load',function() {
+                       view.down('form').loadRecord(store.getAt(0));
+                   },this,{ single: true });
+               },
 
                update: function(button) {
+                   var me = this;
                    var win    = button.up('window');
                    var form   = win.down('form');
                    var record = form.getRecord();
                    var values = form.getValues();
-                   win.close();
 
-//                   if (form.getForm().isValid()) {
-//                       record.set(values);
-//                   } else {
-//                       return;
-//                   }
-
-//                   this.getWorkerStore().on('datachanged',function(thestore,eopts) {
-//                       Ext.Msg.show({
-//                                        title: 'Password',
-//                                        msg: 'Operation complete successfully',
-//                                        icon: Ext.Msg.OK,
-//                                        buttons: Ext.Msg.OK });
-//                       win.close();
-//                   },this,{ single: true });
-
-//                   this.getWorkerStore().sync();
+                   if (form.getForm().isValid()) {
+                       record.set(values);
+                       var store = me.getInfoStore();
+                       store.on('datachanged',function(thestore,eopts) {
+                           win.close();
+                       },this,{ single: true });
+                       store.sync();
+                   }
                }
            });

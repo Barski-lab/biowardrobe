@@ -20,15 +20,11 @@
 **
 ****************************************************************************/
 
+Ext.define( 'EMS.model.Info', {
+               extend: 'Ext.data.Model',
 
-Ext.define( 'EMS.store.GenomeGroup', {
-               extend: 'Ext.data.Store',
-
-               requires: ['EMS.model.Genome'],
-               storeId: 'GenomeGroup',
-               model:  'EMS.model.GenomeGroup',
-               autoLoad: false,
-               singleton: true,
-               proxy: STORE_DEFS.proxy('grp_local',false)
+               fields: [
+                   { name: 'id', type: 'int' },
+                   { name: 'info', type: 'string' }
+               ]
            });
-

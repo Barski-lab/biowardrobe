@@ -228,4 +228,6 @@ OTHER_FILES += \
     app/view/Patients/MainWindow.js \
     app/controller/Patients.js \
     app/view/Info/Supplemental.js \
-    app/controller/Info.js
+    app/controller/Info.js \
+    app/model/Info.js \
+    app/store/Info.js

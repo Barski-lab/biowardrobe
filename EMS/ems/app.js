@@ -51,25 +51,29 @@ var Timer = (function(){
 
     var task;
     var runner;
+    var limit=600000
     var me=this;
     me.time=new Date();
-
     return {
         get: function(){
             var cur_date = new Date();
-            if( cur_date - me.time >= 590000) {
+            me.clock=(limit-(cur_date - me.time))/1000;
+            me.panel.setTitle('<div style="float: right; text-align: right;">'+Ext.Date.format(cur_date, 'g:i:s A')+'&nbsp;('+me.clock.toFixed()+')&nbsp;</div>');
+            if( cur_date - me.time >= limit) {
                 window.location="login.php?timeout=true";
             }
         },
         set: function(){
             me.time=new Date();
+            me.clock=600;
         },
-        init: function(){
+        init: function(view){
+            me.panel=view;
             if(typeof runner !== 'undefined') return;
             this.set();
             task = {
                 run: this.get,
-                interval: 10000 //once per 10 sec
+                interval: 5000 //msecs
             }
             runner = new Ext.util.TaskRunner();
             runner.start(task);
@@ -104,44 +108,41 @@ Ext.application({
 
 
                     launch: function() {
+                        var viewport=Ext.create('Ext.container.Viewport',
+                                                {
 
-                        Ext.create('Ext.container.Viewport', {
-
-                                       layout: 'border',
-
-                                       items:
-                                           [
-                                           {
-                                               region: 'north',
-                                               title: '<div style="float: left; text-align: left;">Allergy department experiments management software</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
-                                                      "<a href=login.php>&nbsp;logout</a></div>",
-                                               autoHeight: true
-                                           } , {
-                                               region: 'south',
-                                               title: '',
-                                               collapsible: true,
-                                               collapsed: true,
-                                               height: 100,
-                                               minHeight: 60,
-                                               overflowY : 'scroll',
-                                               tplWriteMode: 'append',
-                                               tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
-                                               bodyPadding: 5,
-                                               listeners: {
-                                                   render: Logger.init
-                                               }
-                                           } , {
-                                               xtype: 'EMSMenu',
-                                               id: 'EMSMenu',
-                                               region: 'center',
-                                               border: false,
-                                               layout: 'fit'
-                                           }
-                                       ]//items Viewport
-
-                                   });//ext create
+                                                    layout: 'border',
+                                                    items:
+                                                        [{
+                                                            region: 'north',
+                                                            title: '<div style="float: left; text-align: left;">Allergy department experiments management software</div><div style="float: right; text-align: right;">Wellcome: '+USER_NAME+
+                                                                   "<a href=login.php>&nbsp;logout</a></div>",
+                                                            autoHeight: true
+                                                        } , {
+                                                            region: 'south',
+                                                            title: '',
+                                                            id:'main-south',
+                                                            collapsible: true,
+                                                            collapsed: true,
+                                                            height: 100,
+                                                            minHeight: 60,
+                                                            overflowY : 'scroll',
+                                                            tplWriteMode: 'append',
+                                                            tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
+                                                            bodyPadding: 5,
+                                                            listeners: {
+                                                                render: function(p) {Logger.init(p); Timer.init(p);}
+                                                            }
+                                                        } , {
+                                                            xtype: 'EMSMenu',
+                                                            id: 'EMSMenu',
+                                                            region: 'center',
+                                                            border: false,
+                                                            layout: 'fit'
+                                                        }]//items Viewport
+                                                });//ext create
                         Rights.init(Ext.getStore('Worker'));
-                        Timer.init();
+
                     }//launch func
 
                 });//application

@@ -22,11 +22,11 @@
 
 Ext.define('EMS.view.Info.Supplemental', {
                extend: 'Ext.window.Window',
+               id : 'InfoSupplemental',
                requires: ['Ext.form.Panel'],
                title : 'Supplemental Materials',
                layout: 'fit',
                iconCls: 'notebook-edit',
-               closeAction: 'hide',
                maximizable: true,
                collapsible: true,
                constrain: true,
@@ -70,10 +70,16 @@ Ext.define('EMS.view.Info.Supplemental', {
                        me.dockedItems[0].items=[savebutt,closebutt];
                        me.items[0].items=[{
                                               xtype: 'htmleditor',
-                                              name: 'suppinfo',
+                                              name: 'info',
                                               hideLabel: true
                                           }];
                    } else {
+                       me.items[0].items=[{
+                                              xtype: 'textarea',
+                                              name: 'info',
+                                              readonly: true,
+                                              hideLabel: true
+                                          }];
                        me.dockedItems[0].items=[closebutt];
                    }
 

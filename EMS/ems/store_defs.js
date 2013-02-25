@@ -115,11 +115,11 @@ STORE_DEFS = {
             } //listeners
         }//return
         if(UNL) {
-            prx.filterParam = undefined;
+            //prx.filterParam = undefined;
             prx.groupParam= undefined;
             prx.pageParam=undefined;
             prx.startParam=undefined;
-            prx.sortParam=undefined;
+            //prx.sortParam=undefined;
             prx.limitParam=undefined;
         }
         return prx;
