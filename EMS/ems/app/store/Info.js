@@ -36,7 +36,7 @@ Ext.define( 'EMS.store.Info', {
                        Timer.set();
                    }
                },
-               proxy: STORE_DEFS.proxy('info',true)
+               proxy: STORE_DEFS.proxy('info',false)
            });
 
 
