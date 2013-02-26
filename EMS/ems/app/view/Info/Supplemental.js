@@ -33,7 +33,7 @@ Ext.define('EMS.view.Info.Supplemental', {
                minHeight: 550,
                minWidth: 700,
                height: 550,
-               width: 700,
+               width: 900,
                controllers: [
                    'EMS.controller.Info'
                ],
@@ -75,10 +75,11 @@ Ext.define('EMS.view.Info.Supplemental', {
                                           }];
                    } else {
                        me.items[0].items=[{
-                                              xtype: 'textarea',
-                                              name: 'info',
-                                              readonly: true,
-                                              hideLabel: true
+                                              xtype: 'panel',
+                                              //name: 'info',
+                                              tpl: Ext.create('Ext.XTemplate','{info}'),
+                                              //readonly: true,
+                                              //hideLabel: true
                                           }];
                        me.dockedItems[0].items=[closebutt];
                    }

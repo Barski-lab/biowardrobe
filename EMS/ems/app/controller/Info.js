@@ -43,9 +43,16 @@ Ext.define('EMS.controller.Info', {
                    var store=me.getInfoStore();
                    store.getProxy().setExtraParam('id',1);
                    store.load();
+
                    store.on('load',function() {
-                       view.down('form').loadRecord(store.getAt(0));
+                       if(Rights.check(USER_ID,'InfoSupplemental')) {
+                           view.down('form').loadRecord(store.getAt(0));
+                       } else {
+                           var panelD=view.down('form').down('panel');
+                           panelD.tpl.overwrite(panelD.body,store.getAt(0).data);
+                       }
                    },this,{ single: true });
+
                },
 
                update: function(button) {
