@@ -23,6 +23,7 @@
 Ext.define('EMS.view.Patients.MainWindow', {
                extend: 'Ext.window.Window',
                requires: ['Ext.form.Panel'],
+               alias : 'widget.PatientsMainWindow',
                title : 'Patients',
                layout: 'fit',
                iconCls: 'users3',
@@ -41,10 +42,6 @@ Ext.define('EMS.view.Patients.MainWindow', {
                    me.items =
                            [{
                                 xtype: 'fieldcontainer',
-                                //                                border: false,
-                                //                                frame: true,
-                                //                                plain: true,
-
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'
@@ -78,12 +75,10 @@ Ext.define('EMS.view.Patients.MainWindow', {
                                                         afterLabelTextTpl: required,
                                                         emptyText: '(family ID)',
                                                         labelWidth: 120,
-                                                        //value: 1,
-                                                        //maxValue: 100,
                                                         minValue: 1,
                                                         margin: '0 5 0 5',
                                                         allowBlank: false
-                                                    } ,{
+                                                    } , {
                                                         xtype: 'numberfield',
                                                         name: 'SubjectID',
                                                         fieldLabel: 'SubjectID',
@@ -91,39 +86,27 @@ Ext.define('EMS.view.Patients.MainWindow', {
                                                         afterLabelTextTpl: required,
                                                         emptyText: '(subject ID)',
                                                         labelWidth: 120,
-                                                        //value: 1,
-                                                        //maxValue: 100,
                                                         minValue: 1,
                                                         allowBlank: false,
                                                         margin: '0 5 0 5'
-                                                    } /*, {
-
-                                                        xtype: 'button',
-                                                        text: 'Cut & Align',
-                                                        id: 'run-sequence-cutter',
-                                                        submitValue: false,
-                                                        iconCls: 'cut',
-                                                        minWidth: 100,
-                                                        margin: '20 5 0 5'
-                                                    }*/]
+                                                    }]
                                             }]
                                     } , {
                                         xtype: 'grid',
                                         margin: '0 4 6 4',
                                         border: false,
                                         columnLines: true,
-                                        store: {
-                                            fields: ['fname', 'lname', 'dob']
-                                            //sorters: ['fname', 'lname']
-                                        },
+                                        store: EMS.store.EGID,
                                         viewConfig: {
                                             enableTextSelection: true
                                         },
                                         columns: [
-                                            {xtype: 'rownumberer',width: 40},
-                                            {header: 'First Name', dataIndex: 'fname', flex: 1 },
-                                            {header: 'Last Name', dataIndex: 'lname', flex:1 },
-                                            {header: 'Day of birth', dataIndex: 'dob', flex:1 }
+                                            { header: 'IDNO', dataIndex: 'IDNO', width: 50, align: 'center' },
+                                            { header: 'EEFamID', dataIndex: 'EEFamID', width: 80, align: 'center'  },
+                                            { header: 'SubjectID', dataIndex: 'SubjectID', width: 80, align: 'center' },
+
+                                            { header: 'Name', dataIndex: 'fullname', flex:1 },
+                                            { header: 'Day of birth', dataIndex: 'DOBF', flex:1 }
                                         ],
                                         name: 'egid',
                                         flex: 1
@@ -139,11 +122,8 @@ Ext.define('EMS.view.Patients.MainWindow', {
                                                         name: 'IDNO2',
                                                         fieldLabel: 'IDNO',
                                                         labelAlign: 'top',
-                                                        //afterLabelTextTpl: required,
                                                         emptyText: '(sequence #)',
                                                         labelWidth: 120,
-                                                        //value: 1,
-                                                        //maxValue: 300,
                                                         minValue: 1,
                                                         margin: '0 5 0 0',
                                                         disabled: true,
@@ -156,8 +136,6 @@ Ext.define('EMS.view.Patients.MainWindow', {
                                                         afterLabelTextTpl: required,
                                                         emptyText: '(sample ID)',
                                                         labelWidth: 120,
-                                                        //value: 1,
-                                                        //maxValue: 100,
                                                         minValue: 1,
                                                         margin: '0 5 0 5',
                                                         allowBlank: false
@@ -169,38 +147,26 @@ Ext.define('EMS.view.Patients.MainWindow', {
                                                         afterLabelTextTpl: required,
                                                         emptyText: '(sample number)',
                                                         labelWidth: 120,
-                                                        //value: 1,
-                                                        //maxValue: 100,
                                                         minValue: 1,
                                                         allowBlank: false,
                                                         margin: '0 5 0 5'
-                                                    } /*, {
-
-                                                        xtype: 'button',
-                                                        text: 'Cut & Align',
-                                                        id: 'run-sequence-cutter',
-                                                        submitValue: false,
-                                                        iconCls: 'cut',
-                                                        minWidth: 100,
-                                                        margin: '20 5 0 5'
-                                                    }*/]
+                                                    }]
                                             }]
-                                    } ,
-
-                                    {
+                                    } , {
                                         xtype: 'grid',
                                         margin: '0 4 2 4',
                                         border: false,
                                         columnLines: true,
-                                        store: {
-                                            fields: ['sample']
-                                        },
+                                        store: EMS.store.EGIDSamples,
                                         viewConfig: {
                                             enableTextSelection: true
                                         },
                                         columns: [
-                                            {xtype: 'rownumberer',width: 40},
-                                            {header: 'Sample', dataIndex: 'sample', flex:1 }
+                                            { header: 'IDNO', dataIndex: 'IDNO', width: 50, align: 'center' },
+                                            { header: 'SampID', dataIndex: 'SampID', width: 50, align: 'center' },
+                                            { header: 'SampNum', dataIndex: 'SampNum', flex:1 },
+                                            { header: 'SampType', dataIndex: 'SampType', flex: 1},
+                                            { header: 'Tissue Site', dataIndex: 'Tissue Site', flex: 1}
                                         ],
                                         name: 'sample',
                                         flex: 1

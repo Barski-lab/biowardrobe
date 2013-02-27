@@ -98,6 +98,7 @@ Ext.application({
                         'EMS.controller.FragmentationEdit',
                         'EMS.controller.Spikeins',
                         'EMS.controller.SequenceCutter',
+                        'EMS.controller.Patients',
                         'EMS.controller.Info'
                     ],
 

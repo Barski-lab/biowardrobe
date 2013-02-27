@@ -22,19 +22,25 @@
 
 Ext.define('EMS.controller.Patients', {
                extend: 'Ext.app.Controller',
-               stores: ['Patients'],
-               models: ['Patients'],
+               stores: ['EGID','EGIDSamples'],
+               models: ['EGID','EGIDSamples'],
                views:  ['Patients.MainWindow'],
 
                init: function() {
                    var me=this;
-//                   me.control({
-//                                  '#run-sequence-cutter': {
-//                                      click: this.run
-//                                  }
-//                              });
-               },
+                   me.control({
+                                  'PatientsMainWindow': {
+                                      render: me.onRender
+                                  }
+                              });
 
+               },
+               onRender: function(button) {
+                   var stor=this.getEGIDStore();
+                   stor.load();
+                   var stor1=this.getEGIDSamplesStore();
+                   stor1.load();
+               },
                run: function(button) {
 //                   button.setDisabled(true);
 //                   var win    = button.up('window');

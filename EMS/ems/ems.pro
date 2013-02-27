@@ -230,4 +230,9 @@ OTHER_FILES += \
     app/view/Info/Supplemental.js \
     app/controller/Info.js \
     app/model/Info.js \
-    app/store/Info.js
+    app/store/Info.js \
+    data/MSSQL.php \
+    app/model/EGID.js \
+    app/store/EGID.js \
+    app/store/EGIDSamples.js \
+    app/model/EGIDSamples.js
