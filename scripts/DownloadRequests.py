@@ -206,7 +206,7 @@ while True:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
 
     if notify:
-	d.send_mail(email,'Record #'+row[4]+' has been downloaded')
+	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
 
     conn.commit()
 
