@@ -235,4 +235,5 @@ OTHER_FILES += \
     app/model/EGID.js \
     app/store/EGID.js \
     app/store/EGIDSamples.js \
-    app/model/EGIDSamples.js
+    app/model/EGIDSamples.js \
+    data/GeneralDel.php
