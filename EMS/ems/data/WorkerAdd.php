@@ -29,7 +29,7 @@ if($data->dnalogin!='' && $data->dnapass!='') {
 
 if($data->email!='') {
     $SQL_STR_B=$SQL_STR_B.",email,notify ";
-    $SQL_STR_V=$SQL_STR_V.",? ";
+    $SQL_STR_V=$SQL_STR_V.",?,? ";
     array_push($PARAMS,$data->email,($data->notify=='on'?1:0));
     $PARAMS[0]=$PARAMS[0]."si";
 }

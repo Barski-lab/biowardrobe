@@ -10,12 +10,10 @@ function logmsg($log_string){
 function require_authentication() {
     global $rootdir;
     if (!isset($_SESSION["timeout"]) || $_SESSION["timeout"]=="") {
-        //session_destroy();
         header("Location:".$rootdir."/login.php");
         exit();
     }
     if($_SESSION["timeout"] + 700 < time()){
-        //session_destroy();
         header("Location:".$rootdir."/login.php?timeout=true");
         exit();
     }
@@ -35,7 +33,7 @@ function crypt_pass($U,$P) {
 
 
 function check_rights($place) {
-    return $_SESSION["username"] == "porter";
+    return ($_SESSION["username"] == "porter" || $_SESSION["username"] == "admin");
 }
 
 session_start();
