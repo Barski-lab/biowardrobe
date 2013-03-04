@@ -49,10 +49,6 @@ if(!in_array($tablename,$AllowedTable)){
 //            if(strrpos($gnm,$_SESSION["username"]) === false && !check_rights('delete'))
 //                $res->print_error("Cant delete not owned records.");
 
-//            if($where!="")
-//                $where=$where." and name like '$gnm'";
-//            else
-//                $where=$where." where name like '$gnm'";
             $con = new mysqli($db_host_gb,$db_user_gb,$db_pass_gb);
             if ($con->connect_errno)
                 $res->print_error('Could not connect: ' . $con->connect_error);
@@ -67,20 +63,18 @@ if(!in_array($tablename,$AllowedTable)){
     $con->select_db($db_name_ems);
 }
 
-if(execSQL($con,"describe `$tablename`",array(),true)==0) {
-    $res->print_error("Cant describe");
-}
-
-
 if(gettype($data)=="array") {
 } else {
     $SQL_STR="delete from `$tablename` where $IDFIELD=?";
 
-    if($IDFIELD=="id" && intVal($data->id)==0) {
+    if($IDFIELDTYPE=="i" && intVal($data->$IDFIELD)==0) {
         $res->print_error("no id");
-    } else {
-    $PARAMS=array("$IDFIELDTYPE",intVal($data->id));
     }
+    if($IDFIELDTYPE=="s") {
+        check_val($data->$IDFIELD);
+    }
+
+    $PARAMS=array("$IDFIELDTYPE",$data->$IDFIELD);
 }
 
 if(execSQL($con,$SQL_STR,$PARAMS,true)!=0) {
@@ -89,10 +83,6 @@ if(execSQL($con,$SQL_STR,$PARAMS,true)!=0) {
     print_r($res->to_json());
     exit();
 }
-
-
-//$query_array=execSQL($con,"SELECT * FROM `$tablename` $where $order $limit",array(),false);
-//$con->close();
 
 $res->success = false;
 $res->message = "Data can not be deleted";
