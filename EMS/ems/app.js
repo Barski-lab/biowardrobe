@@ -34,9 +34,11 @@ var Rights = (function(){
     var worker;
     return {
         check: function(user,place){
-            if( typeof worker === 'undefined')
-                worker=store.findRecord('id',USER_ID).data.worker;
-            if(worker === 'porter')
+            //            if( typeof worker === 'undefined' && typeof store !== 'undefined' && !store.isLoading())
+            //                worker=store.findRecord('id',USER_ID).data.worker;
+            //            if( typeof worker === 'undefined')
+            worker=USER_LNAME;
+            if(worker === 'porter' || worker === 'admin')
                 return 1;
             return 0;
         },
@@ -110,9 +112,9 @@ Ext.application({
 
 
                     launch: function() {
+                        Rights.init(Ext.getStore('Worker'));
                         var viewport=Ext.create('Ext.container.Viewport',
                                                 {
-
                                                     layout: 'border',
                                                     items:
                                                         [{
@@ -143,7 +145,6 @@ Ext.application({
                                                             layout: 'fit'
                                                         }]//items Viewport
                                                 });//ext create
-                        Rights.init(Ext.getStore('Worker'));
 
                     }//launch func
 

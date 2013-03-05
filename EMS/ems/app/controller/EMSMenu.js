@@ -50,7 +50,7 @@ Ext.define('EMS.controller.EMSMenu', {
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   Ext.getCmp('MenuWorkers').setVisible(USER_GNAME==="porter");
+                   Ext.getCmp('MenuWorkers').setVisible(Rights.check('MenuWorkers'));
                },
 
                createWindow: function(WinVar,Widget,Params) {
