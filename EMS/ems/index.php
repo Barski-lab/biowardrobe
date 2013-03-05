@@ -29,7 +29,7 @@
     </script-->
     <script type="text/javascript">
      var USER_NAME="<?php echo $_SESSION["fullname"] ?>";
-     var USER_ID="<?php echo $_SESSION["user_id"] ?>";
+     var USER_ID=parseInt("<?php echo $_SESSION["user_id"] ?>");
      var USER_LNAME="<?php echo $_SESSION["username"] ?>";
      var USER_GNAME="<?php echo $_SESSION["usergroup"] ?>";
      var CHPASS="<?php echo $_SESSION["changepass"] ?>"

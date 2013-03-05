@@ -13,9 +13,10 @@ $con=def_connect();
 $con->select_db($db_name_ems);
 
 $tablename="worker";
-
+$array_prepend=array();
 if($worker_id==0) {
-    $SQL_STR="SELECT id,worker,fname,lname,dnalogin,dnapass,email,notify FROM `$tablename`";
+    $array_prepend[]=array('id'=>0,'lname'=>'All');
+    $SQL_STR="SELECT id,worker,fname,lname,dnalogin,dnapass,email,notify FROM `$tablename` order by lname,fname";
     $PARAMS=array();
 } else {
     $SQL_STR="SELECT id,worker,fname,lname,dnalogin,dnapass,email,notify FROM `$tablename` where worker_id=?";
@@ -28,7 +29,7 @@ $con->close();
 
 $res->success = true;
 $res->message = "Data loaded";
-$res->total = count($query_array);
-$res->data = $query_array;
+$res->total = count($query_array)+1;
+$res->data = array_merge($array_prepend,$query_array);
 print_r($res->to_json());
 ?>

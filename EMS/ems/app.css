@@ -72,6 +72,18 @@
   padding: '0 0 0 0';
 }
 
+.windows {
+    background-image: url( images/windows.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.default {
+    background-image: url( images/windows.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .space {
     background-image: url( images/space123.png ) !important;
     width: 16px;

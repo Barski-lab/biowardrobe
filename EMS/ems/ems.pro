@@ -236,4 +236,7 @@ OTHER_FILES += \
     app/store/EGID.js \
     app/store/EGIDSamples.js \
     app/model/EGIDSamples.js \
-    data/GeneralDel.php
+    data/GeneralDel.php \
+    app/view/Project/Preliminary.js \
+    app/view/Project/PreliminaryList.js \
+    app/controller/Project.js

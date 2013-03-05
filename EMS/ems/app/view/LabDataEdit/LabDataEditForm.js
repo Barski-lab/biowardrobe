@@ -36,7 +36,6 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                },
 
                initComponent: function() {
-                   var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
                    var me=this;
                    me.items= [ {
                                   xtype: 'combobox',

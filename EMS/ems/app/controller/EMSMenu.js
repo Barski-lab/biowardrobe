@@ -32,6 +32,7 @@ Ext.define('EMS.controller.EMSMenu', {
                extend: 'Ext.app.Controller',
 
                views:['EMSMenu'],
+               windowList: new Array(),
                init: function() {
                    this.control({
                                     'viewport > EMSMenu': {
@@ -49,19 +50,25 @@ Ext.define('EMS.controller.EMSMenu', {
                //
                //-----------------------------------------------------------------------
                onPanelRendered: function() {
-                   //Logger.log('The panel was rendered');
                    Ext.getCmp('MenuWorkers').setVisible(USER_GNAME==="porter");
                },
 
                createWindow: function(WinVar,Widget,Params) {
-                   if(typeof WinVar === 'undefined' || !WinVar){
-                       WinVar=Ext.create(Widget,Params);
-                       Ext.getCmp('EMSMenu').add(WinVar);
+                   var me=this;
+
+                   if(!(WinVar in me.windowList) || me.windowList[WinVar] === 'undefined') {
+                       me.windowList[WinVar]=Ext.create(Widget,Params);
+                       Ext.getCmp('EMSMenu').add(me.windowList[WinVar]);
+
+                       me.windowList[WinVar].on('destroy', function() {
+                           me.windowList[WinVar]='undefined';
+                       });
                    }
-                   if(WinVar.isVisible()) {
-                       WinVar.focus();
+
+                   if(me.windowList[WinVar].isVisible()) {
+                       me.windowList[WinVar].focus();
                    } else {
-                       WinVar.show();
+                       me.windowList[WinVar].show();
                    }
                },
                //-----------------------------------------------------------------------
@@ -71,58 +78,60 @@ Ext.define('EMS.controller.EMSMenu', {
                onEMSMenuForms: function(menuitem,e,opt) {
                    var me=this;
                    if(menuitem.action === "LabData"){
-                       me.createWindow(me.ExperimentsWindow,'EMS.view.ExperimentsWindow.Main',{});
+                       me.createWindow(menuitem.action,'EMS.view.ExperimentsWindow.Main',{});
                    }
                    if(menuitem.action === "Workers"){
-                       me.createWindow(me.WorkersEditWindow,'EMS.view.WorkersEdit',{});
+                       me.createWindow(menuitem.action,'EMS.view.WorkersEdit',{});
                    }
                    if(menuitem.action === "Worker"){
-                           me.WorkerEditWindow=me.getController('WorkersEdit').edit();
-                           Ext.getCmp('EMSMenu').add(me.WorkerEditWindow);
+                       me.WorkerEditWindow=me.getController('WorkersEdit').edit();
+                       Ext.getCmp('EMSMenu').add(me.WorkerEditWindow);
                    }
                    if(menuitem.action === "Antibodies"){
-                       me.createWindow(me.AntibodiesEditWindow,'EMS.view.Antibodies.Antibodies',{});
+                       me.createWindow(menuitem.action,'EMS.view.Antibodies.Antibodies',{});
                    }
                    if(menuitem.action === "ExpType"){
-                       me.createWindow(me.ExpTypeEditWindow,'EMS.view.ExperimentType.ExperimentType',{});
+                       me.createWindow(menuitem.action,'EMS.view.ExperimentType.ExperimentType',{});
                    }
                    if(menuitem.action === "CrossType"){
-                       me.createWindow(me.CrosslinkEditWindow,'EMS.view.Crosslink.Crosslink',{});
+                       me.createWindow(menuitem.action,'EMS.view.Crosslink.Crosslink',{});
                    }
                    if(menuitem.action === "SeqCut"){
-                       me.createWindow(me.SeqCutWindow,'EMS.view.SequenceCutter.MainWindow',{});
+                       me.createWindow(menuitem.action,'EMS.view.SequenceCutter.MainWindow',{});
                    }
                    if(menuitem.action === "FragmentType"){
-                       me.createWindow(me.FragmentationEditWindow,'EMS.view.Fragmentation.Fragmentation',{});
+                       me.createWindow(menuitem.action,'EMS.view.Fragmentation.Fragmentation',{});
                    }
                    if(menuitem.action === "GenomeType"){
-                       me.createWindow(me.GenomeEditWindow,'EMS.view.Genome.Genome',{});
+                       me.createWindow(menuitem.action,'EMS.view.Genome.Genome',{});
                    }
                    if(menuitem.action === "EGIDPatients"){
-                       me.createWindow(me.PatientsWindow,'EMS.view.Patients.MainWindow',{});
+                       me.createWindow(menuitem.action,'EMS.view.Patients.MainWindow',{});
                    }
                    if(menuitem.action === "SuppInfo"){
-                       me.createWindow(me.SuppInfoWindow,'EMS.view.Info.Supplemental',{});
+                       me.createWindow(menuitem.action,'EMS.view.Info.Supplemental',{});
+                   }
+                   if(menuitem.action === "ProjectDesignerBETA"){
+                       me.createWindow(menuitem.action,'EMS.view.Project.Preliminary',{});
                    }
                    /*
                      Create window for genome browser
                    */
                    if(menuitem.action === "GenomeBrowser"){
                        var win=Ext.create('Ext.window.Window', {
-                                          width: 1000,
-                                          minWidth: 200,
-                                          height: 600,
-                                          title: 'Genome Browser',
-                                          closable: true,
-                                          maximizable: true,
-                                          constrain: true,
-                                          layout: 'fit',
-                                          items: [{
-                                                  xtype: 'uxiframe',
-                                                  //                                                  src: 'http://genome.ucsc.edu/cgi-bin/hgTracks?bd=hg19&pix=1000&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
-                                                  src: 'https://genomebrowser.research.cchmc.org/cgi-bin/hgTracks?bd=hg19&pix=1000&run0156_lane2_read1_index1_TE7_cont_H3K27me3_ab6002_fastq=full'
-                                              }]
-                                      });
+                                              width: 1000,
+                                              minWidth: 200,
+                                              height: 600,
+                                              title: 'Genome Browser',
+                                              closable: true,
+                                              maximizable: true,
+                                              constrain: true,
+                                              layout: 'fit',
+                                              items: [{
+                                                      xtype: 'uxiframe',
+                                                      src: 'http://gbinternal/'
+                                                  }]
+                                          });
 
                        Ext.getCmp('EMSMenu').add(win);
                        win.show();

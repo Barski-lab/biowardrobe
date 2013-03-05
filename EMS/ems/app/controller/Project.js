@@ -20,22 +20,29 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               //closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
+Ext.define('EMS.controller.Project', {
+               extend: 'Ext.app.Controller',
+               models: ['LabData','Worker','RPKM'],
+               stores: ['LabData','Worker','RPKM'],
+               views:  ['Project.Preliminary','Project.PreliminaryList'],
 
-               initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
+               init: function() {
+                   var me=this;
+                   me.control({
+                                  '#preliminary-worker-changed': {
+                                      select: this.onComboboxWorkerFilter
+                                  }
+                              });
+               },
+               onComboboxWorkerFilter: function(combo, records, options) {
+                   this.getLabDataStore().getProxy().setExtraParam('workerid',combo.value);
+                   Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
+
+               },
+               onRender: function(view) {
+
+               },
+
+               update: function(button) {
                }
            });

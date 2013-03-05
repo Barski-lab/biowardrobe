@@ -237,27 +237,8 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          displayField: 'fullname',
                                          editable: false,
                                          valueField: 'id',
-                                         listeners: {
-                                             render : function(){
-                                                 var data=new Array();
-                                                 data.push({id:0,fullname:'All'});
-                                                 var name='All';
-                                                 var num=0;
-                                                 EMS.store.Worker.data.each(function (field) {
-                                                     data.push({id:field.data['id'],fullname:field.data['fullname']});
-                                                     if(parseInt(field.data['id'])===parseInt(USER_ID)) {
-                                                         name=field.data['fullname'];
-                                                         num=parseInt(field.data['id']);
-                                                     }
-                                                 });
-                                                 this.store = Ext.create('Ext.data.Store', {
-                                                                             fields: ['id', 'fullname'],
-                                                                             data : data
-                                                                         });
-                                                 this.setValue(num);
-                                                 this.setRawValue(name);
-                                             }
-                                         }
+                                         value: USER_ID,
+                                         store: EMS.store.Worker
                                      }
                                  ]//tbar
 

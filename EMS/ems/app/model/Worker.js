@@ -39,10 +39,10 @@ Ext.define( 'EMS.model.Worker', {
                        convert: function(value, record) {
                            var fn = record.get('fname');
                            var ln = record.get('lname');
-                           if( ln !== ""){
-                               return ln+', '+fn;}
-                           else
-                           {return fn;}
+
+                           if( fn !== "" && ln !== "") return ln+', '+fn;
+                           if( ln !== "") return ln;
+                           return fn;
                        }
                    }
                ]
