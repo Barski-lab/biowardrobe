@@ -19,6 +19,11 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+Ext.require([
+                'Ext.grid.*',
+                'Ext.data.*',
+                'Ext.dd.*'
+            ]);
 
 Ext.define('EMS.view.Project.Preliminary', {
                extend: 'Ext.window.Window',
@@ -27,6 +32,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                id: 'ProjectPreliminary',
                layout: 'fit',
                iconCls: 'default',
+               closeAction: 'hide',
                maximizable: true,
                collapsible: true,
                constrain: true,
@@ -44,7 +50,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                    var savebutt={
                        minWidth: 90,
                        text: 'Save',
-                       id: ''
+                       id: 'preliminary-save'
                    };
                    me.dockedItems= [{
                                         xtype: 'toolbar',
@@ -62,24 +68,12 @@ Ext.define('EMS.view.Project.Preliminary', {
                        local: false
                    };
                    me.labDataStore=EMS.store.LabData;
+                   me.resultStore=EMS.store.ResultsGroupping;
+
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: me.labDataStore,
                                                        displayInfo: true
                                                    });
-
-                   var store = Ext.create('Ext.data.TreeStore', {
-                                              root: {
-                                                  expanded: false,
-                                                  children: [
-                                                      { text: "detention", leaf: true },
-                                                      { text: "homework", expanded: false, children: [
-                                                              { text: "book report", leaf: true },
-                                                              { text: "alegrbra", leaf: true}
-                                                          ] },
-                                                      { text: "buy lottery tickets", leaf: true }
-                                                  ]
-                                              }
-                                          });
 
                    me.items=[ {
                                  xtype: 'container',
@@ -89,31 +83,8 @@ Ext.define('EMS.view.Project.Preliminary', {
                                  },
                                  items: [
                                      {
-                                         xtype: 'treepanel',
-                                         title: 'Simple Tree',
-                                         width: 200,
-                                         height: 150,
-                                         store: store,
-                                         rootVisible: true,
-                                         flex: 1,
-                                         viewConfig: {
-                                             plugins: {
-                                                 ptype: 'treeviewdragdrop',
-                                                 dragGroup: 'secondGridDDGroup',
-                                                 dropGroup: 'firstGridDDGroup'
-                                             },
-                                             listeners: {
-                                                 drop: function(node, data, dropRec, dropPosition) {
-                                                     //                                                     var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('id') : ' on empty view';
-                                                     //                                                     Ext.example.msg("Drag from right to left", 'Dropped ' + data.records[0].get('id') + dropOn);
-                                                 }
-                                             },
-                                             copy: true,
-                                             enableTextSelection: false
-                                         }
-                                     },
-                                     {
                                          xtype: 'container',
+                                         margin: '0 5 5 5',
                                          layout: {
                                              type: 'vbox',
                                              align: 'stretch'
@@ -122,13 +93,118 @@ Ext.define('EMS.view.Project.Preliminary', {
                                          items: [
                                              {
                                                  xtype: 'fieldset',
-                                                 title: 'Filtering',
+                                                 title: 'Grouping Results',
+                                                 layout: {
+                                                     type: 'hbox'
+                                                 },
+                                                 items: [{
+                                                         xtype: 'textfield',
+                                                         id: 'preliminary-group-name',
+                                                         fieldLabel: 'Group name',
+                                                         submitValue: false,
+                                                         labelAlign: 'top',
+                                                         labelWidth: 120
+                                                     } , {
+                                                         xtype: 'button',
+                                                         margin: '20 5 0 5',
+                                                         width: 90,
+                                                         text: 'add',
+                                                         id: 'preliminary-group-add',
+                                                         width: 80,
+                                                         submitValue: false,
+                                                         iconCls: 'folder-add',
+                                                     }]
+                                             } , {
+                                                 xtype: 'treepanel',
+                                                 width: 200,
+                                                 height: 150,
+                                                 store: me.resultStore,
+                                                 rootVisible: false,
+                                                 flex: 1,
+                                                 columns: [{
+                                                         xtype: 'treecolumn', //this is so we know which column will show the tree
+                                                         text: 'Groups/items',
+                                                         flex: 2,
+                                                         //sortable: true,
+                                                         dataIndex: 'item'
+                                                     },{ header: 'Description', dataIndex: 'description', flex:2,
+                                                         renderer: function(value,meta,record) {
+                                                             if(record.data.leaf===false) return '';
+                                                             return record.data['description'];
+//                                                             return Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small> {0} </small><br>{3}<br>{4}',
+//                                                                                      record.data['cells'],
+//                                                                                      Ext.util.Format.date(record.data['dateadd'],'m/d/Y'),
+//                                                                                      record.data['id'], record.data['conditions'],record.data['name4browser']);
+                                                         }
+                                                     },{
+                                                         xtype: 'actioncolumn',
+                                                         width:35,
+                                                         sortable: false,
+                                                         items: [{
+                                                                 getClass: function(v, meta, rec) {
+                                                                     this.items[0].tooltip = 'Delete';
+                                                                     this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                                         grid.getStore().removeAt(rowIndex);
+                                                                     }
+                                                                     if(rec.data.leaf===false)
+                                                                         return 'folder-delete';
+                                                                     return 'table-row-delete';
+                                                                 }
+                                                             }]
+                                                     }
+
+                                                 ],
+                                                 viewConfig: {
+                                                     copy: true,
+                                                     enableTextSelection: false,
+                                                     plugins: {
+                                                         ptype: 'treeviewdragdrop',
+                                                         appendOnly: true,
+                                                         dropGroup: 'ldata2results'
+                                                     },
+                                                     listeners: {
+                                                         beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
+                                                             //Logger.log(data);
+                                                             //Logger.log(overModel);
+                                                             //Logger.log(dropPosition);
+                                                             if(overModel.data.root === true)
+                                                                 return false;
+                                                             if(dropPosition !== 'append' && overModel.data.leaf === false)
+                                                                 return false;
+                                                             var base=overModel.childNodes.length;
+                                                             for(var i=0; i<data.records.length;i++) {
+                                                                 data.records[i].set('leaf', true);
+                                                                 data.records[i].set('item', overModel.data.item+' '+(base+i+1));
+                                                                 data.records[i].set('item_id',data.records[i].data.id);
+                                                                 data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
+                                                                                          data.records[i].data.cells,
+                                                                                          Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
+                                                                                          data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
+                                                             }
+                                                             return true;
+                                                         }
+                                                     }
+                                                 }
+                                             }//treepanel
+                                         ]
+                                     }
+                                     , {
+                                         xtype: 'container',
+                                         margin: '0 5 5 0',
+                                         layout: {
+                                             type: 'vbox',
+                                             align: 'stretch'
+                                         },
+                                         flex: 1,
+                                         items: [
+                                             {
+                                                 xtype: 'fieldset',
+                                                 title: 'Filtering Results',
                                                  layout: {
                                                      type: 'hbox',
                                                      align: 'stretch'
                                                  },
-                                                 hight: 80,
-
+                                                 //height: 80,
                                                  items: [{
                                                          xtype: 'combobox',
                                                          id: 'preliminary-worker-changed',
@@ -145,20 +221,13 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          xtype: 'combobox',
                                                          displayField: 'name',
                                                          valueField: 'id',
+                                                         id: 'preliminary-type-changed',
                                                          value: 1,
                                                          fieldLabel: 'Type',
                                                          labelAlign: 'top',
                                                          labelWidth: 120,
                                                          margin: '0 5 0 5',
-                                                         store:Ext.create('Ext.data.Store', {
-                                                                              fields: ['id', 'name'],
-                                                                              data : [
-                                                                                  {"id":1, "name":"RPKM isoforms"},
-                                                                                  {"id":2, "name":"RPKM genes"},
-                                                                                  {"id":3, "name":"RPKM common tss"},
-                                                                                  {"id":4, "name":"CHIP islands"}
-                                                                              ]
-                                                                          }),
+                                                         store: EMS.store.RType,
                                                          flex: 4
                                                      }]
                                              } , {
@@ -171,13 +240,10 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                  viewConfig: {
                                                      plugins: {
                                                          ptype: 'gridviewdragdrop',
-                                                         dragGroup: 'firstGridDDGroup',
-                                                         dropGroup: 'secondGridDDGroup'
+                                                         dragGroup: 'ldata2results',
                                                      },
                                                      listeners: {
                                                          drop: function(node, data, dropRec, dropPosition) {
-                                                             //                                                             var dropOn = dropRec ? ' ' + dropPosition + ' ' + dropRec.get('id') : ' on empty view';
-                                                             //                                                             Ext.example.msg("Drag from right to left", 'Dropped ' + data.records[0].get('id') + dropOn);
                                                          }
                                                      },
                                                      copy: true,
@@ -186,18 +252,15 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                  columns: [
                                                      { header: 'Experiment list', dataIndex: 'cells', flex:1, sortable: true,
                                                          renderer: function(value,meta,record) {
-
-                                                             return Ext.String.format('<b>{0}</b><br><small> date: <i>{1}</i> id: <i>{2}</i></small><br>{3}<br>{4}',
+                                                             return Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small> {0} </small><br>{3}<br>{4}',
                                                                                       record.data['cells'],
                                                                                       Ext.util.Format.date(record.data['dateadd'],'m/d/Y'),
                                                                                       record.data['id'], record.data['conditions'],record.data['name4browser']);
                                                          }
-                                                     },
+                                                     }
                                                  ],
                                                  flex: 3,
-                                                 tbar: [
-                                                     me.m_PagingToolbar
-                                                 ]
+                                                 bbar: [ me.m_PagingToolbar ]
                                              }
                                          ]
                                      }

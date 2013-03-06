@@ -316,6 +316,24 @@
     height: 16px;
 }
 
+.folder-add {
+    background-image: url( images/folder_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder-delete {
+    background-image: url( images/folder_delete.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.folder-into {
+    background-image: url( images/folder_into.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .folder2 {
     background-image: url( images/folder2.png ) !important;
     width: 16px;

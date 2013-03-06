@@ -20,22 +20,23 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
 
-               initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
-               }
+Ext.define( 'EMS.store.RType', {
+               extend: 'Ext.data.Store',
+
+               requires: ['EMS.model.RType'],
+               model:  'EMS.model.RType',
+               storeId: 'RType',
+               autoLoad: false,
+               singleton: true,
+               remoteSort: false,
+               remoteFilter: false,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('rtype',false)
            });
+
+

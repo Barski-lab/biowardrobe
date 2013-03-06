@@ -20,22 +20,11 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
+Ext.define( 'EMS.model.RType', {
+               extend: 'Ext.data.Model',
 
-               initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
-               }
+               fields: [
+                   { name: 'id', type: 'int' },
+                   { name: 'name', type: 'string' }
+               ]
            });

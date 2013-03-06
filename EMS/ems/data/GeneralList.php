@@ -9,7 +9,7 @@ if(isset($_REQUEST['tablename']))
 else
     $res->print_error('Not enough required parameters.');
 
-$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info");
+$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","project");
 $SpecialTable=array("labdata","grp_local");
 
 if(!in_array($tablename,$AllowedTable)){
@@ -22,6 +22,22 @@ if(!in_array($tablename,$AllowedTable)){
                 $workerid = intVal($_REQUEST['workerid']);
             else
                 $res->print_error('Not enough required parameters.');
+            if(isset($_REQUEST['typeid'])) {
+                $typeid = intVal($_REQUEST['typeid']);
+                $cond="";
+                if($typeid>=1 && $typeid<=3)
+                    $cond=" libstatus > 20 and experimenttype_id between 3 and 6 ";
+                if($typeid==4)
+                    $cond=" libstatus > 11 and experimenttype_id between 1 and 2 ";
+                if($cond != "") {
+                if($where!= "")
+                    $where=$where." and ".$cond;
+                else
+                    $where=" where $cond";
+                } else {
+                    $res->print_error('Not yet supported.');
+                }
+            }
             if($workerid!=0) {
                 if($where!="")
                     $where=$where." and worker_id=$workerid ";

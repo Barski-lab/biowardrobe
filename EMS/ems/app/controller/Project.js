@@ -22,27 +22,72 @@
 
 Ext.define('EMS.controller.Project', {
                extend: 'Ext.app.Controller',
-               models: ['LabData','Worker','RPKM'],
-               stores: ['LabData','Worker','RPKM'],
+               models: ['LabData','Worker','RPKM','ResultsGroupping','RType'],
+               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType'],
                views:  ['Project.Preliminary','Project.PreliminaryList'],
 
                init: function() {
                    var me=this;
                    me.control({
+                                  '#ProjectPreliminary': {
+                                      render: me.onPanelRendered,
+                                      show: me.onPanelRendered,
+                                      close: me.onClose
+                                  },
                                   '#preliminary-worker-changed': {
-                                      select: this.onComboboxWorkerFilter
+                                      select: me.onComboboxWorkerFilter
+                                  },
+                                  '#preliminary-type-changed': {
+                                      select: me.onComboboxTypeFilter
+                                  },
+                                  '#preliminary-group-add': {
+                                      click: me. groupAddClick
+                                  },
+                                  '#preliminary-save': {
+                                      click: me.onSaveClick
                                   }
                               });
                },
-               onComboboxWorkerFilter: function(combo, records, options) {
-                   this.getLabDataStore().getProxy().setExtraParam('workerid',combo.value);
+               syncCombosAndGrid:function() {
+                   this.getRTypeStore().load();
+                   this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('preliminary-worker-changed').getValue());
+                   this.getLabDataStore().getProxy().setExtraParam('typeid',Ext.getCmp('preliminary-type-changed').getValue());
                    Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
-
                },
-               onRender: function(view) {
-
+               onComboboxWorkerFilter: function(combo, records, options) {
+                   this.syncCombosAndGrid();
                },
-
-               update: function(button) {
+               onComboboxTypeFilter: function(combo, records, options) {
+                   this.syncCombosAndGrid();
+               },
+               onPanelRendered: function(view) {
+                   var resStore=this.getResultsGrouppingStore();
+                   resStore.setRootNode({
+                       expanded: true,
+                       text: "Project1",
+                       leaf: false
+                   });
+                   resStore.load();
+                   this.syncCombosAndGrid();
+               },
+               onClose: function(view) {
+                   delete this.getLabDataStore().getProxy().extraParams['typeid'];
+                   Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
+               },
+               groupAddClick: function(button,e,eOpts) {
+                   var grpname=Ext.getCmp('preliminary-group-name');
+                   grpname.allowBlank=false;
+                   grpname.validate();
+                   if(!grpname.isValid()) {
+                       return false;
+                   }
+                   var r = Ext.create('EMS.model.ResultsGroupping', {
+                                          item: grpname.getValue()
+                                      });
+                   this.getResultsGrouppingStore().getRootNode().appendChild(r);
+                   grpname.allowBlank=true;
+               },
+               onSaveClick: function(button,e,eOpts) {
+                   this.getResultsGrouppingStore().sync();
                }
            });

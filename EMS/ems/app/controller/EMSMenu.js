@@ -111,7 +111,7 @@ Ext.define('EMS.controller.EMSMenu', {
                    if(menuitem.action === "SuppInfo"){
                        me.createWindow(menuitem.action,'EMS.view.Info.Supplemental',{});
                    }
-                   if(menuitem.action === "ProjectDesignerBETA"){
+                   if(menuitem.action === "ProjectDesigner"){
                        me.createWindow(menuitem.action,'EMS.view.Project.Preliminary',{});
                    }
                    /*

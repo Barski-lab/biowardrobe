@@ -20,22 +20,26 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
-
-               initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
-               }
+Ext.define( 'EMS.store.ResultsGroupping', {
+               extend: 'Ext.data.TreeStore',
+               requires: ['EMS.model.ResultsGroupping'],
+               storeId: 'ResultsGroupping',
+               model:  'EMS.model.ResultsGroupping',
+               folderSort: true,
+               autoLoad: false,
+               singleton: true,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: Ext.apply(STORE_DEFS.proxy('',true), {
+                             api: {
+                                 read : 'data/ResultTree.php',
+                                 update: 'data/ResultTreeUp.php',
+                                 create: 'data/ResultTreeAdd.php',
+                                 destroy: ''
+                             }
+                         })
            });
+

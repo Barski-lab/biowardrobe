@@ -23,7 +23,7 @@
         Loading...
     </div></div>
 
-   <script type="text/javascript" src="ext/ext-all.js"></script>
+   <script type="text/javascript" src="ext/ext-debug.js"></script>
     <!--script type="text/javascript"
         src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
     </script-->

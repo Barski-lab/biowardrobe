@@ -29,8 +29,8 @@ Ext.define('EMS.view.Crosslink.List' ,{
                    var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
                                                     clicksToEdit: 1
                                                 });
-
-                   Ext.apply(this, {
+                    var me = this;
+                   Ext.apply(me, {
                                  store: EMS.store.Crosslinking,
                                  columns: [
                                      Ext.create('Ext.grid.RowNumberer'),
@@ -42,8 +42,8 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                          items: [{
                                                  iconCls: 'table-row-delete',
                                                  tooltip: 'Delete Experiment Type',
-                                                 handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.Crosslinking.removeAt(rowIndex);
+                                                 handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                     grid.getStore().removeAt(rowIndex);
                                                  }
                                              }]
                                      }
@@ -57,7 +57,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                              var r = Ext.create('EMS.model.Crosslinking', {
                                                                     crosslink: 'New Crosslink Type'
                                                                 });
-                                             EMS.store.Crosslinking.insert(0, r);
+                                             me.store.insert(0, r);
                                              cellEditing.startEditByPosition({row: 0, column: 1});
                                          },
                                          iconCls:'table-row-add'
@@ -69,7 +69,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                              EMS.store.Crosslinking.sync({
                                                                            success: function (batch, options) {
                                                                                console.log('Sync successed' ,batch, options);
-                                                                               EMS.store.Crosslinking.load();
+                                                                               me.store.load();
                                                                            }});
                                          },
                                          iconCls:'table-ok'
@@ -77,7 +77,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                          text:'Reload',
                                          tooltip:'Reload',
                                          handler : function(){
-                                             EMS.store.Crosslinking.load();
+                                             me.store.load();
                                          },
                                          iconCls:'table-refresh'
                                      }

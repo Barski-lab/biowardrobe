@@ -45,9 +45,10 @@ Ext.define('EMS.view.Antibodies.List' ,{
                                          items: [{
                                                  iconCls: 'table-row-delete',
                                                  tooltip: 'Delete Antibody',
-                                                 handler: function(grid, rowIndex, colIndex) {
-                                                     EMS.store.Antibodies.removeAt(rowIndex);
+                                                 handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                     grid.getStore().removeAt(rowIndex);
                                                  }
+
                                              }]
                                      }
                                  ],

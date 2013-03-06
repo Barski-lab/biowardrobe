@@ -202,7 +202,6 @@ OTHER_FILES += \
     images/information.png \
     images/cut.png \
     images/about.png \
-    ../sql/EMS_p3.sql \
     app/view/charts/Spikeins.js \
     app/model/SpikeinsList.js \
     app/model/SpikeinsChart.js \
@@ -239,4 +238,13 @@ OTHER_FILES += \
     data/GeneralDel.php \
     app/view/Project/Preliminary.js \
     app/view/Project/PreliminaryList.js \
-    app/controller/Project.js
+    app/controller/Project.js \
+    images/folder_into.png \
+    images/folder_delete.png \
+    images/folder_add.png \
+    app/store/ResultsGroupping.js \
+    app/model/ResultsGroupping.js \
+    ../sql/EMS_patch.sql \
+    app/model/RType.js \
+    app/store/RType.js \
+    data/ResultTree.php

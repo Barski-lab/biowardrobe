@@ -20,22 +20,18 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
-
-               initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
-               }
+Ext.define( 'EMS.model.ResultsGroupping', {
+               extend: 'Ext.data.Model',
+               fields: [
+                   {name: 'project_id',     type: 'int'},
+                   {name: 'item_id',     type: 'int'},
+                   {name: 'item',     type: 'string'},
+                   {name: 'leaf',     type: 'bool'},
+                   {name: 'description',     type: 'string'},
+                   {name: 'rtype_id',     type: 'int'}
+//                   {name: 'res_id',     type: 'int'},
+//                   {name: 'dateadd',     type: 'date'},
+//                   {name: 'cells',     type: 'string'},
+//                   {name: 'conditions',     type: 'string'},
+               ]
            });
