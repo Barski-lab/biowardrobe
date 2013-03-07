@@ -6,6 +6,7 @@ set foreign_key_checks = 0 ;
 drop table if exists project;
 drop table if exists rtype;
 drop table if exists result;
+drop table if exists rhead;
 drop table if exists resultintersection;
 
 
@@ -37,12 +38,15 @@ create table if not exists result (
     name varchar(200) NOT NULL,
     description TEXT default '',
     tableName varchar(200) NOT NULL,
+    labdata_id INTEGER default NULL,
     rtype_id INTEGER NOT NULL,
     project_id INTEGER NOT NULL,
 index(rtype_id), FOREIGN KEY (rtype_id)
 REFERENCES rtype(id),
 index(project_id), FOREIGN KEY (project_id)
-REFERENCES project(id)
+REFERENCES project(id),
+index(labdata_id), FOREIGN KEY (labdata_id)
+REFERENCES labdata(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

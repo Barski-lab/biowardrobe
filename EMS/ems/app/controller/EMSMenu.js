@@ -112,7 +112,7 @@ Ext.define('EMS.controller.EMSMenu', {
                        me.createWindow(menuitem.action,'EMS.view.Info.Supplemental',{});
                    }
                    if(menuitem.action === "ProjectDesigner"){
-                       me.createWindow(menuitem.action,'EMS.view.Project.Preliminary',{});
+                       me.createWindow(menuitem.action,'EMS.view.Project.ProjectList',{});
                    }
                    /*
                      Create window for genome browser

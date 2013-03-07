@@ -62,7 +62,6 @@ Ext.define('EMS.view.user.List' ,{
                                          handler : function(){
                                              EMS.store.Worker.sync({
                                                                        success: function (batch, options) {
-                                                                           console.log('Sync successed' ,batch, options);
                                                                            EMS.store.Worker.load();
                                                                        }});
                                          },

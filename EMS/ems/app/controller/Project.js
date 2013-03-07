@@ -22,17 +22,17 @@
 
 Ext.define('EMS.controller.Project', {
                extend: 'Ext.app.Controller',
-               models: ['LabData','Worker','RPKM','ResultsGroupping','RType'],
-               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType'],
-               views:  ['Project.Preliminary','Project.PreliminaryList'],
+               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','Project'],
+               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','Project'],
+               views:  ['Project.Preliminary','Project.ProjectList'],
 
                init: function() {
                    var me=this;
                    me.control({
                                   '#ProjectPreliminary': {
-                                      render: me.onPanelRendered,
-                                      show: me.onPanelRendered,
-                                      close: me.onClose
+                                      //render: me.onPanelRendered,
+                                      show: me.onPreliminaryWindowRendered,
+                                      close: me.onPreliminaryWindowClose
                                   },
                                   '#preliminary-worker-changed': {
                                       select: me.onComboboxWorkerFilter
@@ -41,11 +41,27 @@ Ext.define('EMS.controller.Project', {
                                       select: me.onComboboxTypeFilter
                                   },
                                   '#preliminary-group-add': {
-                                      click: me. groupAddClick
+                                      click: me. onGroupAddClick
                                   },
                                   '#preliminary-save': {
                                       click: me.onSaveClick
-                                  }
+                                  },
+                                  /*
+                                    Project Window
+                                    */
+                                  'ProjectListWindow': {
+                                      render: me.onProjectWindowRendered,
+                                      //show: me.onProjectWindowRendered,
+                                      close: me.onProjectWindowClose
+                                  },
+                                  '#project-add': {
+                                      click: me.onProjectAddClick
+                                  },
+                                  'ProjectListWindow grid': {
+                                      //selectionchange: this.onSelectionChanged,
+                                      itemdblclick: this.ProjectListWindowGridDblClick
+                                  },
+
                               });
                },
                syncCombosAndGrid:function() {
@@ -60,34 +76,77 @@ Ext.define('EMS.controller.Project', {
                onComboboxTypeFilter: function(combo, records, options) {
                    this.syncCombosAndGrid();
                },
-               onPanelRendered: function(view) {
-                   var resStore=this.getResultsGrouppingStore();
-                   resStore.setRootNode({
-                       expanded: true,
-                       text: "Project1",
-                       leaf: false
-                   });
-                   resStore.load();
+               onPreliminaryWindowRendered: function(view) {
                    this.syncCombosAndGrid();
                },
-               onClose: function(view) {
+               onPreliminaryWindowClose: function(view) {
                    delete this.getLabDataStore().getProxy().extraParams['typeid'];
                    Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
                },
-               groupAddClick: function(button,e,eOpts) {
+               onGroupAddClick: function(button,e,eOpts) {
                    var grpname=Ext.getCmp('preliminary-group-name');
+                   var store=this.getResultsGrouppingStore();
+
                    grpname.allowBlank=false;
                    grpname.validate();
-                   if(!grpname.isValid()) {
+                   if(!grpname.isValid())
                        return false;
-                   }
+
+                   button.setDisabled(true);
+
                    var r = Ext.create('EMS.model.ResultsGroupping', {
-                                          item: grpname.getValue()
+                                          item: grpname.getValue(),
+                                          project_id: this.PreliminaryEdit.project_id
                                       });
-                   this.getResultsGrouppingStore().getRootNode().appendChild(r);
+                   store.getRootNode().appendChild(r);
+                   store.sync({success: function (batch, options) { store.load(); button.setDisabled(false);}});
                    grpname.allowBlank=true;
+                   grpname.setValue('');
                },
                onSaveClick: function(button,e,eOpts) {
                    this.getResultsGrouppingStore().sync();
+               },
+               /*
+                 Project window
+                 */
+               onProjectWindowRendered: function(view) {
+                   this.getProjectStore().getProxy().setExtraParam('workerid',USER_ID);
+                   var store=this.getProjectStore();
+                   store.load();
+               },
+               onProjectAddClick:function(button,e,eOpts) {
+                   var prjname=Ext.getCmp('project-name');
+                   var store=this.getProjectStore();
+
+                   prjname.allowBlank=false;
+                   prjname.validate();
+                   if(!prjname.isValid())
+                       return false;
+
+                   button.setDisabled(true);
+
+                   var r = Ext.create('EMS.model.Project', {
+                                          name: prjname.getValue(),
+                                          worker_id: USER_ID
+                                      });
+                   prjname.allowBlank=true;
+                   prjname.setValue('');
+                   store.insert(0,r);
+                   store.sync({success: function (batch, options) { store.load(); button.setDisabled(false); }});
+               },
+               ProjectListWindowGridDblClick: function( view,record,item,index,e,eOpts ) {
+                   //Logger.log(record);
+                   //Logger.log(view);
+                   var me=this;
+                   var resStore=me.getResultsGrouppingStore();
+                   resStore.getProxy().setExtraParam('projectid',record.data['id']);
+                   resStore.load();
+
+                   this.PreliminaryEdit = Ext.create('EMS.view.Project.Preliminary', {
+                                                         project_id: record.data['id'],
+                                                         title: 'Add Preliminary Results to '+record.data['name'],
+                                                         project_name: record.data['name'],
+                                                         resultStore: resStore });
+                   this.PreliminaryEdit.show();
                }
            });

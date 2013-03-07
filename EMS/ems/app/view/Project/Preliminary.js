@@ -32,7 +32,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                id: 'ProjectPreliminary',
                layout: 'fit',
                iconCls: 'default',
-               closeAction: 'hide',
+               //closeAction: 'hide',
                maximizable: true,
                collapsible: true,
                constrain: true,
@@ -68,7 +68,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                        local: false
                    };
                    me.labDataStore=EMS.store.LabData;
-                   me.resultStore=EMS.store.ResultsGroupping;
+                   //me.resultStore={};//EMS.store.ResultsGroupping;
 
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: me.labDataStore,
@@ -110,31 +110,25 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          width: 90,
                                                          text: 'add',
                                                          id: 'preliminary-group-add',
-                                                         width: 80,
                                                          submitValue: false,
-                                                         iconCls: 'folder-add',
+                                                         iconCls: 'folder-add'
                                                      }]
                                              } , {
                                                  xtype: 'treepanel',
-                                                 width: 200,
-                                                 height: 150,
+                                                 useArrows: true,
                                                  store: me.resultStore,
                                                  rootVisible: false,
+                                                 singleExpand: true,
                                                  flex: 1,
                                                  columns: [{
-                                                         xtype: 'treecolumn', //this is so we know which column will show the tree
+                                                         xtype: 'treecolumn',
                                                          text: 'Groups/items',
                                                          flex: 2,
-                                                         //sortable: true,
                                                          dataIndex: 'item'
                                                      },{ header: 'Description', dataIndex: 'description', flex:2,
                                                          renderer: function(value,meta,record) {
                                                              if(record.data.leaf===false) return '';
                                                              return record.data['description'];
-//                                                             return Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small> {0} </small><br>{3}<br>{4}',
-//                                                                                      record.data['cells'],
-//                                                                                      Ext.util.Format.date(record.data['dateadd'],'m/d/Y'),
-//                                                                                      record.data['id'], record.data['conditions'],record.data['name4browser']);
                                                          }
                                                      },{
                                                          xtype: 'actioncolumn',
@@ -142,6 +136,8 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          sortable: false,
                                                          items: [{
                                                                  getClass: function(v, meta, rec) {
+                                                                     if(rec.data.root === true)
+                                                                         return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          grid.getStore().removeAt(rowIndex);
@@ -176,6 +172,8 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                  data.records[i].set('leaf', true);
                                                                  data.records[i].set('item', overModel.data.item+' '+(base+i+1));
                                                                  data.records[i].set('item_id',data.records[i].data.id);
+                                                                 data.records[i].set('project_id',me.project_id);
+                                                                 data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
                                                                  data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
                                                                                           data.records[i].data.cells,
                                                                                           Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),

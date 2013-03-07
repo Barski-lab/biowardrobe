@@ -19,15 +19,14 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-
-Ext.define( 'EMS.model.ResultsGroupping', {
+Ext.define( 'EMS.model.Project', {
                extend: 'Ext.data.Model',
+
                fields: [
-                   {name: 'project_id',     type: 'int'},
-                   {name: 'item_id',     type: 'int'},
-                   {name: 'item',     type: 'string'},
-                   {name: 'leaf',     type: 'bool'},
-                   {name: 'description',     type: 'string'},
-                   {name: 'rtype_id',     type: 'int'}
+                   { name: 'id', type: 'int', persist: true  },
+                   { name: 'worker_id', type: 'int'},
+                   { name: 'name', type: 'string' },
+                   { name: 'description', type: 'string' },
+                   { name: 'article', type: 'string' }
                ]
            });

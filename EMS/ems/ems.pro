@@ -237,7 +237,6 @@ OTHER_FILES += \
     app/model/EGIDSamples.js \
     data/GeneralDel.php \
     app/view/Project/Preliminary.js \
-    app/view/Project/PreliminaryList.js \
     app/controller/Project.js \
     images/folder_into.png \
     images/folder_delete.png \
@@ -247,4 +246,9 @@ OTHER_FILES += \
     ../sql/EMS_patch.sql \
     app/model/RType.js \
     app/store/RType.js \
-    data/ResultTree.php
+    data/ResultTree.php \
+    app/model/Project.js \
+    app/store/Project.js \
+    app/view/Project/ProjectList.js \
+    data/ResultTreeUp.php \
+    data/ResultTreeAdd.php

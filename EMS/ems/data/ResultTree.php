@@ -1,6 +1,6 @@
 <?php
 
-require("common.php");
+   require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
@@ -9,21 +9,40 @@ require_once('database_connection.php');
 $con=def_connect();
 $con->select_db($db_name_ems);
 
-//if(! ($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where")) ) {
-//    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-//}
-//$row=$totalquery->fetch_row();
-//$total=$row[0];
-//$totalquery->close();
+logmsg('request');
+logmsg(print_r($_REQUEST,true));
 
-//$query_array=execSQL($con,"SELECT * FROM `$tablename` $where $order $limit",array(),false);
-//$con->close();
+if(!isset($_REQUEST['projectid']))
+    $res->print_error("Not enough arguments.");
 
+$prjid=intVal($_REQUEST['projectid']);
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = $total;
-$res->data = $query_array;
-print_r($res->to_json());
+//$result=execSQL($con,"SELECT name FROM project where id=?",array("i",$prjid),false);
+//$prjname=$result[0]['name'];
+
+$data=array();
+
+if($_REQUEST['id']=='root') {
+    $query_array=execSQL($con,"SELECT * FROM rhead where project_id=?",array("i",$prjid),false);
+    foreach($query_array as $key => $val) {
+        $data[]=array(
+            'item_id' => $val['id'],
+            'item' => $val['name'],
+            'leaf' => false,
+            'id' => $val['id'],
+            'expanded' => false,
+            'iconCls' => 'folder-into'
+            );
+    }
+}
+$con->close();
+
+//logmsg(print_r($data,true));
+//logmsg(print_r($val,true));
+
+echo json_encode(array(
+                     'text' => '.',
+                     'iconCls' => 'folder',
+                     'data' => $data));
 
 ?>
