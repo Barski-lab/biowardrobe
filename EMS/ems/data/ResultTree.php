@@ -37,7 +37,7 @@ if($_REQUEST['id']=='root') {
         $res->print_error("Not enough arguments.");
     $parentid=intVal($_REQUEST['id']);
 
-    $query_array=execSQL($con,"SELECT re.id,re.name,re.description,re.rtype_id FROM result re, resultintersection r where result_id=re.id and rhead_id=? order by re.name",array("i",$parentid),false);
+    $query_array=execSQL($con,"SELECT re.id,re.name,re.description,re.rtype_id,labdata_id FROM result re, resultintersection r where result_id=re.id and rhead_id=? order by re.name",array("i",$parentid),false);
     foreach($query_array as $key => $val) {
         $data[]=array(
             'item_id' => $val['id'],
@@ -46,6 +46,7 @@ if($_REQUEST['id']=='root') {
             'description' => $val['description'],
             'leaf' => true,
             'id' => $val['name'].$val['id'],
+            'labdata_id' => $val['labdata_id'],
             'rtype_id' => $val['rtype_id']
             );
     }

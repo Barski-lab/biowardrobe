@@ -28,6 +28,7 @@ Ext.define( 'EMS.model.ResultsGroupping', {
                    {name: 'item',     type: 'string'},
                    {name: 'leaf',     type: 'bool'},
                    {name: 'description',     type: 'string'},
-                   {name: 'rtype_id',     type: 'int'}
+                   {name: 'rtype_id',     type: 'int'},
+                   {name: 'labdata_id',     type: 'int'}
                ]
            });

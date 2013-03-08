@@ -144,12 +144,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                         Logger.log(arguments);
                                                                          record.remove(true);
-                                                                         //var rec=me.resultStore.getNodeById(record.data.id);//getRootNode().removeChild(record);
-                                                                         //Logger.log(rec);
-                                                                         //rec.destroy();
-
                                                                      }
                                                                      if(rec.data.leaf===false)
                                                                          return 'folder-delete';
@@ -170,7 +165,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      listeners: {
                                                          beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
                                                              //Logger.log(data);
-                                                             //Logger.log(overModel);
+                                                             Logger.log(overModel);
                                                              //Logger.log(dropPosition);
                                                              if(overModel.data.root === true)
                                                                  return false;
@@ -178,10 +173,26 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                  return false;
                                                              var base=overModel.childNodes.length;
                                                              for(var i=0; i<data.records.length;i++) {
+                                                                 var cont=false;
+                                                                 for(var j=0; j<overModel.childNodes.length;j++) {
+                                                                     Logger.log(data.records[i].data.id);
+                                                                     Logger.log(overModel.childNodes[j]);
+                                                                     if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
+                                                                         Logger.log('bingo');
+                                                                         data.records.splice(i,1);
+                                                                         cont=true;
+                                                                         i--;
+                                                                         break;
+                                                                         //return false;
+                                                                     }
+                                                                 }
+                                                                 if(cont) continue;
+
                                                                  data.records[i].set('leaf', true);
                                                                  data.records[i].set('item', overModel.data.item+' '+(base+i+1));
                                                                  data.records[i].set('item_id',data.records[i].data.id);
                                                                  data.records[i].set('project_id',me.project_id);
+                                                                 data.records[i].set('labdata_id',data.records[i].data.id);
                                                                  data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
                                                                  data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
                                                                                           data.records[i].data.cells,
@@ -228,6 +239,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          xtype: 'combobox',
                                                          displayField: 'name',
                                                          valueField: 'id',
+                                                         editable: false,
                                                          id: 'preliminary-type-changed',
                                                          value: 1,
                                                          fieldLabel: 'Type',
