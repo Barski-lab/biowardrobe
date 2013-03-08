@@ -44,7 +44,9 @@ Ext.define('EMS.controller.SequenceCutter', {
                    var sequence=win.down('[name=sequence]').getValue();
 
                    sequence=sequence.replace(/\n/g, "");
+                   sequence=sequence.replace(/ /g, "");
                    sequence=sequence.toUpperCase();
+                   win.down('[name=sequence]').setValue(sequence);
                    if(sequence.length < len) {
                        Ext.Msg.show({
                                         title: 'For your information',
@@ -52,6 +54,7 @@ Ext.define('EMS.controller.SequenceCutter', {
                                         icon: Ext.Msg.INFO,
                                         buttons: Ext.Msg.OK
                                     });
+                       button.setDisabled(false);
                        return;
                    }
 

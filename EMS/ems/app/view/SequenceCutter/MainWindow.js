@@ -37,15 +37,10 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
 
                initComponent: function() {
                    var me = this;
-                   var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
                    me.items =
                            [{
                                 xtype: 'fieldcontainer',
-                                //                                border: false,
-                                //                                frame: true,
-                                //                                plain: true,
-
                                 layout: {
                                     type: 'vbox',
                                     align: 'stretch'

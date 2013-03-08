@@ -33,12 +33,12 @@ Ext.define( 'EMS.store.ResultsGroupping', {
                        Timer.set();
                    }
                },
-               proxy: Ext.apply(STORE_DEFS.proxy('',true), {
+               proxy: Ext.apply(STORE_DEFS.proxy('results',true), {
                              api: {
                                  read : 'data/ResultTree.php',
                                  update: 'data/ResultTreeUp.php',
                                  create: 'data/ResultTreeAdd.php',
-                                 destroy: ''
+                                 destroy: 'data/ResultTreeDel.php'
                              }
                          })
            });

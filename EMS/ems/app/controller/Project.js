@@ -50,9 +50,9 @@ Ext.define('EMS.controller.Project', {
                                     Project Window
                                     */
                                   'ProjectListWindow': {
-                                      render: me.onProjectWindowRendered,
+                                      render: me.onProjectWindowRendered
                                       //show: me.onProjectWindowRendered,
-                                      close: me.onProjectWindowClose
+                                      //close: me.onProjectWindowClose
                                   },
                                   '#project-add': {
                                       click: me.onProjectAddClick

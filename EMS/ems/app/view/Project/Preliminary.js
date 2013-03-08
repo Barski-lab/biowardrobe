@@ -68,7 +68,6 @@ Ext.define('EMS.view.Project.Preliminary', {
                        local: false
                    };
                    me.labDataStore=EMS.store.LabData;
-                   //me.resultStore={};//EMS.store.ResultsGroupping;
 
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: me.labDataStore,
@@ -118,12 +117,16 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                  useArrows: true,
                                                  store: me.resultStore,
                                                  rootVisible: false,
-                                                 singleExpand: true,
+                                                 singleExpand: false,
+                                                 border: true,
+                                                 columnLines: true,
+                                                 rowLines: true,
                                                  flex: 1,
                                                  columns: [{
                                                          xtype: 'treecolumn',
                                                          text: 'Groups/items',
-                                                         flex: 2,
+                                                         flex: 1,
+                                                         width: 70,
                                                          dataIndex: 'item'
                                                      },{ header: 'Description', dataIndex: 'description', flex:2,
                                                          renderer: function(value,meta,record) {
@@ -133,6 +136,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      },{
                                                          xtype: 'actioncolumn',
                                                          width:35,
+                                                         align: 'center',
                                                          sortable: false,
                                                          items: [{
                                                                  getClass: function(v, meta, rec) {
@@ -140,7 +144,12 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                         grid.getStore().removeAt(rowIndex);
+                                                                         Logger.log(arguments);
+                                                                         record.remove(true);
+                                                                         //var rec=me.resultStore.getNodeById(record.data.id);//getRootNode().removeChild(record);
+                                                                         //Logger.log(rec);
+                                                                         //rec.destroy();
+
                                                                      }
                                                                      if(rec.data.leaf===false)
                                                                          return 'folder-delete';

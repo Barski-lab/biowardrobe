@@ -10,8 +10,8 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-logmsg("Up");
-logmsg(print_r($_REQUEST,true));
+//logmsg("Up");
+//logmsg(print_r($_REQUEST,true));
 
 $con=def_connect();
 $con->select_db($db_name_ems);

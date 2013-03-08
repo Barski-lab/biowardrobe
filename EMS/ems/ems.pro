@@ -251,4 +251,5 @@ OTHER_FILES += \
     app/store/Project.js \
     app/view/Project/ProjectList.js \
     data/ResultTreeUp.php \
-    data/ResultTreeAdd.php
+    data/ResultTreeAdd.php \
+    data/ResultTreeDel.php
