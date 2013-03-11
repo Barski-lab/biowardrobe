@@ -22,9 +22,9 @@
 
 Ext.define('EMS.controller.Project', {
                extend: 'Ext.app.Controller',
-               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','Project'],
-               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','Project'],
-               views:  ['Project.Preliminary','Project.ProjectList'],
+               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart'],
+               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart'],
+               views:  ['Project.Preliminary','Project.ProjectList','Project.ProjectDesign','charts.PCA'],
 
                init: function() {
                    var me=this;
@@ -51,17 +51,30 @@ Ext.define('EMS.controller.Project', {
                                     */
                                   'ProjectListWindow': {
                                       render: me.onProjectWindowRendered
-                                      //show: me.onProjectWindowRendered,
-                                      //close: me.onProjectWindowClose
                                   },
                                   '#project-add': {
                                       click: me.onProjectAddClick
                                   },
                                   'ProjectListWindow grid': {
                                       //selectionchange: this.onSelectionChanged,
-                                      itemdblclick: this.ProjectListWindowGridDblClick
+                                      itemdblclick: me.ProjectListWindowGridDblClick
                                   },
-
+                                  /*
+                                    Project Design
+                                    */
+                                  '#projectdesign-preliminary-button': {
+                                      click: me.onProjectDesignPreliminaryClick
+                                  },
+                                  '#ProjectDesign': {
+                                      render: me.onProjectDesignWindowRendered,
+                                      startAnalysis: me.startAnalysis
+                                  },
+                                  '#ProjectDesign grid': {
+                                      itemdblclick: me.ProjectDesignWindowGridDblClick
+                                  },
+                                  '#analyse-add': {
+                                      click: me.onAnalyseAddClick
+                                  }
                               });
                },
                syncCombosAndGrid:function() {
@@ -110,11 +123,11 @@ Ext.define('EMS.controller.Project', {
                  Project window
                  */
                onProjectWindowRendered: function(view) {
-                   this.getProjectStore().getProxy().setExtraParam('workerid',USER_ID);
                    var store=this.getProjectStore();
+                   store.getProxy().setExtraParam('workerid',USER_ID);
                    store.load();
                },
-               onProjectAddClick:function(button,e,eOpts) {
+               onProjectAddClick: function(button,e,eOpts) {
                    var prjname=Ext.getCmp('project-name');
                    var store=this.getProjectStore();
 
@@ -141,12 +154,104 @@ Ext.define('EMS.controller.Project', {
                    var resStore=me.getResultsGrouppingStore();
                    resStore.getProxy().setExtraParam('projectid',record.data['id']);
                    resStore.load();
+                   var resultStore=me.getResultStore();
+                   resultStore.getProxy().setExtraParam('projectid',record.data['id']);
+                   resultStore.load();
+                   var aStore=me.getAnalysisGroupStore();
+                   aStore.getProxy().setExtraParam('projectid',record.data['id']);
+                   aStore.load();
+                   var atStore=me.getATypeStore();
+                   atStore.load();
+                   me.project_id=record.data['id'];
+                   this.ProjectDesignEdit = Ext.create('EMS.view.Project.ProjectDesign', {
+                                                           project_id: record.data['id'],
+                                                           title: 'Designing '+record.data['name'],
+                                                           project_name: record.data['name'],
+                                                           resultGrpStore: resStore,
+                                                           resultStore: resultStore,
+                                                           analysisStore: aStore,
+                                                           atStore: atStore });
+                   var funct=function() {
+                       this.ProjectDesignEdit.show();
+                   };
+                   atStore.on('load',funct,me,{ single: true });
+               },
+
+               /*
+                 Project design
+                 */
+               onProjectDesignPreliminaryClick: function(button,e,eOpts) {
+                   var win=button.up('window');
+                   var resStore=this.getResultsGrouppingStore();
 
                    this.PreliminaryEdit = Ext.create('EMS.view.Project.Preliminary', {
-                                                         project_id: record.data['id'],
-                                                         title: 'Add Preliminary Results to '+record.data['name'],
-                                                         project_name: record.data['name'],
-                                                         resultStore: resStore });
+                                                         project_id: win.project_id,
+                                                         title: 'Add Preliminary Results to '+win.project_name,
+                                                         project_name: win.project_name,
+                                                         resultStore: resStore
+                                                     });
                    this.PreliminaryEdit.show();
+
+               },
+               onProjectDesignWindowRendered: function(view) {
+               },
+               onAnalyseAddClick: function(button,e,eOpts) {
+                   var win=button.up('window');
+                   var acaption=Ext.getCmp('analyse-caption');
+                   var atype=Ext.getCmp('analyse-type');
+                   var aStore=this.getAnalysisGroupStore();
+
+                   acaption.allowBlank=false;
+                   acaption.validate();
+                   if(!acaption.isValid())
+                       return false;
+
+                   button.setDisabled(true);
+
+                   var r = Ext.create('EMS.model.AnalysisGroup', {
+                                          item: acaption.getValue(),
+                                          project_id: win.project_id,
+                                          status: 0,
+                                          atype_id: atype.getValue()
+                                      });
+                   aStore.getRootNode().appendChild(r);
+
+                   aStore.sync({success: function (batch, options) { aStore.load(); button.setDisabled(false); },
+                                   failure: function (batch, options) { button.setDisabled(false); }});
+
+                   acaption.allowBlank=true;
+                   acaption.setValue('');
+               },
+               startAnalysis: function(args) {
+                   var me=this;
+                   var grid=args[0];
+                   var record=args[5];
+                   var resultStore=me.getResultStore();
+                   var model=Ext.create('EMS.model.Result', {
+                                            name: record.data.item+'_result',
+                                            description: record.data.item+'_result',
+                                            atype_id: record.data.atype_id,
+                                            ahead_id: record.data.item_id,
+                                            project_id: me.project_id
+                                        });
+                   resultStore.insert(0,model);
+                   resultStore.sync();
+                   resultStore.load();
+               },
+               ProjectDesignWindowGridDblClick:  function( view,record,item,index,e,eOpts ) {
+                   //Logger.log(record);
+                   //Logger.log(view);
+                   var me=this;
+                   var store=me.getPCAChartStore();
+                   store.getProxy().setExtraParam('resultid',record.data['id']);
+                   store.load();
+                   me.PCA = Ext.create('EMS.view.charts.PCA', {
+                                                         //project_id: win.project_id,
+                                                         title: 'Principle Component Analysis '//+win.project_name,
+                                                         //project_name: win.project_name,
+                                                         //resultStore: resStore
+                                                     });
+                   me.PCA.show();
+
                }
            });

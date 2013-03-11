@@ -10,8 +10,8 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-logmsg("Del");
-logmsg(print_r($_REQUEST,true));
+//logmsg("Del");
+//logmsg(print_r($_REQUEST,true));
 
 $con=def_connect();
 $con->select_db($db_name_ems);
@@ -28,6 +28,7 @@ if(gettype($data)=="array") {
                 array("ii",$val->parentId,$val->item_id),true);
         }
         if($val->leaf==false) {
+            execSQL($con,"delete from result where id in (select result_id from resultintersection where rhead_id=?)",array("i",$val->item_id),true);
             execSQL($con,"delete from resultintersection where rhead_id=?",array("i",$val->item_id),true);
             execSQL($con,"delete from rhead where id=?",array("i",$val->item_id),true);
         }
@@ -41,13 +42,14 @@ if(gettype($data)=="array") {
             array("ii",$val->parentId,$val->item_id),true);
     }
     if($val->leaf==false) {
+        execSQL($con,"delete from result where id in (select result_id from resultintersection where rhead_id=?)",array("i",$val->item_id),true);
         execSQL($con,"delete from resultintersection where rhead_id=?",array("i",$val->item_id),true);
         execSQL($con,"delete from rhead where id=?",array("i",$val->item_id),true);
     }
 }
 
 if(!$con->commit())
-    $res->print_error("Cant insert");
+    $res->print_error("Cant delete");
 
 
 $con->close();

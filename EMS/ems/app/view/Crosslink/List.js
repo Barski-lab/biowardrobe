@@ -29,7 +29,7 @@ Ext.define('EMS.view.Crosslink.List' ,{
                    var cellEditing = Ext.create('Ext.grid.plugin.CellEditing', {
                                                     clicksToEdit: 1
                                                 });
-                    var me = this;
+                   var me = this;
                    Ext.apply(me, {
                                  store: EMS.store.Crosslinking,
                                  columns: [
@@ -67,10 +67,10 @@ Ext.define('EMS.view.Crosslink.List' ,{
                                          tooltip:'Save changes',
                                          handler : function(){
                                              EMS.store.Crosslinking.sync({
-                                                                           success: function (batch, options) {
-                                                                               console.log('Sync successed' ,batch, options);
-                                                                               me.store.load();
-                                                                           }});
+                                                                             success: function (batch, options) {
+                                                                                 console.log('Sync successed' ,batch, options);
+                                                                                 me.store.load();
+                                                                             }});
                                          },
                                          iconCls:'table-ok'
                                      } , {

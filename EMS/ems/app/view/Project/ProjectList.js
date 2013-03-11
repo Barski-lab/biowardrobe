@@ -82,6 +82,7 @@ Ext.define('EMS.view.Project.ProjectList', {
                                         submitValue: false,
                                         margin: '0 5 0 5',
                                         labelAlign: 'top',
+                                        flex: 1,
                                         labelWidth: 120
                                     } , {
                                         xtype: 'button',

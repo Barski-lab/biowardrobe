@@ -21,22 +21,34 @@
 ****************************************************************************/
 
 
-Ext.define( 'EMS.store.RType', {
+Ext.define( 'EMS.store.PCAChart', {
                extend: 'Ext.data.Store',
 
-               requires: ['EMS.model.RType'],
-               model:  'EMS.model.RType',
-               storeId: 'RType',
+               requires: ['EMS.model.PCAChart'],
+               model:  'EMS.model.PCAChart',
+               storeId: 'PCAChart',
                autoLoad: false,
                singleton: true,
-               remoteSort: false,
-               remoteFilter: false,
+               remoteSort: true,
+               remoteFilter: true,
+               sorters: [{
+                       property: 'name',
+                       direction: 'ASC'
+                   }],
+               pageSize: 200,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
                    }
                },
-               proxy: STORE_DEFS.proxy('rtype',true)
+               proxy: Ext.apply(STORE_DEFS.proxy(''), {
+                                    api: {
+                                        read : 'data/PCAChart.php',
+                                        update: '',
+                                        create: '',
+                                        destroy: ''
+                                    }
+                                })
            });
 
 

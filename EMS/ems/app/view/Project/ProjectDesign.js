@@ -25,21 +25,20 @@ Ext.require([
                 'Ext.dd.*'
             ]);
 
-Ext.define('EMS.view.Project.Preliminary', {
+Ext.define('EMS.view.Project.ProjectDesign', {
                extend: 'Ext.window.Window',
                requires: ['Ext.form.Panel'],
-               title : 'Add Preliminary Results',
-               id: 'ProjectPreliminary',
+               title : 'Project Design',
+               id: 'ProjectDesign',
                layout: 'fit',
                iconCls: 'default',
-               //closeAction: 'hide',
                maximizable: true,
                collapsible: true,
                constrain: true,
                minHeight: 550,
                minWidth: 700,
                height: 550,
-               width: 900,
+               width: 1100,
                initComponent: function() {
                    var me = this;
                    var closebutt={
@@ -47,6 +46,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                        text: 'Close',
                        handler: function() { me.close(); }
                    };
+                   me.addEvents('startAnalysis');
                    me.dockedItems= [{
                                         xtype: 'toolbar',
                                         dock: 'bottom',
@@ -56,12 +56,6 @@ Ext.define('EMS.view.Project.Preliminary', {
                                         },
                                         items: [closebutt]
                                     }];
-
-                   me.labDataStore=EMS.store.LabData;
-                   me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
-                                                       store: me.labDataStore,
-                                                       displayInfo: true
-                                                   });
 
                    me.items=[ {
                                  xtype: 'container',
@@ -81,35 +75,48 @@ Ext.define('EMS.view.Project.Preliminary', {
                                          items: [
                                              {
                                                  xtype: 'fieldset',
-                                                 title: 'Grouping Results',
+                                                 title: 'Add preliminary data',
+                                                 height: 70,
+                                                 padding: 0,
+                                                 margin: '0 0 5 0',
                                                  layout: {
                                                      type: 'hbox'
                                                  },
                                                  items: [{
                                                          xtype: 'textfield',
-                                                         id: 'preliminary-group-name',
+                                                         margin: '0 5 0 5',
+                                                         id: 'prpjectdesign-group-name',
                                                          fieldLabel: 'Group name',
                                                          submitValue: false,
                                                          labelAlign: 'top',
+                                                         flex: 1,
                                                          labelWidth: 120
                                                      } , {
                                                          xtype: 'button',
                                                          margin: '20 5 0 5',
-                                                         width: 90,
+                                                         width: 100,
                                                          text: 'add',
-                                                         id: 'preliminary-group-add',
+                                                         id: 'projectdesign-group-add',
                                                          submitValue: false,
                                                          iconCls: 'folder-add'
+                                                     } , {
+                                                         xtype: 'button',
+                                                         margin: '20 5 0 5',
+                                                         width: 110,
+                                                         text: 'Laboratory data',
+                                                         id: 'projectdesign-preliminary-button',
+                                                         submitValue: false,
+                                                         iconCls: 'default'
                                                      }]
                                              } , {
                                                  xtype: 'treepanel',
                                                  useArrows: true,
-                                                 store: me.resultStore,
+                                                 store: me.resultGrpStore,
                                                  rootVisible: false,
-                                                 singleExpand: false,
+                                                 singleExpand: true,
                                                  border: true,
-                                                 columnLines: true,
                                                  rowLines: true,
+                                                 multiSelect: true,
                                                  flex: 1,
                                                  columns: [{
                                                          xtype: 'treecolumn',
@@ -117,12 +124,12 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          flex: 1,
                                                          width: 70,
                                                          dataIndex: 'item'
-                                                     },{ header: 'Description', dataIndex: 'description', flex:2,
+                                                     } , { header: 'Description', dataIndex: 'description', flex:2,
                                                          renderer: function(value,meta,record) {
                                                              if(record.data.leaf===false) return '';
                                                              return record.data['description'];
                                                          }
-                                                     },{
+                                                     } , {
                                                          xtype: 'actioncolumn',
                                                          width:35,
                                                          align: 'center',
@@ -153,15 +160,13 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      enableTextSelection: false,
                                                      plugins: {
                                                          ptype: 'treeviewdragdrop',
+                                                         dragGroup: 'result2analyse',
                                                          appendOnly: true,
-                                                         dropGroup: 'ldata2results'
+                                                         dropGroup: 'analyse2result'
                                                      },
                                                      listeners: {
                                                          beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             //Logger.log(data);
-                                                             //Logger.log(overModel);
-                                                             //Logger.log(dropPosition);
-                                                             if(overModel.data.root === true)
+                                                             /*if(overModel.data.root === true)
                                                                  return false;
                                                              if(dropPosition !== 'append' && overModel.data.leaf === false)
                                                                  return false;
@@ -169,14 +174,13 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                              for(var i=0; i<data.records.length;i++) {
                                                                  var cont=false;
                                                                  for(var j=0; j<overModel.childNodes.length;j++) {
-                                                                     //Logger.log(data.records[i].data.id);
-                                                                     //Logger.log(overModel.childNodes[j]);
+                                                                     Logger.log(data.records[i].data.id);
+                                                                     Logger.log(overModel.childNodes[j]);
                                                                      if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
                                                                          data.records.splice(i,1);
                                                                          cont=true;
                                                                          i--;
                                                                          break;
-                                                                         //return false;
                                                                      }
                                                                  }
                                                                  if(cont) continue;
@@ -191,12 +195,11 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                                                                       data.records[i].data.cells,
                                                                                                                       Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
                                                                                                                       data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
-                                                             }
+                                                             }*/
                                                              return true;
                                                          },
                                                          drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             me.resultStore.sync();
-                                                             me.resultStore.load();
+                                                             me.resultGrpStore.sync();
                                                          }
                                                      }
                                                  }
@@ -213,71 +216,167 @@ Ext.define('EMS.view.Project.Preliminary', {
                                          items: [
                                              {
                                                  xtype: 'fieldset',
-                                                 title: 'Filtering Results',
+                                                 title: 'Type of analysis',
+                                                 height: 70,
+                                                 padding: 0,
+                                                 margin: '0 0 5 0',
                                                  layout: {
-                                                     type: 'hbox',
-                                                     align: 'stretch'
+                                                     type: 'hbox'
                                                  },
-                                                 //height: 80,
-                                                 items: [{
-                                                         xtype: 'combobox',
-                                                         id: 'preliminary-worker-changed',
-                                                         displayField: 'fullname',
-                                                         editable: false,
-                                                         valueField: 'id',
-                                                         flex: 4,
-                                                         fieldLabel: 'Worker',
+                                                 items: [
+                                                     {
+                                                         xtype: 'textfield',
+                                                         id: 'analyse-caption',
+                                                         fieldLabel: 'Caption',
+                                                         submitValue: false,
                                                          labelAlign: 'top',
+                                                         margin: '0 5 0 5',
                                                          labelWidth: 120,
-                                                         store: EMS.store.Worker,
-                                                         value: USER_ID
+                                                         flex: 1
                                                      } , {
                                                          xtype: 'combobox',
                                                          displayField: 'name',
                                                          valueField: 'id',
                                                          editable: false,
-                                                         id: 'preliminary-type-changed',
+                                                         id: 'analyse-type',
                                                          value: 1,
                                                          fieldLabel: 'Type',
                                                          labelAlign: 'top',
                                                          labelWidth: 120,
                                                          margin: '0 5 0 5',
-                                                         store: EMS.store.RType,
-                                                         flex: 4
+                                                         store: me.atStore,
+                                                         width: 100
+                                                     } , {
+                                                         xtype: 'button',
+                                                         margin: '20 5 0 5',
+                                                         width: 100,
+                                                         text: 'add',
+                                                         id: 'analyse-add',
+                                                         submitValue: false,
+                                                         iconCls: 'folder-add'
+
                                                      }]
                                              } , {
-                                                 xtype: 'grid',
+
+                                                 xtype: 'treepanel',
+                                                 store: me.analysisStore,
+                                                 rootVisible: false,
+                                                 //singleExpand: true,
                                                  border: true,
-                                                 columnLines: true,
-                                                 store: me.labDataStore,
-                                                 multiSelect: true,
+                                                 flex: 3,
+                                                 columns: [{
+                                                         xtype: 'treecolumn',
+                                                         text: 'Groups/items',
+                                                         flex: 1,
+                                                         width: 70,
+                                                         dataIndex: 'item'
+                                                     } , {
+                                                         header: 'Type',
+                                                         dataIndex: 'atype_id',
+                                                         flex:2,
+                                                         width: 70,
+                                                         renderer: function(value,meta,record) {
+                                                             if(record.data.parentId==='root') {
+                                                                 var rec=me.atStore.findRecord('id',value);
+                                                                 return rec.data.name;
+                                                             }
+                                                             return '';
+                                                         }
+                                                     } , {
+                                                         xtype: 'actioncolumn',
+                                                         width:55,
+                                                         align: 'center',
+                                                         sortable: false,
+                                                         items: [
+                                                             {
+                                                                 getClass: function(v, meta, rec) {
+                                                                     if(rec.data.root === true || rec.data.leaf === true)
+                                                                         return '';
+                                                                     //Logger.log(rec);
+                                                                     if(rec.data.status > 0 || rec.data.atype_id !== 2) {
+                                                                         return '';
+                                                                     }
+                                                                     this.items[0].tooltip = 'Run';
+                                                                     this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                                         me.fireEvent('startAnalysis',arguments);
+                                                                     }
+                                                                     return 'media-play-green';
+                                                                 }
+                                                             } , {
+                                                                 getClass: function(v, meta, rec) {
+                                                                     this.items[1].tooltip='';
+                                                                     return 'space';
+                                                                 }
+                                                             } , {
+                                                                 getClass: function(v, meta, rec) {
+                                                                     if(rec.data.root === true)
+                                                                         return;
+                                                                     if(rec.data.status > 0 ) { // && rec.data.leaf === true) {
+                                                                         //this.items[2].disabled=true;
+                                                                         return '';
+                                                                     }/*
+                                                                     if(rec.data.leaf === true) {
+                                                                         return '';
+                                                                         //this.items[2].disabled=false;
+                                                                     }*/
+                                                                     this.items[2].tooltip = 'Delete';
+                                                                     this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                                         record.remove(true);
+                                                                         me.analysisStore.sync();
+                                                                     }
+                                                                     return 'folder-delete';
+                                                                 }
+                                                             }]
+                                                     }],
+
                                                  viewConfig: {
+                                                     copy: true,
+                                                     enableTextSelection: false,
                                                      plugins: {
-                                                         ptype: 'gridviewdragdrop',
-                                                         dragGroup: 'ldata2results',
+                                                         ptype: 'treeviewdragdrop',
+                                                         appendOnly: true,
+                                                         dropGroup: 'result2analyse',
                                                      },
                                                      listeners: {
-                                                         drop: function(node, data, dropRec, dropPosition) {
-                                                         }
-                                                     },
-                                                     copy: true,
-                                                     enableTextSelection: false
-                                                 },
-                                                 columns: [
-                                                     { header: 'Experiment list', dataIndex: 'cells', flex:1, sortable: true,
-                                                         renderer: function(value,meta,record) {
-                                                             return Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small> {0} </small><br>{3}<br>{4}',
-                                                                                      record.data['cells'],
-                                                                                      Ext.util.Format.date(record.data['dateadd'],'m/d/Y'),
-                                                                                      record.data['id'], record.data['conditions'],record.data['name4browser']);
+                                                         beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
+                                                             if(overModel.data.root === true)
+                                                                 return false;
+                                                             for(var j=0; j<data.records.length;j++) {
+
+                                                                 if(data.records[j].data.leaf===true) {
+                                                                     data.records.splice(j,1);
+                                                                     j--;
+                                                                     continue;
+                                                                 }
+                                                             }
+                                                             return true;
+                                                         },
+                                                         drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
+                                                             me.analysisStore.sync();
+                                                             me.analysisStore.load({params:{'openid': overModel.raw['item_id'] }});
                                                          }
                                                      }
-                                                 ],
-                                                 flex: 3,
-                                                 bbar: [ me.m_PagingToolbar ]
-                                             }
-                                         ]
-                                     }
+                                                 }
+                                             }]
+                                     } , {
+                                         xtype: 'container',
+                                         margin: '5 5 5 0',
+                                         layout: {
+                                             type: 'vbox',
+                                             align: 'stretch'
+                                         },
+                                         flex: 1,
+                                         items: [
+                                             {
+                                                 xtype: 'grid',
+                                                 store: me.resultStore,
+                                                 flex: 1,
+                                                 columns: [
+                                                     {header: 'Name', dataIndex: 'name', flex: 1 },
+                                                     {header: 'Description', dataIndex: 'description', flex: 1 },
+                                                 ]
+                                             }]
+                                     }//container
                                  ]
                              }
                            ];

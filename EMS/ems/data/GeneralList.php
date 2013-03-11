@@ -9,7 +9,7 @@ if(isset($_REQUEST['tablename']))
 else
     $res->print_error('Not enough required parameters.');
 
-$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype");
+$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
 $SpecialTable=array("labdata","grp_local","project");
 
 if(!in_array($tablename,$AllowedTable)) {

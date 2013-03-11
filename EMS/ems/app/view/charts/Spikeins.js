@@ -21,8 +21,6 @@
 ****************************************************************************/
 
 Ext.require('Ext.chart.*');
-//Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit', 'Ext.window.MessageBox']);
-
 
 Ext.define('EMS.view.charts.Spikeins',
            {

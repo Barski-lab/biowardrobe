@@ -20,27 +20,27 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.ResultsGroupping', {
-               extend: 'Ext.data.Model',
-               fields: [
-                   {name: 'project_id',     type: 'int'},
-                   {name: 'item_id',     type: 'int'},
-                   {name: 'item',     type: 'string'},
-                   {name: 'leaf',     type: 'bool'},
-                   {name: 'description',     type: 'string'},
-                   {name: 'rtype_id',     type: 'int'},
-                   {name: 'labdata_id',     type: 'int'}
-               ],
-               proxy: {
-                   type: 'ajax',
-                   api: {
-                       destroy: 'data/ResultTreeDel.php'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true,
-                       encode: true
+Ext.define( 'EMS.store.AnalysisGroup', {
+               extend: 'Ext.data.TreeStore',
+               requires: ['EMS.model.AnalysisGroup'],
+               storeId: 'AnalysisGroup',
+               model:  'EMS.model.AnalysisGroup',
+               folderSort: true,
+               autoLoad: false,
+               singleton: true,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
                    }
-               }
+               },
+               proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {
+                                    api: {
+                                        read : 'data/AnalysisTree.php',
+                                        update: 'data/AnalysisTreeUp.php',
+                                        create: 'data/AnalysisTreeAdd.php',
+                                        destroy: 'data/AnalysisTreeDel.php'
+
+                                    }
+                                })
            });
+

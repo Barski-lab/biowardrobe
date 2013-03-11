@@ -20,27 +20,28 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.ResultsGroupping', {
+Ext.define( 'EMS.model.PCAChart', {
                extend: 'Ext.data.Model',
+
                fields: [
-                   {name: 'project_id',     type: 'int'},
-                   {name: 'item_id',     type: 'int'},
-                   {name: 'item',     type: 'string'},
-                   {name: 'leaf',     type: 'bool'},
-                   {name: 'description',     type: 'string'},
-                   {name: 'rtype_id',     type: 'int'},
-                   {name: 'labdata_id',     type: 'int'}
-               ],
-               proxy: {
-                   type: 'ajax',
-                   api: {
-                       destroy: 'data/ResultTreeDel.php'
+                   { name: 'id', type: 'int' },
+                   { name: 'name', type: 'string' },
+                   { name: 'PC1', type: 'float' },
+                   { name: 'PC2', type: 'float' },
+                   { name: 'PC3', type: 'float' },
+                   { name: 'color', type: 'int' },
+                   { name: 'PC11', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var PC = record.get('PC1');
+                               return PC*100;
+                       }
                    },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true,
-                       encode: true
-                   }
-               }
+                   { name: 'PC22', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var PC = record.get('PC2');
+                               return PC*100;
+                       }
+                   },
+
+               ]
            });

@@ -85,7 +85,7 @@
 }
 
 .space {
-    background-image: url( images/space123.png ) !important;
+    //background-image: url( images/space123.png ) !important;
     width: 16px;
     height: 16px;
 }
@@ -536,6 +536,12 @@
 
 .notebook-edit {
     background-image: url( images/notebook_edit.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.media-play-green {
+    background-image: url( images/media_play_green.png ) !important;
     width: 16px;
     height: 16px;
 }

@@ -252,4 +252,24 @@ OTHER_FILES += \
     app/view/Project/ProjectList.js \
     data/ResultTreeUp.php \
     data/ResultTreeAdd.php \
-    data/ResultTreeDel.php
+    data/ResultTreeDel.php \
+    app/view/Project/ProjectDesign.js \
+    app/model/AType.js \
+    app/store/AType.js \
+    app/store/AnalysisGroup.js \
+    app/model/AnalysisGroup.js \
+    data/AnalysisTree.php \
+    data/AnalysisTreeAdd.php \
+    data/AnalysisTreeUp.php \
+    images/media_play_green.png \
+    images/console_run.png \
+    images/application_server_run.png \
+    data/Result.php \
+    data/ResultAdd.php \
+    app/model/Result.js \
+    app/store/Result.js \
+    data/AnalysisTreeDel.php \
+    app/view/charts/PCA.js \
+    app/store/PCAChart.js \
+    app/model/PCAChart.js \
+    data/PCAChart.php
