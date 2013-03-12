@@ -157,7 +157,9 @@ except Exception, e:
 
     
 #in future if exist stus 1 delete temporary donloaded files
-cursor.execute ("update labdata set libstatus=0 where libstatus in (1,1000)")
+cursor.execute ("update labdata set libstatus=2000 where libstatus in (1)")
+cursor.execute ("update labdata set libstatus=0 where libstatus in (1000)")
+conn.commit()
 
 
 while True:
