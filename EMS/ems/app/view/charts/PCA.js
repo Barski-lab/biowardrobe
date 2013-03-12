@@ -25,7 +25,7 @@ Ext.require('Ext.chart.*');
 Ext.define('EMS.view.charts.PCA',
            {
                extend: 'Ext.window.Window',
-               requires: ['Ext.form.Panel'],
+               requires: ['Ext.form.Panel'],//,'EMS.view.charts.ShapeCollection'],
                title : 'Add Preliminary Results',
                layout: 'fit',
                iconCls: 'default',
@@ -38,6 +38,14 @@ Ext.define('EMS.view.charts.PCA',
                height: 550,
                width: 700,
 
+               triangle: function (opts) {
+                   opts.radius *= 1.75;
+                   return Ext.apply({
+                       type: 'path',
+                       stroke: null,
+                       path: "M".concat(opts.x, ",", opts.y, "m0-", opts.radius * 0.58, "l", opts.radius * 0.5, ",", opts.radius * 0.87, "-", opts.radius, ",0z")
+                   }, opts);
+               },
 
 
                //extend: 'Ext.chart.Chart',
@@ -47,6 +55,10 @@ Ext.define('EMS.view.charts.PCA',
                    var color=["#F00","#0F0","#00F"];
                    var cross="M-1.7647058823529411,0l-1.7647058823529411,-1.7647058823529411,1.7647058823529411,-1.7647058823529411,1.7647058823529411,1.7647058823529411,1.7647058823529411,-1.7647058823529411,1.7647058823529411,1.7647058823529411,-1.7647058823529411,1.7647058823529411,1.7647058823529411,1.7647058823529411,-1.7647058823529411,1.7647058823529411,-1.7647058823529411,-1.7647058823529411,-1.7647058823529411,1.7647058823529411,-1.7647058823529411,-1.7647058823529411,z";
                    var plus="M-1.1538461538461537,-1.1538461538461537l0,-2.3076923076923075,2.3076923076923075,0,0,2.3076923076923075,2.3076923076923075,0,0,2.3076923076923075,-2.3076923076923075,0,0,2.3076923076923075,-2.3076923076923075,0,0,-2.3076923076923075,-2.3076923076923075,0,0,-2.3076923076923075,z";
+
+                   var coll=['circle','square','triangle','diamond','cross','plus'];
+                   //var components= Ext.create('EMS.view.charts.ShapeCollection');
+
                    var types=[cross,plus];
                    var chart=Ext.create('Ext.chart.Chart', {
 
@@ -59,19 +71,19 @@ Ext.define('EMS.view.charts.PCA',
                                             theme: 'Category1',
                                             axes: [{
                                                     type: 'Numeric',
-                                                    position: 'left',
-                                                    fields: ['PC22'],
-                                                    title: 'PC2',
-                                                    //minorTickSteps: 1,
-                                                    grid: true
-                                                }, {
-                                                    type: 'Numeric',
                                                     position: 'bottom',
-                                                    fields: ['PC11'],
+                                                    fields: ['PC1'],
                                                     title: 'PC1',
                                                     //minorTickSteps: 1,
                                                     grid: true,
                                                     //majorTickSteps: 10
+                                                } , {
+                                                    type: 'Numeric',
+                                                    position: 'left',
+                                                    fields: ['PC3'],
+                                                    title: 'PC3',
+                                                    //minorTickSteps: 1,
+                                                    grid: true
                                                 }],
                                             series: [{
                                                     type: 'scatter',
@@ -88,18 +100,22 @@ Ext.define('EMS.view.charts.PCA',
                                                     },
                                                     renderer: function(sprite, record, attr, index){
 
-                                                        //console.log(record.get('color'),index,sprite,attr,this);
-
+                                                        console.log(record.get('color'),index,sprite,attr,this);
                                                         var highlight = record.get('color');
-                                                        if(highlight===1)
-                                                            sprite.type='circle';
-                                                        if(highlight===1)
-                                                            return Ext.apply(attr, { fill: color[highlight-1], radius: 6, size: 6 });
-                                                        if(highlight > 1 && highlight < 4)
-                                                            return Ext.apply(attr, { fill: color[highlight-1], path: types[highlight-2] });
+
+                                                        //var tri=me.triangle({ fill: color[highlight-1], radius: 5, size: 5,x:0,y:0 });
+//                                                        var comp=EMS.view.charts.ShapeCollection[coll[highlight-1]]({ fill: color[highlight-1], radius: 5, size: 5,x:0,y:0 });
+//                                                        console.log(comp);
+
+//                                                        if(highlight===1)
+//                                                            sprite.setAttributes('type','circle');
+//                                                        if(highlight===1)
+//                                                            return Ext.apply(attr, comp);
+//                                                        if(highlight > 1 && highlight < 4)
+//                                                            return Ext.apply(attr, { fill: color[highlight-1]});
                                                     },
-                                                    yField: 'PC22',
-                                                    xField: 'PC11'
+                                                    xField: 'PC1',
+                                                    yField: 'PC3'
                                                 }
                                             ]
                                         });

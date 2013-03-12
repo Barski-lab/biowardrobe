@@ -106,7 +106,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                  useArrows: true,
                                                  store: me.resultStore,
                                                  rootVisible: false,
-                                                 singleExpand: false,
+                                                 //singleExpand: false,
                                                  border: true,
                                                  columnLines: true,
                                                  rowLines: true,

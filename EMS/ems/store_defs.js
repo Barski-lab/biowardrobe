@@ -62,7 +62,7 @@ STORE_DEFS = {
             type: 'ajax',
             api: {
                 read : 'data/GeneralList.php',
-                update: '/cgi-bin/barski/recordsUp.json',
+                update: 'data/GeneralListUp.php',
                 create: '/cgi-bin/barski/recordsNew.json',
                 destroy: '/cgi-bin/barski/recordsDel.json'
             },

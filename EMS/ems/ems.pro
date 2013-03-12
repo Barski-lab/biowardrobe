@@ -272,4 +272,7 @@ OTHER_FILES += \
     app/view/charts/PCA.js \
     app/store/PCAChart.js \
     app/model/PCAChart.js \
-    data/PCAChart.php
+    data/PCAChart.php \
+    data/PCA.R \
+    app/view/charts/ShapeCollection.js \
+    data/GeneralListUp.php

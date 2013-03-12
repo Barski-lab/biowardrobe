@@ -35,8 +35,8 @@ for(i in 1:dim(res)[1]) {
 
 colnames(fullData)<-res$name
 
-pcr=prcomp(fullData,cor=TRUE)
-result<-cbind(pcr$rotation,groups)
+pcr<-prcomp(t(fullData),cor=TRUE)
+result<-cbind(pcr$x,groups)
 result<-cbind(res$name,result)
 result<-rbind(result,c("barplot",pcr$sdev,0))
 

@@ -81,6 +81,8 @@ Ext.define('EMS.controller.Project', {
                    this.getRTypeStore().load();
                    this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('preliminary-worker-changed').getValue());
                    this.getLabDataStore().getProxy().setExtraParam('typeid',Ext.getCmp('preliminary-type-changed').getValue());
+                   this.getLabDataStore().sort('id', 'ASC');
+
                    Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
                },
                onComboboxWorkerFilter: function(combo, records, options) {
@@ -183,6 +185,7 @@ Ext.define('EMS.controller.Project', {
                onProjectDesignPreliminaryClick: function(button,e,eOpts) {
                    var win=button.up('window');
                    var resStore=this.getResultsGrouppingStore();
+                   //sort by a single field
 
                    this.PreliminaryEdit = Ext.create('EMS.view.Project.Preliminary', {
                                                          project_id: win.project_id,

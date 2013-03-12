@@ -113,7 +113,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                  useArrows: true,
                                                  store: me.resultGrpStore,
                                                  rootVisible: false,
-                                                 singleExpand: true,
+                                                 singleExpand: false,
                                                  border: true,
                                                  rowLines: true,
                                                  multiSelect: true,
@@ -292,7 +292,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  getClass: function(v, meta, rec) {
                                                                      if(rec.data.root === true || rec.data.leaf === true)
                                                                          return '';
-                                                                     //Logger.log(rec);
+                                                                     Logger.log(rec);
                                                                      if(rec.data.status > 0 || rec.data.atype_id !== 2) {
                                                                          return '';
                                                                      }

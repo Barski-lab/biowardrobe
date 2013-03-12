@@ -9,8 +9,16 @@ if(isset($_REQUEST['tablename']))
 else
     $res->print_error('Not enough required parameters. t');
 
+$data=json_decode(stripslashes($_REQUEST['data']));
+
+if(!isset($data))
+    $res->print_error("no data");
+
 $AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
 $SpecialTable=array("labdata","grp_local","project");
+
+$IDFIELD="id";
+$IDFIELDTYPE="i";
 
 if(!in_array($tablename,$AllowedTable)) {
     if(!in_array($tablename,$SpecialTable)) {
@@ -49,6 +57,10 @@ if(!in_array($tablename,$AllowedTable)) {
             $con->select_db($db_name_ems);
             break;
         case "grp_local":
+
+            $IDFIELD="name";
+            $IDFIELDTYPE="s";
+
             if(isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
                 check_val($_REQUEST['genomedb']);
                 if($_REQUEST['genomenm']!="") check_val($_REQUEST['genomenm']);
@@ -74,24 +86,78 @@ if(!in_array($tablename,$AllowedTable)) {
     $con=def_connect();
     $con->select_db($db_name_ems);
 }
+$total=1;
 
+$con->autocommit(FALSE);
 
-if(execSQL($con,"describe `$tablename`",array(),true)==0) {
+if(($table=execSQL($con,"describe `$tablename`",array(),false))==0) {
     $res->print_error("Cant describe");
 }
+$types=array();
+foreach($table as $xxx => $val) {
+    $t="s";
+    if(strrpos($val["Type"],"int")!==false)
+        $t="i";
+    if(strrpos($val["Type"],"float")!==false)
+        $t="d";
+    if(strrpos($val["Type"],"double")!==false)
+        $t="d";
+    if(strrpos($val["Type"],"date")!==false)
+        $t="dd";
 
-if(! ($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where")) ) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    $types[$val["Field"]]=$t;
 }
-$row=$totalquery->fetch_row();
-$total=$row[0];
-$totalquery->close();
 
-$query_array=execSQL($con,"SELECT * FROM `$tablename` $where $order $limit",array(),false);
+function update_data ($val) {
+    $PARAMS[]="";
+    $SQL_STR="";
+    global $IDFIELD,$IDFIELDTYPE,$con,$tablename,$types;
+    foreach($val as $f => $d) {
+        if($f==$IDFIELD) {
+            $id=$d;
+            continue;
+        }
+        if(strrpos($f,"_id")!==false && intVal($d)==0) {
+            $SQL_STR=$SQL_STR." $f=null,";
+            continue;
+        }
+        $SQL_STR=$SQL_STR." $f=?,";
+
+        if($types[$f]=="dd") {
+            $date = DateTime::createFromFormat('m/d/Y', $d);
+            $PARAMS[] = $date->format('Y-m-d');
+        } else {
+            $PARAMS[] = $d;
+        }
+        $PARAMS[0]=$PARAMS[0].$types[$f];
+    }
+
+    $PARAMS[]=$id;
+    $PARAMS[0]=$PARAMS[0].$IDFIELDTYPE;
+
+    $SQL_STR = substr_replace($SQL_STR ,"",-1);
+    $SQL_STR = "update `$tablename` set $SQL_STR where $IDFIELD=?";
+
+    execSQL($con,$SQL_STR,$PARAMS,true);
+}
+
+if(gettype($data)=="array") {
+    foreach($data as $key => $val ) {
+        update_data($val);
+    }
+    $count=count($data);
+} else {
+    update_data($data);
+}
+
+if(!$con->commit()) {
+    $res->print_error("Cant insert");
+}
+
 $con->close();
 
 $res->success = true;
-$res->message = "Data loaded";
+$res->message = "Data updated";
 $res->total = $total;
 $res->data = $query_array;
 print_r($res->to_json());

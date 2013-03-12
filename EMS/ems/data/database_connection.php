@@ -18,7 +18,7 @@ function def_mssql_connect() {
     $con = mssql_connect($db_host_mssql,$db_user_mssql,$db_pass_mssql);
     if (!$con)
         $res->print_error('Could not connect');
-     //. mssql_get_last_message()
+    //. mssql_get_last_message()
     return $con;
 }
 
@@ -58,10 +58,18 @@ function execSQL($mysqli,$sql, $params, $close){
         while ( $stmt->fetch() ) {
             $x = array();
             foreach( $row as $key => $val ) {
-                if($types[$key]==4 || $types[$key]==5) {//float
-                    $x[$key] = round($val,3);
-                } else {
-                    $x[$key] = $val;
+                switch($types[$key]) {
+                    case 4:
+                    case 5:
+                        $x[$key] = round($val,3);
+                    break;
+                    case 10:
+                        $date = DateTime::createFromFormat('Y-m-d', $val);
+                        $x[$key] = $date->format('m/d/Y');
+                    break;
+                    default:
+                        $x[$key] = $val;
+                    break;
                 }
             }
             $results[] = $x;
