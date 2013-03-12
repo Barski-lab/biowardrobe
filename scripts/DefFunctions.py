@@ -28,7 +28,7 @@ import smtplib
 
     
 def send_mail(toaddrs,body):
-    fromaddr='ems@ems.cchmc.org'
+    fromaddr='ems@ems.chmccorp.cchmc.org'
     # Add the From: and To: headers at the start!
     msg = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
            % (fromaddr,toaddrs,body))
