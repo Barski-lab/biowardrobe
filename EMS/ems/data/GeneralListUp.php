@@ -126,10 +126,11 @@ function update_data ($val) {
         if($types[$f]=="dd") {
             $date = DateTime::createFromFormat('m/d/Y', $d);
             $PARAMS[] = $date->format('Y-m-d');
+            $PARAMS[0]=$PARAMS[0]."s";
         } else {
             $PARAMS[] = $d;
+            $PARAMS[0]=$PARAMS[0].$types[$f];
         }
-        $PARAMS[0]=$PARAMS[0].$types[$f];
     }
 
     $PARAMS[]=$id;
