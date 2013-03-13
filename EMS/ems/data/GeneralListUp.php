@@ -9,7 +9,7 @@ if(isset($_REQUEST['tablename']))
 else
     $res->print_error('Not enough required parameters. t');
 
-$data=json_decode(stripslashes($_REQUEST['data']));
+$data=json_decode($_REQUEST['data']);
 
 if(!isset($data))
     $res->print_error("no data");

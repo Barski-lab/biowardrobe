@@ -8,7 +8,7 @@ $con=def_connect();
 $con->select_db($db_name_ems);
 $tablename="worker";
 
-$data=json_decode(stripslashes($_REQUEST['data']));
+$data=json_decode($_REQUEST['data']);
 if(!isset($data))
     $res->print_error("no data");
 if(!check_rights('worker'))

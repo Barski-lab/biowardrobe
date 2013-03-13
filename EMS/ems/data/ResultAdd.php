@@ -5,7 +5,7 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-$data=json_decode(stripslashes($_REQUEST['data']));
+$data=json_decode($_REQUEST['data']);
 
 if(!isset($data))
     $res->print_error("no data");
