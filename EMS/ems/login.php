@@ -24,8 +24,9 @@ if(isset($_REQUEST["timeout"]) && $_REQUEST["timeout"]=="true") {
  <head>
  <title>Login</title>
  <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css">
- <link rel="stylesheet" type="text/css" href="ext/examples/desktop/css/desktop.css"/>
  <link rel="stylesheet" type="text/css" href="app.css">
+ <link rel="stylesheet" type="text/css" href="ux/grid/css/GridFilters.css" />
+ <link rel="stylesheet" type="text/css" href="ux/grid/css/RangeMenu.css" />
  </head>
 
  <body>
