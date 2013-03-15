@@ -333,6 +333,7 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
     genome::cover_map::iterator i=sam_input->getLineCover(chrom+strand).getBeginIterator();
     genome::cover_map::iterator e=sam_input->getLineCover(chrom+strand).getEndIterator();
     int max_len=sam_input->getLength(strand,chrom)+1;
+    bool direction=(strand==QChar('+'));
 
     quint32 w_h=window;
     if(window==0) w_h=1;
@@ -371,7 +372,15 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                 genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
                 for(;it!=i.value()[c].getInterval().end();it++) {
                     genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
-                    for(quint64 l=itv.lower(); l<=itv.lower()+interestedLen; l++)
+                    quint64 beg=itv.lower();
+                    quint64 end=itv.upper();
+                    int len=abs(end-len);
+                    if(direction) {
+                        end=beg+interestedLen;
+                    } else {
+                        beg=end-interestedLen;
+                    }
+                    for(quint64 l=beg; l<=end; l++)
                         cover[l]+=i.value()[c].getLevel();
                 }
             }
