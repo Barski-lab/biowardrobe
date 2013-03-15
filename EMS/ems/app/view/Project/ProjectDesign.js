@@ -75,7 +75,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                          items: [
                                              {
                                                  xtype: 'fieldset',
-                                                 title: 'Add preliminary data',
+                                                 title: 'Add groups',
                                                  height: 70,
                                                  padding: 0,
                                                  margin: '0 0 5 0',
@@ -140,16 +140,42 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                          return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                         try {
-                                                                             record.remove(true);
-                                                                         } catch (error) {
-                                                                             Logger.log("Error:"+error);
+                                                                         if(rec.data.status > 0 && rec.data.leaf === false) {
+                                                                             Ext.Msg.show({
+                                                                                              title: 'Deleteing group '+record.data.item,
+                                                                                              msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.item
+                                                                                                   +'".<br> This process are going to delete the group from finished analysis<br>'+
+                                                                                                   'All plots and results that have the group will be deleted.',
+                                                                                              icon: Ext.Msg.QUESTION,
+                                                                                              buttons: Ext.Msg.YESNO,
+                                                                                              fn: function(btn) {
+                                                                                                  if(btn !== "yes") return;
+                                                                                                  try {
+                                                                                                      record.remove(true);
+                                                                                                  } catch (error) {
+                                                                                                      console.log("Error:"+error);
+                                                                                                  }
+                                                                                              }
+                                                                                          });
+                                                                         } else {
+                                                                             try {
+                                                                                 record.remove(true);
+                                                                             } catch (error) {
+                                                                                 console.log("Error:"+error);
+                                                                             }
                                                                          }
-                                                                         grid.getStore().sync();
+
+                                                                         grid.getStore().sync({sucess: function() {
+                                                                             grid.getStore().load();
+                                                                         }});
+
                                                                      }
+                                                                     //console.log(rec);
                                                                      if(rec.data.leaf===false)
                                                                          return 'folder-delete';
-                                                                     return 'table-row-delete';
+
+                                                                     if(rec.parentNode.data.status===0)
+                                                                         return 'table-row-delete';
                                                                  }
                                                              }]
                                                      }
@@ -174,8 +200,8 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                              for(var i=0; i<data.records.length;i++) {
                                                                  var cont=false;
                                                                  for(var j=0; j<overModel.childNodes.length;j++) {
-                                                                     Logger.log(data.records[i].data.id);
-                                                                     Logger.log(overModel.childNodes[j]);
+                                                                     console.log(data.records[i].data.id);
+                                                                     console.log(overModel.childNodes[j]);
                                                                      if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
                                                                          data.records.splice(i,1);
                                                                          cont=true;
@@ -292,7 +318,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  getClass: function(v, meta, rec) {
                                                                      if(rec.data.root === true || rec.data.leaf === true)
                                                                          return '';
-                                                                     Logger.log(rec);
+                                                                     //console.log(rec);
                                                                      if(rec.data.status > 0 || rec.data.atype_id !== 2) {
                                                                          return '';
                                                                      }
@@ -341,19 +367,47 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
                                                              if(overModel.data.root === true)
                                                                  return false;
-                                                             for(var j=0; j<data.records.length;j++) {
+                                                             overModel.expand(false,function(){
+                                                                 console.log('expanded');
+                                                                 for(var j=0; j<data.records.length;j++) {
 
-                                                                 if(data.records[j].data.leaf===true) {
-                                                                     data.records.splice(j,1);
-                                                                     j--;
-                                                                     continue;
+                                                                     if(data.records[j].data.leaf===true) {
+                                                                         data.records.splice(j,1);
+                                                                         j--;
+                                                                         continue;
+                                                                     }
                                                                  }
-                                                             }
+                                                             });
                                                              return true;
                                                          },
                                                          drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             me.analysisStore.sync();
-                                                             me.analysisStore.load({params:{'openid': overModel.raw['item_id'] }});
+                                                             console.log('drop');
+
+                                                             overModel.on('append',function(current, newNode,index) {
+                                                                 console.log('appendddd');
+                                                                 console.log(arguments);
+//                                                                 newNode.nextSibling.data.iconCls='folder';
+//                                                                 newNode.nextSibling.data.leaf=true;
+                                                             },this,{ single: true });
+
+                                                             overModel.on('insert',function(current, newNode,index) {
+                                                                 console.log('insertttt');
+                                                                 console.log(arguments);
+//                                                                 newNode.nextSibling.data.iconCls='folder';
+//                                                                 newNode.nextSibling.data.leaf=true;
+                                                             },this,{ single: true });
+
+                                                             me.analysisStore.on('datachanged',function(store) {
+                                                                 console.log('changed');
+                                                                 me.analysisStore.sync({success: function(){
+                                                                     console.log('sync');
+                                                                     me.analysisStore.load({params:{'openid': overModel.raw['item_id'] }});
+
+                                                                 }});
+                                                             },this,{ single: true });
+
+                                                             //me.analysisStore.sync();
+                                                             //me.analysisStore.load({params:{'openid': overModel.raw['item_id'] }});
                                                          }
                                                      }
                                                  }

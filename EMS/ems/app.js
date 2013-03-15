@@ -135,7 +135,10 @@ Ext.application({
                                                             tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
                                                             bodyPadding: 5,
                                                             listeners: {
-                                                                render: function(p) {Logger.init(p); Timer.init(p);}
+                                                                render: function(p) {
+                                                                    Logger.init(p);
+                                                                    Timer.init(p);
+                                                                }
                                                             }
                                                         } , {
                                                             xtype: 'EMSMenu',

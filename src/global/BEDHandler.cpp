@@ -62,7 +62,13 @@ void BEDHandler::init(Storage& sam)
     if(no_sql_upload) return;
 
 #define trackDb_table QString("trackDb_local")
-
+    QSqlDatabase db = QSqlDatabase::database();
+    db.close();
+    if (!db.open() ) {
+        QSqlError sqlErr = db.lastError();
+        qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+        throw "Error connect to DB";
+    }
     QString trackDb="CREATE TABLE IF NOT EXISTS "+trackDb_table+" ("
             "tableName varchar(255) not null,"
             "shortLabel varchar(255) not null,"
@@ -184,7 +190,7 @@ void BEDHandler::Load()
         QMap <int,int> bed;
         QVector<int> cover;
 
-        if(bed_type==2)
+        if(bed_type==2 || bed_type==3) //covers
             cover.fill(0,sam_input->getLength('+',chrom)+1);
 
         //+ strand
@@ -194,7 +200,7 @@ void BEDHandler::Load()
                 bed_save(bed,sql_prep,chrom,'+');
                 bed.clear();
             }
-            if(bed_type==2) {
+            if(bed_type==2 || bed_type==3) {
                 cover_save(cover,sql_prep,chrom, '+');
                 cover.fill(0,sam_input->getLength('+',chrom)+1);
             }
@@ -205,7 +211,7 @@ void BEDHandler::Load()
         if(bed_type!=2) {
             bed_save(bed,sql_prep,chrom,'-');
         }
-        if(bed_type==2) {
+        if(bed_type==2 || bed_type==3) {
             cover_save(cover,sql_prep,chrom, '-');
         }
         qDebug()<<"Complete chrom:"<<chrom;
@@ -354,6 +360,18 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                 for(;it!=i.value()[c].getInterval().end();it++) {
                     genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
                     for(quint64 l=itv.lower(); l<=itv.upper(); l++)
+                        cover[l]+=i.value()[c].getLevel();
+                }
+            }
+        break;
+    case 3:
+        quint64 interestedLen=150;
+        for(;i!=e;i++)//through start positions
+            for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
+                genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
+                for(;it!=i.value()[c].getInterval().end();it++) {
+                    genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
+                    for(quint64 l=itv.lower(); l<=interestedLen; l++)
                         cover[l]+=i.value()[c].getLevel();
                 }
             }

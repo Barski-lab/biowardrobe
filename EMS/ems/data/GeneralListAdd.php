@@ -4,14 +4,15 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-if(isset($_REQUEST['tablename']))
-    $tablename = $_REQUEST['tablename'];
-else
-    $res->print_error('Not enough required parameters. t');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
+
+if(isset($_REQUEST['tablename']))
+    $tablename = $_REQUEST['tablename'];
+else
+    $res->print_error('Not enough required parameters. t');
 
 $data=json_decode($_REQUEST['data']);
 
@@ -112,20 +113,20 @@ foreach($table as $xxx => $val) {
     $types[$val["Field"]]=$t;
 }
 
-function update_data ($val) {
+function insert_data ($val) {
     $PARAMS[]="";
+    $VARIABLES="";
+
     $SQL_STR="";
     global $IDFIELD,$IDFIELDTYPE,$con,$tablename,$types;
     foreach($val as $f => $d) {
-        if($f==$IDFIELD) {
-            $id=$d;
-            continue;
-        }
         if(strrpos($f,"_id")!==false && intVal($d)==0) {
-            $SQL_STR=$SQL_STR." $f=null,";
+            $SQL_STR=$SQL_STR." $f,";
+            $VARIABLES=$VARIABLES."null,";
             continue;
         }
-        $SQL_STR=$SQL_STR." $f=?,";
+        $SQL_STR=$SQL_STR." $f,";
+        $VARIABLES=$VARIABLES."?,";
 
         if($types[$f]=="dd") {
             $date = DateTime::createFromFormat('m/d/Y', $d);
@@ -137,32 +138,31 @@ function update_data ($val) {
         }
     }
 
-    $PARAMS[]=$id;
-    $PARAMS[0]=$PARAMS[0].$IDFIELDTYPE;
-
     $SQL_STR = substr_replace($SQL_STR ,"",-1);
-    $SQL_STR = "update `$tablename` set $SQL_STR where $IDFIELD=?";
+    $VARIABLES = substr_replace($VARIABLES ,"",-1);
+
+    $SQL_STR = "insert into `$tablename`($SQL_STR) VALUES($VARIABLES)";
 
     execSQL($con,$SQL_STR,$PARAMS,true);
 }
 
 if(gettype($data)=="array") {
     foreach($data as $key => $val ) {
-        update_data($val);
+        insert_data($val);
     }
     $count=count($data);
 } else {
-    update_data($data);
+    insert_data($data);
 }
 
 if(!$con->commit()) {
-    $res->print_error("Cant update");
+    $res->print_error("Cant insert");
 }
 
 $con->close();
 
 $res->success = true;
-$res->message = "Data updated";
+$res->message = "Data inserted";
 $res->total = $total;
 $res->data = $query_array;
 print_r($res->to_json());

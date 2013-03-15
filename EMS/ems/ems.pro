@@ -275,4 +275,6 @@ OTHER_FILES += \
     data/PCAChart.php \
     data/PCA.R \
     app/view/charts/ShapeCollection.js \
-    data/GeneralListUp.php
+    data/GeneralListUp.php \
+    data/ProjectDel.php \
+    data/GeneralListAdd.php

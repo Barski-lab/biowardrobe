@@ -29,6 +29,11 @@ Ext.define( 'EMS.store.GenomeGroup', {
                model:  'EMS.model.GenomeGroup',
                autoLoad: false,
                singleton: true,
-               proxy: STORE_DEFS.proxy('grp_local',false)
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               },
+               proxy: STORE_DEFS.proxy('grp_local',true)
            });
 

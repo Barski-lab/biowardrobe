@@ -32,6 +32,13 @@ Ext.define( 'EMS.store.Project', {
                        Timer.set();
                    }
                },
-               proxy: STORE_DEFS.proxy('project',true)
+               proxy: Ext.apply(STORE_DEFS.proxy('project',true), {
+                                    api: {
+                                        read : 'data/GeneralList.php',
+                                        update: 'data/GeneralListUp.php',
+                                        create: '/cgi-bin/barski/recordsNew.json',
+                                        destroy: 'data/ProjectDel.php'
+                                    }
+                                })
            });
 

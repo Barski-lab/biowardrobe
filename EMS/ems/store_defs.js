@@ -45,11 +45,11 @@ var Logger = (function(){
         },
         init: function(logv){
             panel = logv;
-            panel.update({
-                             now: new Date(),
-                             cls: 'blue',
-                             msg: 'Logging is on'
-                         });
+//            panel.update({
+//                             now: new Date(),
+//                             cls: 'blue',
+//                             msg: 'Logging is on'
+//                         });
             panel.body.scroll('b', 100000, true);
         }
     };
@@ -63,7 +63,7 @@ STORE_DEFS = {
             api: {
                 read : 'data/GeneralList.php',
                 update: 'data/GeneralListUp.php',
-                create: '/cgi-bin/barski/recordsNew.json',
+                create: 'data/GeneralListAdd.php',
                 destroy: '/cgi-bin/barski/recordsDel.json'
             },
             extraParams: {
@@ -115,11 +115,11 @@ STORE_DEFS = {
             } //listeners
         }//return
         if(UNL) {
-            //prx.filterParam = undefined;
+            prx.filterParam = undefined;
             prx.groupParam= undefined;
             prx.pageParam=undefined;
             prx.startParam=undefined;
-            //prx.sortParam=undefined;
+//            prx.sortParam=undefined;
             prx.limitParam=undefined;
         }
         return prx;

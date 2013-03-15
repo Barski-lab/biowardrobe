@@ -10,8 +10,10 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-logmsg("Up");
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
 logmsg(print_r($data,true));
+
 
 
 

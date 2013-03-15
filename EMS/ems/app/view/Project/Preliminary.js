@@ -82,6 +82,9 @@ Ext.define('EMS.view.Project.Preliminary', {
                                              {
                                                  xtype: 'fieldset',
                                                  title: 'Grouping Results',
+                                                 height: 70,
+                                                 padding: 0,
+                                                 margin: '0 0 5 0',
                                                  layout: {
                                                      type: 'hbox'
                                                  },
@@ -90,11 +93,13 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          id: 'preliminary-group-name',
                                                          fieldLabel: 'Group name',
                                                          submitValue: false,
+                                                         margin: '0 5 0 5',
+                                                         flex: 1,
                                                          labelAlign: 'top',
                                                          labelWidth: 120
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '20 5 0 5',
+                                                         margin: '22 5 0 5',
                                                          width: 90,
                                                          text: 'add',
                                                          id: 'preliminary-group-add',
@@ -133,16 +138,42 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                         try {
-                                                                             record.remove(true);
-                                                                         } catch (error) {
-                                                                             Logger.log("Error:"+error);
+                                                                         if(rec.data.status > 0 && rec.data.leaf === false) {
+                                                                             Ext.Msg.show({
+                                                                                              title: 'Deleteing group '+record.data.item,
+                                                                                              msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.item
+                                                                                                   +'".<br> This process are going to delete the group from finished analysis<br>'+
+                                                                                                   'All plots and results that have the group will be deleted.',
+                                                                                              icon: Ext.Msg.QUESTION,
+                                                                                              buttons: Ext.Msg.YESNO,
+                                                                                              fn: function(btn) {
+                                                                                                  if(btn !== "yes") return;
+                                                                                                  try {
+                                                                                                      record.remove(true);
+                                                                                                  } catch (error) {
+                                                                                                      console.log("Error:"+error);
+                                                                                                  }
+                                                                                              }
+                                                                                          });
+                                                                         } else {
+                                                                             try {
+                                                                                 record.remove(true);
+                                                                             } catch (error) {
+                                                                                 console.log("Error:"+error);
+                                                                             }
                                                                          }
-                                                                         grid.getStore().sync();
+
+                                                                         grid.getStore().sync({sucess: function() {
+                                                                             grid.getStore().load();
+                                                                         }});
+
                                                                      }
+                                                                     console.log(rec);
                                                                      if(rec.data.leaf===false)
                                                                          return 'folder-delete';
-                                                                     return 'table-row-delete';
+
+                                                                     if(rec.parentNode.data.status===0)
+                                                                        return 'table-row-delete';
                                                                  }
                                                              }]
                                                      }
@@ -158,45 +189,82 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      },
                                                      listeners: {
                                                          beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             //Logger.log(data);
-                                                             //Logger.log(overModel);
-                                                             //Logger.log(dropPosition);
+                                                             //console.log(data);
+                                                             //                                                             console.log(overModel);
+                                                             console.log(dropPosition);
                                                              if(overModel.data.root === true)
                                                                  return false;
                                                              if(dropPosition !== 'append' && overModel.data.leaf === false)
                                                                  return false;
-                                                             var base=overModel.childNodes.length;
-                                                             for(var i=0; i<data.records.length;i++) {
-                                                                 var cont=false;
-                                                                 for(var j=0; j<overModel.childNodes.length;j++) {
-                                                                     //Logger.log(data.records[i].data.id);
-                                                                     //Logger.log(overModel.childNodes[j]);
-                                                                     if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
-                                                                         data.records.splice(i,1);
-                                                                         cont=true;
-                                                                         i--;
-                                                                         break;
-                                                                         //return false;
-                                                                     }
+                                                             overModel.expand(false,function(){
+                                                                 console.log('expanded');
+                                                                 var base=overModel.childNodes.length;
+                                                                 for(var j=0; j<base;j++) {
+                                                                     overModel.childNodes[j].set('item',overModel.data.item+' '+(j+1));
                                                                  }
-                                                                 if(cont) continue;
+                                                                 for(var i=0; i<data.records.length;i++) {
+                                                                     var cont=false;
+                                                                     for(var j=0; j<base;j++) {
+                                                                         if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
+                                                                             data.records.splice(i,1);
+                                                                             cont=true;
+                                                                             i--;
+                                                                             break;
+                                                                             //return false;
+                                                                         }
+                                                                     }
+                                                                     if(cont) continue;
+                                                                     var record=me.labDataStore.findRecord('id',data.records[i].data.id);
+                                                                     console.log(record);
+                                                                     //.data.db;
 
-                                                                 data.records[i].set('leaf', true);
-                                                                 data.records[i].set('item', overModel.data.item+' '+(base+i+1));
-                                                                 data.records[i].set('item_id',data.records[i].data.id);
-                                                                 data.records[i].set('project_id',me.project_id);
-                                                                 data.records[i].set('labdata_id',data.records[i].data.id);
-                                                                 data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
-                                                                 data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
-                                                                                                                      data.records[i].data.cells,
-                                                                                                                      Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
-                                                                                                                      data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
-                                                             }
+                                                                     data.records[i].set('leaf', true);
+                                                                     data.records[i].set('item', overModel.data.item+' '+(base+i+1));
+                                                                     data.records[i].set('item_id',data.records[i].data.id);
+                                                                     data.records[i].set('project_id',me.project_id);
+                                                                     data.records[i].set('labdata_id',data.records[i].data.id);
+                                                                     //data.records[i].set('expanded',true);
+                                                                     data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
+                                                                     data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
+                                                                                                                          record.data.cells,
+                                                                                                                          Ext.util.Format.date(record.data.dateadd,'m/d/Y'),
+                                                                                                                          data.records[i].data.id, record.data.conditions,record.data.name4browser));
+                                                                 }
+                                                                 console.log('done');
+                                                             },this);
+                                                             //expand
                                                              return true;
                                                          },
                                                          drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             me.resultStore.sync();
-                                                             me.resultStore.load();
+                                                             console.log('drop');
+                                                             console.log(overModel);
+                                                             me.resultStore.on('datachanged',function(store) {
+                                                                 console.log('datachanged');
+                                                                 Ext.TaskManager.start({
+                                                                                           run: function () {
+                                                                                               console.log('one short');
+                                                                                               me.resultStore.sync({success: function(){
+                                                                                                   console.log('synced');
+                                                                                                   me.resultStore.load({params:{'openid': overModel.raw['item_id'] }});
+                                                                                               }
+                                                                                                                   });
+
+                                                                                           },
+                                                                                           repeat: 1,
+                                                                                           interval: 100
+                                                                                       });
+                                                                 //task.start();
+
+
+                                                                 //me.resultStore.load();
+                                                             },this,{ single: true });
+
+                                                             //                                                                         {success: function(){
+                                                             //                                                                 console.log('sync sux');
+                                                             //                                                                 me.resultStore.load();
+                                                             //                                                                 //{params:{'openid': overModel.raw['item_id'] }}
+                                                             //                                                             }});
+
                                                          }
                                                      }
                                                  }
@@ -214,17 +282,20 @@ Ext.define('EMS.view.Project.Preliminary', {
                                              {
                                                  xtype: 'fieldset',
                                                  title: 'Filtering Results',
+                                                 height: 70,
+                                                 padding: 0,
+                                                 margin: '0 0 5 0',
                                                  layout: {
                                                      type: 'hbox',
                                                      align: 'stretch'
                                                  },
-                                                 //height: 80,
                                                  items: [{
                                                          xtype: 'combobox',
                                                          id: 'preliminary-worker-changed',
                                                          displayField: 'fullname',
                                                          editable: false,
                                                          valueField: 'id',
+                                                         margin: '0 5 0 5',
                                                          flex: 4,
                                                          fieldLabel: 'Worker',
                                                          labelAlign: 'top',
@@ -256,10 +327,10 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          ptype: 'gridviewdragdrop',
                                                          dragGroup: 'ldata2results',
                                                      },
-                                                     listeners: {
-                                                         drop: function(node, data, dropRec, dropPosition) {
-                                                         }
-                                                     },
+                                                     //                                                     listeners: {
+                                                     //                                                         drop: function(node, data, dropRec, dropPosition) {
+                                                     //                                                         }
+                                                     //                                                     },
                                                      copy: true,
                                                      enableTextSelection: false
                                                  },

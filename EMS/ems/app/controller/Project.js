@@ -150,8 +150,8 @@ Ext.define('EMS.controller.Project', {
                    store.sync({success: function (batch, options) { store.load(); button.setDisabled(false); }});
                },
                ProjectListWindowGridDblClick: function( view,record,item,index,e,eOpts ) {
-                   //Logger.log(record);
-                   //Logger.log(view);
+                   //console.log(record);
+                   //console.log(view);
                    var me=this;
                    var resStore=me.getResultsGrouppingStore();
                    resStore.getProxy().setExtraParam('projectid',record.data['id']);
@@ -185,7 +185,6 @@ Ext.define('EMS.controller.Project', {
                onProjectDesignPreliminaryClick: function(button,e,eOpts) {
                    var win=button.up('window');
                    var resStore=this.getResultsGrouppingStore();
-                   //sort by a single field
 
                    this.PreliminaryEdit = Ext.create('EMS.view.Project.Preliminary', {
                                                          project_id: win.project_id,
@@ -242,8 +241,8 @@ Ext.define('EMS.controller.Project', {
                    resultStore.load();
                },
                ProjectDesignWindowGridDblClick:  function( view,record,item,index,e,eOpts ) {
-                   //Logger.log(record);
-                   //Logger.log(view);
+                   //console.log(record);
+                   //console.log(view);
                    var me=this;
                    var store=me.getPCAChartStore();
                    store.getProxy().setExtraParam('resultid',record.data['id']);

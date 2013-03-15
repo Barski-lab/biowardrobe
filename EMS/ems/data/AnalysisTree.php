@@ -41,12 +41,11 @@ function get_by_id ($parentid,$prjid,$status) {
 }
 
 
-if($_REQUEST['id']=='root') {
+if($_REQUEST['node']=='root') {
     $child=array();
     $openid=0;
     if(isset($_REQUEST['openid']) && intVal($_REQUEST['openid'])!=0) {
         $openid=intVal($_REQUEST['openid']);
-        //$child=
     }
 
     $query_array=execSQL($con,"SELECT * FROM ahead where project_id=?",array("i",$prjid),false);
@@ -80,9 +79,9 @@ if($_REQUEST['id']=='root') {
             }
         }
 } else {
-    if(!isset($_REQUEST['id']) || intVal($_REQUEST['id'])==0)
+    if(!isset($_REQUEST['node']) || intVal($_REQUEST['node'])==0)
         $res->print_error("Not enough arguments.");
-    $parentid=intVal($_REQUEST['id']);
+    $parentid=intVal($_REQUEST['node']);
 
     $query_array=execSQL($con,"SELECT * FROM ahead where project_id=?",array("i",$parentid),false);
     $status=$query_array[0]['status'];

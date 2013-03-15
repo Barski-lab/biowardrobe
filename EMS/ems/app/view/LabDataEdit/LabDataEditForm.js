@@ -334,29 +334,19 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                       } , {
                                           xtype: 'panel',
                                           title: 'Protocol',
+                                          id: 'big-bu-bum',
                                           frame: false,
                                           border: false,
                                           layout: 'fit',
-                                          items: [
-                                              {
-                                                  xtype: 'htmleditor',
-                                                  name: 'protocol',
-                                                  hideLabel: true
-                                              }
-                                          ]
+                                          items: []
                                       } , {
                                           xtype: 'panel',
                                           title: 'Notes',
+                                          id: 'big-bu-bum2',
                                           layout: 'fit',
                                           frame: false,
                                           border: false,
-                                          items: [
-                                              {
-                                                  xtype: 'htmleditor',
-                                                  name: 'notes',
-                                                  hideLabel: true
-                                              }
-                                          ]
+                                          items: []
                                       }
                                   ]
                               }];

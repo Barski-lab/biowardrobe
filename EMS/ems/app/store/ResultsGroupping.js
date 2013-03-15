@@ -28,6 +28,7 @@ Ext.define( 'EMS.store.ResultsGroupping', {
                folderSort: true,
                autoLoad: false,
                singleton: true,
+               remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();

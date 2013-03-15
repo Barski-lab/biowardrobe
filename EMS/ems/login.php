@@ -1,5 +1,5 @@
 <?php
-include('/etc/settings/config.php');
+   include('/etc/settings/config.php');
 
 session_start();
 
@@ -20,33 +20,33 @@ if(isset($_REQUEST["timeout"]) && $_REQUEST["timeout"]=="true") {
 }
 
 ?>
-<html>
-  <head>
-     <title>Login</title>
-      <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css">
-      <link rel="stylesheet" type="text/css" href="ext/examples/desktop/css/desktop.css"/>
-      <link rel="stylesheet" type="text/css" href="app.css">
-   </head>
+ <html>
+ <head>
+ <title>Login</title>
+ <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css">
+ <link rel="stylesheet" type="text/css" href="ext/examples/desktop/css/desktop.css"/>
+ <link rel="stylesheet" type="text/css" href="app.css">
+ </head>
 
-   <body>
-   <center>
-    <div id="loading-mask"></div> <div id="loading">
-    <div class="loading-indicator">
-        Loading...
-    </div></div>
+ <body>
+ <center>
+ <div id="loading-mask"></div> <div id="loading">
+ <div class="loading-indicator">
+ Loading...
+ </div></div>
 
 
-<script type="text/javascript" src="ext/ext-all.js"></script>
-<script type="text/javascript">
+ <script type="text/javascript" src="ext/ext-all.js"></script>
+ <script type="text/javascript">
 
-Ext.require([
-    'Ext.Msg.*',
-    'Ext.grid.*',
-    'Ext.data.*',
-    'Ext.util.*',
-    'Ext.state.*',
-    'Ext.form.*',
-]);
+ Ext.require([
+                 'Ext.Msg.*',
+                 'Ext.grid.*',
+                 'Ext.data.*',
+                 'Ext.util.*',
+                 'Ext.state.*',
+                 'Ext.form.*',
+             ]);
 
 
 Ext.onReady(function() {
@@ -67,10 +67,17 @@ Ext.onReady(function() {
     }
 
     var loginForm=new Ext.form.Panel({
-                                         bodyPadding: 10,
-                                         width: 300,
-                                         height: 100,
+                                         bodyPadding: 1,
+                                         //width: 300,
+                                         //height: 150,
+                                         margin: "0 0 0 0",
                                          frame: true,
+                                         layout: {
+                                             type: 'vbox',
+                                             align: 'stretch'
+                                         },
+
+                                         //flex: 1,
                                          autoEl: {
                                              tag: 'form',
                                              action: 'authenticate.php',
@@ -81,7 +88,8 @@ Ext.onReady(function() {
                                                  id: 'username',
                                                  fieldLabel: 'Username',
                                                  name: 'username',
-                                                 width: 'fit',
+                                                 //width: 'fit',
+                                                 flex: 1,
                                                  allowBlank: false,
                                                  autoCreate: {
                                                      tag: "input",
@@ -93,7 +101,8 @@ Ext.onReady(function() {
                                                  id: 'password',
                                                  fieldLabel: 'Password',
                                                  name: 'password',
-                                                 width: 'fit',
+                                                 //width: 'fit',
+                                                 flex: 1,
                                                  allowBlank: false,
                                                  inputType: 'password',
                                                  enableKeyEvents: true,
@@ -101,20 +110,43 @@ Ext.onReady(function() {
                                                      specialkey: submitOnEnter
                                                  }
                                              }],
-
-                                         buttons: [{
-                                                 text: 'Login',
-                                                 id: 'login',
-                                                 submitValue: false,
-                                                 handler: function(){
-                                                     submitForm();
-                                                 }
-                                             } , {
-                                                 text: 'Cancel',
-                                                 handler: function() {
-                                                     this.up('form').getForm().reset();
-                                                 }
+                                         dockedItems: [{
+                                                 xtype: 'toolbar',
+                                                 dock: 'bottom',
+                                                 ui: 'footer',
+                                                 layout: {
+                                                     pack: 'center'
+                                                 },
+                                                 items: [{
+                                                         text: 'Login',
+                                                         id: 'login',
+                                                         width: 100,
+                                                         submitValue: false,
+                                                         handler: function(){
+                                                             submitForm();
+                                                         }
+                                                     } , {
+                                                         text: 'Cancel',
+                                                         width: 100,
+                                                         handler: function() {
+                                                             this.up('form').getForm().reset();
+                                                         }
+                                                     }]
                                              }]
+
+                                         //                                         buttons: [{
+                                         //                                                 text: 'Login',
+                                         //                                                 id: 'login',
+                                         //                                                 submitValue: false,
+                                         //                                                 handler: function(){
+                                         //                                                     submitForm();
+                                         //                                                 }
+                                         //                                             } , {
+                                         //                                                 text: 'Cancel',
+                                         //                                                 handler: function() {
+                                         //                                                     this.up('form').getForm().reset();
+                                         //                                                 }
+                                         //                                             }]
 
                                      });
 
@@ -171,13 +203,13 @@ Ext.onReady(function() {
 
     var loginWindow = new Ext.Window({
                                          title: '<?php echo $TITLE; ?>',
-                                         bodyPadding: 2,
+                                         bodyPadding: 0,
                                          layout: 'fit',
                                          closable: false,
                                          resizable: false,
                                          draggable: true,
                                          border: false,
-                                         height: 130,
+                                         height: 135,
                                          width: 300,
                                          items: [loginForm]
                                      });
@@ -199,8 +231,8 @@ Ext.onReady(function() {
     }
 
 });
-      </script>
+</script>
 
 
-   </body>
-</html>
+        </body>
+        </html>

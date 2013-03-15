@@ -19,7 +19,7 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-Ext.define('EMS.charts.ShapeCollection', {
+Ext.define('EMS.view.charts.ShapeCollection', {
 
 
     singleton: true,

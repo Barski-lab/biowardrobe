@@ -27,11 +27,13 @@ Ext.define( 'EMS.model.ResultsGroupping', {
                    {name: 'item_id',     type: 'int'},
                    {name: 'item',     type: 'string'},
                    {name: 'leaf',     type: 'bool'},
+                   {name: 'status',     type: 'int'},
                    {name: 'description',     type: 'string'},
                    {name: 'rtype_id',     type: 'int'},
                    {name: 'labdata_id',     type: 'int'}
                ],
                proxy: {
+//                   type: 'memory',
                    type: 'ajax',
                    api: {
                        destroy: 'data/ResultTreeDel.php'

@@ -369,7 +369,28 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                //-----------------------------------------------------------------------
                onItemDblClick: function(grid,record) {
                    this.LabDataEdit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
-                   this.LabDataEdit.down('form').loadRecord(record);
+                   this.LabDataEdit.labDataForm.loadRecord(record);
+                   var me=this;
+                   this.LabDataEdit.labDataForm.on('render',function(){
+
+                       Ext.getCmp('big-bu-bum').on('render',function(form){
+                           var protocolHTML=Ext.create('Ext.form.HtmlEditor', {
+                                                           name: 'protocol',
+                                                           value: record.data.protocol,
+                                                           hideLabel: true
+                                                       });
+                           form.add(protocolHTML);
+                       },this,{single:true});
+
+                       Ext.getCmp('big-bu-bum2').on('render',function(form){
+                           var protocolHTML=Ext.create('Ext.form.HtmlEditor', {
+                                                           name: 'notes',
+                                                           value: record.data.notes,
+                                                           hideLabel: true
+                                                       });
+                           form.add(protocolHTML);
+                       },this,{single:true});
+                   },this,{single:true});
                    this.LabDataEdit.show();
                },
                //-----------------------------------------------------------------------
@@ -418,7 +439,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        if(form.isDirty() && form.isValid()) {
                            record.set(values);
                            this.refresh=true;
-                       } else {
+                       } else if(!form.isValid()){
                            Ext.Msg.show({
                                             title: 'Save failed',
                                             msg: 'Please fill required filds',

@@ -104,7 +104,36 @@ Ext.define('EMS.view.Project.ProjectList', {
                                     enableTextSelection: false
                                 },
                                 columns: [
-                                    { header: 'Project Name', dataIndex: 'name', flex:1, sortable: true}
+                                    { header: 'Project Name', dataIndex: 'name', flex:1, sortable: true},
+                                    {
+                                        xtype: 'actioncolumn',
+                                        width:55,
+                                        align: 'center',
+                                        sortable: false,
+                                        items: [
+                                            {
+                                                getClass: function(v, meta, rec) {
+                                                this.items[0].tooltip = 'Delete';
+                                                this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                    Ext.Msg.show({
+                                                                     title: 'Deleteing project '+record.data.name,
+                                                                     msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.name
+                                                                          +'".<br> This process are going to delete all created groups, plots and results.',
+                                                                     icon: Ext.Msg.QUESTION,
+                                                                     buttons: Ext.Msg.YESNO,
+                                                                     fn: function(btn) {
+                                                                         if(btn !== "yes") return;
+                                                                         grid.getStore().removeAt(rowIndex);
+                                                                         grid.getStore().sync();
+                                                                         grid.getStore().load();
+                                                                     }
+                                                                 });
+
+                                                }
+                                                return 'folder-delete';
+                                            }
+                                            }]
+                                    }
                                 ],
                                 flex: 1,
                                 bbar: [ me.m_PagingToolbar ]
