@@ -371,7 +371,7 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                 genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
                 for(;it!=i.value()[c].getInterval().end();it++) {
                     genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
-                    for(quint64 l=itv.lower(); l<=interestedLen; l++)
+                    for(quint64 l=itv.lower(); l<=itv.lower()+interestedLen; l++)
                         cover[l]+=i.value()[c].getLevel();
                 }
             }
