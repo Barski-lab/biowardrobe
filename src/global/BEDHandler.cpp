@@ -208,7 +208,7 @@ void BEDHandler::Load()
 
         //- strand
         fill_bed_cover(bed,cover,chrom,'-',-shift);
-        if(bed_type!=2) {
+        if(bed_type==0 || bed_type==1) {
             bed_save(bed,sql_prep,chrom,'-');
         }
         if(bed_type==2 || bed_type==3) {
