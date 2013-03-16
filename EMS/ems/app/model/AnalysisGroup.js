@@ -30,17 +30,26 @@ Ext.define( 'EMS.model.AnalysisGroup', {
                    {name: 'leaf',     type: 'bool'},
                    {name: 'atype_id',     type: 'int'}
                ],
-               proxy: {
-                   type: 'memory',
-//                   api: {
-//                       destroy: ''
-//                   },
-//                   writer: {
-//                       type: 'json',
-//                       root: 'data',
-//                       writeAllFields: true,
-//                       encode: true
-//                   }
-               }
+               proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {
+                                    api: {
+                                        read : 'data/AnalysisTree.php',
+                                        update: 'data/AnalysisTreeUp.php',
+                                        create: 'data/AnalysisTreeAdd.php',
+                                        destroy: 'data/AnalysisTreeDel.php'
+
+                                    }
+                                })
+//               proxy: {
+//                   type: 'memory',
+////                   api: {
+////                       destroy: ''
+////                   },
+////                   writer: {
+////                       type: 'json',
+////                       root: 'data',
+////                       writeAllFields: true,
+////                       encode: true
+////                   }
+//               }
 
            });

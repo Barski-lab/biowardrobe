@@ -25,22 +25,14 @@ Ext.define( 'EMS.store.ResultsGroupping', {
                requires: ['EMS.model.ResultsGroupping'],
                storeId: 'ResultsGroupping',
                model:  'EMS.model.ResultsGroupping',
-               folderSort: true,
-               autoLoad: false,
-               singleton: true,
-               remoteFilter: false,
+               //folderSort: true,
+               autoLoad: true,
+               autoSync: true,
+               //singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
                    }
                },
-               proxy: Ext.apply(STORE_DEFS.proxy('results',true), {
-                             api: {
-                                 read : 'data/ResultTree.php',
-                                 update: 'data/ResultTreeUp.php',
-                                 create: 'data/ResultTreeAdd.php',
-                                 destroy: 'data/ResultTreeDel.php'
-                             }
-                         })
            });
 

@@ -48,7 +48,12 @@ if($_REQUEST['node']=='root') {
         $openid=intVal($_REQUEST['openid']);
     }
 
-    $query_array=execSQL($con,"SELECT * FROM ahead where project_id=?",array("i",$prjid),false);
+    //$query_array=execSQL($con,"SELECT * FROM ahead where project_id=?",array("i",$prjid),false);
+
+    $query_array=execSQL($con,"SELECT a1.id,a1.name,IF(a1.status=0,IF(IFNULL(count(a2.ahead_id),0)>0,1,0),a1.status) as status,a1.atype_id,a1.project_id
+    FROM ahead a1 left join analysis a2 on (a1.id=a2.ahead_id)
+    where project_id=? group by a1.id",array("i",$prjid),false);
+
     if($query_array!=0)
         foreach($query_array as $key => $val) {
             if($openid!=$val['id']){
@@ -83,7 +88,7 @@ if($_REQUEST['node']=='root') {
         $res->print_error("Not enough arguments.");
     $parentid=intVal($_REQUEST['node']);
 
-    $query_array=execSQL($con,"SELECT * FROM ahead where project_id=?",array("i",$parentid),false);
+    $query_array=execSQL($con,"SELECT * FROM ahead where id=?",array("i",$parentid),false);
     $status=$query_array[0]['status'];
 
     $data=get_by_id($parentid,$prjid,$status);

@@ -10,7 +10,8 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-logmsg("Del");
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
 logmsg(print_r($data,true));
 
 $con=def_connect();
@@ -37,14 +38,14 @@ if(gettype($data)=="array") {
 } else {
     $val=$data;
     if($val->leaf==true) {
+        execSQL($con,"delete from result where ahead_id=?",array("i",$val->parentId),true);
         execSQL($con,
             "delete from analysis where ahead_id=? and rhead_id=?",
             array("ii",$val->parentId,$val->item_id),true);
+        execSQL($con,"update ahead set status=0 where id=?",array("i",$val->parentId),true);
     }
     if($val->leaf==false) {
-        if($val->status >0) {
-            execSQL($con,"delete from result where ahead_id=?",array("i",$val->item_id),true);
-        }
+        execSQL($con,"delete from result where ahead_id=?",array("i",$val->item_id),true);
         execSQL($con,"delete from analysis where ahead_id=?",array("i",$val->item_id),true);
         execSQL($con,"delete from ahead where id=?",array("i",$val->item_id),true);
     }

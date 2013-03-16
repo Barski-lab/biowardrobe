@@ -15,18 +15,25 @@ logmsg(print_r($_REQUEST,true));
 logmsg(print_r($data,true));
 
 
+function check_data($val) {
+    global $data,$con;
+    return (execSQL($con,
+            "select id from analysis where ahead_id=? and rhead_id=?",
+            array("ii",$val->parentId,$val->item_id),false)==0);
+}
 
 
 $con=def_connect();
 $con->select_db($db_name_ems);
 
-$count=1;
 
+$count=1;
 $con->autocommit(FALSE);
 
 if(gettype($data)=="array") {
 
     foreach($data as $key => $val ) {
+        if(check_data($val))
         execSQL($con,
                 "insert into analysis(ahead_id,rhead_id) values(?,?)",
                 array("ii",$val->parentId,$val->item_id),true);
@@ -34,6 +41,7 @@ if(gettype($data)=="array") {
     $count=count($data);
 } else {
     $val=$data;
+    if(check_data($val))
     execSQL($con,
             "insert into analysis(ahead_id,rhead_id) values(?,?)",
             array("ii",$val->parentId,$val->item_id),true);

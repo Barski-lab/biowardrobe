@@ -27,7 +27,7 @@ Ext.require('Ext.chart.*');
 Ext.define('EMS.view.charts.Fence',
            {
                extend: 'Ext.chart.Chart',
-               xtype: 'chart',
+               //xtype: 'chart',
                style: 'background:#fff',
                animate: true,
                legend: {

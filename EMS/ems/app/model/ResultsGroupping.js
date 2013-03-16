@@ -32,17 +32,26 @@ Ext.define( 'EMS.model.ResultsGroupping', {
                    {name: 'rtype_id',     type: 'int'},
                    {name: 'labdata_id',     type: 'int'}
                ],
-               proxy: {
+               proxy: Ext.apply(STORE_DEFS.proxy('results',true), {
+                             api: {
+                                 read : 'data/ResultTree.php',
+                                 update: 'data/ResultTreeUp.php',
+                                 create: 'data/ResultTreeAdd.php',
+                                 destroy: 'data/ResultTreeDel.php'
+                             }
+                         })
+
+//               proxy: {
 //                   type: 'memory',
-                   type: 'ajax',
-                   api: {
-                       destroy: 'data/ResultTreeDel.php'
-                   },
-                   writer: {
-                       type: 'json',
-                       root: 'data',
-                       writeAllFields: true,
-                       encode: true
-                   }
-               }
+////                   type: 'ajax',
+////                   api: {
+////                       destroy: 'data/ResultTreeDel.php'
+////                   },
+////                   writer: {
+////                       type: 'json',
+////                       root: 'data',
+////                       writeAllFields: true,
+////                       encode: true
+////                   }
+//               }
            });

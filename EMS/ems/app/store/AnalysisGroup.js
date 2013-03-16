@@ -25,22 +25,23 @@ Ext.define( 'EMS.store.AnalysisGroup', {
                requires: ['EMS.model.AnalysisGroup'],
                storeId: 'AnalysisGroup',
                model:  'EMS.model.AnalysisGroup',
-               folderSort: true,
-               autoLoad: false,
+               //folderSort: true,
+               autoLoad: true,
+               autoSync: true,
                singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
                    }
                },
-               proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {
-                                    api: {
-                                        read : 'data/AnalysisTree.php',
-                                        update: 'data/AnalysisTreeUp.php',
-                                        create: 'data/AnalysisTreeAdd.php',
-                                        destroy: 'data/AnalysisTreeDel.php'
+//               proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {
+//                                    api: {
+//                                        read : 'data/AnalysisTree.php',
+//                                        update: 'data/AnalysisTreeUp.php',
+//                                        create: 'data/AnalysisTreeAdd.php',
+//                                        destroy: 'data/AnalysisTreeDel.php'
 
-                                    }
-                                })
+//                                    }
+//                                })
            });
 

@@ -17,10 +17,8 @@ if(!isset($_REQUEST['projectid']) || intVal($_REQUEST['projectid'])==0)
 
 $prjid=intVal($_REQUEST['projectid']);
 
-if($where != "")
-    $where=$where." and project_id=$prjid and labdata_id is NULL ";
-else
-    $where=" where project_id=$prjid and labdata_id is NULL ";
+
+$where=$where." and project_id=$prjid and labdata_id is NULL ";
 
 $con=def_connect();
 $con->select_db($db_name_ems);

@@ -26,12 +26,16 @@ if(gettype($data)=="array") {
         if(execSQL($con,"insert into rhead(project_id,name) values(?,?)",array("is",$val->project_id,$val->item),true)==0) {
             $res->print_error("Cant insert");
         }
+        $data[$key]->id=$con->insert_id;
+        $data[$key]->item_id=$con->insert_id;
     }
     $count=count($data);
 } else {
     if(execSQL($con,"insert into rhead(project_id,name) values(?,?)",array("is",$data->project_id,$data->item),true)==0) {
         $res->print_error("Cant insert");
     }
+    $data->id=$con->insert_id;
+    $data->item_id=$con->insert_id;
 }
 
 $con->close();
@@ -40,7 +44,7 @@ $con->close();
 $res->success = true;
 $res->message = "Data loaded";
 $res->total = $count;
-//$res->data = $query_array;
+$res->data = $data;
 print_r($res->to_json());
 
 ?>

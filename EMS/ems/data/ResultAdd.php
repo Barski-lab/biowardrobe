@@ -48,7 +48,7 @@ case 2:
                         values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
         $res->print_error("Cant insert");
     }
-    if(execSQL($con,"update ahead set status=1 where id=?",array("i",$data->ahead_id),true)==0) {
+    if(execSQL($con,"update ahead set status=2 where id=?",array("i",$data->ahead_id),true)==0) {
         $res->print_error("Cant update");
     }
 

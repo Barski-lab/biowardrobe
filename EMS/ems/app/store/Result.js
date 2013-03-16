@@ -34,10 +34,11 @@ Ext.define( 'EMS.store.Result', {
                    }
                },
                proxy: Ext.apply(STORE_DEFS.proxy('result',true), {
-                             api: {
-                                 read : 'data/Result.php',
-                                 create: 'data/ResultAdd.php',
-                             }
-                         })
+                                    api: {
+                                        read : 'data/Result.php',
+                                        create: 'data/ResultAdd.php',
+                                        destroy: 'data/ResultDel.php'
+                                    }
+                                })
            });
 

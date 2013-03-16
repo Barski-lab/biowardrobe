@@ -277,4 +277,5 @@ OTHER_FILES += \
     app/view/charts/ShapeCollection.js \
     data/GeneralListUp.php \
     data/ProjectDel.php \
-    data/GeneralListAdd.php
+    data/GeneralListAdd.php \
+    data/ResultDel.php

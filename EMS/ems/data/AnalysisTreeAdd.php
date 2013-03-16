@@ -27,10 +27,14 @@ if(gettype($data)=="array") {
             if(execSQL($con,"insert into ahead(project_id,name,atype_id) values(?,?,?)",array("isi",$val->project_id,$val->item,$val->atype_id),true)==0) {
                 $res->print_error("Cant insert");
             }
+            $data[$key]->id=$con->insert_id;
         } else {
             if(execSQL($con,"insert into analysis(ahead_id,rhead_id) values(?,?)",array("ii",$val->parentId,$val->item_id),true)==0)
                 $res->print_error("Cant insert");
+            $data[$key]->leaf=true;
+            $data[$key]->id=$val->parentId.$con->insert_id;
         }
+
     }
     $count=count($data);
 } else {
@@ -40,10 +44,14 @@ if(gettype($data)=="array") {
         if(execSQL($con,"insert into ahead(project_id,name,atype_id) values(?,?,?)",array("isi",$val->project_id,$val->item,$val->atype_id),true)==0) {
             $res->print_error("Cant insert");
         }
+        $data->id=$con->insert_id;
     } else {
         if(execSQL($con,"insert into analysis(ahead_id,rhead_id) values(?,?)",array("ii",$val->parentId,$val->item_id),true)==0)
             $res->print_error("Cant insert");
+        $data->leaf=true;
+        $data->id=$val->parentId.$con->insert_id;
     }
+
 }
 
 $con->close();
@@ -52,7 +60,7 @@ $con->close();
 $res->success = true;
 $res->message = "Data loaded";
 $res->total = $count;
-//$res->data = $query_array;
+$res->data = $data;
 print_r($res->to_json());
 
 ?>

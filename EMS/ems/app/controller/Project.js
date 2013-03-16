@@ -107,14 +107,14 @@ Ext.define('EMS.controller.Project', {
                    if(!grpname.isValid())
                        return false;
 
-                   button.setDisabled(true);
-
                    var r = Ext.create('EMS.model.ResultsGroupping', {
                                           item: grpname.getValue(),
+                                          leaf: false,
+                                          iconCls: 'folder-into',
+                                          expanded: true,
                                           project_id: this.PreliminaryEdit.project_id
                                       });
                    store.getRootNode().appendChild(r);
-                   store.sync({success: function (batch, options) { store.load(); button.setDisabled(false);}});
                    grpname.allowBlank=true;
                    grpname.setValue('');
                },
@@ -208,18 +208,15 @@ Ext.define('EMS.controller.Project', {
                    if(!acaption.isValid())
                        return false;
 
-                   button.setDisabled(true);
-
                    var r = Ext.create('EMS.model.AnalysisGroup', {
                                           item: acaption.getValue(),
                                           project_id: win.project_id,
                                           status: 0,
+                                          leaf: false,
+                                          iconCls:'folder-into',
                                           atype_id: atype.getValue()
                                       });
                    aStore.getRootNode().appendChild(r);
-
-                   aStore.sync({success: function (batch, options) { aStore.load(); button.setDisabled(false); },
-                                   failure: function (batch, options) { button.setDisabled(false); }});
 
                    acaption.allowBlank=true;
                    acaption.setValue('');
@@ -229,6 +226,8 @@ Ext.define('EMS.controller.Project', {
                    var grid=args[0];
                    var record=args[5];
                    var resultStore=me.getResultStore();
+                   //console.log(record);
+                   //console.log(arguments);
                    var model=Ext.create('EMS.model.Result', {
                                             name: record.data.item+'_result',
                                             description: record.data.item+'_result',
@@ -237,8 +236,22 @@ Ext.define('EMS.controller.Project', {
                                             project_id: me.project_id
                                         });
                    resultStore.insert(0,model);
-                   resultStore.sync();
-                   resultStore.load();
+                   resultStore.sync({
+                                        success:function(){
+                                            record.data.status=2;
+                                        },
+                                        failure:function(){
+                                            record.data.status=1;
+                                        }});
+                   resultStore.load(function (batch, options){
+                       //console.log("run load");
+                       var resStore=me.getResultsGrouppingStore();
+                       resStore.load();
+                       var aStore=me.getAnalysisGroupStore();
+                       aStore.load();
+                   });
+
+
                },
                ProjectDesignWindowGridDblClick:  function( view,record,item,index,e,eOpts ) {
                    //console.log(record);
@@ -248,11 +261,11 @@ Ext.define('EMS.controller.Project', {
                    store.getProxy().setExtraParam('resultid',record.data['id']);
                    store.load();
                    me.PCA = Ext.create('EMS.view.charts.PCA', {
-                                                         //project_id: win.project_id,
-                                                         title: 'Principle Component Analysis '//+win.project_name,
-                                                         //project_name: win.project_name,
-                                                         //resultStore: resStore
-                                                     });
+                                           //project_id: win.project_id,
+                                           title: 'Principle Component Analysis '//+win.project_name,
+                                           //project_name: win.project_name,
+                                           //resultStore: resStore
+                                       });
                    me.PCA.show();
 
                }

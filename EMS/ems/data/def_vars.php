@@ -38,9 +38,9 @@ if(isset($sort)) {
 if(isset($_REQUEST['filter']))
     $filter = json_decode($_REQUEST['filter']);
 
-$where="";
+$where=" where 0 = 0 ";
 if(isset($filter)) {
-    $where="where ";
+
     foreach($filter as $val) {
         check_val($val->type);
         check_val($val->field);
@@ -48,34 +48,33 @@ if(isset($filter)) {
             if(!preg_match('/^[0-9\/]+$/', $val->value))
                 $res->print_error('Incorrect required parameters.');
             if($val->comparison == 'lt') {
-                $where=$where." $val->field < str_to_date('$val->value','%m/%d/%Y') and";
+                $where=$where." and $val->field < str_to_date('$val->value','%m/%d/%Y') ";
             }
             if($val->comparison == 'gt') {
-                $where=$where." $val->field > str_to_date('$val->value','%m/%d/%Y') and";
+                $where=$where." and $val->field > str_to_date('$val->value','%m/%d/%Y') ";
             }
             if($val->comparison == 'eq') {
-                $where=$where." $val->field = str_to_date('$val->value','%m/%d/%Y') and";
+                $where=$where." and $val->field = str_to_date('$val->value','%m/%d/%Y') ";
             }
         }
         if($val->type == 'string') {
             check_val($val->value);
-            $where=$where." $val->field like '%$val->value%' and";
+            $where=$where." and $val->field like '%$val->value%' ";
         }
         if($val->type == 'numeric') {
             check_val($val->value);
             if($val->comparison == 'lt') {
-                $where=$where." $val->field <= $val->value and";
+                $where=$where." and $val->field <= $val->value ";
             }
             if($val->comparison == 'gt') {
-                $where=$where." $val->field >= $val->value and";
+                $where=$where." and $val->field >= $val->value ";
             }
             if($val->comparison == 'eq') {
-                $where=$where." $val->field = $val->value and";
+                $where=$where." and $val->field = $val->value ";
             }
         }
         //logmsg($where);
     }
-    $where=substr($where,0,-3);
 }
 
 ?>

@@ -48,7 +48,7 @@ if($_REQUEST['node']=='root') {
         $openid=intVal($_REQUEST['openid']);
     }
 
-    $query_array=execSQL($con,"SELECT r.id,r.name,r.project_id,COALESCE(ah.status, 0) as status FROM ems.rhead r
+    $query_array=execSQL($con,"SELECT distinct r.id,r.name,r.project_id,COALESCE(ah.status, 0) as status FROM ems.rhead r
     left join ems.analysis a on (r.id=a.rhead_id)
     left join ems.ahead ah on a.ahead_id=ah.id where r.project_id=?",array("i",$prjid),false);
     if($query_array != 0)

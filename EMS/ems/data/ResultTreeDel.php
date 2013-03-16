@@ -19,6 +19,7 @@ $con->select_db($db_name_ems);
 
 
 function del_data($data,$con) {
+    global $db_name_experiments;
     if($data->leaf==true) {
 
         execSQL($con,"update ahead set status=0 where id in(select ahead_id from analysis where rhead_id =?)",array("i",intVal($data->parentId)),true);
@@ -74,8 +75,6 @@ if(!$con->commit()) {
 }
 
 $con->close();
-
-logmsg("success");
 $res->success = true;
 $res->message = "Data deleted";
 print_r($res->to_json());
