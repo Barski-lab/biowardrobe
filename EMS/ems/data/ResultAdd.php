@@ -25,6 +25,7 @@ if(gettype($data)=="array") {
 
 $con=def_connect();
 $con->select_db($db_name_ems);
+$con->autocommit(FALSE);
 
 $data->id;//] => 0
 $data->name; //] => PCA1_result
@@ -35,11 +36,23 @@ $data->ahead_id;//] => 1
 $data->labdata_id;//] => 0
 $data->project_id;//] => 1
 
+$rnd=mt_rand();
+$tablename="result_".ereg_replace("[^A-Za-z]", "", $data->name)."_".intVal($data->ahead_id)."_$rnd";
+$status=0;
 switch($data->atype_id) {
+case 1:
+    exec("Rscript deseq.R $db_user $db_pass $db_name_experiments $db_host $data->ahead_id $tablename",$output,$retval);
+    if($retval!=0)
+        $res->print_error("Cant execute R");
+
+    if(execSQL($con,"insert into result(name,description,tableName,ahead_id,atype_id,project_id)
+                        values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
+        $res->print_error("Cant insert");
+    }
+    $status=2;
+    break;
 case 2:
 
-    $rnd=mt_rand();
-    $tablename="result_".ereg_replace("[^A-Za-z]", "", $data->name)."_$rnd";
     exec("Rscript PCA.R $db_user $db_pass $db_name_experiments $db_host $data->ahead_id $tablename",$output,$retval);
     if($retval!=0)
         $res->print_error("Cant execute R");
@@ -48,11 +61,17 @@ case 2:
                         values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
         $res->print_error("Cant insert");
     }
-    if(execSQL($con,"update ahead set status=2 where id=?",array("i",$data->ahead_id),true)==0) {
-        $res->print_error("Cant update");
-    }
-
+    $status=2;
     break;
+}
+
+if(execSQL($con,"update ahead set status=2 where id=?",array("i",$data->ahead_id),true)==0) {
+    $res->print_error("Cant update");
+}
+
+
+if(!$con->commit()) {
+        $res->print_error("Cant commit");
 }
 
 $con->close();

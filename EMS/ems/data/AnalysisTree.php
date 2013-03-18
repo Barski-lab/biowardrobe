@@ -23,13 +23,14 @@ $data=array();
 function get_by_id ($parentid,$prjid,$status) {
     global $con;
     $data=array();
-    $query_array=execSQL($con,"SELECT r.id,r.name,a.id as a_id FROM analysis a, rhead r where rhead_id=r.id and ahead_id=? order by r.name",array("i",$parentid),false);
+    $query_array=execSQL($con,"SELECT r.id,r.name,a.id as a_id,a.type FROM analysis a, rhead r where rhead_id=r.id and ahead_id=? order by r.name",array("i",$parentid),false);
 
     foreach($query_array as $key => $val) {
         $data[]=array(
             'item_id' => $val['id'],
             'project_id' => $prjid,
             'item' => $val['name'],
+            'type' => $val['type'],
             'status' => $status,
             'leaf' => true,
             'id' => $val['name'].$val['a_id'],

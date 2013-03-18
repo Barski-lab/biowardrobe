@@ -27,6 +27,7 @@ Ext.define( 'EMS.model.AnalysisGroup', {
                    {name: 'item_id',     type: 'int'},
                    {name: 'status',     type: 'int'},
                    {name: 'item',     type: 'string'},
+                   {name: 'type',     type: 'string'},
                    {name: 'leaf',     type: 'bool'},
                    {name: 'atype_id',     type: 'int'}
                ],
@@ -39,17 +40,4 @@ Ext.define( 'EMS.model.AnalysisGroup', {
 
                                     }
                                 })
-//               proxy: {
-//                   type: 'memory',
-////                   api: {
-////                       destroy: ''
-////                   },
-////                   writer: {
-////                       type: 'json',
-////                       root: 'data',
-////                       writeAllFields: true,
-////                       encode: true
-////                   }
-//               }
-
            });

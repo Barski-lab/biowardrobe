@@ -163,16 +163,6 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          } else {
                                                                              record.remove(true);
                                                                          }
-
-                                                                         //                                                                         me.resultStore.sync({sucess: function() {
-                                                                         //                                                                             Logger.log('delete synced');
-                                                                         //                                                                             if(rec.data.leaf===false) {
-                                                                         //                                                                                 me.resultStore.load();
-                                                                         //                                                                             } else {
-                                                                         //                                                                                 me.resultStore.load({params:{'openid': rec.parentNode.data.id }});
-                                                                         //                                                                             }
-                                                                         //                                                                         }});
-
                                                                      }
                                                                      //console.log(rec);
                                                                      if(rec.data.leaf===false)
@@ -196,20 +186,12 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      listeners: {
                                                          beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
                                                              //console.log(data);
-                                                             //                                                             console.log(overModel);
+                                                             //console.log(overModel);
                                                              //console.log(dropPosition);
                                                              if(overModel.data.root === true)
                                                                  return false;
                                                              if(dropPosition !== 'append' && overModel.data.leaf === false)
                                                                  return false;
-//                                                             overModel.on('append',function(){
-//                                                                 console.log('append');
-//                                                                 console.log(arguments);
-////                                                                 var base=overModel.childNodes.length;
-////                                                                 for(var j=0; j<base;j++) {
-////                                                                     overModel.childNodes[j].set('item',overModel.data.item+' '+(j+1));
-////                                                                 }
-//                                                             },this,{single: true});
                                                              var base=overModel.childNodes.length;
                                                              for(var i=0; i<data.records.length;i++) {
                                                                  var cont=false;
@@ -223,9 +205,6 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                      }
                                                                  }
                                                                  if(cont) continue;
-//                                                                 var record=me.labDataStore.findRecord('id',data.records[i].data.id);
-//                                                                 console.log(record);
-                                                                 //.data.db;
 
                                                                  data.records[i].set('leaf', true);
                                                                  data.records[i].set('item', overModel.data.item+' '+(base+i+1));
@@ -239,38 +218,9 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                                                                       Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
                                                                                                                       data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
                                                              }
-                                                             //console.log('done');
-                                                             //},this);
-                                                             //expand
                                                              return true;
                                                          },
                                                          drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                             //console.log('drop');
-                                                             //console.log(overModel);
-                                                             //                                                             me.resultStore.on('datachanged',function(store) {
-                                                             //                                                                 console.log('datachanged');
-                                                             //                                                                 Ext.TaskManager.start({
-                                                             //                                                                                           run: function () {
-                                                             //                                                                                               console.log('one short');
-                                                             //                                                                                               me.resultStore.sync({ success: function() {
-                                                             //                                                                                                   console.log('synced');
-                                                             //                                                                                                   me.resultStore.load({params:{'openid': overModel.raw['item_id'] }});
-                                                             //                                                                                               }});
-                                                             //                                                                                           },
-                                                             //                                                                                           repeat: 1,
-                                                             //                                                                                           interval: 100 });
-                                                             //                                                                 //task.start();
-
-
-                                                             //                                                                 //me.resultStore.load();
-                                                             //                                                             },this,{ single: true });
-
-                                                             //                                                                         {success: function(){
-                                                             //                                                                 console.log('sync sux');
-                                                             //                                                                 me.resultStore.load();
-                                                             //                                                                 //{params:{'openid': overModel.raw['item_id'] }}
-                                                             //                                                             }});
-
                                                          }
                                                      }
                                                  }

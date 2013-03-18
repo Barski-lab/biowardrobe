@@ -27,6 +27,7 @@ Ext.define( 'EMS.model.Project', {
                    { name: 'worker_id', type: 'int'},
                    { name: 'name', type: 'string' },
                    { name: 'description', type: 'string' },
-                   { name: 'article', type: 'string' }
+                   { name: 'article', type: 'string' },
+                   { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'}
                ]
            });

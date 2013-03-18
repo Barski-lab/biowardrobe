@@ -26,6 +26,7 @@ Ext.define( 'EMS.model.Result', {
                    {name: 'id',     type: 'int'},
                    {name: 'name',     type: 'string'},
                    {name: 'description',     type: 'string'},
+                   {name: 'tableName',     type: 'string', persist: false },
                    {name: 'rtype_id',     type: 'int'},
                    {name: 'atype_id',     type: 'int'},
                    {name: 'ahead_id',     type: 'int'},

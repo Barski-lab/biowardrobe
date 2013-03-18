@@ -28,6 +28,7 @@ if(gettype($data)=="array") {
                 $res->print_error("Cant insert");
             }
             $data[$key]->id=$con->insert_id;
+            $data[$key]->item_id=$con->insert_id;
         } else {
             if(execSQL($con,"insert into analysis(ahead_id,rhead_id) values(?,?)",array("ii",$val->parentId,$val->item_id),true)==0)
                 $res->print_error("Cant insert");
@@ -45,6 +46,7 @@ if(gettype($data)=="array") {
             $res->print_error("Cant insert");
         }
         $data->id=$con->insert_id;
+        $data->item_id=$con->insert_id;
     } else {
         if(execSQL($con,"insert into analysis(ahead_id,rhead_id) values(?,?)",array("ii",$val->parentId,$val->item_id),true)==0)
             $res->print_error("Cant insert");

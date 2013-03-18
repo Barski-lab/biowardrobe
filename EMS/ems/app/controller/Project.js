@@ -205,7 +205,7 @@ Ext.define('EMS.controller.Project', {
 
                    acaption.allowBlank=false;
                    acaption.validate();
-                   if(!acaption.isValid())
+                   if(!acaption.isValid() || !atype.isValid())
                        return false;
 
                    var r = Ext.create('EMS.model.AnalysisGroup', {
@@ -257,16 +257,20 @@ Ext.define('EMS.controller.Project', {
                    //console.log(record);
                    //console.log(view);
                    var me=this;
-                   var store=me.getPCAChartStore();
-                   store.getProxy().setExtraParam('resultid',record.data['id']);
-                   store.load();
-                   me.PCA = Ext.create('EMS.view.charts.PCA', {
-                                           //project_id: win.project_id,
-                                           title: 'Principle Component Analysis '//+win.project_name,
-                                           //project_name: win.project_name,
-                                           //resultStore: resStore
-                                       });
-                   me.PCA.show();
+                   switch(record.data.atype_id) {
+                   case 2:
+                       var store=me.getPCAChartStore();
+                       store.getProxy().setExtraParam('resultid',record.data['id']);
+                       store.load();
+                       me.PCA = Ext.create('EMS.view.charts.PCA', {
+                                               //project_id: win.project_id,
+                                               title: 'Principle Component Analysis '//+win.project_name,
+                                               //project_name: win.project_name,
+                                               //resultStore: resStore
+                                           });
+                       me.PCA.show();
+                       break;
+                   }
 
                }
            });

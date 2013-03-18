@@ -121,5 +121,7 @@ create table if not exists analysis (
     REFERENCES rhead(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+ALTER TABLE `ems`.`analysis` ADD COLUMN `type` VARCHAR(45) NOT NULL DEFAULT ''  AFTER `rhead_id` ;
+ALTER TABLE `ems`.`project` ADD COLUMN `dateadd` DATE NULL  AFTER `worker_id` ;
 
 set foreign_key_checks = 1 ;

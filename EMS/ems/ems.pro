@@ -278,4 +278,5 @@ OTHER_FILES += \
     data/GeneralListUp.php \
     data/ProjectDel.php \
     data/GeneralListAdd.php \
-    data/ResultDel.php
+    data/ResultDel.php \
+    data/deseq.R

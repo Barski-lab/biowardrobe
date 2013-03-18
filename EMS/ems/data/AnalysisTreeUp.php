@@ -35,16 +35,16 @@ if(gettype($data)=="array") {
     foreach($data as $key => $val ) {
         if(check_data($val))
         execSQL($con,
-                "insert into analysis(ahead_id,rhead_id) values(?,?)",
-                array("ii",$val->parentId,$val->item_id),true);
+                "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
+                array("iis",$val->parentId,$val->item_id,$val->type),true);
     }
     $count=count($data);
 } else {
     $val=$data;
     if(check_data($val))
     execSQL($con,
-            "insert into analysis(ahead_id,rhead_id) values(?,?)",
-            array("ii",$val->parentId,$val->item_id),true);
+            "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
+            array("iis",$val->parentId,$val->item_id,$val->type),true);
 }
 
 if(!$con->commit()) {
