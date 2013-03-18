@@ -33,18 +33,22 @@ $con->autocommit(FALSE);
 if(gettype($data)=="array") {
 
     foreach($data as $key => $val ) {
-        if(check_data($val))
+        if(check_data($val)) {
         execSQL($con,
                 "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
                 array("iis",$val->parentId,$val->item_id,$val->type),true);
+            $data[$key]->id=$val->parentId.$con->insert_id;
+        }
     }
     $count=count($data);
 } else {
     $val=$data;
-    if(check_data($val))
+    if(check_data($val)) {
     execSQL($con,
             "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
             array("iis",$val->parentId,$val->item_id,$val->type),true);
+        $data->id=$val->parentId.$con->insert_id;
+    }
 }
 
 if(!$con->commit()) {
@@ -57,7 +61,7 @@ $con->close();
 $res->success = true;
 $res->message = "Data loaded";
 $res->total = $count;
-//$res->data = $query_array;
+$res->data = $data;
 print_r($res->to_json());
 
 ?>

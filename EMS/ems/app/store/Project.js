@@ -36,7 +36,7 @@ Ext.define( 'EMS.store.Project', {
                                     api: {
                                         read : 'data/GeneralList.php',
                                         update: 'data/GeneralListUp.php',
-                                        create: '/cgi-bin/barski/recordsNew.json',
+                                        create: 'data/GeneralListAdd.php',
                                         destroy: 'data/ProjectDel.php'
                                     }
                                 })

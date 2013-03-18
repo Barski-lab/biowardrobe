@@ -83,15 +83,24 @@ Ext.define('EMS.view.Project.ProjectList', {
                                         margin: '0 5 0 5',
                                         labelAlign: 'top',
                                         flex: 1,
-                                        labelWidth: 120
+                                        labelWidth: 120,
+                                        enableKeyEvents: true,
+                                        listeners: {
+                                            specialkey: function (field, event) {
+                                                if (event.getKey() === event.ENTER) {
+                                                    var button=Ext.getCmp('project-add');
+                                                    button.fireEvent('click',button);
+                                                }
+                                            }
+                                        }
                                     } , {
                                         xtype: 'button',
-                                        margin: '20 5 0 5',
+                                        margin: '22 5 0 5',
                                         width: 90,
                                         text: 'add',
                                         id: 'project-add',
                                         submitValue: false,
-                                        iconCls: 'folder-add',
+                                        iconCls: 'folder-add'
                                     }]
                             } , {
                                 xtype: 'grid',

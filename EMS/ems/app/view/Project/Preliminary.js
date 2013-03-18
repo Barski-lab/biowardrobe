@@ -105,7 +105,6 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                  }
                                                              }
                                                          }
-
                                                      } , {
                                                          xtype: 'button',
                                                          margin: '22 5 0 5',
@@ -129,9 +128,9 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          xtype: 'treecolumn',
                                                          text: 'Groups/items',
                                                          flex: 1,
-                                                         width: 70,
+                                                         minWidth: 200,
                                                          dataIndex: 'item'
-                                                     },{ header: 'Description', dataIndex: 'description', flex:2,
+                                                     },{ header: 'Description', dataIndex: 'description', flex:2, minWidth: 70,
                                                          renderer: function(value,meta,record) {
                                                              if(record.data.leaf===false) return '';
                                                              return record.data['description'];

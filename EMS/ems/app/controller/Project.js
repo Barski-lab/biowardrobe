@@ -142,6 +142,7 @@ Ext.define('EMS.controller.Project', {
 
                    var r = Ext.create('EMS.model.Project', {
                                           name: prjname.getValue(),
+                                          dateadd: Ext.Date.format(new Date(), 'm/d/Y'),
                                           worker_id: USER_ID
                                       });
                    prjname.allowBlank=true;

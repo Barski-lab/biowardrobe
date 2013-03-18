@@ -35,10 +35,10 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                maximizable: true,
                collapsible: true,
                constrain: true,
-               minHeight: 550,
-               minWidth: 700,
-               height: 550,
-               width: 1100,
+               minHeight: 650,
+               minWidth: 800,
+               height: 650,
+               width: 1150,
                initComponent: function() {
                    var me = this;
                    var closebutt={
@@ -66,7 +66,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                  items: [
                                      {
                                          xtype: 'container',
-                                         margin: '0 5 5 5',
+                                         margin: '0 0 5 5',
                                          layout: {
                                              type: 'vbox',
                                              align: 'stretch'
@@ -93,7 +93,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          labelWidth: 120
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '20 5 0 5',
+                                                         margin: '22 5 0 5',
                                                          width: 100,
                                                          text: 'add',
                                                          id: 'projectdesign-group-add',
@@ -101,7 +101,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          iconCls: 'folder-add'
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '20 5 0 5',
+                                                         margin: '22 5 0 5',
                                                          width: 110,
                                                          text: 'Laboratory data',
                                                          id: 'projectdesign-preliminary-button',
@@ -122,9 +122,9 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          xtype: 'treecolumn',
                                                          text: 'Groups/items',
                                                          flex: 1,
-                                                         width: 70,
+                                                         minWidth: 120,
                                                          dataIndex: 'item'
-                                                     } , { header: 'Description', dataIndex: 'description', flex:2,
+                                                     } , { header: 'Description', dataIndex: 'description', flex:2, minWidth: 70,
                                                          renderer: function(value,meta,record) {
                                                              if(record.data.leaf===false) return '';
                                                              return record.data['description'];
@@ -181,8 +181,11 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                              }//treepanel
                                          ]
                                      } , {
+                                         xtype: 'splitter',
+                                         margin: "0 0 0 0"
+                                     } , {
                                          xtype: 'container',
-                                         margin: '0 5 5 0',
+                                         margin: '0 0 5 0',
                                          layout: {
                                              type: 'vbox',
                                              align: 'stretch'
@@ -258,8 +261,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  return rec.data.name;
                                                              }
                                                              if(record.data.leaf===true) {
-                                                                 console.log(record);
-
+                                                                 //console.log(record);
                                                                  return record.data.type;
                                                              }
                                                              return '';
@@ -297,7 +299,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  getClass: function(v, meta, rec) {
                                                                      if(rec.data.root === true)
                                                                          return;
-                                                                     if(rec.data.status > 1 ) {
+                                                                     if(rec.data.status > 1 && rec.data.leaf) {
                                                                          return '';
                                                                      }
                                                                      this.items[2].tooltip = 'Delete';
@@ -322,6 +324,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                      },
                                                      listeners: {
                                                          beforedrop: function(node, data, overModel, dropPosition, dropHandlers) {
+                                                             var me=this;
                                                              if(overModel.data.root === true)
                                                                  return false;
                                                              // Defer the handling
@@ -346,12 +349,14 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                              }
                                                                              copy.data.leaf=true;
                                                                              copy.data.iconCls='folder';
+                                                                             copy.data.id=Math.random()+data.records[j].data.id;
                                                                              if(overModel.childNodes.length === 0) {
                                                                                  copy.data.type="untreated";
                                                                              }
                                                                              if(overModel.childNodes.length === 1) {
                                                                                  copy.data.type="treated";
                                                                                  overModel.data.status=1;
+                                                                                 me.refresh();
                                                                              }
                                                                              overModel.appendChild(copy.data);
                                                                              break;
@@ -359,7 +364,9 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                              var copy=data.records[j].copy();
                                                                              copy.data.leaf=true;
                                                                              copy.data.iconCls='folder';
+                                                                             copy.data.id=Math.random()+data.records[j].data.id;
                                                                              overModel.data.status=1;
+                                                                             me.refresh();
                                                                              overModel.appendChild(copy.data);
                                                                              break;
                                                                          }
@@ -376,6 +383,9 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                      }//listeners
                                                  }
                                              }]
+                                     } , {
+                                         xtype: 'splitter',
+                                         margin: "0 0 0 0"
                                      } , {
                                          xtype: 'container',
                                          margin: '5 5 5 0',
