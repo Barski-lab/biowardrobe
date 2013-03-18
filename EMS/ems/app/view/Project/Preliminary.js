@@ -183,44 +183,74 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          dropGroup: 'ldata2results'
                                                      },
                                                      listeners: {
-                                                         beforedrop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
+                                                         beforedrop: function(node, data, overModel, dropPosition, dropHandlers) {
                                                              //console.log(data);
                                                              //console.log(overModel);
                                                              //console.log(dropPosition);
+                                                             dropHandlers.wait = true;
+
                                                              if(overModel.data.root === true)
                                                                  return false;
                                                              if(dropPosition !== 'append' && overModel.data.leaf === false)
                                                                  return false;
-                                                             var base=overModel.childNodes.length;
-                                                             for(var i=0; i<data.records.length;i++) {
-                                                                 var cont=false;
-                                                                 for(var j=0; j<base;j++) {
-                                                                     if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
-                                                                         data.records.splice(i,1);
-                                                                         cont=true;
-                                                                         i--;
-                                                                         break;
-                                                                         //return false;
-                                                                     }
-                                                                 }
-                                                                 if(cont) continue;
 
-                                                                 data.records[i].set('leaf', true);
-                                                                 data.records[i].set('item', overModel.data.item+' '+(base+i+1));
-                                                                 data.records[i].set('item_id',data.records[i].data.id);
-                                                                 data.records[i].set('project_id',me.project_id);
-                                                                 data.records[i].set('labdata_id',data.records[i].data.id);
-                                                                 //data.records[i].set('expanded',true);
-                                                                 data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
-                                                                 data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
-                                                                                                                      data.records[i].data.cells,
-                                                                                                                      Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
-                                                                                                                      data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
-                                                             }
+
+                                                             overModel.expand(true,function(){
+                                                                 var base=overModel.childNodes.length;
+                                                                 var rtype=overModel.data.rtype_id;
+                                                                 if(base===0) rtype =undefined;
+
+                                                                 for(var c=0; c<base;c++) {
+                                                                     overModel.getChildAt(c).data.item=overModel.data.item+' '+(c+1);
+                                                                     overModel.getChildAt(c).dirty=true;
+                                                                     //console.log(overModel.getChildAt(c));
+
+                                                                 }
+
+                                                                 for(var i=0; i<data.records.length;i++) {
+                                                                     var cont=false;
+                                                                     for(var j=0; j<base;j++) {
+                                                                         if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
+                                                                             data.records.splice(i,1);
+                                                                             cont=true;
+                                                                             i--;
+                                                                             break;
+                                                                             //return false;
+                                                                         }
+                                                                     }
+                                                                     if(cont) continue;
+                                                                     if(typeof rtype !== 'undefined' && rtype!==Ext.getCmp('preliminary-type-changed').getValue()) {
+
+                                                                         Ext.Msg.show({
+                                                                                          title: 'Incorrect type',
+                                                                                          msg: 'Wrong dropping type, the old one is: "'+
+                                                                                               Ext.getCmp('preliminary-type-changed').findRecordByValue(rtype).data.name+'"',
+                                                                                          icon: Ext.Msg.WARNING,
+                                                                                          buttons: Ext.Msg.OK
+                                                                                      });
+                                                                         return false;
+                                                                     }
+                                                                     if(typeof rtype === 'undefined')
+                                                                         overModel.data.rtype_id=Ext.getCmp('preliminary-type-changed').getValue();
+
+                                                                     data.records[i].set('leaf', true);
+                                                                     data.records[i].set('item', overModel.data.item+' '+(base+i+1));
+                                                                     data.records[i].set('item_id',data.records[i].data.id);
+                                                                     data.records[i].set('project_id',me.project_id);
+                                                                     data.records[i].set('labdata_id',data.records[i].data.id);
+                                                                     //data.records[i].set('expanded',true);
+                                                                     data.records[i].set('rtype_id',Ext.getCmp('preliminary-type-changed').getValue());
+                                                                     data.records[i].set('description', Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small>[ {0};{3} ]</small><br><small>{4}</small>',
+                                                                                                                          data.records[i].data.cells,
+                                                                                                                          Ext.util.Format.date(data.records[i].data.dateadd,'m/d/Y'),
+                                                                                                                          data.records[i].data.id, data.records[i].data.conditions,data.records[i].data.name4browser));
+                                                                     data.records[i].set('id',Math.random()+data.records[i].data.id);
+                                                                 }
+                                                                 dropHandlers.processDrop();
+                                                                 me.resultStore.load({params:{ openid: overModel.data.id }});
+                                                             });
                                                              return true;
-                                                         },
-                                                         drop: function(node,data,overModel,dropPosition,dropFunction,eOpts) {
-                                                         }
+                                                         }//beforedrop
                                                      }
                                                  }
                                              }//treepanel
@@ -263,7 +293,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          valueField: 'id',
                                                          editable: false,
                                                          id: 'preliminary-type-changed',
-                                                         value: 1,
+                                                         //value: 0,
                                                          fieldLabel: 'Type',
                                                          labelAlign: 'top',
                                                          labelWidth: 120,
@@ -290,7 +320,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      enableTextSelection: false
                                                  },
                                                  columns: [
-                                                     { header: 'Experiment list', dataIndex: 'cells', flex:1, sortable: true,
+                                                     { header: 'Experiment list', dataIndex: 'id', flex:1, sortable: true,
                                                          renderer: function(value,meta,record) {
                                                              return Ext.String.format('<b>id: <i>{2}</i>&nbsp;date: <i>{1}</i></b>&nbsp;<small> {0} </small><br>{3}<br>{4}',
                                                                                       record.data['cells'],
@@ -300,7 +330,22 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                      }
                                                  ],
                                                  flex: 3,
-                                                 bbar: [ me.m_PagingToolbar ]
+                                                 bbar: [ me.m_PagingToolbar ],
+                                                 tbar:[{
+                                                         xtype: 'textfield',
+                                                         id: 'preliminary-search',
+                                                         //fieldLabel: 'Group name',
+                                                         submitValue: false,
+                                                         //margin: '0 5 0 5',
+                                                         flex: 1,
+                                                         enableKeyEvents: true,
+                                                         listeners: {
+                                                             specialkey: function (field, event) {
+                                                                 if (event.getKey() === event.ENTER) {
+                                                                 }
+                                                             }
+                                                         }
+                                                     }]
                                              }
                                          ]
                                      }

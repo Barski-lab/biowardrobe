@@ -131,21 +131,6 @@ Ext.onReady(function() {
                                                          }
                                                      }]
                                              }]
-
-                                         //                                         buttons: [{
-                                         //                                                 text: 'Login',
-                                         //                                                 id: 'login',
-                                         //                                                 submitValue: false,
-                                         //                                                 handler: function(){
-                                         //                                                     submitForm();
-                                         //                                                 }
-                                         //                                             } , {
-                                         //                                                 text: 'Cancel',
-                                         //                                                 handler: function() {
-                                         //                                                     this.up('form').getForm().reset();
-                                         //                                                 }
-                                         //                                             }]
-
                                      });
 
     function submitOnEnter(field, event) {

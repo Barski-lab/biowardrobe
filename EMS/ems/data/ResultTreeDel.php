@@ -10,9 +10,9 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
-logmsg(print_r($data,true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($data,true));
 
 $con=def_connect();
 $con->select_db($db_name_ems);
@@ -40,21 +40,21 @@ function del_data($data,$con) {
 
     if($data->leaf==false) {
 
-        execSQL($con,"update ahead set status=0 where id in(select ahead_id from analysis where rhead_id =?)",array("i",intVal($data->id)),true);
+        execSQL($con,"update ahead set status=0 where id in(select ahead_id from analysis where rhead_id =?)",array("i",intVal($data->item_id)),true);
 
-        $result=execSQL($con,"SELECT tableName FROM result WHERE labdata_id is NULL and ahead_id in (select ahead_id from analysis where rhead_id =?)",array("i",$data->id),false);
+        $result=execSQL($con,"SELECT tableName FROM result WHERE labdata_id is NULL and ahead_id in (select ahead_id from analysis where rhead_id =?)",array("i",$data->item_id),false);
         if($result != 0 )
             foreach($result as $a => $b ) {
                 $con->query("DROP TABLE IF EXISTS `$db_name_experiments`.`".$b["tableName"]."`");
             }
 
-        execSQL($con,"delete from result where ahead_id in (select ahead_id from analysis where rhead_id=?)",array("i",intVal($data->id)),true);
+        execSQL($con,"delete from result where ahead_id in (select ahead_id from analysis where rhead_id=?)",array("i",intVal($data->item_id)),true);
 
-        execSQL($con,"delete from analysis where rhead_id =?",array("i",intVal($data->id)),true);
+        execSQL($con,"delete from analysis where rhead_id =?",array("i",intVal($data->item_id)),true);
 
         execSQL($con,"DELETE a.*, b.* FROM result a LEFT JOIN resultintersection b ON b.result_id = a.id
-        WHERE b.rhead_id=?",array("i",intVal($data->id)),true);
-        execSQL($con,"delete from rhead where id=?",array("i",intVal($data->id)),true);
+        WHERE b.rhead_id=?",array("i",intVal($data->item_id)),true);
+        execSQL($con,"delete from rhead where id=?",array("i",intVal($data->item_id)),true);
     }
 }
 

@@ -9,8 +9,9 @@ require_once('database_connection.php');
 $con=def_connect();
 $con->select_db($db_name_ems);
 
-//logmsg('request');
+//logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($data,true));
 
 if(!isset($_REQUEST['projectid']))
     $res->print_error("Not enough arguments.");

@@ -79,6 +79,8 @@ Ext.define('EMS.controller.Project', {
                },
                syncCombosAndGrid:function() {
                    this.getRTypeStore().load();
+                   this.getLabDataStore().loadData([],false);
+                   if(Ext.getCmp('preliminary-type-changed').getValue()===0 || Ext.getCmp('preliminary-type-changed').getValue() === null) return;
                    this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('preliminary-worker-changed').getValue());
                    this.getLabDataStore().getProxy().setExtraParam('typeid',Ext.getCmp('preliminary-type-changed').getValue());
                    this.getLabDataStore().sort('id', 'ASC');
@@ -95,6 +97,8 @@ Ext.define('EMS.controller.Project', {
                    this.syncCombosAndGrid();
                },
                onPreliminaryWindowClose: function(view) {
+                   if(Ext.getCmp('preliminary-type-changed').getValue()===0 || Ext.getCmp('preliminary-type-changed').getValue() === null) return;
+                   this.getLabDataStore().loadData([],false);
                    delete this.getLabDataStore().getProxy().extraParams['typeid'];
                    Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
                },

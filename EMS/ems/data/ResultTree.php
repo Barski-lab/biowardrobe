@@ -9,8 +9,9 @@ require_once('database_connection.php');
 $con=def_connect();
 $con->select_db($db_name_ems);
 
-//logmsg("ResultTree");
+//logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($data,true));
 
 if(!isset($_REQUEST['projectid']))
     $res->print_error("Not enough arguments.");
@@ -51,16 +52,16 @@ if($_REQUEST['node']=='root') {
     $query_array=execSQL($con,"select r.id,r.name,r.project_id,COALESCE(q.status, 0) as status from
 rhead r left join
 (select rhead_id,max(status) as status,project_id from analysis a,ahead ah
- where ahead_id=ah.id and project_id=?
-  group by rhead_id) as q on
-q.rhead_id=r.id and q.project_id=r.project_id
-where r.project_id=?",array("ii",$prjid,$prjid),false);
+ where ahead_id=ah.id and project_id=? group by rhead_id) as q on
+ q.rhead_id=r.id and q.project_id=r.project_id where r.project_id=?",array("ii",$prjid,$prjid),false);
 
-//    $query_array=execSQL($con,"SELECT distinct r.id,r.name,r.project_id,COALESCE(ah.status, 0) as status FROM ems.rhead r
-//    left join ems.analysis a on (r.id=a.rhead_id)
-//    left join ems.ahead ah on a.ahead_id=ah.id where r.project_id=?",array("i",$prjid),false);
+
     if($query_array != 0)
         foreach($query_array as $key => $val) {
+            $qr=execSQL($con,"select rtype_id from result,resultintersection where rhead_id=? limit 1",array("i",$val['id']),false);
+            $rtype=0;
+            if($qr!=0)
+                $rtype=$qr[0]['rtype_id'];
             if($openid!=$val['id']){
                 $data[]=array(
                     'item_id' => $val['id'],
@@ -68,6 +69,7 @@ where r.project_id=?",array("ii",$prjid,$prjid),false);
                     'item' => $val['name'],
                     'leaf' => false,
                     'id' => $val['id'],
+                    'rtype_id' => $rtype,
                     'status' => $val['status'],
                     'expanded' => false,
                     'iconCls' => 'folder-into'
@@ -81,6 +83,7 @@ where r.project_id=?",array("ii",$prjid,$prjid),false);
                     'leaf' => false,
                     'id' => $val['id'],
                     'status' => $val['status'],
+                    'rtype_id' => $rtype,
                     'expanded' => true,
                     'iconCls' => 'folder-into',
                     'data' => get_by_id($openid,$prjid)
@@ -96,8 +99,6 @@ where r.project_id=?",array("ii",$prjid,$prjid),false);
 }
 $con->close();
 
-//logmsg(print_r($data,true));
-//logmsg(print_r($val,true));
 
 echo json_encode(array(
                      'text' => '.',

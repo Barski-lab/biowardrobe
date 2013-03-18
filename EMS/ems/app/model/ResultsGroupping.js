@@ -40,18 +40,4 @@ Ext.define( 'EMS.model.ResultsGroupping', {
                                  destroy: 'data/ResultTreeDel.php'
                              }
                          })
-
-//               proxy: {
-//                   type: 'memory',
-////                   type: 'ajax',
-////                   api: {
-////                       destroy: 'data/ResultTreeDel.php'
-////                   },
-////                   writer: {
-////                       type: 'json',
-////                       root: 'data',
-////                       writeAllFields: true,
-////                       encode: true
-////                   }
-//               }
            });
