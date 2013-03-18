@@ -58,6 +58,7 @@ function execSQL($mysqli,$sql, $params, $close){
         while ( $stmt->fetch() ) {
             $x = array();
             foreach( $row as $key => $val ) {
+                if($val == null ) continue;
                 switch($types[$key]) {
                     case 4:
                     case 5:
