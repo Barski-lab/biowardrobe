@@ -252,6 +252,7 @@ void AverageDensity::start()
          *multi bam reader*/
         QFile batchBamFiles;
         batchBamFiles.setFileName(gArgs().getArgs("in").toString());
+        bool raw_data=gArgs().getArgs("avd_rawdata").toBool();
         batchBamFiles.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream inFiles(&batchBamFiles);
         while(!inFiles.atEnd())
@@ -277,6 +278,9 @@ void AverageDensity::start()
 
 
         QMap<QString,QList<double> > storage;
+        QMap<QString,QMap<int,QVector<double> > > storage_wilconxon;
+        QMap<QString,int> wilconxon_norm;
+        QVector<int> left_right(2,0);
 
         /* SQL Query batch file format:
          * - first line - grapht title
@@ -323,6 +327,7 @@ void AverageDensity::start()
                 QString plt_name=fileLabels.at(i)+" "+plotName;
 
                 QVector<double> avd_raw_data(length,0);
+                int gcount=0;
                 do
                 {
                     for(int tot_len=0;tot_len<blocks;tot_len++)
@@ -331,15 +336,44 @@ void AverageDensity::start()
                                               q.value(1).toString().at(0)==QChar('-')/*bool strand*/,
                                               tot_len*q.value(3*(tot_len+1)+1).toInt()/*shift*/,q.value(3*(tot_len+1)+1).toInt()/*mapping*/,sam_data.at(i),avd_raw_data);
                     }
+                    if(blocks==1 && raw_data) {
+                        storage_wilconxon[plt_name][gcount].fill(0.0,length);
+
+                        AVD<QVector<double> >(q.value(2).toInt()/*start*/,q.value(3).toInt()/*end*/,q.value(0).toString()/*chrom*/,
+                                              q.value(1).toString().at(0)==QChar('-')/*bool strand*/,
+                                              0/*shift*/,q.value(4).toInt()/*mapping*/,sam_data.at(i),storage_wilconxon[plt_name][gcount]);
+                        gcount++;
+                    }
+
                 }while(q.next());
 
                 /*Normalization*/
                 int total=sam_data.at(i)->total-sam_data.at(i)->notAligned;
-
+                wilconxon_norm[plt_name]=total;
                 for(quint64 w=0; w< length; w++)
                     storage[plt_name]<<(avd_raw_data[w]/total)/q.size();
 
                 storage[plt_name]=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
+
+                //find max
+                if(1==blocks && raw_data) {
+                    int pos=0;
+                    int mx=storage[plt_name][qMin(5,storage[plt_name].size())];
+                    for(int j=5;j<storage[plt_name].size();j++) {
+                        if(mx<storage[plt_name].at(j)) {
+                            mx=storage[plt_name].at(j);
+                            pos=j;
+                        }
+                    }
+                    if(i==0){
+                        left_right[0]=pos;
+                        left_right[1]=pos;
+                    } else {
+                        left_right[0]=qMin(pos,left_right[0]);
+                        left_right[1]=qMax(pos,left_right[0]);
+                    }
+                }
+
 
             }
 
@@ -428,6 +462,27 @@ void AverageDensity::start()
             myProcess.start(gArgs().getArgs("gnuplot").toString()+" "+gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             myProcess.waitForFinished(1000*120);
         }
+
+        //Output raw data
+        if(1==blocks && raw_data) {
+            QList<QString> keys=storage_wilconxon.keys();
+            int files=keys.size();
+            for(int i=0; i<files;i++) {
+
+                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+keys[i].replace(" ","_")+".raw_data");
+                outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+
+                for(int j=0; j<storage_wilconxon[keys[i]].size();j++) {
+                    double cur_sum=0.0;
+                    for(int sum=(left_right[0]-200);sum<(left_right[1]+200); sum++) {
+                        cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
+                    }
+                outFile.write(QString("%1\n").arg(cur_sum/wilconxon_norm[keys[i]]).toAscii());
+                }
+                outFile.close();
+            }
+        }
+
         emit finished();
     }
     catch(char*str)
