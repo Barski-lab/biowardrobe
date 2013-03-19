@@ -198,7 +198,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                              overModel.expand(true,function(){
                                                                  var base=overModel.childNodes.length;
                                                                  var rtype=overModel.data.rtype_id;
-                                                                 if(base===0) rtype =undefined;
+                                                                 if(base===0) rtype = undefined;
 
                                                                  for(var c=0; c<base;c++) {
                                                                      overModel.getChildAt(c).data.item=overModel.data.item+' '+(c+1);
@@ -219,6 +219,10 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          }
                                                                      }
                                                                      if(cont) continue;
+
+                                                                     console.log("rt=",rtype);
+                                                                     console.log("ext=",Ext.getCmp('preliminary-type-changed').getValue());
+
                                                                      if(typeof rtype !== 'undefined' && rtype!==Ext.getCmp('preliminary-type-changed').getValue()) {
 
                                                                          Ext.Msg.show({
@@ -230,8 +234,12 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                                       });
                                                                          return false;
                                                                      }
-                                                                     if(typeof rtype === 'undefined')
+                                                                     if(typeof rtype === 'undefined') {
+                                                                         console.log("Ext before",Ext.getCmp('preliminary-type-changed').getValue());
                                                                          overModel.data.rtype_id=Ext.getCmp('preliminary-type-changed').getValue();
+                                                                         console.log("Ext after",Ext.getCmp('preliminary-type-changed').getValue());
+                                                                         console.log("Model after",overModel.data.rtype_id);
+                                                                     }
 
                                                                      data.records[i].set('leaf', true);
                                                                      data.records[i].set('item', overModel.data.item+' '+(base+i+1));

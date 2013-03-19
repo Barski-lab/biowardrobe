@@ -30,10 +30,16 @@ function del_data($data,$con) {
                 $con->query("DROP TABLE IF EXISTS `$db_name_experiments`.`".$b["tableName"]."`");
             }
 
+//        if() {
+//            $res->print_error("Cant delete");
+//        }
         execSQL($con,"delete from result where ahead_id in (select ahead_id from analysis where rhead_id=?)",array("i",intVal($data->parentId)),true);
 
         execSQL($con, "delete from resultintersection where rhead_id=? and result_id=?",
                 array("ii",$data->parentId,$data->item_id),true);
+
+        execSQL($con, "delete from result where id=?",
+                array("i",$data->item_id),true);
 
         return;
     }

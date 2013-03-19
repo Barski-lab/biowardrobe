@@ -67,8 +67,8 @@ if(E1==1 | E2==1) {
 #
 DESeqRes <- nbinomTest( cdsD, "untreated", "treated" )
 
-untr<-DESeqRes[,4]
-trea<-DESeqRes[,3]
+untr<-DESeqRes[,3]
+trea<-DESeqRes[,4]
 untr[untr<0.1] <- 0.1
 trea[trea<0.1] <- 0.1
 

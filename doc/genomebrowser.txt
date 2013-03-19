@@ -67,9 +67,9 @@ SETUP MYSQL:
 
  #!/bin/bash
  read PASS
- mysql -uroot -hlocalhost -P3306 -p -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
- mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
- mysql -uroot -hlocalhost -P3306 -p -e "GRANT ALL ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306  -e "SET PASSWORD FOR 'root'@'localhost' = PASSWORD('$PASS');FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306 -p$PASS -e "CREATE USER 'root'@'%' IDENTIFIED BY '$PASS';FLUSH PRIVILEGES;" mysql
+ mysql -uroot -hlocalhost -P3306 -p$PASS -e "GRANT ALL ON *.* TO 'root'@'%';FLUSH PRIVILEGES;" mysql
 
  mysql -uroot -hlocalhost -P3306 -p -e "CREATE USER 'readonly'@'localhost' IDENTIFIED BY 'readonly';FLUSH PRIVILEGES;" mysql
 

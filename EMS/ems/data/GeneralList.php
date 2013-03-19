@@ -22,28 +22,24 @@ if(!in_array($tablename,$AllowedTable)) {
             if(isset($_REQUEST['workerid']))
                 $workerid = intVal($_REQUEST['workerid']);
             else
+                if(!check_rights())
                 $res->print_error('Not enough required parameters. w');
             if(isset($_REQUEST['typeid'])) {
                 $typeid = intVal($_REQUEST['typeid']);
                 $cond="";
                 if($typeid>=1 && $typeid<=3)
-                    $cond=" libstatus > 20 and experimenttype_id between 3 and 6 ";
+                    $cond=" and libstatus > 20 and experimenttype_id between 3 and 6 ";
                 if($typeid==4)
-                    $cond=" libstatus > 11 and experimenttype_id between 1 and 2 ";
+                    $cond=" and libstatus > 11 and experimenttype_id between 1 and 2 ";
+
                 if($cond != "") {
-                if($where!= "")
-                    $where=$where." and ".$cond;
-                else
-                    $where=" where $cond";
+                    $where=$where.$cond;
                 } else {
                     $res->print_error('Not yet supported.');
                 }
             }
             if($workerid != 0) {
-                if($where != "")
                     $where=$where." and worker_id=$workerid ";
-                else
-                    $where=" where worker_id=$workerid ";
             }
             $con=def_connect();
             $con->select_db($db_name_ems);

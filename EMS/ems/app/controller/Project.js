@@ -130,6 +130,7 @@ Ext.define('EMS.controller.Project', {
                  */
                onProjectWindowRendered: function(view) {
                    var store=this.getProjectStore();
+                   if(!Rights.check(USER_ID,'projectlist'))
                    store.getProxy().setExtraParam('workerid',USER_ID);
                    store.load();
                },

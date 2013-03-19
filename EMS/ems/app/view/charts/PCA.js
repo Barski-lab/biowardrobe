@@ -44,8 +44,8 @@ Ext.define('EMS.view.charts.PCA',
                initComponent: function() {
                    var me=this;
 
-                   var color=["yellow","magenta","purple","red","green","blue"];
-                   var coll=['circle','cross','plus','triangle','diamond','square'];
+                   var color=["yellow","magenta","purple","red","green","blue","black","brown"];
+                   var coll=['circle','cross','plus','triangle','diamond'];
 
                    var crtChart=function(xax,yax) {
                        return {
@@ -87,7 +87,7 @@ Ext.define('EMS.view.charts.PCA',
                                    renderer: function(sprite, record, attr, index){
                                        //console.log(record.get('color'),index,sprite,attr,this);
                                        var highlight = record.get('color');
-                                       var comp=EMS.view.charts.ShapeCollection[coll[highlight-1]]({radius: 5, size: 5,x:0,y:0 });
+                                       var comp=EMS.view.charts.ShapeCollection[coll[(highlight-1)%5]]({radius: 5, size: 5,x:0,y:0 });
                                        Ext.apply(sprite,comp);
                                        return Ext.apply(attr,{fill: color[highlight-1],type: comp.type, path: comp.path});
                                    },

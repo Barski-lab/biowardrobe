@@ -58,7 +58,7 @@ rhead r left join
 
     if($query_array != 0)
         foreach($query_array as $key => $val) {
-            $qr=execSQL($con,"select rtype_id from result,resultintersection where rhead_id=? limit 1",array("i",$val['id']),false);
+            $qr=execSQL($con,"select rtype_id from result r,resultintersection re where result_id=r.id and rhead_id=? limit 1",array("i",$val['id']),false);
             $rtype=0;
             if($qr!=0)
                 $rtype=$qr[0]['rtype_id'];
