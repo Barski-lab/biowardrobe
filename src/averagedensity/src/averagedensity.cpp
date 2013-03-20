@@ -292,6 +292,8 @@ void AverageDensity::start()
         int blocks=1;
         QVector<int> orig_length;
 
+        int ccc=0;
+
         while (!in.atEnd())
         {
             QString plotName,Q1;
@@ -358,20 +360,24 @@ void AverageDensity::start()
                 //find max
                 if(1==blocks && raw_data) {
                     int pos=0;
-                    int mx=storage[plt_name][qMin(5,storage[plt_name].size())];
+                    double mx=storage[plt_name].at(qMin(5,storage[plt_name].size()));
                     for(int j=5;j<storage[plt_name].size();j++) {
                         if(mx<storage[plt_name].at(j)) {
                             mx=storage[plt_name].at(j);
                             pos=j;
                         }
                     }
-                    if(i==0){
+                    if(ccc==0){
+                        ccc=1;
                         left_right[0]=pos;
                         left_right[1]=pos;
                     } else {
                         left_right[0]=qMin(pos,left_right[0]);
-                        left_right[1]=qMax(pos,left_right[0]);
+                        left_right[1]=qMax(pos,left_right[1]);
                     }
+                    //            qDebug()<<"left_right="<<left_right[0]<<" , "<<left_right[1];
+                    //            qDebug()<<"mx="<<mx<<" , "<<pos;
+                    
                 }
 
 
@@ -467,17 +473,21 @@ void AverageDensity::start()
         if(1==blocks && raw_data) {
             QList<QString> keys=storage_wilconxon.keys();
             int files=keys.size();
+            qDebug()<<"left_right="<<left_right[0]<<" , "<<left_right[1];
             for(int i=0; i<files;i++) {
-
-                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+keys[i].replace(" ","_")+".raw_data");
+                QString filename=keys[i];
+                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_")+".raw_data");
                 outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
+                //qDebug()<<"storage_wilconxon[keys[i]].size()="<<storage_wilconxon[keys[i]].size();
+                //            qDebug()<<"storage_wilconxon[keys[i]].size()="<<storage_wilconxon[keys[i]].size();
                 for(int j=0; j<storage_wilconxon[keys[i]].size();j++) {
+                    //qDebug()<<"storage_wilconxon[keys[i]][j].size()="<<storage_wilconxon[keys[i]][j].size();
                     double cur_sum=0.0;
-                    for(int sum=(left_right[0]-200);sum<(left_right[1]+200); sum++) {
+                    for(int sum=qMax(0,(left_right[0]-200));sum<qMin((left_right[1]+200),storage_wilconxon[keys[i]][j].size()); sum++) {
                         cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
                     }
-                outFile.write(QString("%1\n").arg(cur_sum/wilconxon_norm[keys[i]]).toAscii());
+                    outFile.write((QString("%1\n").arg(cur_sum/wilconxon_norm[keys[i]])).toAscii());
                 }
                 outFile.close();
             }
