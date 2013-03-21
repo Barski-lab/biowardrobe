@@ -258,6 +258,7 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_window","avd_window","AVD/WINDOW",QVariant::Int,"Average tag density window",2000);
     Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
     Arguments::addArg("avd_rawdata","avd_rawdata","AVD/RAWDATA",QVariant::Bool,"Output of raw data",false);
+    Arguments::addArg("avd_wilc_region","avd_wilc_region","AVD/WILCREG",QVariant::String,"Which region dump with raw data -avd_wilc_region=\"-100:-5\"",QString(""));
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));
@@ -270,7 +271,7 @@ void Arguments::argsList(void)
     Arguments::addArg("sam_mapped_limit","sam_mapped_limit","SAM/MAPPEDLIMIT",QVariant::Int,"Default limit to mapped data",0);
     Arguments::addArg("sam_twicechr","sam_twicechr","SAM/TWICECHR",QVariant::String,"Which chromosome to double",QString(""));// chrX chrY
     Arguments::addArg("sam_ignorechr","sam_ignorechr","SAM/IGNORECHR",QVariant::String,"Which chromosome to ignore",QString(""));//chrM
-    Arguments::addArg("sam_frag_filtr","sam_frag_filtr","SAM/FRAGFILTR",QVariant::String,"Which length of fragment to leave -sam_frag_filtr=\"120-150\"",QString(""));// chrX chrY
+    Arguments::addArg("sam_frag_filtr","sam_frag_filtr","SAM/FRAGFILTR",QVariant::String,"Which length of fragment to leave -sam_frag_filtr=\"120-150\"",QString(""));
 
 }
 
