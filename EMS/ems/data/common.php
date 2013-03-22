@@ -13,7 +13,7 @@ function require_authentication() {
         header("Location:".$rootdir."/login.php");
         exit();
     }
-    if($_SESSION["timeout"] + 700 < time()){
+    if($_SESSION["timeout"] + 4000 < time()){
         header("Location:".$rootdir."/login.php?timeout=true");
         exit();
     }

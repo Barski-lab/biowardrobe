@@ -90,9 +90,6 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                //double value=0;//i.value().getLevel();
-                //genome::Cover::countReads<double>(i.value(),value);
-                //result[shift+position]+=value;
                 genome::Cover::countReads<double>(i.value(),result[shift+position]);
                 ++i;
             }
@@ -140,9 +137,7 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                //double value=0;//i.value().getLevel();
                 genome::Cover::countReads<double>(i.value(),result[shift+mapping-position]);
-                //result[shift+mapping-position]+=value;
                 ++i;
             }
         }

@@ -60,6 +60,7 @@ STORE_DEFS = {
     proxy: function(TBL,UNL){
         var prx= {
             type: 'ajax',
+            timeout: 600000,
             api: {
                 read : 'data/GeneralList.php',
                 update: 'data/GeneralListUp.php',

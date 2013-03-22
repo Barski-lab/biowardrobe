@@ -32,7 +32,6 @@ Ext.define('EMS.view.user.Edit', {
 
                initComponent: function() {
                    var me = this;
-                   var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
                    me.items =
                            [{

@@ -279,4 +279,5 @@ OTHER_FILES += \
     data/ProjectDel.php \
     data/GeneralListAdd.php \
     data/ResultDel.php \
-    data/deseq.R
+    data/deseq.R \
+    app/view/ProgressBar.js

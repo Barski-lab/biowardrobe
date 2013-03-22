@@ -24,7 +24,7 @@ Ext.define('EMS.controller.Project', {
                extend: 'Ext.app.Controller',
                models: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart'],
                stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart'],
-               views:  ['Project.Preliminary','Project.ProjectList','Project.ProjectDesign','charts.PCA'],
+               views:  ['Project.Preliminary','Project.ProjectList','Project.ProjectDesign','charts.PCA','ProgressBar'],
 
                init: function() {
                    var me=this;
@@ -130,8 +130,9 @@ Ext.define('EMS.controller.Project', {
                  */
                onProjectWindowRendered: function(view) {
                    var store=this.getProjectStore();
-                   if(!Rights.check(USER_ID,'projectlist'))
-                   store.getProxy().setExtraParam('workerid',USER_ID);
+                   if(!Rights.check(USER_ID,'projectlist')) {
+                       store.getProxy().setExtraParam('workerid',USER_ID);
+                   }
                    store.load();
                },
                onProjectAddClick: function(button,e,eOpts) {
@@ -242,20 +243,26 @@ Ext.define('EMS.controller.Project', {
                                             project_id: me.project_id
                                         });
                    resultStore.insert(0,model);
+                   me.progress=Ext.create('EMS.view.ProgressBar',{modal:true});
+                   me.progress.show();
+                   Ext.WindowMgr.bringToFront(this.progress);
+
                    resultStore.sync({
                                         success:function(){
                                             record.data.status=2;
+                                            resultStore.load(function (batch, options){
+                                                var resStore=me.getResultsGrouppingStore();
+                                                resStore.load();
+                                                var aStore=me.getAnalysisGroupStore();
+                                                aStore.load();
+                                            });
+                                            me.progress.progress.reset();
+                                            me.progress.close();
                                         },
                                         failure:function(){
                                             record.data.status=1;
+                                            me.progress.close();
                                         }});
-                   resultStore.load(function (batch, options){
-                       //console.log("run load");
-                       var resStore=me.getResultsGrouppingStore();
-                       resStore.load();
-                       var aStore=me.getAnalysisGroupStore();
-                       aStore.load();
-                   });
 
 
                },

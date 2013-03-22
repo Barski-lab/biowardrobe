@@ -53,13 +53,13 @@ var Timer = (function(){
 
     var task;
     var runner;
-    var limit=600000
+    var limit=600000*6;
     var me=this;
     me.time=new Date();
     return {
         get: function(){
             var cur_date = new Date();
-            me.clock=(limit-(cur_date - me.time))/1000;
+            me.clock=(limit-(cur_date - me.time))/(1000*60);
             me.panel.setTitle('<div style="float: right; text-align: right;">'+Ext.Date.format(cur_date, 'g:i:s A')+'&nbsp;('+me.clock.toFixed()+')&nbsp;</div>');
             if( cur_date - me.time >= limit) {
                 window.location="login.php?timeout=true";
