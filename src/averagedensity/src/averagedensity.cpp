@@ -90,9 +90,10 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
         {
             while(i!=e && (position=i.key()-start) < length)
             {
-                double value=0;//i.value().getLevel();
-                genome::Cover::countReads<double>(i.value(),value);
-                result[shift+position]+=value;
+                //double value=0;//i.value().getLevel();
+                //genome::Cover::countReads<double>(i.value(),value);
+                //result[shift+position]+=value;
+                genome::Cover::countReads<double>(i.value(),result[shift+position]);
                 ++i;
             }
         }
@@ -253,7 +254,7 @@ void AverageDensity::start()
         QFile batchBamFiles;
         batchBamFiles.setFileName(gArgs().getArgs("in").toString());
         bool raw_data=gArgs().getArgs("avd_rawdata").toBool();
-        bool isRegion=false;
+        //bool isRegion=false;
 
         batchBamFiles.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream inFiles(&batchBamFiles);
@@ -287,7 +288,7 @@ void AverageDensity::start()
             QStringList split=gArgs().getArgs("avd_wilc_region").toString().split(":");
             left_right[0]=split[0].toInt();
             left_right[1]=split[1].toInt();
-            isRegion=true;
+            //isRegion=true;
         }
 
 
@@ -301,7 +302,7 @@ void AverageDensity::start()
         int blocks=1;
         QVector<int> orig_length;
 
-        int ccc=0;
+        //int ccc=0;
 
         while (!in.atEnd())
         {
@@ -366,27 +367,27 @@ void AverageDensity::start()
 
                 storage[plt_name]=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
 
-                //find max
-                if(1==blocks && raw_data) {
-                    int pos=0;
-                    double mx=storage[plt_name].at(qMin(5,storage[plt_name].size()));
-                    for(int j=5;j<storage[plt_name].size();j++) {
-                        if(mx<storage[plt_name].at(j)) {
-                            mx=storage[plt_name].at(j);
-                            pos=j;
-                        }
-                    }
-                    if(!isRegion) {
-                        if(ccc==0) {
-                            ccc=1;
-                            left_right[0]=pos;
-                            left_right[1]=pos;
-                        } else {
-                            left_right[0]=qMin(pos,left_right[0]);
-                            left_right[1]=qMax(pos,left_right[1]);
-                        }
-                    }
-                }
+//                //find max
+//                if(1==blocks && raw_data) {
+//                    int pos=0;
+//                    double mx=storage[plt_name].at(qMin(5,storage[plt_name].size()));
+//                    for(int j=5;j<storage[plt_name].size();j++) {
+//                        if(mx<storage[plt_name].at(j)) {
+//                            mx=storage[plt_name].at(j);
+//                            pos=j;
+//                        }
+//                    }
+//                    if(!isRegion) {
+//                        if(ccc==0) {
+//                            ccc=1;
+//                            left_right[0]=pos;
+//                            left_right[1]=pos;
+//                        } else {
+//                            left_right[0]=qMin(pos,left_right[0]);
+//                            left_right[1]=qMax(pos,left_right[1]);
+//                        }
+//                    }
+//                }
             }
 
         }
@@ -477,10 +478,10 @@ void AverageDensity::start()
 
         //Output raw data
         if(1==blocks && raw_data) {
-            if(!isRegion) {
-                left_right[0]-=300;
-                left_right[1]+=300;
-            }
+//            if(!isRegion) {
+//                left_right[0]-=300;
+//                left_right[1]+=300;
+//            }
 
             QList<QString> keys=storage_wilconxon.keys();
             int files=keys.size();
@@ -493,11 +494,17 @@ void AverageDensity::start()
                 outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
                 for(int j=0; j<storage_wilconxon[keys[i]].size();j++) {
-                    double cur_sum=0.0;
-                    for(int sum=qMax(0,(left_right[0]));sum<qMin((left_right[1]),storage_wilconxon[keys[i]][j].size()); sum++) {
-                        cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
+                    //double cur_sum=0.0;
+//                    for(int sum=qMax(0,(left_right[0]));sum<qMin((left_right[1]),storage_wilconxon[keys[i]][j].size()); sum++) {
+//                        cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
+//                    }
+                    QString line="";
+                    for(int r=0;r<storage_wilconxon[keys[i]][j].size();r++) {
+                        line.append(QString("%1 ").arg(storage_wilconxon[keys[i]][j].at(r)));
                     }
-                    outFile.write((QString("%1\n").arg(cur_sum/(wilconxon_norm[keys[i]]))).toAscii());
+                    line.chop(1);
+                    line+="\n";
+                    outFile.write(line.toAscii());
                 }
                 outFile.close();
             }
