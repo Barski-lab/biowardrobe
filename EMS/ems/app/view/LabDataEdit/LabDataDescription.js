@@ -38,7 +38,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                    xtype: 'panel',
                                    frame: false,
                                    border: true,
-                                   height: 200,
+                                   height: 250,
                                    layout: 'fit',
                                    region: 'north',
                                    id: 'experiment-description',
@@ -58,6 +58,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '</tpl>',
+                                                   '<tr><td class="experiment-descr-1">File link:</td><td colspan=2 class="experiment-descr-2">{filename}</td>',
                                                    '</table>', {
                                                        rowspan: function(values) {
                                                            if(values>0)

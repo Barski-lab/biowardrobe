@@ -121,19 +121,19 @@ void sam_reader_thread::run(void)
                                 matrix.setElement(c,column,0.0);
                                 miss=true;
                             } else if(size(itv)<36 && itv.bounds().bits() != bicl::interval_bounds::_closed
-                                    && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) > 0.01 )  {
+                                      && (p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv))) > 0.01 )  {
                                 matrix.setElement(c,column,0.0);
                                 miss=true;
                             } else {
-//                                if(size(itv)<=min_exon_len && p_val==0.0) {
-//                                    p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv));
-//                                }
-//                                if( size(itv)>min_exon_len || p_val<0.05 ) {
-                                    matrix.setElement(c,column,cur_density==0.0?matrix.getLimit()*1.0e-10/size(itv):cur_density);
-//                                matrix.setElement(c,column,cur_density);
-//                                }else {
-//                                    matrix.setElement(c,column,matrix.getLimit()/size(itv));
-//                                }
+                                //                                if(size(itv)<=min_exon_len && p_val==0.0) {
+                                //                                    p_val=Math::Poisson_cdist<double>(cur_density*size(itv),average*(double)size(itv));
+                                //                                }
+                                //                                if( size(itv)>min_exon_len || p_val<0.05 ) {
+                                matrix.setElement(c,column,cur_density==0.0?matrix.getLimit()*1.0e-10/size(itv):cur_density);
+                                //                                matrix.setElement(c,column,cur_density);
+                                //                                }else {
+                                //                                    matrix.setElement(c,column,matrix.getLimit()/size(itv));
+                                //                                }
                                 rowCol[c]+=1.0;
                             }
                             matrix_orig.setElement(c,column,cur_density);
@@ -197,14 +197,19 @@ void sam_reader_thread::run(void)
 
                 for(int c=0;c<isoforms[0][key][i]->intersects_isoforms->size();c++) {
                     isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=(int)isoforms[0][key][i]->intersects_isoforms->at(c)->density;
-                    isoforms[0][key][i]->intersects_isoforms->at(c)->density=1000.0*isoforms[0][key][i]->intersects_isoforms->at(c)->density/isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size();
-                    double pm=(double)(sam_data->total-sam_data->notAligned)/1000000.0;
-                    isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
-                            isoforms[0][key][i]->intersects_isoforms->at(c)->density/pm;
-                    /*Wich RPKM is meaningfull ?*/
-                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff) {
-                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
-                        //isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=0;
+                    double pm=0.0;
+                    if(isoforms[0][key][i]->intersects_isoforms->at(c)->totReads>0) {
+                        isoforms[0][key][i]->intersects_isoforms->at(c)->density=1000.0*isoforms[0][key][i]->intersects_isoforms->at(c)->density/isoforms[0][key][i]->intersects_isoforms->at(c)->isoform.size();
+                        pm=(double)(sam_data->total-sam_data->notAligned)/1000000.0;
+                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=
+                                isoforms[0][key][i]->intersects_isoforms->at(c)->density/pm;
+                        /*Wich RPKM is meaningfull ?*/
+                        if(isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM < cutoff) {
+                            isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=cut_val;
+                            //isoforms[0][key][i]->intersects_isoforms->at(c)->totReads=0;
+                        }
+                    } else {
+                        isoforms[0][key][i]->intersects_isoforms->at(c)->RPKM=0;
                     }
                     if(!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(isoforms[0][key][i]->intersects_isoforms->at(c)->name2) )
                     {
@@ -270,10 +275,10 @@ void inline repeat_fill_matrix(Math::Matrix<double>& matrix,QList<int>& columns,
         for(int co=0;co<tot_col;co++) {
             matrix.setElement(idx,columns.at(co),matrix.getElement(idx,columns.at(co))+rp_level/(l_qip.size()*tot_col));
 
-//            if( (!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(l_qip.at(c)->name2)) || print ) {
-//                print=true;
-//                qDebug()<<"I: row:"<<idx<<" column:"<<columns.at(co)<<" val:"<<rp_level/(l_qip.size()*tot_col);
-//            }
+            //            if( (!gArgs().getArgs("debug_gene").toString().isEmpty() && gArgs().getArgs("debug_gene").toString().contains(l_qip.at(c)->name2)) || print ) {
+            //                print=true;
+            //                qDebug()<<"I: row:"<<idx<<" column:"<<columns.at(co)<<" val:"<<rp_level/(l_qip.size()*tot_col);
+            //            }
         }
     }
 }

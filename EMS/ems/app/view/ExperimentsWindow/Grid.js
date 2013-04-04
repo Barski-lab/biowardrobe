@@ -40,6 +40,7 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                    };
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: EMS.store.LabData,
+                                                       margin: '0 5 0 5',
                                                        displayInfo: true
                                                    });
 
@@ -235,7 +236,9 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          xtype: 'combobox',
                                          id: 'labdata-grid-user-filter',
                                          displayField: 'fullname',
+                                         margin: '0 0 5 5',
                                          editable: false,
+                                         width: 200,
                                          valueField: 'id',
                                          value: USER_ID,
                                          store: EMS.store.Worker
