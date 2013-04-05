@@ -282,13 +282,13 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      if(rec.data.root === true || rec.data.leaf === true)
                                                                          return '';
                                                                      //console.log(rec);
-                                                                     this.items[0].tooltip = 'Run';
+                                                                     this.items[0].tooltip = 'Run '+parseInt(rec.data.item_id)+'.';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          record.data.status=2;
                                                                          grid.refresh();
                                                                          me.fireEvent('startAnalysis',arguments);
                                                                      }
-                                                                         return 'media-play-green';
+                                                                     return 'media-play-green';
                                                                  }
                                                              } , {
                                                                  getClass: function(v, meta, rec) {
@@ -302,7 +302,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      if(rec.data.status > 1 && rec.data.leaf) {
                                                                          return '';
                                                                      }
-                                                                     this.items[2].tooltip = 'Delete';
+                                                                     this.items[2].tooltip = 'Delete '+parseInt(rec.data.item_id)+'.';
                                                                      this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          var parent=record.parentNode;
                                                                          if(record.data.leaf===true) {
@@ -425,27 +425,27 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      this.items[1].tooltip='';
                                                                      return 'space';
                                                                  }
-                                                             } ,
-                                                             {getClass: function(v, meta, rec) {
-                                                                 this.items[2].tooltip = 'Delete';
-                                                                 this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                     Ext.Msg.show({
-                                                                                      title: 'Deleteing result '+record.data.name,
-                                                                                      msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.name
-                                                                                           +'".<br> This process are going to delete all plots and results.',
-                                                                                      icon: Ext.Msg.QUESTION,
-                                                                                      buttons: Ext.Msg.YESNO,
-                                                                                      fn: function(btn) {
-                                                                                          if(btn !== "yes") return;
-                                                                                          grid.getStore().removeAt(rowIndex);
-                                                                                          grid.getStore().sync();
-                                                                                          grid.getStore().load();
-                                                                                          me.analysisStore.load();
-                                                                                      }
-                                                                                  });
+                                                             } , {
+                                                                 getClass: function(v, meta, rec) {
+                                                                     this.items[2].tooltip = 'Delete'+parseInt(rec.data.item_id)+'.';
+                                                                     this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                                         Ext.Msg.show({
+                                                                                          title: 'Deleteing result '+record.data.name,
+                                                                                          msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.name
+                                                                                               +'".<br> This process are going to delete all plots and results.',
+                                                                                          icon: Ext.Msg.QUESTION,
+                                                                                          buttons: Ext.Msg.YESNO,
+                                                                                          fn: function(btn) {
+                                                                                              if(btn !== "yes") return;
+                                                                                              grid.getStore().removeAt(rowIndex);
+                                                                                              grid.getStore().sync();
+                                                                                              grid.getStore().load();
+                                                                                              me.analysisStore.load();
+                                                                                          }
+                                                                                      });
+                                                                     }
+                                                                     return 'folder-delete';
                                                                  }
-                                                                 return 'folder-delete';
-                                                             }
                                                              }]
                                                      }
                                                  ]

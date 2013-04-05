@@ -1,6 +1,6 @@
 <?php
 
-require("common.php");
+   require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
@@ -13,8 +13,11 @@ else
 check_val($tablename);
 
 $con=def_connect();
-$con->select_db($db_name_experiments);
-
+if($tablename=="labdata") {
+    $con->select_db($db_name_ems);
+} else {
+    $con->select_db($db_name_experiments);
+}
 if (!($stmt = $con->prepare("describe `$tablename`"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
 }
@@ -54,9 +57,9 @@ while($row=$result->fetch_assoc()) {
     $RPKM = array();
     foreach($TYPE as $key => $val) {
         if($val == 'float')
-            $RPKM[$key] = round($row[$key],2);
+        $RPKM[$key] = round($row[$key],2);
         else
-            $RPKM[$key] = $row[$key];
+        $RPKM[$key] = $row[$key];
     }
     fputcsv($outstream, $RPKM,',','"');
     $i++;

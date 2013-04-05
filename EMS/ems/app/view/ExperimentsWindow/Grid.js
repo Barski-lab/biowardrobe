@@ -228,21 +228,37 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                          }
                                      }, '-' ,
                                      me.m_PagingToolbar,
-                                     /*Ext.create('Ext.PagingToolbar', {
-                                                    store: EMS.store.LabData,
-                                                    displayInfo: true
-                                                }),*/ '-' ,
-                                     {
+                                     '-' , {
                                          xtype: 'combobox',
                                          id: 'labdata-grid-user-filter',
                                          displayField: 'fullname',
-                                         margin: '0 0 5 5',
+                                         margin: '0 5 0 5',
                                          editable: false,
                                          width: 200,
                                          valueField: 'id',
                                          value: USER_ID,
                                          store: EMS.store.Worker
+                                     } , {
+                                         xtype: 'tbfill'
+                                     } , {
+                                         xtype: 'fieldcontainer',
+                                         layout: 'hbox',
+                                         items: [{
+                                                 xtype: 'button',
+                                                 text: 'save table',
+                                                 align: 'right',
+                                                 width: 80,
+                                                 submitValue: false,
+                                                 iconCls: 'disk',
+                                                 margin: '0 5 0 5',
+                                                 handler: function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                     window.location="data/csv.php?tablename=labdata";
+                                                 }
+                                             }
+                                         ]
                                      }
+
+
                                  ]//tbar
 
                              });  //grid/paging.js

@@ -31,10 +31,10 @@ for(i in 1:expNum) {
     tblName<-paste(mainQuery[i,1],tblEnd,sep="")
 
     if( i==1 ) {
-        fullData<-dbGetQuery(con,paste("SELECT refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd"))
+        fullData<-dbGetQuery(con,paste("SELECT refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd,strand"))
     }
     if(i>1) {
-        fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd")))
+        fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd,strand")))
     }
     groups<-append(groups,which(uniqGrp==mainQuery$rhead_id[i]))
     names<-append(names,c(mainQuery$name[i],paste("RPKM",mainQuery$name[i])))
@@ -47,6 +47,7 @@ E2<-sum(groups==2)
 
 dataDimention <- dim(fullData)[2]
 totReadsIndex<-seq(7,dataDimention,2)
+totRPKMIndex<-seq(8,dataDimention,2)
 
 cds <- newCountDataSet( fullData[,totReadsIndex] , deseqConditions)
 cdsF <- estimateSizeFactors( cds )
