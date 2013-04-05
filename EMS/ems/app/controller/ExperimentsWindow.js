@@ -218,7 +218,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA}));
 
-                       this.LabDataEdit.targetFrame.src='https://gbinternal/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
+                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -477,7 +477,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    maintabpanel.setActiveTab(2);
-                   var url='https://gbinternal/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
+                   var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
                    url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
                    this.LabDataEdit.targetFrame.load(url);
 
