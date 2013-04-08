@@ -44,19 +44,13 @@ if(!in_array($tablename,$AllowedTable)) {
                 if($typeid==4)
                     $cond=" libstatus > 11 and experimenttype_id between 1 and 2 ";
                 if($cond != "") {
-                if($where!= "")
                     $where=$where." and ".$cond;
-                else
-                    $where=" where $cond";
                 } else {
                     $res->print_error('Not yet supported.');
                 }
             }
             if($workerid != 0) {
-                if($where != "")
-                    $where=$where." and worker_id=$workerid ";
-                else
-                    $where=" where worker_id=$workerid ";
+                $where=$where." and worker_id=$workerid ";
             }
             $con=def_connect();
             $con->select_db($db_name_ems);
@@ -74,15 +68,16 @@ if(!in_array($tablename,$AllowedTable)) {
             } else {
                 $res->print_error('Not enough required parameters.');
             }
-            if($where!="")
-                $where=$where." and name like '$gnm%'";
-            else
-                $where=$where." where name like '$gnm%'";
+
+            $where=$where." and name like '$gnm%'";
+
             $con = new mysqli($db_host_gb,$db_user_gb,$db_pass_gb);
             if ($con->connect_errno)
                 $res->print_error('Could not connect: ' . $con->connect_error);
             if(!$con->select_db($gdb)) {
                 $res->print_error('Could not select db: ' . $con->connect_error);
+
+
             }
             break;
         }
