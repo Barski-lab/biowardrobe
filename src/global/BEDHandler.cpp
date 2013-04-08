@@ -230,6 +230,15 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
     quint64 begin=0;
     int sql_groupping=0;
     int old=0;
+
+    QSqlDatabase db = QSqlDatabase::database();
+    db.close();
+    if (!db.open() ) {
+        QSqlError sqlErr = db.lastError();
+        qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+        throw "Error connect to DB";
+    }
+
     switch(gArgs().getArgs("bed_format").toInt()) {
     case 4:
         for(qint64 i=0;i<cover.size();i++) {
@@ -289,6 +298,14 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
 //-------------------------------------------------------------
 
 void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& chrom, QChar const& strand) {
+
+    QSqlDatabase db = QSqlDatabase::database();
+    db.close();
+    if (!db.open() ) {
+        QSqlError sqlErr = db.lastError();
+        qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+        throw "Error connect to DB";
+    }
 
     QString appe;
     QMap<int,int>::iterator i = bed.begin();
