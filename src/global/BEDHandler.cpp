@@ -230,14 +230,7 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
     quint64 begin=0;
     int sql_groupping=0;
     int old=0;
-
     QSqlDatabase db = QSqlDatabase::database();
-    db.close();
-    if (!db.open() ) {
-        QSqlError sqlErr = db.lastError();
-        qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
-        throw "Error connect to DB";
-    }
 
     switch(gArgs().getArgs("bed_format").toInt()) {
     case 4:
@@ -251,11 +244,20 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
             if(!no_sql_upload) {
                 sql_groupping++;
                 appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrom).arg(begin-1).arg(i-1).arg(old);
-                if(sql_groupping==1000) {
+                if(sql_groupping==100) {
                     sql_groupping=0;
                     appe.chop(1);
-                    if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                    if(!q.exec(sql_prep+appe+"; COMMIT;")) {
                         qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
+                        db.close();
+                        if (!db.open() ) {
+                            QSqlError sqlErr = db.lastError();
+                            qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+                            throw "Error connect to DB";
+                        }
+                        if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                            qWarning()<<qPrintable("COMMIT query error 2. "+q.lastError().text());
+                    }
                     appe.clear();
                 }
             }
@@ -274,7 +276,7 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
             if(!no_sql_upload) {
                 sql_groupping++;
                 appe+=QString(" (0,'%1',%2,%3,%4%5,0,'%6'),").arg(chrom).arg(begin-1).arg(i-1).arg(strand).arg(old).arg(strand);
-                if(sql_groupping==1000) {
+                if(sql_groupping==100) {
                     sql_groupping=0;
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
@@ -300,15 +302,10 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
 void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& chrom, QChar const& strand) {
 
     QSqlDatabase db = QSqlDatabase::database();
-    db.close();
-    if (!db.open() ) {
-        QSqlError sqlErr = db.lastError();
-        qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
-        throw "Error connect to DB";
-    }
-
     QString appe;
+    int sql_groupping=0;
     QMap<int,int>::iterator i = bed.begin();
+
 
     switch(gArgs().getArgs("bed_format").toInt()) {
     case 4:
@@ -317,8 +314,25 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
             if(!create_file)
                 _outFile.write(QString(chrom+"\t%1\t%2\t%3\n").arg(i.key()).arg(i.key()+window).arg(i.value()).toLocal8Bit());
 
-            if(!no_sql_upload)
+            if(!no_sql_upload) {
+                sql_groupping++;
                 appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrom).arg(i.key()).arg(i.key()+window).arg(i.value());
+                if(sql_groupping==100) {
+                    sql_groupping=0;
+                    appe.chop(1);
+                    if(!q.exec(sql_prep+appe+"; COMMIT;")) {
+                        qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
+                        db.close();
+                        if (!db.open() ) {
+                            QSqlError sqlErr = db.lastError();
+                            qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+                            throw "Error connect to DB";
+                        }
+                        if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                            qWarning()<<qPrintable("COMMIT query error 2. "+q.lastError().text());
+                    }
+                    appe.clear();
+                }
         }
         break;
     case 8:
@@ -337,8 +351,17 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
 
     if(!no_sql_upload) {
         appe.chop(1);
-        if(!q.exec(sql_prep+appe+"; COMMIT;"))
+        if(!q.exec(sql_prep+appe+"; COMMIT;")) {
             qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
+            db.close();
+            if (!db.open() ) {
+                QSqlError sqlErr = db.lastError();
+                qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
+                throw "Error connect to DB";
+            }
+            if(!q.exec(sql_prep+appe+"; COMMIT;"))
+                qWarning()<<qPrintable("COMMIT query error 2. "+q.lastError().text());
+        }
     }
 }
 
