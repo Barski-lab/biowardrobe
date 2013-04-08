@@ -22,7 +22,7 @@
 
 Ext.define( 'EMS.model.GenomeGroup', {
                extend: 'Ext.data.Model',
-               idProperty: 'name',
+               //idProperty: 'name',
                fields:
                    [
                    { name: 'name', type: 'string' },
