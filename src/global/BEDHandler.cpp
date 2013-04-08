@@ -333,6 +333,7 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
                     }
                     appe.clear();
                 }
+            }
         }
         break;
     case 8:
