@@ -96,17 +96,17 @@ void BEDHandler::init(Storage& sam)
 
     if(!q.exec(trackDb))
     {
-        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+        qWarning()<<qPrintable("Create table query error. "+q.lastError().text());
     }
 
     if(!q.exec("DELETE IGNORE FROM "+trackDb_table+" WHERE tableName like '"+gArgs().getArgs("sql_table").toString()+"';"))
     {
-        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+        qWarning()<<qPrintable("Delete from table query error. "+q.lastError().text());
     }
 
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";"))
     {
-        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+        qWarning()<<qPrintable("Drop table query error. "+q.lastError().text());
     }
 
     QString tbl;
@@ -140,7 +140,7 @@ void BEDHandler::init(Storage& sam)
                 arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
         {
-            qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+            qWarning()<<qPrintable("Insert record into trackDb query error. "+q.lastError().text());
         }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name) VALUES";
         break;
@@ -156,7 +156,7 @@ void BEDHandler::init(Storage& sam)
                    "strand char not null"
                    ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
         {
-            qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+            qWarning()<<qPrintable("Create 1 query error. "+q.lastError().text());
         }
         sql=QString("insert ignore into "+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
                     "colorR,colorG,colorB,"
@@ -169,7 +169,7 @@ void BEDHandler::init(Storage& sam)
                 arg(gArgs().getArgs("sql_grp").toString());
         if(!q.exec(sql))
         {
-            qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+            qWarning()<<qPrintable("Insert 1 query error. "+q.lastError().text());
         }
         sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name,score,strand) VALUES";
         break;
@@ -242,11 +242,11 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
             if(!no_sql_upload) {
                 sql_groupping++;
                 appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrom).arg(begin-1).arg(i-1).arg(old);
-                if(sql_groupping==3000) {
+                if(sql_groupping==1000) {
                     sql_groupping=0;
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+                        qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
                     appe.clear();
                 }
             }
@@ -265,11 +265,11 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
             if(!no_sql_upload) {
                 sql_groupping++;
                 appe+=QString(" (0,'%1',%2,%3,%4%5,0,'%6'),").arg(chrom).arg(begin-1).arg(i-1).arg(strand).arg(old).arg(strand);
-                if(sql_groupping==3000) {
+                if(sql_groupping==1000) {
                     sql_groupping=0;
                     appe.chop(1);
                     if(!q.exec(sql_prep+appe+"; COMMIT;"))
-                        qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+                        qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
                     appe.clear();
                 }
             }
@@ -281,7 +281,7 @@ void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const&
     if(!no_sql_upload && sql_groupping>0) {
         appe.chop(1);
         if(!q.exec(sql_prep+appe+"; COMMIT;"))
-            qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+            qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
     }
 }
 
@@ -321,7 +321,7 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
     if(!no_sql_upload) {
         appe.chop(1);
         if(!q.exec(sql_prep+appe+"; COMMIT;"))
-            qWarning()<<qPrintable("Select query error. "+q.lastError().text());
+            qWarning()<<qPrintable("COMMIT query error. "+q.lastError().text());
     }
 }
 
