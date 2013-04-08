@@ -61,8 +61,9 @@ Ext.define('EMS.view.GenomeGroup.List' ,{
                                           if(me.total<0)
                                               me.total=EMS.store.GenomeGroup.getTotalCount();
                                           me.total++;
+                                          var tim=new Date().getTime();
 
-                                          var r = Ext.create('EMS.model.GenomeGroup', { name:USER_LNAME+'_'+USER_ID+'_'+me.total,label: USER_NAME+' New Genome Browser Group', priority: '1',defaultIsClosed: '1'} );
+                                          var r = Ext.create('EMS.model.GenomeGroup', { name:USER_LNAME+'_'+USER_ID+'_'+me.total+'_'+tim,label: USER_NAME+' New Genome Browser Group', priority: '1',defaultIsClosed: '1'} );
                                           EMS.store.GenomeGroup.insert(0, r);
                                           cellEditing.startEditByPosition({row: 0, column: 1});
                                       },
