@@ -9,6 +9,10 @@ function def_connect() {
     $con = new mysqli($db_host,$db_user,$db_pass);
     if ($con->connect_errno)
         $res->print_error('Could not connect: ' . $con->connect_error);
+    /* change character set to utf8 */
+    if (!$con->set_charset("utf8")) {
+	$res->print_error("Error loading character set utf8:". $con->error);
+    }
     return $con;
 }
 

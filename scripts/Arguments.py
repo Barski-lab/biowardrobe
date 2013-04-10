@@ -39,6 +39,8 @@ class Arguments:
 	self.parser = OptionParser()
 	self.parser.add_option("", "--in", action="store", type="string",
                   dest="infile", help="input file", metavar="<file>")
+	self.parser.add_option("", "--out", action="store", type="string",
+                  dest="outfile", help="output file", metavar="<file>")
 	self.parser.add_option("", "--id", action="store", type="int",
                   dest="id", help="record id", metavar="<int>")
 	(self.opt, args) = self.parser.parse_args(self.argv)

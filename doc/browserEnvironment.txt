@@ -35,7 +35,7 @@ export LOGDIR="${KENTHOME}/browserLogs"
 export GBDB="/data/gbdb"
 # BROWSERHOME - directory where cgi-bin/ trash/ and htdocs/ should exist
 #   This is typically something like /var/www or /usr/local/apache
-export BROWSERHOME="/srv/www"
+export BROWSERHOME="/srv/gbinternal"
 # DOCUMENTROOT - location of top level htdocs for downloading UCSC static html
 #	file hierarchy
 export DOCUMENTROOT="${BROWSERHOME}/htdocs"
