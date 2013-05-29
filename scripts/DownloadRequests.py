@@ -14,8 +14,12 @@ import random
 import MySQLdb 
 import glob
 import DefFunctions as d
+import subprocess as s # import call
+import datetime
 
+now = datetime.datetime.now()
 
+print str(now)
 
 main_page='http://dna.cchmc.org/www/main.php'
 login_page='http://dna.cchmc.org/www/logon.php'
@@ -51,6 +55,7 @@ def file_exist(basedir,libcode):
 def make_fname(fname):
     outfname=os.path.basename(fname)
     outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
+    outfname=re.sub('\.gz','',outfname)
     outfname=re.sub('\.'+extension+'','',outfname)
     return outfname
 
@@ -87,53 +92,80 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
     fname=list()
     path=list()
     flist=list()
-    
+    ofname=str()
+    gz=False
+    #print r.text
+    if 'logon_form' in r.text:
+	error[1]='incorrect DNA core credentials'
+	return error
     for line in r.text.splitlines():
 	if '/data' in line:
 	    split_line=line.split('\'')
 	    if extension in split_line[3] and libcode in split_line[3]:
 		path.append(split_line[1])
 		fname.append(split_line[3])
+		if ".gz" in split_line[3]:
+		    gz=True
+		
     if len(fname) == 1 and not pair:
-	r = session.get(download_page+'?file='+path[0]+'&name='+fname[0]).raw
+	r = session.get(download_page+'?file='+path[0]+'&name='+fname[0])
 	outfname=make_fname(fname[0])+'_'+str(random.randrange(10000,99999))
 
 	if os.path.isfile(basedir+'/'+outfname+'.'+extension):
 	    error[1] = 'Now file exist'
 	    return error
 	    
-	output=open(basedir+'/'+outfname+'.'+extension,'wb')
+	ofname=basedir+'/'+outfname+'.'+extension
 
-	while True:
-	    chunk = r.read(1024*1024)
-	    if not chunk: break
-	    output.write(chunk)
+	if gz:
+	    ofname=basedir+'/'+outfname+'.'+extension+'.gz'
+	    
+	if r.status_code == 200:
+	    with open(ofname, 'wb') as f:
+    		for chunk in r.iter_content(1024*1024):
+        	    f.write(chunk)
 
-	output.close()
-	flist.append(outfname)
-	return flist
+	    PAR='gunzip '+ofname    	
+	    RET=''
+	    try:
+		RET=s.check_output(PAR,shell=True)
+	    except Exception,e:
+        	print "error ungzip"+RET
+		pass
+	    flist.append(outfname)
+	    return flist
 
     if len(fname) == 2 and pair:
 	rnd=str(random.randrange(10000,99999))
 
 	for i in range(2):
-	    r = session.get(download_page+'?file='+path[i]+'&name='+fname[i]).raw
+	    r = session.get(download_page+'?file='+path[i]+'&name='+fname[i])
 	    outfname=make_fname(fname[i])+'_'+rnd
 	    
+	    ofname=basedir+'/'+outfname+'.'+extension
+	    if gz:
+		ofname=basedir+'/'+outfname+'.'+extension+'.gz'
+		
 	    if os.path.isfile(basedir+'/'+outfname+'.'+extension):
 		error[1]='Now file exist'
 		return error
 	    
-	    output=open(basedir+'/'+outfname+'.'+extension,'wb')
-
-	    while True:
-		chunk = r.read(1024*1024)
-		if not chunk: break
-		output.write(chunk)
-
-	    flist.append(outfname)
-	    output.close()
+	    if r.status_code == 200:
+		with open(ofname, 'wb') as f:
+    		    for chunk in r.iter_content(1024*1024):
+        		f.write(chunk)
+		PAR='gunzip '+ofname    	
+		RET=''
+		try:
+		    RET=s.check_output(PAR,shell=True)
+		except Exception,e:
+        	    print "error ungzip"+RET
+		    pass
+		
+		flist.append(outfname)	
 	return flist
+	
+	
     warning[1]='Cant find file'
     return warning
 #### end of def
@@ -191,24 +223,26 @@ while True:
 	pass
     #print row[0]
     a=get_file(row[0],row[1],row[2],basedir,PAIR)
-    #print a
-
     if 'Error' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
-	continue
+	if 'incorrect DNA core credentials' in a[1]:
+	    cursor.execute("update worker set dnapass='' where worker like %s",(row[3]))
+	    conn.commit()
+	#continue
+    break
     if 'Warning' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
 	continue
-    if len(a)==1:
+    if len(a)==1 and not PAIR:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0],row[4]))
 
-    if len(a)==2:
+    if len(a)==2 and PAIR:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
 
-    if notify:
-	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
+    #if notify:
+    #	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
 
     conn.commit()
 

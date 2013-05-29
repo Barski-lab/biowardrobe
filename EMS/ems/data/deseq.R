@@ -53,7 +53,7 @@ cds <- newCountDataSet( fullData[,totReadsIndex] , deseqConditions)
 cdsF <- estimateSizeFactors( cds )
 
 if(E1==1 | E2==1) {
-    cdsD <- estimateDispersions( cdsF ,method="blind",sharingMode="fit-only")
+    cdsD <- estimateDispersions( cdsF ,method="blind",sharingMode="fit-only",fitType="local")
 } else {
     cdsD <- estimateDispersions( cdsF )
 }
