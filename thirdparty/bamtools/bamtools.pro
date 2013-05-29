@@ -37,6 +37,10 @@ MOC_DIR     = GeneratedFiles
 RCC_DIR     = GeneratedFiles
 }
 
+macx{
+QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
+QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
+}
 # Input
 HEADERS += api/api_global.h \
            api/BamAlgorithms.h \

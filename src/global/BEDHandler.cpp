@@ -398,7 +398,7 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                     genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
                     quint64 beg=itv.lower();
                     quint64 end=itv.upper();
-                    int len=abs(end-len);
+                    //int len=abs(end-beg);
                     if(direction) {
                         end=beg+interestedLen;
                     } else {
