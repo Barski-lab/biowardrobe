@@ -229,8 +229,8 @@ while True:
 	if 'incorrect DNA core credentials' in a[1]:
 	    cursor.execute("update worker set dnapass='' where worker like %s",(row[3]))
 	    conn.commit()
-	#continue
-    break
+	continue
+
     if 'Warning' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
