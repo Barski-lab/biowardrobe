@@ -103,16 +103,16 @@ def run_fence(infile):
 
 def run_bedgraph(infile,group,name4browser,bedformat,db,pair):
 
-    FL=file_exist('.',infile,'log')
+#    FL=file_exist('.',infile,'log')
     
-    if len(FL) == 1:
-	success[1]=' Bedgraph uploaded'
-	return success
+#    if len(FL) == 1:
+#	success[1]=' Bedgraph uploaded'
+#	return success
 
     PAR=''
     if not pair:
 	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
-	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=200 -bed_siteshift=75 -bed_format='+bedformat+' -no-bed-file -sql_dbname='+db
+	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=200 -bed_siteshift=75 -bed_format='+bedformat+' -no-bed-file -sql_host=localhost -sql_dbname='+db
 
     RET=''
     try:

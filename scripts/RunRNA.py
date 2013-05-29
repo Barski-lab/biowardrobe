@@ -127,7 +127,7 @@ def run_bedgraph(infile,group,name4browser,bedformat,db):
 	return success
 	
     PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
-    PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_dbname='+db
+    PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_host=localhost -sql_dbname='+db
     RET=''
     try:
 	RET=s.check_output(PAR,shell=True)
