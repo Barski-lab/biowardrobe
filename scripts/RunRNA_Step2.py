@@ -73,6 +73,8 @@ def run_rpkm(infile,name4browser,db,dutp,spike):
 
     if dutp:
         PAR=PAR+' -rna_seq="dUTP" '
+    else:
+        PAR=PAR+' -rna_seq="RNA" '	
     if not spike:
 	PAR=PAR+' -sam_ignorechr="control" '
     
@@ -117,9 +119,9 @@ while True:
     DUTP=('dUTP' in row[0])
     FNAME=''
     if PAIR:
-	FNAME=row[5]
-    else:
 	FNAME=row[5].split(";")[0]
+    else:
+	FNAME=row[5]
 
     DB=row[2]
     SPIKE=('spike' in row[3])

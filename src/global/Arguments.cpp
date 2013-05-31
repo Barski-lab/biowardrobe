@@ -273,6 +273,7 @@ void Arguments::argsList(void)
     Arguments::addArg("sam_ignorechr","sam_ignorechr","SAM/IGNORECHR",QVariant::String,"Which chromosome to ignore",QString(""));//chrM
     Arguments::addArg("sam_frag_filtr","sam_frag_filtr","SAM/FRAGFILTR",QVariant::String,"Which length of fragment to leave -sam_frag_filtr=\"120-150\"",QString(""));
 
+    Arguments::addArg("debug","debug","DEBUG",QVariant::Bool,"Output debug data",false);
 }
 
 /***************************************************************************************

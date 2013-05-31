@@ -52,12 +52,10 @@ def make_fname(fname):
 def run_bowtie(infile,findex,pair):
 
     if pair:
-	#FL=file_exist('.',infile,'bam')
 	FN=infile.split(";")
-        if len(file_exist('.',FN[0],'bam')) == 1 and len(file_exist('.',FN[1],'bam')) == 1:
+        if len(file_exist('.',FN[0],'bam')) == 1:
             success[1]='Bam file exists'
 	    return success
-
 	PAR='bowtie -q -v 3 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' -1 '+FN[0]+'.fastq -2 '+FN[1]+'.fastq 2>./'+FN[0]+'.bw | samtools view -Sb - >./'+FN[0]+'.bam 2>/dev/null'
     else:
         if len(file_exist('.',infile,'bam')) == 1:
@@ -103,16 +101,19 @@ def run_fence(infile):
 
 def run_bedgraph(infile,group,name4browser,bedformat,db,pair):
 
-#    FL=file_exist('.',infile,'log')
+    FL=file_exist('.',infile,'log')
     
-#    if len(FL) == 1:
-#	success[1]=' Bedgraph uploaded'
-#	return success
+    if len(FL) == 1:
+	success[1]=' Bedgraph uploaded'
+	return success
 
     PAR=''
     if not pair:
 	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
 	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=200 -bed_siteshift=75 -bed_format='+bedformat+' -no-bed-file -sql_host=localhost -sql_dbname='+db
+    if pair:
+	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log" -bed_type=2' 
+	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=0 -bed_siteshift=0 -bed_format='+bedformat+' -no-bed-file -sql_host=localhost -sql_dbname='+db
 
     RET=''
     try:
