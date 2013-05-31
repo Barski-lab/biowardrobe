@@ -274,7 +274,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        }//if ribosomal chart
                    }//sts>11
                    if (sts >20 && isRNA) {
-                       this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']+'_genes');
+                       var tblname=record.raw['filename'].split(';')[0];
+                       this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+'_genes');
                        this.getRPKMStore().load();
                        var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
                        maintabpanel.add(RPKMtab);
@@ -477,7 +478,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    maintabpanel.setActiveTab(2);
-                   var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename']+'=full';
+                   var tblname=record.data['filename'].split(';')[0];
+                   var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+tblname+'=full';
                    url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
                    this.LabDataEdit.targetFrame.load(url);
 
@@ -487,12 +489,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=btn.up('window').down('form').getForm();
                    var record = form.getRecord();
                    var combo=Ext.getCmp('rpkm-group-filter');
-                   window.location="data/csv.php?tablename="+record.data['filename']+combo.value;
+                   var tblname=record.data['filename'].split(';')[0];
+                   window.location="data/csv.php?tablename="+tblname+combo.value;
                },
                onRpkmGroupFilter: function(combo, records, options) {
                    var form=combo.up('window').down('form').getForm();
                    var record = form.getRecord();
-                   this.getRPKMStore().getProxy().setExtraParam('tablename',record.raw['filename']+combo.value);
+                   var tblname=record.raw['filename'].split(';')[0];
+                   this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+combo.value);
                    this.getRPKMStore().load();
                }
            });
