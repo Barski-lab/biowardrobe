@@ -58,12 +58,18 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '</tpl>',
-                                                   '<tr><td class="experiment-descr-1">File link:</td><td colspan=2 class="experiment-descr-2">{filename}</td>',
+                                                   '<tr><td class="experiment-descr-1">File link:</td>',
+                                                     '<td colspan=2 class="experiment-descr-2">',
+                                                        '{[this.filename(values.filename,values.RNADNA,values.worker)]}</td>',
                                                    '</table>', {
                                                        rowspan: function(values) {
                                                            if(values>0)
                                                                return 5;
                                                            return 3;
+                                                       },
+                                                       filename: function(str,rnadna,worker) {
+                                                           var basename=str.split(';')[0];
+                                                           return '<a href="https://10.1.97.82/FASTQ-DATA/'+worker+'/'+rnadna+'/'+basename+'.bam">'+basename+".bam</a>";
                                                        }
                                                    }
                                                    )
