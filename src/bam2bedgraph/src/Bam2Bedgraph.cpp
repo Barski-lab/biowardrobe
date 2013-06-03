@@ -32,17 +32,14 @@ typedef BEDHandler bed_handler;
 
 
 FSTM::FSTM(QObject *parent):
-    QObject(parent)
-{
+    QObject(parent) {
 }
 
-FSTM::~FSTM()
-{
+FSTM::~FSTM() {
 }
 
-void FSTM::start()
-{
-    try{
+void FSTM::start() {
+    try {
         gen_lines    sam_data;
         sam_reader   s(&sam_data);
         s.Load();
@@ -51,12 +48,10 @@ void FSTM::start()
         bed.Load();
 
     }
-    catch(char *str)
-    {
+    catch(char *str) {
         qDebug() << "Error rised:"<<str;
     }
-    catch(exception& e)
-    {
+    catch(exception& e) {
         qDebug() << "Error rised:"<<e.what( );
         qDebug() << "Type " << typeid( e ).name( );
     }

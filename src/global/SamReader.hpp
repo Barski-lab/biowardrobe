@@ -48,6 +48,7 @@ public:
 private:
 
     void initialize();
+    void prn_debug(QString str,BamAlignment &al);
 
     QString inFile;
     Storage   *output;

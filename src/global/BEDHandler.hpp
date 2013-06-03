@@ -46,8 +46,12 @@ private:
 
     bool create_file;
     bool no_sql_upload;
+    bool normalize;
+
     int bed_type;
     quint32 window;
+    float aligned;
+
 public:
 
     BEDHandler(Storage &sam);

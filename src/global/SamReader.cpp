@@ -97,7 +97,28 @@ void SamReader<Storage>::initialize()
 
 }
 
-
+template <class Storage>
+void SamReader<Storage>::prn_debug(QString str,BamAlignment &al) {
+    qDebug()
+    <<"\n"<<str<< 	  	al.Name.c_str()
+    <<"\n IsDuplicate:"<<	al.IsDuplicate()
+    <<"\n IsFailedQC"<<	 	al.IsFailedQC()
+    <<"\n IsMaped:"<< 	  	al.IsMapped()
+    <<"\n isFirstMate:"<< 	al.IsFirstMate()
+    <<"\n isSecondMate:"<< 	al.IsSecondMate()
+    <<"\n IsMateMapped:"<< 	al.IsMateMapped()
+    <<"\n IsMateReverseStrand:"<< al.IsMateReverseStrand() // returns true if alignment's mate mapped to reverse strand
+    <<"\n IsReverseStrand:"<<	al.IsReverseStrand()
+    <<"\n IsPaired:"<<		al.IsPaired()
+    <<"\n IsPrimaryAlignment:"<<al.IsPrimaryAlignment()
+    <<"\n IsProperPair:"<<	al.IsProperPair()
+    <<"\n AligmentFlag:"<<	al.AlignmentFlag
+    <<"\n MateRefId:"<<		references[al.MateRefID].RefName.c_str()
+    <<"\n Len:"<<		al.Length
+    <<"\n InsertSize:"<<	al.InsertSize
+    <<"\n MatePosition:["<<al.MatePosition<<"] "
+    <<"\n Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] ";
+}
 
 /****************************************************************************************************************************
 
@@ -142,94 +163,43 @@ void SamReader<Storage>::Load(void)
                 strnd= QChar('-');
                 shift= -siteshift;
             }
-	    
-	    if(al.IsPaired() && (!al.IsProperPair())) {
-                    output->notAligned+=num;
-                    if(debug)
-                qDebug()<<"\nName:" << 	  	al.Name.c_str()
-            	    <<"\n IsDuplicate:"<<	al.IsDuplicate()
-            	    <<"\n IsFailedQC"<<	 	al.IsFailedQC()
-                    <<"\n IsMaped:"<< 	  	al.IsMapped() 
-                    <<"\n isFirstMate:"<< 	al.IsFirstMate()
-                    <<"\n isSecondMate:"<< 	al.IsSecondMate()
-                    <<"\n IsMateMapped:"<< 	al.IsMateMapped()
-    		    <<"\n IsMateReverseStrand:"<< al.IsMateReverseStrand() // returns true if alignment's mate mapped to reverse strand
-                    <<"\n IsReverseStrand:"<<	al.IsReverseStrand()
-                    <<"\n IsPaired:"<<		al.IsPaired()
-                    <<"\n IsPrimaryAlignment:"<<al.IsPrimaryAlignment()
-                    <<"\n IsProperPair:"<<	al.IsProperPair()
-                    <<"\n AligmentFlag:"<<	al.AlignmentFlag
-                    <<"\n MateRefId:"<<		references[al.MateRefID].RefName.c_str()
-                    <<"\n Len:"<<		al.Length
-                    <<"\n InsertSize:"<<	al.InsertSize
-                    <<"\n MatePosition:["<<al.MatePosition<<"] "
-                    <<"\n Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] ";
-                    continue;
-	    }
 
-	    if(al.IsPaired() && al.IsProperPair() && al.IsMateMapped() ) {
-	    if( ( (al.Position<al.MatePosition) && al.IsReverseStrand() ) || ( (al.MatePosition < al.Position) && al.IsMateReverseStrand() )) {
-                    output->notAligned+=num;
-                    if(debug)
-                qDebug()<<"\nName2:"<< 	  	al.Name.c_str()
-            	    <<"\n IsDuplicate:"<<	al.IsDuplicate()
-            	    <<"\n IsFailedQC"<<	 	al.IsFailedQC()
-                    <<"\n IsMaped:"<< 	  	al.IsMapped() 
-                    <<"\n isFirstMate:"<< 	al.IsFirstMate()
-                    <<"\n isSecondMate:"<< 	al.IsSecondMate()
-                    <<"\n IsMateMapped:"<< 	al.IsMateMapped()
-    		    <<"\n IsMateReverseStrand:"<< al.IsMateReverseStrand() // returns true if alignment's mate mapped to reverse strand
-                    <<"\n IsReverseStrand:"<<	al.IsReverseStrand()
-                    <<"\n IsPaired:"<<		al.IsPaired()
-                    <<"\n IsPrimaryAlignment:"<<al.IsPrimaryAlignment()
-                    <<"\n IsProperPair:"<<	al.IsProperPair()
-                    <<"\n AligmentFlag:"<<	al.AlignmentFlag
-                    <<"\n MateRefId:"<<		references[al.MateRefID].RefName.c_str()
-                    <<"\n Len:"<<		al.Length
-                    <<"\n InsertSize:"<<	al.InsertSize
-                    <<"\n MatePosition:["<<al.MatePosition<<"] "
-                    <<"\n Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] ";
-                    continue;
-                    }
-	    }
-	    
-	    if(!RNA) {
-            if(al.IsMateMapped() && al.IsFirstMate() ) { //pair-end reads, but not RNA
-                int length=abs(al.InsertSize);
-                if( length==0 ) { //bug
-                    output->notAligned+=num;
-                qDebug()<<"\nName1:"<< 	  	al.Name.c_str()
-            	    <<"\n IsDuplicate:"<<	al.IsDuplicate()
-            	    <<"\n IsFailedQC"<<	 	al.IsFailedQC()
-                    <<"\n IsMaped:"<< 	  	al.IsMapped() 
-                    <<"\n isFirstMate:"<< 	al.IsFirstMate()
-                    <<"\n isSecondMate:"<< 	al.IsSecondMate()
-                    <<"\n IsMateMapped:"<< 	al.IsMateMapped()
-    		    <<"\n IsMateReverseStrand:"<< al.IsMateReverseStrand() // returns true if alignment's mate mapped to reverse strand
-                    <<"\n IsReverseStrand:"<<	al.IsReverseStrand()
-                    <<"\n IsPaired:"<<		al.IsPaired()
-                    <<"\n IsPrimaryAlignment:"<<al.IsPrimaryAlignment()
-                    <<"\n IsProperPair:"<<	al.IsProperPair()
-                    <<"\n AligmentFlag:"<<	al.AlignmentFlag
-                    <<"\n MateRefId:"<<		references[al.MateRefID].RefName.c_str()
-                    <<"\n Len:"<<		al.Length
-                    <<"\n InsertSize:"<<	al.InsertSize
-                    <<"\n MatePosition:["<<al.MatePosition<<"] "
-                    <<"\n Position:["<<references[al.RefID].RefName.c_str()<<":"<<al.Position+1<<"-"<<al.GetEndPosition()<<"] ";
-                    continue;
-                }
-                if( (u||l)>0 && (!(l<=length && length<=u)) ) { //fragment length filter, for pair ends
-                    output->notAligned+=num;
-                    continue;
-                }
-                if(al.IsReverseStrand()) {
-                    position_b= position_e-length+1;
-                } else {
-                    position_e= position_b+length-1;
-                }
-            } else  if(al.IsMateMapped() && al.IsSecondMate()) {
+            if(al.IsPaired() && (!al.IsProperPair())) {
+                output->notAligned+=num;
+                if(debug)
+                    prn_debug("Name1:",al);
                 continue;
             }
+
+            if(al.IsPaired() && al.IsProperPair() && al.IsMateMapped() ) {
+                if( ( (al.Position<al.MatePosition) && al.IsReverseStrand() ) || ( (al.MatePosition < al.Position) && al.IsMateReverseStrand() )) {
+                    output->notAligned+=num;
+                    if(debug)
+                        prn_debug("Name2:",al);
+                    continue;
+                }
+            }
+
+            if(!RNA) {
+                if(al.IsMateMapped() && al.IsFirstMate() ) { //pair-end reads, but not RNA
+                    int length=abs(al.InsertSize);
+                    if( length==0 ) { //bug
+                        output->notAligned+=num;
+                        prn_debug("Name3:",al);
+                        continue;
+                    }
+                    if( (u||l)>0 && (!(l<=length && length<=u)) ) { //fragment length filter, for pair ends
+                        output->notAligned+=num;
+                        continue;
+                    }
+                    if(al.IsReverseStrand()) {
+                        position_b= position_e-length+1;
+                    } else {
+                        position_e= position_b+length-1;
+                    }
+                } else  if(al.IsMateMapped() && al.IsSecondMate()) {
+                    continue;
+                }
             } // TODO:for RNA should join First and Second Mate reads
 
             genome::read_representation rp;
@@ -262,7 +232,7 @@ void SamReader<Storage>::Load(void)
             //                                  " strand:"<<strnd <<" Cigar"<<_out<<"cigar size:"<<cigarData.size()<<"  shift:"<<shift;
             output->setGene(strnd,
                             references[al.RefID].RefName.c_str(),
-                            rp,num);
+                    rp,num);
 
 
         } else {
