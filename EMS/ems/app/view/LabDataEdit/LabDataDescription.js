@@ -57,6 +57,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<tpl else>',
                                                    '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td class="experiment-descr-2">{fragmentsize}</td></tr>',
                                                    '</tpl>',
                                                    '<tr><td class="experiment-descr-1">File link:</td>',
                                                      '<td colspan=2 class="experiment-descr-2">',

@@ -91,7 +91,13 @@ bool operator==(QList<T> &s, QList<T> &s1)
 
 int main(void)
 {
+quint32 a=10,b=20,c=0;
 
+c=abs(a-b);
+qDebug()<<a<<b<<c;
+
+
+#if 0
 bicl::interval_map<int,QList<int*> > a,b,c; 
 
 QList<int*> c1,c2,c3;
@@ -200,4 +206,5 @@ else
 
 return 0; 
 */
+#endif
 }

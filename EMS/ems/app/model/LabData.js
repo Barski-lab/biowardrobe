@@ -43,6 +43,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'tagstotal', type: 'int', persist: false  },
                    { name: 'tagsmapped', type: 'int', persist: false  },
                    { name: 'tagsribo', type: 'int', persist: false  },
+                   { name: 'fragmentsize', type: 'int', persist: false  },
                    { name: 'notes', type: 'string' },
                    { name: 'protocol', type: 'string' },
                    { name: 'filename', type: 'string', persist: false  },

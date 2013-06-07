@@ -416,21 +416,24 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                 }
         break;
         case 3:
-            quint64 interestedLen=abs(shift*2);
+            qint64 interestedLen=window;
             for(;i!=e;i++)//through start positions
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
                     genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
                     for(;it!=i.value()[c].getInterval().end();it++) {
                         genome::read_representation::interval_type itv  = bicl::key_value<genome::read_representation>(it);
-                        quint64 beg=itv.lower();
-                        quint64 end=itv.upper();
-                        //int len=abs(end-beg);
+                        qint64 beg=itv.lower();
+                        qint64 end=itv.upper();
                         if(direction) {
                             end=beg+interestedLen;
                         } else {
                             beg=end-interestedLen;
                         }
-                        for(quint64 l=beg; l<=end; l++)
+
+                        if(beg<0) beg=0;
+                        if(end>max_len) end=max_len;
+
+                        for(qint64 l=beg; l<=end; l++)
                             cover[l]+=i.value()[c].getLevel();
                     }
                 }
