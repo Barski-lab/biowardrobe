@@ -124,4 +124,6 @@ create table if not exists analysis (
 ALTER TABLE `ems`.`analysis` ADD COLUMN `type` VARCHAR(45) NOT NULL DEFAULT ''  AFTER `rhead_id` ;
 ALTER TABLE `ems`.`project` ADD COLUMN `dateadd` DATE NULL  AFTER `worker_id` ;
 
+ALTER TABLE `ems`.`labdata` ADD COLUMN `fragmentsize` INT NULL COMMENT 'fragment size for Chip-seq data'  AFTER `tagsribo` ;
+
 set foreign_key_checks = 1 ;

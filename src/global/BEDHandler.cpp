@@ -416,7 +416,7 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString 
                 }
         break;
         case 3:
-            quint64 interestedLen=150;
+            quint64 interestedLen=abs(shift*2);
             for(;i!=e;i++)//through start positions
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
                     genome::read_representation::const_iterator it=i.value()[c].getInterval().begin();
