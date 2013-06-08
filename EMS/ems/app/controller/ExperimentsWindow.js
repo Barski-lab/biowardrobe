@@ -284,9 +284,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }//sts>11
                    if (sts >11 && !isRNA) {
                        this.getIslandsStore().getProxy().setExtraParam('tablename',tblname+'_macs');
-                       this.getIslandsStore().load();
-                       var Islandstab = Ext.create("EMS.view.LabDataEdit.LabDataIslands");
-                       maintabpanel.add(Islandstab);
+                       this.getIslandsStore().load({
+                                                       callback: function(records, operation, success) {
+                                                           if(success) {
+                                                               var Islandstab = Ext.create("EMS.view.LabDataEdit.LabDataIslands");
+                                                               maintabpanel.add(Islandstab);
+                                                           }
+                                                       }
+                                                   });
                    }
                    if (sts >20 && isRNA) {
                        //var tblname=record.raw['filename'].split(';')[0];
@@ -518,6 +523,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var combo=Ext.getCmp('rpkm-group-filter');
                    var tblname=record.data['filename'].split(';')[0];
                    window.location="data/csv.php?tablename="+tblname+combo.value;
+               },
+               onIslandsSave: function (btn) {
+                   var form=btn.up('window').down('form').getForm();
+                   var record = form.getRecord();
+                   var tblname=record.data['filename'].split(';')[0];
+                   window.location="data/csv.php?tablename="+tblname+"_macs";
                },
                onRpkmGroupFilter: function(combo, records, options) {
                    var form=combo.up('window').down('form').getForm();
