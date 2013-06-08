@@ -280,4 +280,7 @@ OTHER_FILES += \
     data/GeneralListAdd.php \
     data/ResultDel.php \
     data/deseq.R \
-    app/view/ProgressBar.js
+    app/view/ProgressBar.js \
+    app/model/Islands.js \
+    app/store/Islands.js \
+    app/view/LabDataEdit/LabDataIslands.js

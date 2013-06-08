@@ -37,8 +37,10 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
-               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart','Spikeins'],
-               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup','RPKM','SpikeinsChart','Spikeins'],
+               models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup',
+                   'RPKM','Islands','SpikeinsChart','Spikeins'],
+               stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup',
+                   'RPKM','Islands','SpikeinsChart','Spikeins'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
                    'EMS.view.GenomeGroup.List'],
@@ -82,6 +84,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     '#rpkm-group-filter': {
                                         select: this.onRpkmGroupFilter
+                                    },
+                                    '#browser-jump-islands': {
+                                        click: this.onBrowserJump
+                                    },
+                                    '#islands-save': {
+                                        //click: this.onIslandsSave
                                     }
                                 });
                },
@@ -176,7 +184,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
-
+                   var tblname=record.raw['filename'].split(';')[0];
                    var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id']).data;
                    var db=gdata.db;
                    var spike=(gdata.genome.indexOf('spike')!== -1);
@@ -274,8 +282,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                        }//if ribosomal chart
                    }//sts>11
+                   if (sts >11 && !isRNA) {
+                       this.getIslandsStore().getProxy().setExtraParam('tablename',tblname+'_macs');
+                       this.getIslandsStore().load();
+                       var Islandstab = Ext.create("EMS.view.LabDataEdit.LabDataIslands");
+                       maintabpanel.add(Islandstab);
+                   }
                    if (sts >20 && isRNA) {
-                       var tblname=record.raw['filename'].split(';')[0];
+                       //var tblname=record.raw['filename'].split(';')[0];
                        this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+'_genes');
                        this.getRPKMStore().load();
                        var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
@@ -286,27 +300,27 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                            var stor=this.getSpikeinsChartStore();
                            stor.getProxy().setExtraParam('labdata_id',record.raw['id']);
                            stor.load({
-                                        callback: function(records, operation, success) {
-                                            SpikeinsChart.chart.items=[{
-                                                                           type  : 'text',
-                                                                           text  : 'Y = '+records[0].data.slope.toFixed(3)+' * X'+((records[0].data.inter>0)?" +":' ')+records[0].data.inter.toFixed(3),
-                                                                           font  : 'italic bold 14px Arial',
-                                                                           width : 100,
-                                                                           height: 30,
-                                                                           x : 180, //the sprite x position
-                                                                           y : 23  //the sprite y position
-                                                                       } , {
-                                                                           type  : 'text',
-                                                                           text  : 'R = '+records[0].data.R.toFixed(3),
-                                                                           font  : 'italic bold 14px Arial',
-                                                                           style: 'italic',
-                                                                           width : 100,
-                                                                           height: 30,
-                                                                           x : 180, //the sprite x position
-                                                                           y : 50  //the sprite y position
-                                                                       }];
-                                        }
-                                    });
+                                         callback: function(records, operation, success) {
+                                             SpikeinsChart.chart.items=[{
+                                                                            type  : 'text',
+                                                                            text  : 'Y = '+records[0].data.slope.toFixed(3)+' * X'+((records[0].data.inter>0)?" +":' ')+records[0].data.inter.toFixed(3),
+                                                                            font  : 'italic bold 14px Arial',
+                                                                            width : 100,
+                                                                            height: 30,
+                                                                            x : 180, //the sprite x position
+                                                                            y : 23  //the sprite y position
+                                                                        } , {
+                                                                            type  : 'text',
+                                                                            text  : 'R = '+records[0].data.R.toFixed(3),
+                                                                            font  : 'italic bold 14px Arial',
+                                                                            style: 'italic',
+                                                                            width : 100,
+                                                                            height: 30,
+                                                                            x : 180, //the sprite x position
+                                                                            y : 50  //the sprite y position
+                                                                        }];
+                                         }
+                                     });
                        }
                    }
 
@@ -373,6 +387,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    this.LabDataEdit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
                    this.LabDataEdit.labDataForm.loadRecord(record);
                    var me=this;
+
                    this.LabDataEdit.labDataForm.on('render',function(){
 
                        Ext.getCmp('big-bu-bum').on('render',function(form){
@@ -476,12 +491,23 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    var form=button.up('window').down('form').getForm();
                    var record = form.getRecord();
+                   var start=0;
+                   var end=0;
+                   if(typeof(model[0].data['start']) !== 'undefined'){
+                       start=model[0].data['start'];
+                       end=model[0].data['end'];
+                   }
+                   if(typeof(model[0].data['txStart']) !== 'undefined'){
+                       start=model[0].data['txStart'];
+                       end=model[0].data['txEnd'];
+                   }
+
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    maintabpanel.setActiveTab(2);
                    var tblname=record.data['filename'].split(';')[0];
                    var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+tblname+'=full';
-                   url=url+'&position='+model[0].data['chrom']+':'+model[0].data['txStart']+"-"+model[0].data['txEnd'];
+                   url=url+'&position='+model[0].data['chrom']+':'+start+"-"+end;
                    this.LabDataEdit.targetFrame.load(url);
 
 
