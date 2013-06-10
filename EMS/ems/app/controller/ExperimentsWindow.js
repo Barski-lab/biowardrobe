@@ -184,7 +184,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
-                   var tblname=record.raw['filename'].split(';')[0];
+                   var tblname=record.data['filename'].split(';')[0];
                    var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id']).data;
                    var db=gdata.db;
                    var spike=(gdata.genome.indexOf('spike')!== -1);
@@ -227,7 +227,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var worker=this.getWorkerStore().findRecord('id',record.raw['worker_id']).data.worker.toUpperCase();
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA,RNADNA: RNADNA,worker: worker}));
 
-                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+record.data['filename'].split(';')[0]+'=full';
+                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+tblname+'=full';
 
                        if (record.data['tagsribo'] >0) {
                            var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
@@ -294,7 +294,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                                    });
                    }
                    if (sts >20 && isRNA) {
-                       //var tblname=record.raw['filename'].split(';')[0];
                        this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+'_genes');
                        this.getRPKMStore().load();
                        var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
