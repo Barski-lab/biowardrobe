@@ -16,11 +16,12 @@ import glob
 import subprocess as s # import call
 import time
 
-BOWTIE_INDEXES="/data/DATA/indexes"
-BASE_DIR="/data/DATA/FASTQ-DATA"
 
 arguments = Arguments.Arguments(sys.argv)
 arguments.checkArguments(2)
+
+BOWTIE_INDEXES=arguments.readString("BOWTIE_INDEXES")
+BASE_DIR=arguments.readString("BASE_DIR")
 
 pidfile = "/tmp/runDNA"+str(arguments.opt.id)+".pid"
 
@@ -37,28 +38,16 @@ success.append('Success')
 success.append('')
 
 
-
-
-def file_exist(basedir,fname,extension):
-    LIST=glob.glob(basedir+'/'+fname+'.'+extension)
-    return LIST
-
-def make_fname(fname):
-    outfname=os.path.basename(fname)
-    outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
-    outfname=re.sub('\.'+extension+'','',outfname)
-    return outfname
-
 def run_bowtie(infile,findex,pair):
 
     if pair:
 	FN=infile.split(";")
-        if len(file_exist('.',FN[0],'bam')) == 1:
+        if len(d.file_exist('.',FN[0],'bam')) == 1:
             success[1]='Bam file exists'
 	    return success
 	PAR='bowtie -q -v 3 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' -1 '+FN[0]+'.fastq -2 '+FN[1]+'.fastq 2>./'+FN[0]+'.bw | samtools view -Sb - >./'+FN[0]+'.bam 2>/dev/null'
     else:
-        if len(file_exist('.',infile,'bam')) == 1:
+        if len(d.file_exist('.',infile,'bam')) == 1:
             success[1]='Bam file exists'
 	    return success
 	PAR='bowtie -q -v 2 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/'+findex+' '+infile+'.fastq 2>./'+infile+'.bw | samtools view -Sb - >./'+infile+'.bam 2>/dev/null'
@@ -74,64 +63,14 @@ def run_bowtie(infile,findex,pair):
 	return error
 
 
-def run_fence(infile):
-    PAR=''
-    
-    if ";" in infile:
-	FN=infile.split(";")
-	if len(file_exist('.',FN[0],'fence')) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in="'+infile+'" >'+FN[0]+'.fence'
-    else:	
-	FL=file_exist('.',infile,'fence')
-	if len(FL) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in=./'+infile+'.fastq >'+infile+'.fence'
-
-    RET=''
-    try:
-	RET=s.Popen(PAR,shell=True)
-	success[1]=' Fence backgrounded'
-	return success
-    except Exception,e:
-	error[1]=str(e)
-	return error
-
-def run_bedgraph(infile,group,name4browser,bedformat,db,pair):
-
-    FL=file_exist('.',infile,'log')
-    
-    if len(FL) == 1:
-	success[1]=' Bedgraph uploaded'
-	return success
-
-    PAR=''
-    if not pair:
-	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
-	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=200 -bed_siteshift=75 -bed_format='+bedformat+' -no-bed-file -sql_host=localhost -sql_dbname='+db
-    if pair:
-	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log" -bed_type=2' 
-	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=0 -bed_siteshift=0 -bed_format='+bedformat+' -no-bed-file -sql_host=localhost -sql_dbname='+db
-
-    RET=''
-    try:
-	RET=s.check_output(PAR,shell=True)
-	success[1]=' Upload to genome browser success'
-	return success
-    except Exception,e:
-	error[1]=str(e)
-	return error
-
 def get_stat(infile):
-
-    FL=file_exist('.',infile,'bw')
     TOTAL=100
     ALIGNED=80    
     SUPRESSED=0
+    
+    infile=infile.split(";")[0]
         
-    if len(FL) == 1:
+    if len(d.file_exist('.',infile,'bw')) == 1:
 	for line in open(infile+'.bw'):
 	    if 'processed:' in line:
 		TOTAL=int(line.split('processed:')[1])
@@ -150,13 +89,6 @@ def get_stat(infile):
 
     
     
-    
-
-
-    #if [ $? -eq 0 ]; then
-    #LC=`wc -l ${NA}|awk '{print $1/4}'`
-    #grep 'Aligned:' ${NA}.log |awk -v tot=${LC} -F'Aligned: ' '{printf("Total: %d\nAligned: %d\nPercent: %f\n",tot,$2,$2*100/tot);}' >${NA}.stat
-
 ######################################################
 try:
     conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
@@ -183,7 +115,7 @@ while True:
 	break
 
     PAIR=('pair' in row[0])
-    #FNAME=''
+    isRNA=('RNA' in row[0])
     FNAME=row[5]
     DB=row[2]
     FINDEX=row[3]
@@ -192,7 +124,10 @@ while True:
     LID=row[8]
     NAME=row[1]
     SUBDIR='/DNA'
+    if isRNA:
+	SUBDIR='/RNA'
     BEDFORMAT='4'
+    FRAGMENT=0
     if GROUP == "":
 	GROUP=row[6]
 	
@@ -200,89 +135,80 @@ while True:
     conn.commit()
 
     basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
-
     os.chdir(basedir)
     
-    FL=[]
-    if not PAIR:
-	FL=file_exist('.',FNAME,'fastq')
+    FN=list()
+    OK=True
+    for i in FNAME.split(";"):
+	FN.append(i)
+	if len(d.file_exist('.',i,'fastq'))!=1:
+	    OK=False
+	    break
+    if not OK:
+	cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where id=%s",LID)
+	conn.commit()
+	continue	    
 
-    if not PAIR and len(FL) == 1:
-	run_fence(FNAME)
 
-	a=run_bowtie(FNAME,FINDEX,PAIR)
+    d.run_fence(FNAME)
+
+    a=run_bowtie(FNAME,FINDEX,PAIR)
+    if 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
+    if 'Warning' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=1010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
+
+    cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
+    conn.commit()
+
+
+    a=d.run_macs(FNAME,DB)
+    if 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
+    ISLANDS=0
+    for line in open(FN[0]+'_macs_peaks.xls'):
+        if re.match('^# d = ',line):
+            FRAGMENT=int(line.split('d = ')[1])
+            continue
+        if re.match('^#',line):
+            continue
+        if line.strip() != "":
+            ISLANDS=ISLANDS+1
+    cursor.execute("update labdata set fragmentsize=%s where id=%s",(FRAGMENT,LID))
+    conn.commit()
+
+    a=d.upload_macsdata(conn,FNAME,arguments.readString("SQLEX/DB"))
+    if 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
 	
-	if 'Error' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
-	if 'Warning' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=1010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
+    if ISLANDS <100:
+        FRAGMENT=150
+    a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,FRAGMENT,isRNA)
+    if 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
 
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
-	conn.commit()
+    cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
+    conn.commit()
 
-        a=run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,PAIR)
-	if 'Error' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
+    a=get_stat(FNAME)
+    if type(a[0]) == str and 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
 
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
-	conn.commit()
+    cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
+    conn.commit()
 
-	a=get_stat(FNAME)
-	if type(a[0]) == str and 'Error' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
-        cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
-	conn.commit()
-
-    OK=False
-    FN=[]
-    if PAIR:
-	FN=FNAME.split(";")
-	FL1=file_exist('.',FN[0],'fastq')
-	FL2=file_exist('.',FN[1],'fastq')
-	if len(FL1)==1 and len(FL2)==1:
-	    OK=True
-
-    if PAIR and OK:
-	run_fence(FNAME)
-
-	a=run_bowtie(FNAME,FINDEX,PAIR)
-	
-	if 'Error' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
-	if 'Warning' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=1010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
-
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
-	conn.commit()
-
-        #a=run_bedgraph(FL[0],GROUP,NAME,BEDFORMAT,DB,PAIR)
-	#if 'Error' in a[0]:
-	#    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	#    conn.commit()
-	#    continue
-
-	#cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
-	#conn.commit()
-
-	a=get_stat(FN[0])
-	if type(a[0]) == str and 'Error' in a[0]:
-	    cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
-	    conn.commit()
-	    continue
-        cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
-	conn.commit()
 
 
     #cursor.execute("update labdata set libstatustxt='processing',libstatus=10 where id=%s",LID)
@@ -290,4 +216,4 @@ while True:
     #('RNA-Seq dUTP', 'Activated_rested CD4', 'hg19', 'hg19c', 'hg19_refsec_genes_control', 'run0140_lane5_read1_index10_ABYR14', 'yrina')
     
     
-    
+        

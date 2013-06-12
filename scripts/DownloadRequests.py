@@ -57,6 +57,8 @@ def make_fname(fname):
     outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
     outfname=re.sub('\.gz','',outfname)
     outfname=re.sub('\.'+extension+'','',outfname)
+    if len(outfname)>45:
+	outfname=outfname[:45]	
     return outfname
 
 def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
@@ -104,7 +106,7 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 	    if extension in split_line[3] and libcode in split_line[3]:
 		path.append(split_line[1])
 		fname.append(split_line[3])
-		if ".gz" in split_line[3]:
+		if re.search("\.gz$",split_line[3]):
 		    gz=True
 		
     if len(fname) == 1 and not pair:
@@ -241,8 +243,8 @@ while True:
     if len(a)==2 and PAIR:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
 
-    #if notify:
-    #	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
+    if notify:
+    	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
 
     conn.commit()
 

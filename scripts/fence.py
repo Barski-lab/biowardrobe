@@ -40,7 +40,7 @@ for line in open(infile):
    length=len(line)-1
 
   if len(line)-1 != length:
-   error_len=true
+   error_len=True
    continue
   else:
 
@@ -69,7 +69,7 @@ if infile2 != "":
     length=len(line)-1
 
    if len(line)-1 != length:
-    error_len=true
+    error_len=True
     continue
    else:
 

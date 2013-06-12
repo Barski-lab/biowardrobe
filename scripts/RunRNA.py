@@ -39,17 +39,6 @@ success.append('')
 
 
 
-
-def file_exist(basedir,fname,extension):
-    LIST=glob.glob(basedir+'/'+fname+'.'+extension)
-    return LIST
-
-def make_fname(fname):
-    outfname=os.path.basename(fname)
-    outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
-    outfname=re.sub('\.'+extension+'','',outfname)
-    return outfname
-
 def run_tophat(infile,params):
 
     outdir=infile+'_tophat'
@@ -57,13 +46,13 @@ def run_tophat(infile,params):
     if ";" in infile:
 	FN=infile.split(";")
 	outdir=FN[0]+'_tophat'
-	if len(file_exist('.',FN[0],'bam')) == 1:
+	if len(d.file_exist('.',FN[0],'bam')) == 1:
 	    success[1]=' Bam file exists'
 	    return success
         PAR='tophat2 -o '+outdir+' '+params+' '+FN[0]+'.fastq'+' '+FN[1]+'.fastq >/dev/null 2>&1'
         infile=FN[0]
     else:
-	if len(file_exist('.',infile,'bam')) == 1:
+	if len(d.file_exist('.',infile,'bam')) == 1:
 	    success[1]=' Bam file exists'
 	    return success
         PAR='tophat2 -o '+outdir+' '+params+' '+infile+'.fastq >/dev/null 2>&1'
@@ -72,7 +61,7 @@ def run_tophat(infile,params):
     #print PAR
     try:
 	RET=s.check_output(PAR,shell=True)
-	if len(file_exist('./'+outdir,'accepted_hits','bam')) != 1:
+	if len(d.file_exist('./'+outdir,'accepted_hits','bam')) != 1:
 	    error[1]='accepted_hits.bam does not exist'
 	    return error
 	os.rename('./'+outdir+'/accepted_hits.bam','./'+infile+'.bam')
@@ -80,31 +69,6 @@ def run_tophat(infile,params):
 	return success
     except Exception,e:
     #s.CalledProcessError,OSError,
-	error[1]=str(e)
-	return error
-
-def run_fence(infile):
-    PAR=''
-    
-    if ";" in infile:
-	FN=infile.split(";")
-	if len(file_exist('.',FN[0],'fence')) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in="'+infile+'" >'+FN[0]+'.fence'
-    else:	
-	FL=file_exist('.',infile,'fence')
-	if len(FL) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in=./'+infile+'.fastq >'+infile+'.fence'
-
-    RET=''
-    try:
-	RET=s.Popen(PAR,shell=True)
-	success[1]=' Fence backgrounded'
-	return success
-    except Exception,e:
 	error[1]=str(e)
 	return error
 
@@ -119,12 +83,12 @@ def run_ribosomal(infile,db):
 	
     if ";" in infile:
 	FN=infile.split(";")
-        if len(file_exist('.',FN[0],'ribo')) == 1:
+        if len(d.file_exist('.',FN[0],'ribo')) == 1:
 	    success[1]='Ribosomal file exist'
 	    return success
 	PAR='bowtie -q -v 3 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/ribo_'+suffix+' -1'+FN[0]+'.fastq -2 '+FN[1]+'.fastq  >/dev/null 2>./'+FN[0]+'.ribo'
     else:
-        if len(file_exist('.',infile,'ribo')) == 1:
+        if len(d.file_exist('.',infile,'ribo')) == 1:
 	    success[1]='Ribosomal file exist'
 	    return success
 	PAR='bowtie -q -v 3 -m 1 --best --strata -p 24 -S '+BOWTIE_INDEXES+'/ribo_'+suffix+' '+infile+'.fastq >/dev/null 2>./'+infile+'.ribo'
@@ -146,19 +110,19 @@ def run_bedgraph(infile,group,name4browser,bedformat,db):
     
     if ";" in infile:
 	FN=infile.split(";")
-        if len(file_exist('.',FN[0],'log')) == 1:
+        if len(d.file_exist('.',FN[0],'log')) == 1:
 	    success[1]=' Bedgraph uploaded'
 	    return success
 	PAR='bam2bedgraph -sql_table="'+FN[0]+'" -in="'+FN[0]+'.bam" -out="'+FN[0]+'.out" -log="'+FN[0]+'.log"' 
 	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_host=localhost -sql_dbname='+db
     else:
-	if len(file_exist('.',infile,'log')) == 1:
+	if len(d.file_exist('.',infile,'log')) == 1:
 	    success[1]=' Bedgraph uploaded'
 	    return success	
 	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
 	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_host=localhost -sql_dbname='+db
 	
-    PAR=PAR+' -rna_seq="RNA" '
+    PAR=PAR+' -rna_seq="RNA" -bed_normalize '
     #print PAR
     RET=''
     try:
@@ -178,7 +142,7 @@ def get_stat(infile):
 	infile=FN[0]
 	PAIR=True
 		
-    FL=file_exist('.',infile,'log')
+    FL=d.file_exist('.',infile,'log')
     lines = 0
     
     if len(FL) == 1:
@@ -237,6 +201,7 @@ while True:
 
     PAIR=('pair' in row[0])
     DUTP=('dUTP' in row[0])
+    isRNA=('RNA' in row[0])
     FNAME=row[5]
     DB=row[2]
     FINDEX=row[3]
@@ -267,31 +232,24 @@ while True:
 
 
     os.chdir(basedir)
-    OK=False
-    FL=[]
-    if not PAIR:
-	FL=file_exist('.',FNAME,'fastq')
-	if len(FL) == 1:
-	    OK=True
 
-    FN=[]
-    if PAIR:
-	#print FNAME
-	FN=FNAME.split(";")
-	FL1=file_exist('.',FN[0],'fastq')
-	FL2=file_exist('.',FN[1],'fastq')
-	if len(FL1)==1 and len(FL2)==1:
-	    OK=True
-
+    FN=list()
+    OK=True
+    for i in FNAME.split(";"):
+	FN.append(i)
+	if len(d.file_exist('.',i,'fastq'))!=1:
+	    OK=False
+	    break
     if not OK:
 	cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where id=%s",LID)
 	conn.commit()
-	continue
+	continue	    
+
 
     cursor.execute("update labdata set libstatustxt='processing',libstatus=11 where id=%s",LID)
     conn.commit()
 
-    run_fence(FNAME)
+    d.run_fence(FNAME)
     a=run_ribosomal(FNAME,DB)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
@@ -314,8 +272,7 @@ while True:
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()
 
-    a=run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB)
-
+    a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,150,isRNA)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
