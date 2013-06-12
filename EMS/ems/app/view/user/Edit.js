@@ -79,7 +79,7 @@ Ext.define('EMS.view.user.Edit', {
                                                 xtype: 'fieldcontainer',
                                                 fieldLabel: 'Change password',
                                                 layout: 'hbox',
-                                                margin: '10 0 0 0',
+                                                margin: '5 0 5 0',
                                                 defaultType: 'textfield',
                                                 items: [{
                                                         name: 'newpass',
@@ -129,7 +129,7 @@ Ext.define('EMS.view.user.Edit', {
                                                 xtype: 'container',
                                                 layout: 'hbox',
                                                 defaultType: 'textfield',
-                                                margin: '10 0 0 0',
+                                                margin: '5 0 5 0',
                                                 items: [{
                                                         fieldLabel: 'Email Address',
                                                         name: 'email',
@@ -156,6 +156,7 @@ Ext.define('EMS.view.user.Edit', {
                                                 xtype: 'container',
                                                 layout: 'hbox',
                                                 defaultType: 'textfield',
+                                                margin: '5 0 5 0',
                                                 items: [{
                                                         fieldLabel: 'Dna Login',
                                                         name: 'dnalogin',
