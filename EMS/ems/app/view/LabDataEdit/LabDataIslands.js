@@ -35,9 +35,9 @@ Ext.define('EMS.view.LabDataEdit.LabDataIslands', {
 
                    me.columns=[
                                {   header: 'chrom',     sortable: true, filterable: true, width: 60,    dataIndex: 'chrom'  },
-                               {   header: 'start',   sortable: true,  width: 80,    dataIndex: 'start', align: 'right' },
-                               {   header: 'end',     sortable: true,  width: 85,    dataIndex: 'end', align: 'right'   },
-                               {   header: 'length',     sortable: true,  width: 85,    dataIndex: 'length', align: 'right'   },
+                               {   header: 'start',   sortable: true,  filterable: true, width: 80,    dataIndex: 'start', align: 'right' },
+                               {   header: 'end',     sortable: true,   filterable: true, width: 85,    dataIndex: 'end', align: 'right'   },
+                               {   header: 'length',     sortable: true,  filterable: true, width: 85,    dataIndex: 'length', align: 'right'   },
                                {   header: 'pileup',      sortable: true, filterable: true, width: 85,    dataIndex: 'pileup', align: 'right', hidden: false },
                                {   header: 'abssummit',      sortable: true, filterable: true, width: 85,    dataIndex: 'abssummit', align: 'right' },
                                {   header: 'log10p',      sortable: true, filterable: true, width: 85,    dataIndex: 'log10p', align: 'right' },

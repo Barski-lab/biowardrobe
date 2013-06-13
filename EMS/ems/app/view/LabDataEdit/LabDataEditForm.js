@@ -66,26 +66,17 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                           border: false,
                                           plain: true,
 
-                                          items: [
-                                              {
+                                          items: [ {
                                                   xtype:'fieldset',
                                                   title: 'Experiment description',
                                                   collapsible: true,
                                                   margin: '5 5 5 5',
-                                                  defaults: {
-                                                      labelWidth: 120,
-                                                      labelAlign: 'top'
-                                                  },
-                                                  items: [
-                                                      {
+                                                  defaults: { labelWidth: 120, labelAlign: 'top' },
+                                                  items: [ {
                                                           xtype: 'fieldcontainer',
-                                                          defaults: {
-                                                              labelWidth: 120,
-                                                              labelAlign: 'top'
-                                                          },
+                                                          defaults: { labelWidth: 120, labelAlign: 'top' },
                                                           layout: 'hbox',
-                                                          items: [
-                                                              {
+                                                          items: [ {
                                                                   xtype: 'textfield',
                                                                   name : 'cells',
                                                                   fieldLabel: 'Cells',
@@ -101,18 +92,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   afterLabelTextTpl: required,
                                                                   allowBlank: false,
                                                                   flex: 1
-                                                              }
-                                                          ]
+                                                              } ]
                                                       } , {
                                                           xtype: 'fieldcontainer',
                                                           layout: 'hbox',
-                                                          defaults: {
-                                                              labelWidth: 120,
-                                                              labelAlign: 'top',
-                                                              margin: '10 0 0 0'
-                                                          },
-                                                          items: [
-                                                              {
+                                                          defaults: { labelWidth: 120, labelAlign: 'top' , margin: '10 0 0 0' },
+                                                          items: [ {
                                                                   xtype: 'combobox',
                                                                   fieldLabel: 'Genome Type',
                                                                   name : 'genome_id',
@@ -152,8 +137,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   triggerAction: 'all',
                                                                   queryMode: 'local',
                                                                   flex: 2
-                                                              }
-                                                          ]
+                                                              } ]
                                                       }, {
                                                           xtype: 'fieldcontainer',
                                                           id: 'rnafieldcontainer',
@@ -246,25 +230,18 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                               }
                                                           ]
                                                       }
-
                                                   ] // field set experiment description
 
-                                              }, {
+                                              } , {
                                                   xtype:'fieldset',
                                                   title: 'Genome browser',
                                                   margin: '5 5 5 5',
                                                   collapsible: true,
-                                                  items: [
-                                                      {
+                                                  items: [ {
                                                           xtype: 'fieldcontainer',
-                                                          defaults: {
-                                                              labelWidth: 120,
-                                                              labelAlign: 'top'
-                                                          },
+                                                          defaults: { labelWidth: 120, labelAlign: 'top' },
                                                           layout: 'hbox',
-
-                                                          items: [
-                                                              {
+                                                          items: [ {
                                                                   xtype: 'textfield',
                                                                   name : 'name4browser',
                                                                   fieldLabel: 'Name for browser',
@@ -274,25 +251,11 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                               } , {
                                                                   xtype: 'splitter'
                                                               } , {
-                                                                  xtype: 'textfield',
-                                                                  name : 'libcode',
-                                                                  fieldLabel: 'Library Code',
-                                                                  flex: 3,
-                                                                  allowBlank: true
-                                                              }
-                                                          ]
-                                                      } , {
-                                                          xtype: 'fieldcontainer',
-                                                          layout: 'hbox',
-
-                                                          items: [
-
-                                                              {
                                                                   xtype: 'fieldcontainer',
                                                                   layout: 'hbox',
+                                                                  margin: '0 0 0 10',
                                                                   flex: 3,
-                                                                  items: [
-                                                                      {
+                                                                  items: [ {
                                                                           xtype: 'combobox',
                                                                           name : 'browsergrp',
                                                                           displayField: 'label',
@@ -314,23 +277,39 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                           id: 'browser-grp-edit',
                                                                           submitValue: false,
                                                                           iconCls: 'element-edit',
-                                                                          margin: '20 0 0 10'
-                                                                      }
-                                                                  ]},
-
-
-
-                                                              {
+                                                                          margin: '18 0 0 8'
+                                                                      } ]
+                                                              } , {
                                                                   xtype: 'tbspacer',
                                                                   flex: 3
-                                                              }
-
-                                                          ]
-                                                      }
-
-                                                  ]
-                                              }
-                                          ]
+                                                              } ]
+                                                      } ] //genome browser
+                                              } , {
+                                                  xtype:'fieldset',
+                                                  title: 'Downloading',
+                                                  margin: '5 5 5 5',
+                                                  collapsible: true,
+                                                  items: [ {
+                                                          xtype: 'fieldcontainer',
+                                                          defaults: { labelWidth: 120,labelAlign: 'top' },
+                                                          layout: 'hbox',
+                                                          items: [ {
+                                                                  xtype: 'textfield',
+                                                                  name : 'libcode',
+                                                                  fieldLabel: 'Template for file from Core',
+                                                                  flex: 3,
+                                                                  allowBlank: true
+                                                              } , {
+                                                                  xtype: 'splitter'
+                                                              } , {
+                                                                  xtype: 'textfield',
+                                                                  name : 'directurl',
+                                                                  fieldLabel: 'Direct link to the file',
+                                                                  flex: 3,
+                                                                  allowBlank: true
+                                                              } ]
+                                                      } ]
+                                              } ]
                                       } , {
                                           xtype: 'panel',
                                           title: 'Protocol',

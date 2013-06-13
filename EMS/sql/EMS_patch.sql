@@ -125,5 +125,7 @@ ALTER TABLE `ems`.`analysis` ADD COLUMN `type` VARCHAR(45) NOT NULL DEFAULT ''  
 ALTER TABLE `ems`.`project` ADD COLUMN `dateadd` DATE NULL  AFTER `worker_id` ;
 
 ALTER TABLE `ems`.`labdata` ADD COLUMN `fragmentsize` INT NULL COMMENT 'fragment size for Chip-seq data'  AFTER `tagsribo` ;
+ALTER TABLE `ems`.`labdata` ADD COLUMN `url` VARCHAR(2000) NULL COMMENT 'direct link for a file'  AFTER `libcode` ;
+
 
 set foreign_key_checks = 1 ;

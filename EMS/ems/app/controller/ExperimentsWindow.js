@@ -89,7 +89,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         click: this.onBrowserJump
                                     },
                                     '#islands-save': {
-                                        //click: this.onIslandsSave
+                                        click: this.onIslandsSave
                                     }
                                 });
                },
@@ -381,6 +381,23 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    panel.setActiveTab(0);
                    edit.show();
+                   edit.down('form').getForm().findField('cells').focus(false,100);
+
+                   Ext.getCmp('big-bu-bum').on('render',function(form){
+                       var protocolHTML=Ext.create('Ext.form.HtmlEditor', {
+                                                       name: 'protocol',
+                                                       hideLabel: true
+                                                   });
+                       form.add(protocolHTML);
+                   },this,{single:true});
+
+                   Ext.getCmp('big-bu-bum2').on('render',function(form){
+                       var protocolHTML=Ext.create('Ext.form.HtmlEditor', {
+                                                       name: 'notes',
+                                                       hideLabel: true
+                                                   });
+                       form.add(protocolHTML);
+                   },this,{single:true});
                },
 
                //-----------------------------------------------------------------------
@@ -437,15 +454,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        return;
                    }
 
-                   if(win.addnew)
-                   {
-                       if(form.isValid())
-                       {
+                   if(win.addnew) {
+                       if(form.isValid()) {
                            EMS.store.LabData.insert(0, values);
                            this.refresh=true;
-                       }
-                       else
-                       {
+                       } else {
                            Ext.Msg.show({
                                             title: 'Save failed',
                                             msg: 'Empty fields are not allowed',
@@ -454,13 +467,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                         });
                            return;
                        }
-                   }
-                   else
-                   {
+                   } else {
                        if(form.isDirty() && form.isValid()) {
                            record.set(values);
                            this.refresh=true;
-                       } else if(!form.isValid()){
+                       } else if(!form.isValid()) {
                            Ext.Msg.show({
                                             title: 'Save failed',
                                             msg: 'Please fill required filds',
@@ -472,14 +483,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    if(this.refresh) {
                        this.getLabDataStore().sync();
-
-                       //                       form.submit({
-                       //                                       url: '/cgi-bin/barski/recordsTST.json',
-                       //                                       waitMsg: 'Uploading file',
-                       //                                       success: function(fp, o) {
-                       //                                           Ext.Msg.alert('Success', o.result.file);
-                       //                                       }
-                       //                                   });
                    }
                    win.close();
                },

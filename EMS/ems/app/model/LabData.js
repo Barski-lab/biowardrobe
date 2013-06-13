@@ -48,6 +48,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'protocol', type: 'string' },
                    { name: 'filename', type: 'string', persist: false  },
                    { name: 'libcode', type: 'string' },
+                   { name: 'url', type: 'string' },
                    { name: 'name4browser', type: 'string' },
                    { name: 'browsergrp', type: 'string' },
                    { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'},
