@@ -303,7 +303,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                                   xtype: 'splitter'
                                                               } , {
                                                                   xtype: 'textfield',
-                                                                  name : 'directurl',
+                                                                  name : 'url',
                                                                   fieldLabel: 'Direct link to the file',
                                                                   flex: 3,
                                                                   allowBlank: true
