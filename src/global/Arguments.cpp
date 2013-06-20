@@ -260,6 +260,8 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
     Arguments::addArg("avd_rawdata","avd_rawdata","AVD/RAWDATA",QVariant::Bool,"Output of raw data",false);
     Arguments::addArg("avd_wilc_region","avd_wilc_region","AVD/WILCREG",QVariant::String,"Which region dump with raw data -avd_wilc_region=\"-100:-5\"",QString(""));
+    Arguments::addArg("avd_lid","avd_lid","AVD/LID",QVariant::Int,"Labdata id",0);
+    Arguments::addArg("avd_pid","avd_pid","AVD/PID",QVariant::Int,"Project id",0);
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));

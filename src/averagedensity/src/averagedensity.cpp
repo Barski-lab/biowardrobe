@@ -230,8 +230,123 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
     return result;
 }
 
-void AverageDensity::start()
-{
+void AverageDensity::start() {
+    batchsql();
+}
+
+void AverageDensity::batchsql() {
+    int avd_lid=gArgs().getArgs("avd_lid").toInt();
+    int avd_pid=gArgs().getArgs("avd_pid").toInt();
+    if(avd_lid>0 && avd_pid>0) {
+        qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
+        return;
+    }
+
+    QThreadPool *t_pool=QThreadPool::globalInstance();
+
+
+    if(avd_lid>0) {
+
+        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize from labdata l, genome g, experimenttype e "
+                  "from labdata l,experimenttype e,genome g,worker w "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=:id");
+        q.bindValue(":id", avd_lid);
+        if(!q.exec()) {
+            qDebug()<<"Query error: "<<q.lastError().text();
+            return;
+        }
+
+        int fieldDb = q.record().indexOf("db");
+        int fieldFilename = q.record().indexOf("filename");
+        int fieldEtype = q.record().indexOf("etype");
+        int fieldGBname = q.record().indexOf("name4browser");
+        int fieldAtable = q.record().indexOf("annottable");
+        int fieldFsize = q.record().indexOf("fragmentsize");
+
+        if(!q.next()) {
+            qDebug()<<"No records";
+            return;
+        }
+
+        QString DB =q.value(fieldDb).toString();
+        QString filename=q.value(fieldFilename).toString();
+        if(filename.contains(';'))
+            filename=filename.split(';').at(0);
+        //QString EType =q.value(fieldEtype).toString();
+        QString GBName =q.value(fieldGBname).toString();
+        QString annottable =q.value(fieldAtable).toString();
+        int fragmentsize =q.value(fieldFsize).toInt();
+
+        //fileLabels.append();
+        sam_data.append(new gen_lines());
+        t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
+        t_pool->start(t_queue.last());
+
+        if(t_pool->activeThreadCount()!=0) {
+            qDebug()<<"waiting threads";
+            t_pool->waitForDone();
+        }
+
+        if(!q.exec("select chrom,strand,txStart-5000 as start,txStart+5000 as end,10001 as len from "
+                   ""+DB+"."+annottable+" where strand = '+' union"
+                   "select chrom,strand,txEnd-5000 as start,txEnd+5000 as end,10001 as len from "
+                   ""+DB+"."+annottable+" where strand = '-' union"
+                   )) {
+            qDebug()<<"Query error: "<<q.lastError().text();
+            return;
+        }
+
+        int fieldChrom = q.record().indexOf("chrom");
+        int fieldStrand = q.record().indexOf("strand");
+        int fieldStart= q.record().indexOf("start");
+        int fieldEnd= q.record().indexOf("end");
+        //int fieldLen= q.record().indexOf("len");
+        int length=10001;
+
+        QVector<double> avd_raw_data(length,0);
+
+        while(q.next()) {
+            bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
+            quint64 Start=q.value(fieldStart).toInt()+1;
+            quint64 End=q.value(fieldEnd).toInt();
+            QString chr=q.value(fieldChrom).toString();
+
+            if(gArgs().getArgs("sam_ignorechr").toString().contains(chr)) {
+                continue;
+            }
+
+            AVD<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
+                                  strand/*bool strand*/,fragmentsize/2/*shift*/,length/*mapping*/,sam_data.at(0),avd_raw_data);
+        }
+
+        QList<double>  storage;
+        int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
+        for(quint64 w=0; w< length; w++)
+            storage<<(avd_raw_data[w]/total)/q.size();
+
+        storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
+
+        QString avd_data_out="N";
+        avd_data_out+=QString(",%1").arg(GBName);
+        avd_data_out=avd_data_out+"\n";
+        for(int i=0; i<storage.size();i++) {
+            avd_data_out+=QString("%1").arg((int)(i-rows/2));
+            avd_data_out+=QString(",%1").arg(storage.at(i));
+            avd_data_out=avd_data_out+"\n";
+        }
+
+        QFile outFile;
+        outFile.setFileName(gArgs().getArgs("out").toString());
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.write(out.toAscii());
+        outFile.close();
+    }
+
+    if(avd_pid>0) {
+    }
+}
+
+void AverageDensity::batchfile() {
     int total_plots=0;
 
 
@@ -244,8 +359,9 @@ void AverageDensity::start()
 
     try{
         /*Reading bam file in thread
-         *TODO: incorrect working with QThread
-         *multi bam reader*/
+             *TODO: incorrect working with QThread
+             *multi bam reader*/
+
         QFile batchBamFiles;
         batchBamFiles.setFileName(gArgs().getArgs("in").toString());
         bool raw_data=gArgs().getArgs("avd_rawdata").toBool();
@@ -253,8 +369,7 @@ void AverageDensity::start()
 
         batchBamFiles.open(QIODevice::ReadOnly| QIODevice::Text);
         QTextStream inFiles(&batchBamFiles);
-        while(!inFiles.atEnd())
-        {
+        while(!inFiles.atEnd()) {
             QString label = inFiles.readLine();
             if(label.isEmpty() || label.isNull() || label.at(0)==QChar('#')) continue;
             QString fname = inFiles.readLine();
@@ -268,8 +383,7 @@ void AverageDensity::start()
         }
         batchBamFiles.close();
 
-        if(t_pool->activeThreadCount()!=0)
-        {
+        if(t_pool->activeThreadCount()!=0) {
             qDebug()<<"waiting threads";
             t_pool->waitForDone();
         }
@@ -288,8 +402,8 @@ void AverageDensity::start()
 
 
         /* SQL Query batch file format:
-         * - first line - grapht title
-         * - second line - sql query */
+             * - first line - grapht title
+             * - second line - sql query */
         QFile batchFile;
         batchFile.setFileName(gArgs().getArgs("batch").toString());
         batchFile.open(QIODevice::ReadOnly| QIODevice::Text);
@@ -362,27 +476,27 @@ void AverageDensity::start()
 
                 storage[plt_name]=smooth<double>(storage[plt_name],gArgs().getArgs("avd_smooth").toInt());
 
-//                //find max
-//                if(1==blocks && raw_data) {
-//                    int pos=0;
-//                    double mx=storage[plt_name].at(qMin(5,storage[plt_name].size()));
-//                    for(int j=5;j<storage[plt_name].size();j++) {
-//                        if(mx<storage[plt_name].at(j)) {
-//                            mx=storage[plt_name].at(j);
-//                            pos=j;
-//                        }
-//                    }
-//                    if(!isRegion) {
-//                        if(ccc==0) {
-//                            ccc=1;
-//                            left_right[0]=pos;
-//                            left_right[1]=pos;
-//                        } else {
-//                            left_right[0]=qMin(pos,left_right[0]);
-//                            left_right[1]=qMax(pos,left_right[1]);
-//                        }
-//                    }
-//                }
+                //                //find max
+                //                if(1==blocks && raw_data) {
+                //                    int pos=0;
+                //                    double mx=storage[plt_name].at(qMin(5,storage[plt_name].size()));
+                //                    for(int j=5;j<storage[plt_name].size();j++) {
+                //                        if(mx<storage[plt_name].at(j)) {
+                //                            mx=storage[plt_name].at(j);
+                //                            pos=j;
+                //                        }
+                //                    }
+                //                    if(!isRegion) {
+                //                        if(ccc==0) {
+                //                            ccc=1;
+                //                            left_right[0]=pos;
+                //                            left_right[1]=pos;
+                //                        } else {
+                //                            left_right[0]=qMin(pos,left_right[0]);
+                //                            left_right[1]=qMax(pos,left_right[1]);
+                //                        }
+                //                    }
+                //                }
             }
 
         }
@@ -418,8 +532,7 @@ void AverageDensity::start()
         {
             QString xlabel="set xlabel \"bp\"\n";
             QString xtics="set xtic auto\n";
-            if(blocks==1)
-            {
+            if(blocks==1) {
                 xlabel=QString("set xlabel \"%1 bp around TSS\"\n").arg(orig_length[0]/2);
                 xtics="set xtics rotate by -60 offset -2 (";
                 xtics+=QString("\"%1 bp\" %2,").arg(-orig_length[0]/2).arg(-orig_length[0]/2);
@@ -430,8 +543,7 @@ void AverageDensity::start()
             }
 
             QString ls;
-            for(int i=0;i<total_plots;i++)
-            {
+            for(int i=0;i<total_plots;i++) {
                 ls+=QString("set style line %1 lt 1 lc rgb \"%2\" lw %3\n").arg(i+1).arg(COLORS.at(i%COLORS.size())).arg(line_w);
             }
 
@@ -454,12 +566,12 @@ void AverageDensity::start()
                                 +ls+
                                 "plot for [x=2:%5] \"%6\" u 1:x with lines ls x-1\n").
 
-                    arg(gArgs().fileInfo("out").baseName()).
-                    arg(gArgs().getArgs("plot_ext").toString()).
-                    arg(gArgs().getArgs("plot_ext").toString()).
-                    arg(gArgs().fileInfo("out").baseName().replace('_',' ')).
-                    arg(total_plots+1).
-                    arg(gArgs().getArgs("out").toString());
+                        arg(gArgs().fileInfo("out").baseName()).
+                        arg(gArgs().getArgs("plot_ext").toString()).
+                        arg(gArgs().getArgs("plot_ext").toString()).
+                        arg(gArgs().fileInfo("out").baseName().replace('_',' ')).
+                        arg(total_plots+1).
+                        arg(gArgs().getArgs("out").toString());
 
             outFile.setFileName(gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
@@ -473,10 +585,10 @@ void AverageDensity::start()
 
         //Output raw data
         if(1==blocks && raw_data) {
-//            if(!isRegion) {
-//                left_right[0]-=300;
-//                left_right[1]+=300;
-//            }
+            //            if(!isRegion) {
+            //                left_right[0]-=300;
+            //                left_right[1]+=300;
+            //            }
 
             QList<QString> keys=storage_wilconxon.keys();
             int files=keys.size();
@@ -490,9 +602,9 @@ void AverageDensity::start()
 
                 for(int j=0; j<storage_wilconxon[keys[i]].size();j++) {
                     //double cur_sum=0.0;
-//                    for(int sum=qMax(0,(left_right[0]));sum<qMin((left_right[1]),storage_wilconxon[keys[i]][j].size()); sum++) {
-//                        cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
-//                    }
+                    //                    for(int sum=qMax(0,(left_right[0]));sum<qMin((left_right[1]),storage_wilconxon[keys[i]][j].size()); sum++) {
+                    //                        cur_sum+=storage_wilconxon[keys[i]][j].at(sum);
+                    //                    }
                     QString line="";
                     for(int r=0;r<storage_wilconxon[keys[i]][j].size();r++) {
                         line.append(QString("%1 ").arg(storage_wilconxon[keys[i]][j].at(r)));

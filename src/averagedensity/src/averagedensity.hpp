@@ -46,6 +46,9 @@ private:
     QSqlQuery                   q;
     QStringList                 fileLabels;
 
+    void batchfile(void);
+    void batchsql(void);
+
 public slots:
     void start(void);
 
