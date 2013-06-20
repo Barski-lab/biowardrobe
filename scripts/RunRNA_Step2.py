@@ -19,8 +19,11 @@ import time
 arguments = Arguments.Arguments(sys.argv)
 arguments.checkArguments(2)
 
+BOWTIE_INDEXES=arguments.readString("BOWTIE_INDEXES")
+BASE_DIR=arguments.readString("BASE_DIR")
+ANNOTATION_BASE=BOWTIE_INDEXES+"/gtf/"
+
 pidfile = "/tmp/runRNA"+str(arguments.opt.id)+"_Step2.pid"
-BASE_DIR="/data/DATA/FASTQ-DATA"
 
 d.check_running(pidfile)
 
@@ -35,36 +38,20 @@ success.append('Success')
 success.append('')
 
 
+def run_rpkm(infile,name4browser,db,dutp,spike,antab,force=False):
 
-
-def file_exist(basedir,fname,extension):
-    LIST=glob.glob(basedir+'/'+fname+'.'+extension)
-    return LIST
-
-def make_fname(fname):
-    outfname=os.path.basename(fname)
-    outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
-    outfname=re.sub('\.'+extension+'','',outfname)
-    return outfname
-
-def run_rpkm(infile,name4browser,db,dutp,spike):
-
-    FL=file_exist('.',infile+'_rpkm','log')
-    if len(FL) == 1:
+    infile=infile.split(";")[0]
+    FL=d.file_exist('.',infile+'_rpkm','log')
+    if len(FL) == 1 and force:
 	os.unlink(FL[0])
-#    if len() == 1:
-#	success[1]=' Rpkm list uploaded'
-#	return success
+    if len(FL) == 1 and not force:
+	success[1]=' Rpkm list uploaded'
+	return success
 	
-#ReadsCounting -in="${FILE_LIST}" \
-# -out="${BASE_NAME}.csv" -log="${BASE_NAME}.log" -rpkm-cutoff=0.1 -rpkm-cutoff-val=0 \
-# -threads=16 -no-sql-upload -rna_seq="dUTP" 
-
-# 
 
     PAR='ReadsCounting -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.csv" -log="'+infile+'_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
     PAR=PAR+'-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
-    PAR=PAR+""+db+".refGene_2012 where chrom not like '%\\_%' "
+    PAR=PAR+""+db+"."+antab+" where chrom not like '%\\_%' "
     if not spike:
         PAR=PAR+" and chrom not like 'control%' "
     PAR=PAR+" order by chrom,strand,txStart,txEnd"
@@ -104,11 +91,9 @@ except Exception, e:
 cursor.execute("update labdata set libstatustxt='ready for process',libstatus=20 where experimenttype_id in (select id from experimenttype where etype like 'RNA%') and libstatus=12")
 
 
-
-
 while True:
     row=[]
-    cursor.execute ("select e.etype,l.name4browser,g.db,g.genome,g.annotation,filename,w.worker,l.id "
+    cursor.execute ("select e.etype,l.name4browser,g.db,g.genome,g.annotation,filename,w.worker,l.id,g.annottable "
     " from labdata l,experimenttype e,genome g,worker w "
     " where e.id=experimenttype_id and g.id=genome_id and w.id=worker_id and e.etype like 'RNA%' and libstatus=20 order by dateadd limit 1")
     row = cursor.fetchone()
@@ -117,15 +102,14 @@ while True:
 
     PAIR=('pair' in row[0])
     DUTP=('dUTP' in row[0])
-    FNAME=''
+    FNAME=row[5]
     if PAIR:
 	FNAME=row[5].split(";")[0]
-    else:
-	FNAME=row[5]
 
     DB=row[2]
     SPIKE=('spike' in row[3])
     ANNOTATION=row[4]
+    ANNOTTABLE=row[8]
     LID=row[7]
     NAME=row[1]
     SUBDIR='/RNA'
@@ -134,7 +118,7 @@ while True:
 
     os.chdir(basedir)
 
-    if len(file_exist('.',FNAME,'bam')) != 1:
+    if len(d.file_exist('.',FNAME,'bam')) != 1:
         cursor.execute("update labdata set libstatustxt='Cant find bam file',libstatus=2020 where id=%s",LID)
         conn.commit()
         continue
@@ -142,7 +126,7 @@ while True:
     cursor.execute("update labdata set libstatustxt='processing',libstatus=21 where id=%s",LID)
     conn.commit()
 
-    a=run_rpkm(FNAME,NAME,DB,DUTP,SPIKE)
+    a=run_rpkm(FNAME,NAME,DB,DUTP,SPIKE,ANNOTTABLE,True)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2020 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
@@ -151,12 +135,6 @@ while True:
     cursor.execute("update labdata set libstatustxt=%s,libstatus=21 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()
 
-    #cursor.execute("update labdata set libstatustxt='Complete',libstatus=22 where id=%s",(LID))
-    #conn.commit()
-
-    #cursor.execute("update labdata set libstatustxt='processing',libstatus=10 where id=%s",LID)
-    #conn.commit()    
-    #('RNA-Seq dUTP', 'Activated_rested CD4', 'hg19', 'hg19c', 'hg19_refsec_genes_control', 'run0140_lane5_read1_index10_ABYR14', 'yrina')
     
     
     

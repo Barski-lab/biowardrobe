@@ -14,7 +14,6 @@ from optparse import OptionParser
 
 arguments = Arguments.Arguments(sys.argv)
 arguments.checkArguments(2)
-#print arguments.readPass("SQL/PASS")
 
 
 align=10

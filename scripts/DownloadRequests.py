@@ -17,21 +17,21 @@ import DefFunctions as d
 import subprocess as s # import call
 import datetime
 
-now = datetime.datetime.now()
+print str(datetime.datetime.now())
 
-print str(now)
+arguments = Arguments.Arguments(sys.argv)
 
-main_page='http://dna.cchmc.org/www/main.php'
-login_page='http://dna.cchmc.org/www/logon.php'
-request_page='http://dna.cchmc.org/www/results/nextgen_results.php'
-download_page='http://dna.cchmc.org/www/results/nextgen_download.php'
+#global vars
 
+main_page=arguments.readString("main_page")
+login_page=arguments.readString("login_page")
+request_page=arguments.readString("request_page")
+download_page=arguments.readString("download_page")
 
-BASE_DIR='/data/DATA/FASTQ-DATA'
+BOWTIE_INDEXES=arguments.readString("BOWTIE_INDEXES")
+BASE_DIR=arguments.readString("BASE_DIR")
 
 extension='fastq'
-#libcode='ABYR31'
-arguments = Arguments.Arguments(sys.argv)
 
 error=list()
 error.append('Error')
@@ -42,8 +42,6 @@ warning.append('')
 
 
 def error_msg(msg):
-    #print """
-    #	{"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
     print """ %s """%(msg)
     sys.exit()
 
@@ -52,36 +50,41 @@ def file_exist(basedir,libcode):
     LIST=glob.glob(basedir+'/*'+libcode+'*.fastq')
     return LIST
 
+
 def make_fname(fname):
     outfname=os.path.basename(fname)
-    outfname=re.sub('[^a-zA-Z0-9\.]','_',outfname)
-    outfname=re.sub('\.gz','',outfname)
-    outfname=re.sub('\.'+extension+'','',outfname)
-    if len(outfname)>45:
-	outfname=outfname[:45]	
-    return outfname
+    outfname=re.sub(r'[\.gz$][\.'+extension+']','',outfname)
+    try:
+	outfname=re.match(r'(.*index[0-9]*).*',outfname).group(1)
+    except:
+	pass
+    outfname=re.sub(r'[^a-zA-Z0-9]','_',outfname)
+    if len(outfname)>35:
+	outfname=outfname[:35]	
+    return outfname+'_'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+str(random.randrange(10,99))
+
 
 def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
     #
     flist=list()
     fl=file_exist(basedir,libcode)
+
+    if len(fl) > 0 and len(fl)!=2 and pair: 
+	error[1]='incorrect number of files for pair end reads'
+	return error
+    if len(fl) > 0 and len(fl) != 1 and not pair: 
+	error[1]='incorrect number of files for single end reads'
+	return error
+
     for i in fl:
 	mf=make_fname(i)
 	newfn=os.path.basename(i)
 	if mf != newfn:
 	    os.rename(i,basedir+'/'+mf+'.'+extension)
 	flist.append(mf)
-    if len(flist)==2 and pair: #should we check that the name are the same ?
-	return flist
-    if len(flist)==1 and not pair:
-	return flist
 
-    if len(flist) > 2 and pair: #should we check that the name are the same ?
-	error[1]='incorrect number of files for pair end reads'
-	return error
-    if len(flist) > 1 and not pair: #should we check that the name are the same ?
-	error[1]='incorrect number of files for single end reads'
-	return error
+    if len(flist)>0:
+	return flist
 
 
     session = requests.session()
@@ -111,7 +114,7 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 		
     if len(fname) == 1 and not pair:
 	r = session.get(download_page+'?file='+path[0]+'&name='+fname[0])
-	outfname=make_fname(fname[0])+'_'+str(random.randrange(10000,99999))
+	outfname=make_fname(fname[0]) #+'_'+str(random.randrange(10000,99999))
 
 	if os.path.isfile(basedir+'/'+outfname+'.'+extension):
 	    error[1] = 'Now file exist'
@@ -120,33 +123,32 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 	ofname=basedir+'/'+outfname+'.'+extension
 
 	if gz:
-	    ofname=basedir+'/'+outfname+'.'+extension+'.gz'
+	    ofname=ofname+'.gz'
 	    
 	if r.status_code == 200:
 	    with open(ofname, 'wb') as f:
     		for chunk in r.iter_content(1024*1024):
         	    f.write(chunk)
-
-	    PAR='gunzip '+ofname    	
-	    RET=''
-	    try:
-		RET=s.check_output(PAR,shell=True)
-	    except Exception,e:
-        	print "error ungzip"+RET
-		pass
+	    if gz:
+		PAR='gunzip '+ofname    	
+		RET=''
+		try:
+		    RET=s.check_output(PAR,shell=True)
+		except Exception,e:
+        	    print "error ungzip"+RET
+		    pass
 	    flist.append(outfname)
 	    return flist
 
     if len(fname) == 2 and pair:
-	rnd=str(random.randrange(10000,99999))
 
 	for i in range(2):
 	    r = session.get(download_page+'?file='+path[i]+'&name='+fname[i])
-	    outfname=make_fname(fname[i])+'_'+rnd
+	    outfname=make_fname(fname[i]) #+'_'+rnd
 	    
 	    ofname=basedir+'/'+outfname+'.'+extension
 	    if gz:
-		ofname=basedir+'/'+outfname+'.'+extension+'.gz'
+		ofname=ofname+'.gz'
 		
 	    if os.path.isfile(basedir+'/'+outfname+'.'+extension):
 		error[1]='Now file exist'
@@ -156,21 +158,21 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 		with open(ofname, 'wb') as f:
     		    for chunk in r.iter_content(1024*1024):
         		f.write(chunk)
-		PAR='gunzip '+ofname    	
-		RET=''
-		try:
-		    RET=s.check_output(PAR,shell=True)
-		except Exception,e:
-        	    print "error ungzip"+RET
-		    pass
+        	if gz:	
+		    PAR='gunzip '+ofname    	
+		    RET=''
+		    try:
+			RET=s.check_output(PAR,shell=True)
+		    except Exception,e:
+        		print "error ungzip"+RET
+			pass
 		
 		flist.append(outfname)	
 	return flist
 	
-	
     warning[1]='Cant find file'
     return warning
-#### end of def
+#### end of def get_file
 
 
 

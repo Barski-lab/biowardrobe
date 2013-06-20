@@ -16,12 +16,12 @@ import glob
 import subprocess as s # import call
 import time
 
-BOWTIE_INDEXES="/data/DATA/indexes"
-ANNOTATION_BASE=BOWTIE_INDEXES+"/gtf/"
-BASE_DIR="/data/DATA/FASTQ-DATA"
-
 arguments = Arguments.Arguments(sys.argv)
 arguments.checkArguments(2)
+
+BOWTIE_INDEXES=arguments.readString("BOWTIE_INDEXES")
+BASE_DIR=arguments.readString("BASE_DIR")
+ANNOTATION_BASE=BOWTIE_INDEXES+"/gtf/"
 
 pidfile = "/tmp/runRNA"+str(arguments.opt.id)+".pid"
 
@@ -98,36 +98,6 @@ def run_ribosomal(infile,db):
 	RET=s.Popen(PAR,shell=True)
 	success[1]=' Ribosomal backgrounded'
 	success.append(RET)
-	return success
-    except Exception,e:
-	error[1]=str(e)
-	return error
-
-
-def run_bedgraph(infile,group,name4browser,bedformat,db):
-
-    PAR=''
-    
-    if ";" in infile:
-	FN=infile.split(";")
-        if len(d.file_exist('.',FN[0],'log')) == 1:
-	    success[1]=' Bedgraph uploaded'
-	    return success
-	PAR='bam2bedgraph -sql_table="'+FN[0]+'" -in="'+FN[0]+'.bam" -out="'+FN[0]+'.out" -log="'+FN[0]+'.log"' 
-	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_host=localhost -sql_dbname='+db
-    else:
-	if len(d.file_exist('.',infile,'log')) == 1:
-	    success[1]=' Bedgraph uploaded'
-	    return success	
-	PAR='bam2bedgraph -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.out" -log="'+infile+'.log"' 
-	PAR=PAR+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_window=20 -bed_format='+bedformat+'  -no-bed-file -bed_type=2 -sql_host=localhost -sql_dbname='+db
-	
-    PAR=PAR+' -rna_seq="RNA" -bed_normalize '
-    #print PAR
-    RET=''
-    try:
-	RET=s.check_output(PAR,shell=True)
-	success[1]=' Uploading to genome browser has succeed'
 	return success
     except Exception,e:
 	error[1]=str(e)
@@ -222,15 +192,13 @@ while True:
 
     ADD_TOPHAT=" -g 1 --no-novel-juncs "+ADD_TOPHAT
 
-    basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
-
-
     TRANSCRIPTOME=' --transcriptome-index '+ANNOTATION_BASE+ANNOTATION+' '
     GFT_FILE='-G '+ANNOTATION_BASE+ANNOTATION+'.gtf '
         
     TOPHAT_PARAM=' --num-threads 24 '+GFT_FILE+ADD_TOPHAT+TRANSCRIPTOME+BOWTIE_INDEXES+'/'+FINDEX+' '
 
 
+    basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
     os.chdir(basedir)
 
     FN=list()
