@@ -258,7 +258,7 @@ void AverageDensity::batchsql() {
 
         int fieldDb = q.record().indexOf("db");
         int fieldFilename = q.record().indexOf("filename");
-        int fieldEtype = q.record().indexOf("etype");
+        //int fieldEtype = q.record().indexOf("etype");
         int fieldGBname = q.record().indexOf("name4browser");
         int fieldAtable = q.record().indexOf("annottable");
         int fieldFsize = q.record().indexOf("fragmentsize");
@@ -309,9 +309,9 @@ void AverageDensity::batchsql() {
             bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
             quint64 Start=q.value(fieldStart).toInt()+1;
             quint64 End=q.value(fieldEnd).toInt();
-            QString chr=q.value(fieldChrom).toString();
+            QString Chrom=q.value(fieldChrom).toString();
 
-            if(gArgs().getArgs("sam_ignorechr").toString().contains(chr)) {
+            if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
                 continue;
             }
 
@@ -321,7 +321,7 @@ void AverageDensity::batchsql() {
 
         QList<double>  storage;
         int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
-        for(quint64 w=0; w< length; w++)
+        for(int w=0; w< length; w++)
             storage<<(avd_raw_data[w]/total)/q.size();
 
         storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
@@ -329,7 +329,8 @@ void AverageDensity::batchsql() {
         QString avd_data_out="N";
         avd_data_out+=QString(",%1").arg(GBName);
         avd_data_out=avd_data_out+"\n";
-        for(int i=0; i<storage.size();i++) {
+        int rows=storage.size();
+        for(int i=0; i<rows;i++) {
             avd_data_out+=QString("%1").arg((int)(i-rows/2));
             avd_data_out+=QString(",%1").arg(storage.at(i));
             avd_data_out=avd_data_out+"\n";
@@ -338,7 +339,7 @@ void AverageDensity::batchsql() {
         QFile outFile;
         outFile.setFileName(gArgs().getArgs("out").toString());
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(out.toAscii());
+        outFile.write(avd_data_out.toAscii());
         outFile.close();
     }
 
