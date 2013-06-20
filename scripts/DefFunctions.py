@@ -63,6 +63,7 @@ def error_msg(msg):
     print """ %s """%(msg)
     sys.exit()
 
+
 def check_pid(pid):
     """ Check For the existence of a unix pid. """
     try:
@@ -72,13 +73,14 @@ def check_pid(pid):
     else:
         return True
 
-def check_running(fname):
 
+def check_running(fname):
     if os.path.isfile(fname):
         old_pid=file(fname, 'r').readline()
         if check_pid(int(old_pid)):
             sys.exit()
     file(fname, 'w').write(str(os.getpid()))
+
 
 def file_exist(basedir,fname,extension):
     LIST=glob.glob(basedir+'/'+fname+'.'+extension)
