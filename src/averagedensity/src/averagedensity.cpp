@@ -237,6 +237,8 @@ void AverageDensity::start() {
 void AverageDensity::batchsql() {
     int avd_lid=gArgs().getArgs("avd_lid").toInt();
     int avd_pid=gArgs().getArgs("avd_pid").toInt();
+    int avd_window=gArgs().getArgs("avd_window").toInt();
+
     if(avd_lid>0 && avd_pid>0) {
         qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
         return;
@@ -247,7 +249,7 @@ void AverageDensity::batchsql() {
 
     if(avd_lid>0) {
 
-        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize from labdata l, genome g, experimenttype e "
+        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
                   "from labdata l,experimenttype e,genome g,worker w "
                   "where e.id=experimenttype_id and g.id=l.genome_id and l.id=:id");
         q.bindValue(":id", avd_lid);
@@ -287,9 +289,10 @@ void AverageDensity::batchsql() {
             t_pool->waitForDone();
         }
 
-        if(!q.exec("select chrom,strand,txStart-5000 as start,txStart+5000 as end,10001 as len from "
+        QString avd_window_str=QString("%1").arg(avd_window);
+        if(!q.exec("select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
                    ""+DB+"."+annottable+" where strand = '+' union"
-                   "select chrom,strand,txEnd-5000 as start,txEnd+5000 as end,10001 as len from "
+                   "select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
                    ""+DB+"."+annottable+" where strand = '-' union"
                    )) {
             qDebug()<<"Query error: "<<q.lastError().text();
@@ -301,7 +304,7 @@ void AverageDensity::batchsql() {
         int fieldStart= q.record().indexOf("start");
         int fieldEnd= q.record().indexOf("end");
         //int fieldLen= q.record().indexOf("len");
-        int length=10001;
+        int length=avd_window*2+1;
 
         QVector<double> avd_raw_data(length,0);
 
