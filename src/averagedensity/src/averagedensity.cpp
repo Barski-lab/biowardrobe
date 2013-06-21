@@ -30,7 +30,33 @@
  *  fills result of type T by selected data (from start till end)
  */
 template<class T>
-void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result,int bpsh=0)
+void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, int shift,T& result) {
+
+    qint64 length=end-start+1;
+    qint64 position=0;
+    /*current and old position*/
+    if(!reverse) {
+        /*if iterator points not to the begining of the segment shift to the start position*/
+        while(i!=e && (qint64)(i.key()-start+shift)<0) i++;
+        /*checking border conditions*/
+        //if(i==e || (quint64)i.key()>end) return;
+        while(i!=e && (position=i.key()-start+shift) < length) {
+            genome::Cover::countReads<double>(i.value(),result[position]);
+            ++i;
+        }
+    } else {
+        while(i!=e && (qint64)(i.key()-start-shift)<0) i++;
+        while(i!=e && (position=i.key()-start-shift) < length) {
+            genome::Cover::countReads<double>(i.value(),result[length-shift-position]);
+            ++i;
+        }
+    }
+
+}
+
+
+template<class T>
+void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
 {
     /*if iterator points not to the begining of the segment shift to the start position*/
     while(i!=e && (qint64)(i.key()-start)<0) i++;
@@ -146,18 +172,35 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 template <class T>
-void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result,int bpsh=0)
+void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result)
 {
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
         getReadsAtPoint<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
                            ,input->getLineCover(chrome+QChar('+')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result,bpsh);
+                           ,start,end,reverse,shift,mapping,result);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
         getReadsAtPoint<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start)
                            ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result,bpsh);
+                           ,start,end,reverse,shift,mapping,result);
+    }
+}
+//-------------------------------------------------------------
+//-------------------------------------------------------------
+template <class T>
+void AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_lines* input,T& result)
+{
+
+    if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
+        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
+                            ,input->getLineCover(chrome+QChar('+')).getEndIterator()
+                            ,start,end,reverse,shift,result);
+    }
+    if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
+        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start-shift)
+                            ,input->getLineCover(chrome+QChar('-')).getEndIterator()
+                            ,start,end,reverse,shift,result);
     }
 }
 
@@ -232,7 +275,7 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 
 void AverageDensity::start() {
     batchsql();
-        emit finished();
+    emit finished();
 }
 
 void AverageDensity::batchsql() {
@@ -318,8 +361,8 @@ void AverageDensity::batchsql() {
             if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
                 continue;
             }
-            AVD<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
-                                  strand/*bool strand*/,fragmentsize/2/*shift*/,length/*mapping*/,sam_data.at(0),avd_raw_data);
+            AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
+                                  strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data);
         }
 
         QList<double>  storage;
