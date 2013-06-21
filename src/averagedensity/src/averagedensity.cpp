@@ -30,7 +30,7 @@
  *  fills result of type T by selected data (from start till end)
  */
 template<class T>
-void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
+void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result,int bpsh=0)
 {
     /*if iterator points not to the begining of the segment shift to the start position*/
     while(i!=e && (qint64)(i.key()-start)<0) i++;
@@ -146,18 +146,18 @@ void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 template <class T>
-void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result)
+void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result,int bpsh=0)
 {
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
         getReadsAtPoint<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
                            ,input->getLineCover(chrome+QChar('+')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result);
+                           ,start,end,reverse,shift,mapping,result,bpsh);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
         getReadsAtPoint<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start)
                            ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result);
+                           ,start,end,reverse,shift,mapping,result,bpsh);
     }
 }
 
@@ -232,6 +232,7 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 
 void AverageDensity::start() {
     batchsql();
+        emit finished();
 }
 
 void AverageDensity::batchsql() {
@@ -250,9 +251,9 @@ void AverageDensity::batchsql() {
     if(avd_lid>0) {
 
         q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
-                  "from labdata l,experimenttype e,genome g,worker w "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=:id");
-        q.bindValue(":id", avd_lid);
+                  "from labdata l,experimenttype e,genome g "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
+        q.bindValue(0, avd_lid);
         if(!q.exec()) {
             qDebug()<<"Query error: "<<q.lastError().text();
             return;
@@ -291,9 +292,9 @@ void AverageDensity::batchsql() {
 
         QString avd_window_str=QString("%1").arg(avd_window);
         if(!q.exec("select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '+' union"
+                   ""+DB+"."+annottable+" where strand = '+' and chrom not like '%\\_%' union "
                    "select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '-' union"
+                   ""+DB+"."+annottable+" where strand = '-' and chrom not like '%\\_%'"
                    )) {
             qDebug()<<"Query error: "<<q.lastError().text();
             return;
@@ -306,18 +307,17 @@ void AverageDensity::batchsql() {
         //int fieldLen= q.record().indexOf("len");
         int length=avd_window*2+1;
 
-        QVector<double> avd_raw_data(length,0);
+        QVector<double> avd_raw_data(length+1,0);
 
         while(q.next()) {
             bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
-            quint64 Start=q.value(fieldStart).toInt()+1;
-            quint64 End=q.value(fieldEnd).toInt();
+            int Start=q.value(fieldStart).toInt();
+            int End=q.value(fieldEnd).toInt();
             QString Chrom=q.value(fieldChrom).toString();
 
             if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
                 continue;
             }
-
             AVD<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
                                   strand/*bool strand*/,fragmentsize/2/*shift*/,length/*mapping*/,sam_data.at(0),avd_raw_data);
         }
