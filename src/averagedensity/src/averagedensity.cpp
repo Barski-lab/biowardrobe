@@ -41,12 +41,14 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
         /*checking border conditions*/
         //if(i==e || (quint64)i.key()>end) return;
         while(i!=e && (position=i.key()-start+shift) < length) {
+            qDebug()<<position;
             genome::Cover::countReads<double>(i.value(),result[position]);
             ++i;
         }
     } else {
         while(i!=e && (qint64)(i.key()-start-shift)<0) i++;
         while(i!=e && (position=i.key()-start-shift) < length) {
+            qDebug()<<position;
             genome::Cover::countReads<double>(i.value(),result[length-shift-position]);
             ++i;
         }
