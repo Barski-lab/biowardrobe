@@ -30,28 +30,34 @@
  *  fills result of type T by selected data (from start till end)
  */
 template<class T>
-void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, int shift,T& result) {
+void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, int shift,T& result,bool pair) {
 
     qint64 length=end-start+1;
     qint64 position=0;
-    /*current and old position*/
-    if(!reverse) {
-        /*if iterator points not to the begining of the segment shift to the start position*/
-        while(i!=e && (qint64)(i.key()-start+shift)<0) i++;
-        /*checking border conditions*/
-        //if(i==e || (quint64)i.key()>end) return;
-        while(i!=e && (position=i.key()-start+shift) < length) {
+
+    if(!pair) {
+        if(!reverse) {
+            /*if iterator points not to the begining of the segment shift to the start position*/
+            while(i!=e && (qint64)(i.value()[0].getStart()-start+shift)<0) i++;
+            while(i!=e && (position=i.value()[0].getStart()-start+shift) < length) {
+                genome::Cover::countReads<double>(i.value(),result[position]);
+                ++i;
+            }
+        } else {
+            while(i!=e && (qint64)(i.value()[0].getStart()-start-shift)<0) i++;
+            while(i!=e && (position=i.value()[0].getStart()-start-shift) < length) {
+                genome::Cover::countReads<double>(i.value(),result[length-position-1]);
+                ++i;
+            }
+        }
+    } else {
+        //?????
+        while(i!=e && (qint64)(i.key()-start+abs(i.value()[0].getStart()-i.value()[0].getEnd()))<0) i++;
+        while(i!=e && (position=i.key()-start+abs(i.value()[0].getStart()-i.value()[0].getEnd())) < length) {
             genome::Cover::countReads<double>(i.value(),result[position]);
             ++i;
         }
-    } else {
-        while(i!=e && (qint64)(i.key()-start-shift)<0) i++;
-        while(i!=e && (position=i.key()-start-shift) < length) {
-            genome::Cover::countReads<double>(i.value(),result[length-position-1]);
-            ++i;
-        }
     }
-
 }
 
 
@@ -189,18 +195,18 @@ void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,qui
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 template <class T>
-void AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_lines* input,T& result)
+void AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_lines* input,T& result,bool pair)
 {
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
         getReadsAtPointS<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
                             ,input->getLineCover(chrome+QChar('+')).getEndIterator()
-                            ,start,end,reverse,shift,result);
+                            ,start,end,reverse,shift,result,pair);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
         getReadsAtPointS<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start-shift)
                             ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                            ,start,end,reverse,shift,result);
+                            ,start,end,reverse,shift,result,pair);
     }
 }
 
@@ -275,8 +281,8 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 
 void AverageDensity::start() {
     try{
-    batchsql();
-    emit finished();
+        batchsql();
+        emit finished();
     }
     catch(char*str)
     {
@@ -303,7 +309,7 @@ void AverageDensity::batchsql() {
     if(avd_lid>0) {
 
         q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
-                  "from labdata l,experimenttype e,genome g "
+                  "from ems.labdata l,ems.experimenttype e,ems.genome g "
                   "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
         q.bindValue(0, avd_lid);
         if(!q.exec()) {
@@ -313,7 +319,7 @@ void AverageDensity::batchsql() {
 
         int fieldDb = q.record().indexOf("db");
         int fieldFilename = q.record().indexOf("filename");
-        //int fieldEtype = q.record().indexOf("etype");
+        int fieldEtype = q.record().indexOf("etype");
         int fieldGBname = q.record().indexOf("name4browser");
         int fieldAtable = q.record().indexOf("annottable");
         int fieldFsize = q.record().indexOf("fragmentsize");
@@ -327,11 +333,11 @@ void AverageDensity::batchsql() {
         QString filename=q.value(fieldFilename).toString();
         if(filename.contains(';'))
             filename=filename.split(';').at(0);
-        //QString EType =q.value(fieldEtype).toString();
+        QString EType =q.value(fieldEtype).toString();
         QString GBName =q.value(fieldGBname).toString();
         QString annottable =q.value(fieldAtable).toString();
         int fragmentsize =q.value(fieldFsize).toInt();
-
+        bool pair=(EType.indexOf("pair")!=-1);
         //fileLabels.append();
         sam_data.append(new gen_lines());
         t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
@@ -356,7 +362,6 @@ void AverageDensity::batchsql() {
         int fieldStrand = q.record().indexOf("strand");
         int fieldStart= q.record().indexOf("start");
         int fieldEnd= q.record().indexOf("end");
-        //int fieldLen= q.record().indexOf("len");
         int length=avd_window*2+1;
 
         QVector<double> avd_raw_data(length+1,0);
@@ -371,33 +376,59 @@ void AverageDensity::batchsql() {
                 continue;
             }
             AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
-                                  strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data);
+                                   strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data,pair);
         }
 
         QList<double>  storage;
         int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
         for(int w=0; w< length; w++)
             storage<<(avd_raw_data[w]/total)/q.size();
-qDebug()<<"storage filled";
         storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
-qDebug()<<"storage smoothed";
 
-        QString avd_data_out="N";
-        avd_data_out+=QString(",%1").arg(GBName);
-        avd_data_out=avd_data_out+"\n";
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1_atp;"
+                                     "CREATE TABLE experiments.%2_atp ( "
+                                     "`X` INT NULL ,"
+                                     "`Y` INT NULL ,"
+                                     "INDEX X_idx (X) using btree,"
+                                     "INDEX Y_idx (Y) using btree"
+                                     ")"
+                                     "ENGINE = MyISAM "
+                                     "COMMENT = 'created by averagedensity';").
+                             arg(filename).
+                             arg(filename);
+
+        if(!q.exec(CREATE_TABLE)) {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+
+        QString SQL_QUERY_BASE=QString("insert into experiments.%1_atp values ").
+                               arg(filename);
+        QString SQL_QUERY;
+
+//        QString avd_data_out="N";
+//        avd_data_out+=QString(",%1").arg(GBName);
+//        avd_data_out=avd_data_out+"\n";
         int rows=storage.size();
         for(int i=0; i<rows;i++) {
-            avd_data_out+=QString("%1").arg((int)(i-rows/2));
-            avd_data_out+=QString(",%1").arg(storage.at(i));
-            avd_data_out=avd_data_out+"\n";
-        }
-qDebug()<<"bfile";
+//            avd_data_out+=QString("%1").arg((int)(i-rows/2));
+//            avd_data_out+=QString(",%1").arg(storage.at(i));
+//            avd_data_out=avd_data_out+"\n";
 
-        QFile outFile;
-        outFile.setFileName(gArgs().getArgs("out").toString());
-        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(avd_data_out.toAscii());
-        outFile.close();
+            SQL_QUERY+=QString(" ('%1',%2),").
+                       arg((int)(i-rows/2)).
+                       arg(storage.at(i));
+
+        }
+        SQL_QUERY.chop(1);
+        if(q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+
+//        QFile outFile;
+//        outFile.setFileName(gArgs().getArgs("out").toString());
+//        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+//        outFile.write(avd_data_out.toAscii());
+//        outFile.close();
     }
 
     if(avd_pid>0) {
