@@ -41,15 +41,13 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
         /*checking border conditions*/
         //if(i==e || (quint64)i.key()>end) return;
         while(i!=e && (position=i.key()-start+shift) < length) {
-            qDebug()<<position;
             genome::Cover::countReads<double>(i.value(),result[position]);
             ++i;
         }
     } else {
         while(i!=e && (qint64)(i.key()-start-shift)<0) i++;
         while(i!=e && (position=i.key()-start-shift) < length) {
-            qDebug()<<position;
-            genome::Cover::countReads<double>(i.value(),result[length-shift-position]);
+            genome::Cover::countReads<double>(i.value(),result[length-position-1]);
             ++i;
         }
     }
@@ -276,8 +274,17 @@ QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
 }
 
 void AverageDensity::start() {
+    try{
     batchsql();
     emit finished();
+    }
+    catch(char*str)
+    {
+        cerr<<"Catch an error:"<<str<<endl;
+    }
+    catch(...)
+    {
+    }
 }
 
 void AverageDensity::batchsql() {
@@ -371,8 +378,9 @@ void AverageDensity::batchsql() {
         int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
         for(int w=0; w< length; w++)
             storage<<(avd_raw_data[w]/total)/q.size();
-
+qDebug()<<"storage filled";
         storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
+qDebug()<<"storage smoothed";
 
         QString avd_data_out="N";
         avd_data_out+=QString(",%1").arg(GBName);
@@ -383,6 +391,7 @@ void AverageDensity::batchsql() {
             avd_data_out+=QString(",%1").arg(storage.at(i));
             avd_data_out=avd_data_out+"\n";
         }
+qDebug()<<"bfile";
 
         QFile outFile;
         outFile.setFileName(gArgs().getArgs("out").toString());
