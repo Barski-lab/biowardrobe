@@ -332,7 +332,7 @@ void AverageDensity::batchsql() {
                   "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
         q.bindValue(0, avd_lid);
         if(!q.exec()) {
-            qDebug()<<"Query error: "<<q.lastError().text();
+            qDebug()<<"Query error info: "<<q.lastError().text();
             return;
         }
 
@@ -373,7 +373,7 @@ void AverageDensity::batchsql() {
                    "select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
                    ""+DB+"."+annottable+" where strand = '-' and chrom not like '%\\_%'"
                    )) {
-            qDebug()<<"Query error: "<<q.lastError().text();
+            qDebug()<<"Query error annot: "<<q.lastError().text();
             return;
         }
 
@@ -407,9 +407,8 @@ void AverageDensity::batchsql() {
         QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1_atp;"
                                      "CREATE TABLE experiments.%2_atp ( "
                                      "`X` INT NULL ,"
-                                     "`Y` INT NULL ,"
-                                     "INDEX X_idx (X) using btree,"
-                                     "INDEX Y_idx (Y) using btree"
+                                     "`Y` FLOAT NULL ,"
+                                     "INDEX X_idx (X) using btree"
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by averagedensity';").
@@ -417,12 +416,12 @@ void AverageDensity::batchsql() {
                              arg(filename);
 
         if(!q.exec(CREATE_TABLE)) {
-            qDebug()<<"Query error: "<<q.lastError().text();
+            qDebug()<<"Query error T: "<<q.lastError().text();
         }
 
         QString SQL_QUERY_BASE=QString("insert into experiments.%1_atp values ").
                                arg(filename);
-        QString SQL_QUERY;
+        QString SQL_QUERY="";
 
         //        QString avd_data_out="N";
         //        avd_data_out+=QString(",%1").arg(GBName);
@@ -433,14 +432,14 @@ void AverageDensity::batchsql() {
             //            avd_data_out+=QString(",%1").arg(storage.at(i));
             //            avd_data_out=avd_data_out+"\n";
 
-            SQL_QUERY+=QString(" ('%1',%2),").
+            SQL_QUERY+=QString(" (%1,%2),").
                        arg((int)(i-rows/2)).
                        arg(storage.at(i));
-
         }
+        
         SQL_QUERY.chop(1);
-        if(q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
-            qDebug()<<"Query error: "<<q.lastError().text();
+        if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
+            qDebug()<<"Query error batch up: "<<q.lastError().text();
         }
 
         //        QFile outFile;
