@@ -51,11 +51,30 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
             }
         }
     } else {
-        //?????
-        while(i!=e && (qint64)(i.key()-start+abs(i.value()[0].getStart()-i.value()[0].getEnd()))<0) i++;
-        while(i!=e && (position=i.key()-start+abs(i.value()[0].getStart()-i.value()[0].getEnd())) < length) {
-            genome::Cover::countReads<double>(i.value(),result[position]);
-            ++i;
+        if(!reverse) {
+            while(i!=e ) {
+                int position=0;
+                for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
+                    position=i.value()[c].getStart()+i.value()[c].getLength()/2-start;
+                    if(position<0) continue;
+                    if(position<length)
+                            result[position]+=i.value()[c].getLevel();
+                }
+                if(position>=length)
+                    break;
+            }
+        } else {
+            while(i!=e ) {
+                int position=0;
+                for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
+                    position=i.value()[c].getStart()-i.value()[c].getLength()/2-start;
+                    if(position<0) continue;
+                    if(position<length)
+                            result[length-position-1]+=i.value()[c].getLevel();
+                }
+                if(position>=length)
+                    break;
+            }
         }
     }
 }
@@ -405,14 +424,14 @@ void AverageDensity::batchsql() {
                                arg(filename);
         QString SQL_QUERY;
 
-//        QString avd_data_out="N";
-//        avd_data_out+=QString(",%1").arg(GBName);
-//        avd_data_out=avd_data_out+"\n";
+        //        QString avd_data_out="N";
+        //        avd_data_out+=QString(",%1").arg(GBName);
+        //        avd_data_out=avd_data_out+"\n";
         int rows=storage.size();
         for(int i=0; i<rows;i++) {
-//            avd_data_out+=QString("%1").arg((int)(i-rows/2));
-//            avd_data_out+=QString(",%1").arg(storage.at(i));
-//            avd_data_out=avd_data_out+"\n";
+            //            avd_data_out+=QString("%1").arg((int)(i-rows/2));
+            //            avd_data_out+=QString(",%1").arg(storage.at(i));
+            //            avd_data_out=avd_data_out+"\n";
 
             SQL_QUERY+=QString(" ('%1',%2),").
                        arg((int)(i-rows/2)).
@@ -424,11 +443,11 @@ void AverageDensity::batchsql() {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
 
-//        QFile outFile;
-//        outFile.setFileName(gArgs().getArgs("out").toString());
-//        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-//        outFile.write(avd_data_out.toAscii());
-//        outFile.close();
+        //        QFile outFile;
+        //        outFile.setFileName(gArgs().getArgs("out").toString());
+        //        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        //        outFile.write(avd_data_out.toAscii());
+        //        outFile.close();
     }
 
     if(avd_pid>0) {

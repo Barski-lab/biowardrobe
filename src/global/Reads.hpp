@@ -69,24 +69,24 @@ public:
     };
 
 
-    Read(int start,int len,bool st=true,QString sr="",QString qr=""):
-        multiplying(1),
-        length(len),
-        strand(st),
-        //position(interval_type::closed(start,start+len-1)),
-        m_read_representation(interval_type::closed(start,start+len-1)),
-        sentenceRepresentation(sr),
-        qualityRepresentation(qr)
-    {};
+//    Read(int start,int len,bool st=true,QString sr="",QString qr=""):
+//        multiplying(1),
+//        length(len),
+//        strand(st),
+//        //position(interval_type::closed(start,start+len-1)),
+//        m_read_representation(interval_type::closed(start,start+len-1)),
+//        sentenceRepresentation(sr),
+//        qualityRepresentation(qr)
+//    {};
 
-    Read(int start,int len,int num,bool st=true,QString sr="",QString qr=""):
-        multiplying(num),
-        length(len),
-        strand(st),
-        m_read_representation(interval_type::closed(start,start+len-1)),
-        sentenceRepresentation(sr),
-        qualityRepresentation(qr)
-    {};
+//    Read(int start,int len,int num,bool st=true,QString sr="",QString qr=""):
+//        multiplying(num),
+//        length(len),
+//        strand(st),
+//        m_read_representation(interval_type::closed(start,start+len-1)),
+//        sentenceRepresentation(sr),
+//        qualityRepresentation(qr)
+//    {};
 
     Read(read_representation p,bool st=true,int num=1,QString sr="",QString qr=""):
         multiplying(num),
