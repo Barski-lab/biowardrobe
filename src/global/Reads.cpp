@@ -248,12 +248,12 @@ QList<QString> Lines::getLines(void)
 //-----------------------------------------------------------------------------------
 
 
-void GenomeDescription::setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
-{
-    bool st=(sense==QChar('+'));
-    Read r(pos,len,num,st);
-    addRead(chrName+sense,r);
-}
+//void GenomeDescription::setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len)
+//{
+//    bool st=(sense==QChar('+'));
+//    Read r(pos,len,num,st);
+//    addRead(chrName+sense,r);
+//}
 
 void GenomeDescription::setGene(const QChar &sense,const QString &chrName,read_representation &r,const qint32 & num)
 {

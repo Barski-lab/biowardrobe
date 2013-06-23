@@ -202,7 +202,7 @@ public:
 
     /*
     */
-    void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len);
+    //void setGene(const QChar &sense,const QString &chrName,const qint32 &pos,const qint32 & num,const qint32 &len);
     void setGene(const QChar &sense,const QString &chrName,read_representation &r,const qint32 & num);
 
     /*
