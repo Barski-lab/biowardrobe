@@ -20,26 +20,25 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.view.LabDataEdit.SpikeinsChart', {
+Ext.define('EMS.view.LabDataEdit.ATPChart', {
                extend: 'Ext.Panel',
                bodyPadding: 5,
                border: false,
                frame: false,
                layout: 'border',
                plain: true,
-               title: 'Spikein info',
-               iconCls: 'surveillance-camera',
-
+               title: 'Average Tag Density',
+               iconCls: 'chart-line',
                initComponent: function() {
                    var me=this;
-                   me.chart= Ext.create('EMS.view.charts.Spikeins');
+                   me.chart= Ext.create('EMS.view.charts.ATP',me.initialConfig);
                    me.items= [{
                                   xtype: 'panel',
                                   frame: false,
                                   border: true,
                                   region: 'center',
                                   collapsible: false,
-                                  title: 'Spikein scatter plot',
+                                  title: '',
                                   layout: 'fit',
                                   items: [ me.chart ]
                               }];

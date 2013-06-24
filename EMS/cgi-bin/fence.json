@@ -66,6 +66,7 @@ CA=FP_N.readline().split()
 CC=FP_N.readline().split()
 CT=FP_N.readline().split()
 CG=FP_N.readline().split()
+CN=FP_N.readline().split()
 FP_N.close()
 
 comma=""
@@ -81,7 +82,8 @@ for i in range(1,len(CA)):
  print """ "A":"%s", """%(CA[i]),
  print """ "C":"%s", """%(CC[i]),
  print """ "T":"%s", """%(CT[i]),
- print """ "G":"%s" """%(CG[i]),
+ print """ "G":"%s", """%(CG[i]),
+ print """ "N":"%s" """%(CN[i]),
  print """}""",
  comma=","
 

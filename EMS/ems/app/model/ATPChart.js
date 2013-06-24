@@ -20,17 +20,11 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.Fence', {
+Ext.define( 'EMS.model.ATPChart', {
                extend: 'Ext.data.Model',
 
-               fields:
-                   [
-                   { name: 'id', type: 'int' },
-                   { name: 'A', type: 'int' },
-                   { name: 'C', type: 'int' },
-                   { name: 'T', type: 'int' },
-                   { name: 'G', type: 'int' },
-                   { name: 'N', type: 'int' }
+               fields: [
+                   { name: 'X', type: 'int' },
+                   { name: 'Y', type: 'float' }
                ]
-           }
-           );
+           });

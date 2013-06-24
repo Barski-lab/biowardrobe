@@ -38,12 +38,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                extend: 'Ext.app.Controller',
 
                models: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup',
-                   'RPKM','Islands','SpikeinsChart','Spikeins'],
+                   'RPKM','Islands','SpikeinsChart','Spikeins','ATPChart'],
                stores: ['LabData','ExperimentType','Worker','Genome','Antibodies','Crosslinking','Fragmentation','Fence','GenomeGroup',
-                   'RPKM','Islands','SpikeinsChart','Spikeins'],
+                   'RPKM','Islands','SpikeinsChart','Spikeins','ATPChart'],
                views:  ['EMS.view.ExperimentsWindow.Main','EMS.view.ExperimentsWindow.Grid','EMS.view.LabDataEdit.LabDataEditForm',
                    'EMS.view.LabDataEdit.LabDataEdit','EMS.view.charts.Fence','EMS.view.LabDataEdit.LabDataDescription','EMS.view.GenomeGroup.GenomeGroup',
-                   'EMS.view.GenomeGroup.List'],
+                   'EMS.view.GenomeGroup.List','EMS.view.charts.ATP'],
 
                refresh: false,
 
@@ -90,6 +90,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                     },
                                     '#islands-save': {
                                         click: this.onIslandsSave
+                                    },
+                                    'textfield[name=libcode]': {
+                                        change: this.setDisableUDownloadType
+                                    },
+                                    'textfield[name=url]': {
+                                        change: this.setDisableLDownloadType
                                     }
                                 });
                },
@@ -131,6 +137,31 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                },
                //-----------------------------------------------------------------------
+               //
+               //
+               //-----------------------------------------------------------------------
+               setDisableUDownloadType: function(sender,before) {
+                   if(sender.value.length>0)
+                       Ext.ComponentQuery.query('textfield[name=url]')[0].disable();
+                   else
+                       Ext.ComponentQuery.query('textfield[name=url]')[0].enable();
+               },
+               setDisableLDownloadType: function(sender,before) {
+                   if(sender.value.length>0)
+                       Ext.ComponentQuery.query('textfield[name=libcode]')[0].disable();
+                   else
+                       Ext.ComponentQuery.query('textfield[name=libcode]')[0].enable();
+               },
+               setDisabledDownloadType: function(obj) {
+                   var form=obj.down('form').getForm();
+                   if(form.findField('libcode').value.length>0) {
+                       form.findField('url').disable();
+                   }
+                   if(form.findField('url').value.length>0) {
+                       form.findField('libcode').disable();
+                   }
+               },
+               //-----------------------------------------------------------------------
                // Disabling/enabling antibody and fragmentation comboboxes
                //
                //-----------------------------------------------------------------------
@@ -138,6 +169,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=obj.down('form').getForm();
                    if(sts >= 1) {
                        form.findField('libcode').setReadOnly(true);
+                       form.findField('url').setReadOnly(true);
                    }
                    if(sts >= 11) {
                        form.findField('experimenttype_id').setReadOnly(true);
@@ -163,6 +195,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        form.findField('spikeinspool').disable();
                    }
                },
+               /***********************************************************************
+                ***********************************************************************/
                genomeGroupStoreLoad: function(db,all){
                    this.getGenomeGroupStore().getProxy().setExtraParam('genomedb',db);
                    all=(typeof all !== 'undefined')?all:false;
@@ -173,21 +207,23 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    this.getGenomeGroupStore().load();
                },
-               //-----------------------------------------------------------------------
-               // Setting to read only all elements in form panel (except image upload why ?)
-               // and disabling save button if current user and record owner are not the same
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                *
+                * MAIN function which makes a behaviour of LabDataEdit Window
+                *
+                ***********************************************************************/
                onEditShow: function(obj) {
                    this.setVisibleSpike(obj);
                    this.setDisabledCombo(obj);
+                   this.setDisabledDownloadType(obj);
 
+                   var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
-                   var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var tblname=record.data['filename'].split(';')[0];
                    var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id']).data;
-                   var db=gdata.db;
                    var spike=(gdata.genome.indexOf('spike')!== -1);
+                   var db=gdata.db;
 
                    this.genomeGroupStoreLoad(db,parseInt(record.raw['worker_id']) !== parseInt(USER_ID));
 
@@ -207,7 +243,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var sts=parseInt(record.raw['libstatus']);
                    var base=sts/1000|0;
                    sts=sts%1000;
-
                    this.setDisabledByStatus(obj,sts);
 
                    if ( sts <= 11) {
@@ -216,124 +251,42 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                            maintabpanel.items.getAt(i).setDisabled(true);
                        }
                        maintabpanel.setActiveTab(0);
-                   } else if (sts > 11) {
-                       obj.setWidth(1000);
+                       return;
+                   }
+
+                   if (sts > 11) {
+                       obj.setWidth(1100);
                        this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
                        maintabpanel.setActiveTab(1);
 
+                       var worker=this.getWorkerStore().findRecord('id',record.raw['worker_id']).data.worker.toUpperCase();
 
                        var panelD=Ext.getCmp('experiment-description');
-                       var RNADNA=(isRNA)?"RNA":"DNA";
-                       var worker=this.getWorkerStore().findRecord('id',record.raw['worker_id']).data.worker.toUpperCase();
-                       panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA,RNADNA: RNADNA,worker: worker}));
+                       panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA,RNADNA: (isRNA)?"RNA":"DNA",worker: worker}));
 
-                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+tblname+'=full';
+                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+tblname+'=full';
 
                        if (record.data['tagsribo'] >0) {
-                           var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
-
-                           var store = Ext.create('Ext.data.ArrayStore', {
-                                                      fields: [
-                                                          'name',
-                                                          {name: 'percent', type: 'float'}
-                                                      ],
-                                                      data: [
-                                                          ['Mapped',record.data['tagspercent']],
-                                                          [isRNA?'Ribosomal':'Suppresed',record.data['tagsribopercent']],
-                                                          ['Others',others.toFixed(2)]
-                                                      ]
-                                                  });
-
-                           Ext.create('Ext.chart.Chart', {
-                                          xtype: 'chart',
-                                          animate: false,
-                                          renderTo: 'exp-chart',
-                                          height:110,
-                                          width: 110,
-                                          padding:0,
-                                          margin:0,
-                                          store: store,
-                                          shadow: false,
-                                          border: false,
-                                          plain: true,
-                                          layout: 'fit',
-                                          insetPadding: 5,
-                                          theme: 'Base:gradients',
-                                          series: [{
-                                                  type: 'pie',
-                                                  field: 'percent',
-                                                  tips: {
-                                                      trackMouse: true,
-                                                      width: 120,
-                                                      height: 28,
-                                                      font: '9px Arial',
-                                                      renderer: function(storeItem, item) {
-                                                          this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
-                                                      }
-                                                  },
-                                                  label: {
-                                                      field: 'percent',
-                                                      display: 'rotate',
-                                                      contrast: true,
-                                                      font: '9px Arial'
-                                                  }
-                                              }]
-                                      });
-
-                       }//if ribosomal chart
+                           this.addPieChart(record,'exp-chart',isRNA);
+                       }
                    }//sts>11
+
                    if (sts >11 && !isRNA) {
-                       this.getIslandsStore().getProxy().setExtraParam('tablename',tblname+'_macs');
-                       this.getIslandsStore().load({
-                                                       callback: function(records, operation, success) {
-                                                           if(success) {
-                                                               var Islandstab = Ext.create("EMS.view.LabDataEdit.LabDataIslands");
-                                                               maintabpanel.add(Islandstab);
-                                                           }
-                                                       }
-                                                   });
-                   }
+                       this.addIslandsList(maintabpanel,tblname);
+                       this.addATPChart(maintabpanel,tblname,record.data.name4browser+" "+this.getAntibodiesStore().findRecord('id',record.data.antibody_id).data.antibody);
+                   }//>11 and not RNA
+
                    if (sts >20 && isRNA) {
-                       this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+'_genes');
-                       this.getRPKMStore().load();
-                       var RPKMtab = Ext.create("EMS.view.LabDataEdit.LabDataRPKM");
-                       maintabpanel.add(RPKMtab);
+                       this.addRPKMList(maintabpanel,tblname);
                        if(spike) {
-                           var SpikeinsChart = Ext.create("EMS.view.LabDataEdit.SpikeinsChart");
-                           maintabpanel.add(SpikeinsChart);
-                           var stor=this.getSpikeinsChartStore();
-                           stor.getProxy().setExtraParam('labdata_id',record.raw['id']);
-                           stor.load({
-                                         callback: function(records, operation, success) {
-                                             SpikeinsChart.chart.items=[{
-                                                                            type  : 'text',
-                                                                            text  : 'Y = '+records[0].data.slope.toFixed(3)+' * X'+((records[0].data.inter>0)?" +":' ')+records[0].data.inter.toFixed(3),
-                                                                            font  : 'italic bold 14px Arial',
-                                                                            width : 100,
-                                                                            height: 30,
-                                                                            x : 180, //the sprite x position
-                                                                            y : 23  //the sprite y position
-                                                                        } , {
-                                                                            type  : 'text',
-                                                                            text  : 'R = '+records[0].data.R.toFixed(3),
-                                                                            font  : 'italic bold 14px Arial',
-                                                                            style: 'italic',
-                                                                            width : 100,
-                                                                            height: 30,
-                                                                            x : 180, //the sprite x position
-                                                                            y : 50  //the sprite y position
-                                                                        }];
-                                         }
-                                     });
+                           this.addSpikeinChart(maintabpanel,record.raw['id']);
                        }
                    }
 
                },
 
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                ***********************************************************************/
                onEditClose: function(obj) {
                    if(this.refresh) {
                        this.getLabDataStore().load();
@@ -341,17 +294,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                },
 
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                ***********************************************************************/
                onSelectionChanged: function() {
                },
 
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                ***********************************************************************/
                onPanelRendered: function() {
                    this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('labdata-grid-user-filter').getValue());
                    Ext.getCmp('ExperimentsWindowGrid').m_PagingToolbar.moveFirst()
@@ -400,10 +349,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    },this,{single:true});
                },
 
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                ***********************************************************************/
                onItemDblClick: function(grid,record) {
                    this.LabDataEdit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
                    this.LabDataEdit.labDataForm.loadRecord(record);
@@ -431,18 +378,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    },this,{single:true});
                    this.LabDataEdit.show();
                },
-               //-----------------------------------------------------------------------
-               //
-               //
-               //-----------------------------------------------------------------------
+               /***********************************************************************
+                ***********************************************************************/
                onSave: function(button) {
                    var win    = button.up('window');
                    var form   = win.down('form');
                    var record = form.getRecord();
                    var values = form.getValues();
                    form=form.getForm();
-
-                   //var browsergrp=form.findField('browsergrp');
 
                    if(this.getGenomeGroupStore().findRecord('name',values['browsergrp']) === null) {
                        Ext.Msg.show({
@@ -486,10 +429,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    win.close();
                },
+               /***********************************************************************
+                ***********************************************************************/
                onBrowserGroupEdit: function(button) {
                    var edit = Ext.create('EMS.view.GenomeGroup.GenomeGroup',{addnew: true,modal:true});
                    edit.show();
                },
+               /***********************************************************************
+                ***********************************************************************/
                onBrowserJump: function(button) {
                    var grid=button.up('panel').down('grid');
                    var model=grid.getSelectionModel().getSelection();
@@ -513,12 +460,12 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
                    maintabpanel.setActiveTab(2);
                    var tblname=record.data['filename'].split(';')[0];
-                   var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=900&refGene=full&'+tblname+'=full';
+                   var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+tblname+'=full';
                    url=url+'&position='+model[0].data['chrom']+':'+start+"-"+end;
                    this.LabDataEdit.targetFrame.load(url);
-
-
                },
+               /***********************************************************************
+                ***********************************************************************/
                onRpkmSave: function (btn) {
                    var form=btn.up('window').down('form').getForm();
                    var record = form.getRecord();
@@ -526,17 +473,156 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var tblname=record.data['filename'].split(';')[0];
                    window.location="data/csv.php?tablename="+tblname+combo.value;
                },
+               /***********************************************************************
+                ***********************************************************************/
                onIslandsSave: function (btn) {
                    var form=btn.up('window').down('form').getForm();
                    var record = form.getRecord();
                    var tblname=record.data['filename'].split(';')[0];
                    window.location="data/csv.php?tablename="+tblname+"_macs";
                },
+               /***********************************************************************
+                ***********************************************************************/
                onRpkmGroupFilter: function(combo, records, options) {
                    var form=combo.up('window').down('form').getForm();
                    var record = form.getRecord();
                    var tblname=record.raw['filename'].split(';')[0];
                    this.getRPKMStore().getProxy().setExtraParam('tablename',tblname+combo.value);
                    this.getRPKMStore().load();
+               },
+
+               /***********************************************************************
+                ***********************************************************************/
+               addPieChart: function(record,renderto,isRNA) {
+                   var others=100.0-record.data['tagspercent']-record.data['tagsribopercent'];
+                   var store = Ext.create('Ext.data.ArrayStore', {
+                                              fields: [
+                                                  'name',
+                                                  {name: 'percent', type: 'float'}
+                                              ],
+                                              data: [
+                                                  ['Mapped',record.data['tagspercent']],
+                                                  [isRNA?'Ribosomal':'Suppresed',record.data['tagsribopercent']],
+                                                  ['Others',others.toFixed(2)]
+                                              ]
+                                          });
+
+                   Ext.create('Ext.chart.Chart', {
+                                  xtype: 'chart',
+                                  animate: false,
+                                  renderTo: renderto,
+                                  height:110,
+                                  width: 110,
+                                  padding:0,
+                                  margin:0,
+                                  store: store,
+                                  shadow: false,
+                                  border: false,
+                                  plain: true,
+                                  layout: 'fit',
+                                  insetPadding: 5,
+                                  theme: 'Base:gradients',
+                                  series: [{
+                                          type: 'pie',
+                                          field: 'percent',
+                                          tips: {
+                                              trackMouse: true,
+                                              width: 120,
+                                              height: 28,
+                                              font: '9px Arial',
+                                              renderer: function(storeItem, item) {
+                                                  this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent')+'%');
+                                              }
+                                          },
+                                          label: {
+                                              field: 'percent',
+                                              display: 'rotate',
+                                              contrast: true,
+                                              font: '9px Arial'
+                                          }
+                                      }]
+                              });
+
+               },
+               /*
+                * Add Tab functions
+                */
+               /***********************************************************************
+                ***********************************************************************/
+               addATPChart: function (tab,tblname,bn) {
+                   var stor=this.getATPChartStore();
+                   stor.getProxy().setExtraParam('tablename',tblname+'_atp');
+                   stor.load({
+                                 callback: function(records, operation, success) {
+                                     if(success) {
+                                         var len=Math.abs(records[0].data.X);
+                                         var max=records[0].data.Y;
+                                         for(var i=0;i<records.length;i++) {
+                                             if(records[i].data.Y>max)
+                                                 max=records[i].data.Y;
+                                         }
+                                         var prc=Math.abs(parseInt(max.toString().split('e')[1]))+2;
+                                         var ATPChart = Ext.create("EMS.view.LabDataEdit.ATPChart",{LEN: len, MAX: max, PRC: prc,BNAME: bn});
+                                         tab.add(ATPChart);
+                                     }
+                                 }
+                             });
+               },
+               /***********************************************************************
+                ***********************************************************************/
+               addIslandsList: function(tab,tblname) {
+                   var stor=this.getIslandsStore();
+                   stor.getProxy().setExtraParam('tablename',tblname+'_macs');
+                   stor.load({
+                                 callback: function(records, operation, success) {
+                                     if(success) {
+                                         var Islandstab = Ext.create("EMS.view.LabDataEdit.LabDataIslands");
+                                         tab.add(Islandstab);
+                                     }
+                                 }
+                             });
+               },
+               /***********************************************************************
+                ***********************************************************************/
+               addRPKMList: function(tab,tblname) {
+                   var stor=this.getRPKMStore();
+                   stor.getProxy().setExtraParam('tablename',tblname+'_genes');
+                   stor.load({
+                                 callback: function(records, operation, success) {
+                                     if(success) {
+                                         tab.add(Ext.create("EMS.view.LabDataEdit.LabDataRPKM"));
+                                     }
+                                 }
+                             });
+               },
+               /***********************************************************************
+                ***********************************************************************/
+               addSpikeinChart: function(tab,lid) {
+                   var stor=this.getSpikeinsChartStore();
+                   stor.getProxy().setExtraParam('labdata_id',lid);
+                   stor.load({
+                                 callback: function(records, operation, success) {
+                                     var SpikeinsChart = Ext.create("EMS.view.LabDataEdit.SpikeinsChart");
+                                     SpikeinsChart.chart.items=[{
+                                                                    type  : 'text',
+                                                                    text  : 'Y = '+records[0].data.slope.toFixed(3)+' * X'+((records[0].data.inter>0)?" +":' ')+records[0].data.inter.toFixed(3),
+                                                                    font  : 'italic bold 14px Arial',
+                                                                    width : 100,
+                                                                    height: 30,
+                                                                    x : 180, //the sprite x position
+                                                                    y : 23  //the sprite y position
+                                                                } , {
+                                                                    type  : 'text',
+                                                                    text  : 'R = '+records[0].data.R.toFixed(3),
+                                                                    font  : 'italic bold 14px Arial',
+                                                                    style: 'italic',
+                                                                    width : 100,
+                                                                    height: 30,
+                                                                    x : 180, //the sprite x position
+                                                                    y : 50  //the sprite y position
+                                                                }];
+                                     tab.add(SpikeinsChart);
+                                 }
+                             });
                }
            });

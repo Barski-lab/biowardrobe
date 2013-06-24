@@ -47,21 +47,21 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                    '<tr><td class="experiment-descr-1">Experiment date:</td><td colspan=2 class="experiment-descr-2">{dateadd:date("m/d/Y")}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Cells type:</td><td colspan=2 class="experiment-descr-2">{cells}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Conditions:</td><td colspan=2 class="experiment-descr-2">{conditions}</td></tr>',
-                                                   '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{tagstotal}</td>',
+                                                   '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{[this.numformat(values.tagstotal)]}</td>',
                                                    '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3" id="exp-chart"></td></tr>',
-                                                   '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{tagsmapped}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{[this.numformat(values.tagsmapped)]}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
                                                    '<tpl if="isRNA">',
-                                                   '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '<tpl else>',
-                                                   '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{tagsribo}</td></tr>',
+                                                   '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                                                    '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td class="experiment-descr-2">{fragmentsize}</td></tr>',
                                                    '</tpl>',
                                                    '<tr><td class="experiment-descr-1">File link:</td>',
-                                                     '<td colspan=2 class="experiment-descr-2">',
-                                                        '{[this.filename(values.filename,values.RNADNA,values.worker)]}</td>',
+                                                   '<td colspan=2 class="experiment-descr-2">',
+                                                   '{[this.filename(values.filename,values.RNADNA,values.worker)]}</td>',
                                                    '</table>', {
                                                        rowspan: function(values) {
                                                            if(values>0)
@@ -71,6 +71,16 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                        filename: function(str,rnadna,worker) {
                                                            var basename=str.split(';')[0];
                                                            return '<a href="https://10.1.97.82/FASTQ-DATA/'+worker+'/'+rnadna+'/'+basename+'.bam">'+basename+".bam</a>";
+                                                       },
+                                                       numformat: function(num) {
+                                                           var c=1;
+                                                           var nums=num.toString();
+                                                           var idx=nums.length%3;
+                                                           var result=nums.slice(0,idx);
+                                                           for(var i=idx; i<nums.length; i+=3){
+                                                               result +=' '+nums.slice(i,i+3)
+                                                           }
+                                                           return result;
                                                        }
                                                    }
                                                    )

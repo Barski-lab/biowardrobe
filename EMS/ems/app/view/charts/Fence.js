@@ -130,6 +130,23 @@ Ext.define('EMS.view.charts.Fence',
                                                radius: 1,
                                                'stroke-width': 0
                                            }
+                                       },{
+                                           type: 'line',
+                                           highlight: {
+                                               size: 7,
+                                               radius: 7
+                                           },
+                                           axis: 'left',
+                                           //                smooth: true,
+                                           //                fill: true,
+                                           xField: 'id',
+                                           yField: 'N',
+                                           markerConfig: {
+                                               type: 'circle',
+                                               size: 1,
+                                               radius: 1,
+                                               'stroke-width': 0
+                                           }
                                        }]
                                });
                    me.callParent(arguments);

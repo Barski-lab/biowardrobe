@@ -87,13 +87,13 @@ STORE_DEFS = {
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {
-                            Ext.MessageBox.show({
-                                                    title: operation.action+' failed',
-                                                    msg: json.message,
-                                                    icon: Ext.MessageBox.ERROR,
-                                                    buttons: Ext.Msg.OK
-                                                });
-                            Logger.log('Save failed:',json.message,' error:',json.errors);
+//                            Ext.MessageBox.show({
+//                                                    title: operation.action+' failed',
+//                                                    msg: json.message,
+//                                                    icon: Ext.MessageBox.ERROR,
+//                                                    buttons: Ext.Msg.OK
+//                                                });
+                            Logger.log(operation+' failed:',json.message,' error:',json.errors);
                         } else {
                             Ext.MessageBox.show({
                                                     title: operation.action+' failed',

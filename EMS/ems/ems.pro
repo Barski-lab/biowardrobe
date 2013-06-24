@@ -283,4 +283,9 @@ OTHER_FILES += \
     app/view/ProgressBar.js \
     app/model/Islands.js \
     app/store/Islands.js \
-    app/view/LabDataEdit/LabDataIslands.js
+    app/view/LabDataEdit/LabDataIslands.js \
+    app/model/ATPChart.js \
+    app/store/ATPChart.js \
+    app/view/charts/ATP.js \
+    data/ATPChart.php \
+    app/view/LabDataEdit/ATPChart.js

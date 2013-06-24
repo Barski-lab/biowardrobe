@@ -11,7 +11,7 @@ function def_connect() {
         $res->print_error('Could not connect: ' . $con->connect_error);
     /* change character set to utf8 */
     if (!$con->set_charset("utf8")) {
-	$res->print_error("Error loading character set utf8:". $con->error);
+        $res->print_error("Error loading character set utf8:". $con->error);
     }
     return $con;
 }
@@ -32,7 +32,7 @@ execSQL("SELECT * FROM table", array(), false);
 execSQL("INSERT INTO table(id, name) VALUES (?,?)", array('ss', $id, $name), true);
 */
 
-function execSQL($mysqli,$sql, $params, $close){
+function execSQL($mysqli,$sql, $params, $close,$round=3){
     global $res;
 
     if (!$stmt = $mysqli->prepare($sql)) {
@@ -66,7 +66,11 @@ function execSQL($mysqli,$sql, $params, $close){
                 switch($types[$key]) {
                     case 4:
                     case 5:
-                        $x[$key] = round($val,3);
+                        if($round!=0) {
+                            $x[$key] = round($val,$round);
+                        } else {
+                            $x[$key] = $val;
+                        }
                     break;
                     case 10:
                         $date = DateTime::createFromFormat('Y-m-d', $val);

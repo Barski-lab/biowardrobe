@@ -174,7 +174,7 @@ void FSTM::FillUpData()
     foreach(const QString key, isoforms[0][0].keys()) /*How many chromosomes ?*/
     {
         qDebug()<<"chr:"<<key;
-        for(int i=0; i<isoforms[0][0][key].size();i++) /*How many refsec pointers (QVector< IsoformPtr > refsec;), isoforms for current chromosome*/
+        for(int i=0; i<isoforms[0][0][key].size();i++) /*How many refseq pointers (QVector< IsoformPtr > refseq;), isoforms for current chromosome*/
         {
             for(int j=i+1; j<isoforms[0][0][key].size();j++) /*Compare all isoforms with the others*/
             {
@@ -260,7 +260,7 @@ void FSTM::WriteResult()
     if(wrtFile) {
         outFile.setFileName(gArgs().getArgs("out").toString());
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
         for(int i=1;i<m_ThreadNum;i++) {
             outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
         }
@@ -334,7 +334,7 @@ void FSTM::WriteResult()
     if(wrtFile) {
         outFile.setFileName(gArgs().fileInfo("out").baseName()+"_common_tss.csv");
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
         for(int i=1;i<m_ThreadNum;i++) {
             outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
@@ -386,7 +386,7 @@ void FSTM::WriteResult()
         */
         outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("\"=\"\"refsec_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
 
         for(int i=1;i<m_ThreadNum;i++)
         {
@@ -466,7 +466,7 @@ void FSTM::CreateTablesViews(void)
 
         QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1;"
                                      "CREATE TABLE %2 ( "
-                                     "`refsec_id` VARCHAR(100) NOT NULL ,"
+                                     "`refseq_id` VARCHAR(100) NOT NULL ,"
                                      "`gene_id` VARCHAR(100) NOT NULL ,"
                                      "`chrom` VARCHAR(45) NOT NULL,"
                                      "`txStart` INT NULL ,"
@@ -475,7 +475,7 @@ void FSTM::CreateTablesViews(void)
                                      "TOT_R_0   float,"
                                      "RPKM_0   float,"
                                      "%3 "
-                                     "INDEX refsec_id_idx (refsec_id) using btree,"
+                                     "INDEX refseq_id_idx (refseq_id) using btree,"
                                      "INDEX gene_id_idx (gene_id) using btree,"
                                      "INDEX chr_idx (chrom) using btree,"
                                      "INDEX txStart_idx (txStart) using btree,"
@@ -503,7 +503,7 @@ void FSTM::CreateTablesViews(void)
         CREATE_TABLE=QString(
                     "CREATE VIEW %1_common_tss AS "
                     "select "
-                    "group_concat(refsec_id  separator ',') AS refsec_id,"
+                    "group_concat(refseq_id  separator ',') AS refseq_id,"
                     "group_concat(gene_id    separator ',') AS gene_id,"
                     "chrom AS chrom,"
                     "txStart AS txStart,"
@@ -521,7 +521,7 @@ void FSTM::CreateTablesViews(void)
                 QString(
                     " union "
                     "select "
-                    "group_concat(refsec_id  separator ',') AS refsec_id,"
+                    "group_concat(refseq_id  separator ',') AS refseq_id,"
                     "group_concat(gene_id    separator ',') AS gene_id,"
                     "chrom AS chrom,"
                     "txStart AS txStart,"
@@ -543,7 +543,7 @@ void FSTM::CreateTablesViews(void)
         CREATE_TABLE=QString(
                     "CREATE VIEW %1_genes AS "
                     "select "
-                    "group_concat(refsec_id  separator ',') AS refsec_id,"
+                    "group_concat(refseq_id  separator ',') AS refseq_id,"
                     "gene_id,"
                     "chrom AS chrom,"
                     "txStart AS txStart,"
