@@ -44,18 +44,20 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
                 ++i;
             }
         } else {
-            while(i!=e && (qint64)(i.value()[0].getStart()-start-shift)<0) i++;
-            while(i!=e && (position=i.value()[0].getStart()-start-shift) < length) {
+            while(i!=e && (qint64)(i.value()[0].getStart()-start+shift)<0) i++;
+            while(i!=e && (position=i.value()[0].getStart()-start+shift) < length) {
                 genome::Cover::countReads<double>(i.value(),result[length-position-1]);
                 ++i;
             }
         }
     } else {
+        int sign=1;
+        if(shift<0) sign=-1;
         if(!reverse) {
             while(i!=e ) {
                 int position=0;
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()+i.value()[c].getLength()/2-start;
+                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
                     if(position<0) continue;
                     if(position<length)
                             result[position]+=i.value()[c].getLevel();
@@ -67,7 +69,7 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
             while(i!=e ) {
                 int position=0;
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()-i.value()[c].getLength()/2-start;
+                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
                     if(position<0) continue;
                     if(position<length)
                             result[length-position-1]+=i.value()[c].getLevel();
@@ -218,14 +220,14 @@ void AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_l
 {
 
     if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
-        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
+        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start-shift)
                             ,input->getLineCover(chrome+QChar('+')).getEndIterator()
                             ,start,end,reverse,shift,result,pair);
     }
     if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
         getReadsAtPointS<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start-shift)
                             ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                            ,start,end,reverse,shift,result,pair);
+                            ,start,end,reverse,-shift,result,pair);
     }
 }
 
@@ -436,7 +438,7 @@ void AverageDensity::batchsql() {
                        arg((int)(i-rows/2)).
                        arg(storage.at(i));
         }
-        
+
         SQL_QUERY.chop(1);
         if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
