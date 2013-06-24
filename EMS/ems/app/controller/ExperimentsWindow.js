@@ -273,7 +273,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    if (sts >11 && !isRNA) {
                        this.addIslandsList(maintabpanel,tblname);
-                       this.addATPChart(maintabpanel,tblname,record.data.name4browser+" "+this.getAntibodiesStore().findRecord('id',record.data.antibody_id,0,false,false,true).data.antibody);
+                       var anti=this.getAntibodiesStore().findRecord('id',record.data.antibody_id,0,false,false,true).data.antibody;
+                       if(record.data.antibody_id===1) anti="";
+                       this.addATPChart(maintabpanel,tblname,record.data.name4browser+" "+anti);
                    }//>11 and not RNA
 
                    if (sts >20 && isRNA) {
