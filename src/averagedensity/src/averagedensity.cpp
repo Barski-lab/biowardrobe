@@ -64,6 +64,7 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
                 }
                 if(position>=length)
                     break;
+                ++i;
             }
         } else {
             while(i!=e ) {
@@ -76,6 +77,7 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
                 }
                 if(position>=length)
                     break;
+                ++i;
             }
         }
     }
