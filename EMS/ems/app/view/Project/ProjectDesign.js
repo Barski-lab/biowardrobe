@@ -257,7 +257,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          width: 70,
                                                          renderer: function(value,meta,record) {
                                                              if(record.data.parentId==='root') {
-                                                                 var rec=me.atStore.findRecord('id',value);
+                                                                 var rec=me.atStore.findRecord('id',value,0,false,false,true);
                                                                  return rec.data.name;
                                                              }
                                                              if(record.data.leaf===true) {

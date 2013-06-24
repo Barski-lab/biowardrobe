@@ -67,7 +67,7 @@ Ext.define('EMS.controller.WorkersEdit', {
                    var edit = Ext.create('EMS.view.user.Edit',{newcomp: false,modal: true});
                    var form=edit.down('form');
                    form.getForm().findField('worker').setReadOnly(true);
-                   var record = this.getWorkerStore().findRecord('id',USER_ID);
+                   var record = this.getWorkerStore().findRecord('id',USER_ID,0,false,false,true);
                    form.loadRecord(record);
                    edit.show();
                    return edit;

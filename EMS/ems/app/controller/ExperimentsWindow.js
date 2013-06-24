@@ -109,7 +109,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
                    if(combo.name==='genome_id'){
                        this.setVisibleSpike(combo.up('window'));
-                       var db=this.getGenomeStore().findRecord('id',combo.value).data.db;
+                       var db=this.getGenomeStore().findRecord('id',combo.value,0,false,false,true).data.db;
                        this.genomeGroupStoreLoad(db);
                    }
 
@@ -221,13 +221,13 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var form=obj.down('form').getForm();
                    var record = form.getRecord();
                    var tblname=record.data['filename'].split(';')[0];
-                   var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id']).data;
+                   var gdata=this.getGenomeStore().findRecord('id',record.data['genome_id'],0,false,false,true).data;
                    var spike=(gdata.genome.indexOf('spike')!== -1);
                    var db=gdata.db;
 
                    this.genomeGroupStoreLoad(db,parseInt(record.raw['worker_id']) !== parseInt(USER_ID));
 
-                   var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id']).data.etype;
+                   var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id'],0,false,false,true).data.etype;
                    var isRNA=(etype.indexOf('RNA') !== -1);
 
 
@@ -259,7 +259,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        this.getFenceStore().load({ params: { recordid: record.raw['id'] } });
                        maintabpanel.setActiveTab(1);
 
-                       var worker=this.getWorkerStore().findRecord('id',record.raw['worker_id']).data.worker.toUpperCase();
+                       var worker=this.getWorkerStore().findRecord('id',record.raw['worker_id'],0,false,false,true).data.worker.toUpperCase();
 
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA,RNADNA: (isRNA)?"RNA":"DNA",worker: worker}));
@@ -273,7 +273,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
 
                    if (sts >11 && !isRNA) {
                        this.addIslandsList(maintabpanel,tblname);
-                       this.addATPChart(maintabpanel,tblname,record.data.name4browser+" "+this.getAntibodiesStore().findRecord('id',record.data.antibody_id).data.antibody);
+                       this.addATPChart(maintabpanel,tblname,record.data.name4browser+" "+this.getAntibodiesStore().findRecord('id',record.data.antibody_id,0,false,false,true).data.antibody);
                    }//>11 and not RNA
 
                    if (sts >20 && isRNA) {
@@ -355,7 +355,6 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    this.LabDataEdit = Ext.create('EMS.view.LabDataEdit.LabDataEdit',{addnew: false, modal:true });
                    this.LabDataEdit.labDataForm.loadRecord(record);
                    var me=this;
-
                    this.LabDataEdit.labDataForm.on('render',function(){
 
                        Ext.getCmp('big-bu-bum').on('render',function(form){
@@ -387,7 +386,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    var values = form.getValues();
                    form=form.getForm();
 
-                   if(this.getGenomeGroupStore().findRecord('name',values['browsergrp']) === null) {
+                   if(this.getGenomeGroupStore().findRecord('name',values['browsergrp'],0,false,false,true) === null) {
                        Ext.Msg.show({
                                         title: 'Save failed',
                                         msg: 'Field "Browser group name" should be saved separately<br> press button at the right to edit',
@@ -457,7 +456,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                    }
 
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
-                   var db=this.getGenomeStore().findRecord('id',record.data['genome_id']).data.db;
+                   var db=this.getGenomeStore().findRecord('id',record.data['genome_id'],0,false,false,true).data.db;
                    maintabpanel.setActiveTab(2);
                    var tblname=record.data['filename'].split(';')[0];
                    var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+tblname+'=full';

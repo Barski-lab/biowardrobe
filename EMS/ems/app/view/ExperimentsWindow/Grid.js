@@ -55,20 +55,20 @@ Ext.define( 'EMS.view.ExperimentsWindow.Grid', {
                                      {   header: "Record ID",             sortable: true,  width: 60,    dataIndex: 'id'                                     },
                                      {   header: "Belongs to",            sortable: true,  width: 85,    dataIndex: 'worker_id', hidden: true,
                                          renderer: function(value,meta,record) {
-                                             var rec=EMS.store.Worker.findRecord('id',value);
+                                             var rec=EMS.store.Worker.findRecord('id',value,0,false,false,true);
                                              return rec?rec.data.fullname:'';
                                          }
                                      },
                                      {   header: "Genome",                 sortable: true,  width: 80,    dataIndex: 'genome_id',
                                          renderer: function(value,meta,record) {
-                                             var rec=EMS.store.Genome.findRecord('id',value);
+                                             var rec=EMS.store.Genome.findRecord('id',value,0,false,false,true);
                                              return rec?rec.data.genome:'';
                                          }
                                      },
                                      {   header: "Type",                   sortable: true,  width: 90,    dataIndex: 'experimenttype_id',
                                          filterable: true,
                                          renderer: function(value,meta,record) {
-                                             var rec=EMS.store.ExperimentType.findRecord('id',value);
+                                             var rec=EMS.store.ExperimentType.findRecord('id',value,0,false,false,true);
                                              return rec?rec.data.etype:'';
                                          }
                                      },
