@@ -373,9 +373,9 @@ void AverageDensity::batchsql() {
 
         QString avd_window_str=QString("%1").arg(avd_window);
         if(!q.exec("select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '+' and chrom not like '%\\_%' union "
+                   ""+DB+"."+annottable+" where strand = '+' and chrom not like '%\\_%' and chrom like 'chr%' union "
                    "select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '-' and chrom not like '%\\_%'"
+                   ""+DB+"."+annottable+" where strand = '-' and chrom not like '%\\_%' and chrom like 'chr%'"
                    )) {
             qDebug()<<"Query error annot: "<<q.lastError().text();
             return;
