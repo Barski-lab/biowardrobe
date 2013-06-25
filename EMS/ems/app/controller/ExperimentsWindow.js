@@ -264,7 +264,11 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        var panelD=Ext.getCmp('experiment-description');
                        panelD.tpl.overwrite(panelD.body,Ext.apply(record.data,{isRNA: isRNA,RNADNA: (isRNA)?"RNA":"DNA",worker: worker}));
 
-                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+tblname+'=full';
+                       var gtbl=tblname;
+                       if(!isRNA) {
+                           gtbl=tblname+'_grp';
+                       }
+                       this.LabDataEdit.targetFrame.src='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+gtbl+'=full';
 
                        if (record.data['tagsribo'] >0) {
                            this.addPieChart(record,'exp-chart',isRNA);
@@ -456,11 +460,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                        start=model[0].data['txStart'];
                        end=model[0].data['txEnd'];
                    }
-
+                   var tblname=record.data['filename'].split(';')[0];
                    var maintabpanel=Ext.getCmp('labdataedit-main-tab-panel');
                    var db=this.getGenomeStore().findRecord('id',record.data['genome_id'],0,false,false,true).data.db;
+                   var etype=this.getExperimentTypeStore().findRecord('id',record.data['experimenttype_id'],0,false,false,true).data.etype;
+                   if(etype.indexOf('DNA') !== -1) {
+                       tblname=tblname+'_grp';
+                   }
                    maintabpanel.setActiveTab(2);
-                   var tblname=record.data['filename'].split(';')[0];
                    var url='http://10.1.97.111/cgi-bin/hgTracks?db='+db+'&pix=1050&refGene=full&'+tblname+'=full';
                    url=url+'&position='+model[0].data['chrom']+':'+start+"-"+end;
                    this.LabDataEdit.targetFrame.load(url);
