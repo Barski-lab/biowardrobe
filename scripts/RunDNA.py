@@ -183,7 +183,7 @@ while True:
     cursor.execute("update labdata set fragmentsize=%s where id=%s",(FRAGMENT,LID))
     conn.commit()
 
-    a=d.upload_macsdata(conn,FNAME,arguments.readString("SQLEX/DB"))
+    a=d.upload_macsdata(conn,FNAME,arguments.readString("SQLEX/DB"),DB,NAME,GROUP)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
@@ -196,6 +196,12 @@ while True:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
         continue
+
+    cursor.execute ("""
+    update """+DB+""".trackDb_local set 
+    settings='parent """+FN[0]+"""_grp\ntrack """+FN[0]+"""\nautoScale on\nwindowingFunction maximum'
+    where tablename like '"""+FN[0]+"""';""");
+    conn.commit()
 
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()

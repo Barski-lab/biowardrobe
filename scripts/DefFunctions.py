@@ -87,7 +87,7 @@ def file_exist(basedir,fname,extension):
     return LIST
 
 
-def upload_macsdata(conn,infile,dbexp):
+def upload_macsdata(conn,infile,dbexp,db,NAME,grp):
     FNAME=infile
     if ";" in infile:
 	FNAME=infile.split(";")[0]
@@ -102,7 +102,6 @@ def upload_macsdata(conn,infile,dbexp):
     table_name=dbexp+'.'+FNAME+'_macs'
     
     cursor.execute ("DROP TABLE IF EXISTS "+table_name)
-    #add views in a future
     cursor.execute ("""
        CREATE TABLE """+table_name+"""
         (
@@ -119,6 +118,31 @@ def upload_macsdata(conn,infile,dbexp):
     INDEX start_idx (start) using btree,
     INDEX end_idx (end) using btree
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
+    conn.commit()
+
+    dbtblname=db+'.'+FNAME
+    cursor.execute ("""
+    CREATE OR REPLACE VIEW """ +dbtblname+"""_islands AS 
+    select 0 as bin, chrom, start as chromStart, end as chromEnd,max(log10p) as name, max(log10q) as score
+    from """ +table_name+"""
+    group by chrom,start,end; """)
+    conn.commit()
+
+
+    cursor.execute ("""
+    insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
+    colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
+    values('"""+FNAME+"""_grp','"""+NAME+"""','bed 4 +','"""+NAME+"""',
+    0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
+    'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""")
+    conn.commit()
+    
+    cursor.execute ("""
+    insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
+    colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
+    values('"""+FNAME+"""_islands','"""+NAME+""" islands','bed 4 +','"""+NAME+""" islands',
+    0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
+    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility full'); """)    
     conn.commit()
 
     SQL="INSERT INTO "+table_name+" (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
@@ -140,8 +164,6 @@ def upload_macsdata(conn,infile,dbexp):
 	    	    
     success[1]=" MACS data uploaded"
     return success
-
-
 
 
 def run_macs(infile,db):
@@ -168,10 +190,6 @@ def run_macs(infile,db):
     #print PAR
     try:
 	RET=s.check_output(PAR,shell=True)
-	#if len(file_exist('./'+outdir,'accepted_hits','bam')) != 1:
-	#    error[1]='accepted_hits.bam does not exist'
-	#    return error
-	#os.rename('./'+outdir+'/accepted_hits.bam','./'+infile+'.bam')
 	success[1]=' MACS finished '
 	return success
     except Exception,e:
@@ -241,3 +259,16 @@ def run_fence(infile):
 	error[1]=str(e)
 	return error
 
+def run_atp(lid):
+
+    PAR='averagedensity -avd_lid='+str(lid)+' -log="./AverageTagDensity.log" -sql_host="localhost" -sql_dbname="ems" '
+    PAR=PAR+' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" '
+
+    RET=''
+    try:
+	RET=s.check_output(PAR,shell=True)
+	success[1]=' ATP finished '
+	return success
+    except Exception,e:
+	error[1]=str(e)+RET
+	return error
