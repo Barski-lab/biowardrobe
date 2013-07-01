@@ -203,6 +203,7 @@ Ext.define('EMS.controller.Project', {
 
                },
                onProjectDesignWindowRendered: function(view) {
+                   this.getRTypeStore().load();
                },
                onAnalyseAddClick: function(button,e,eOpts) {
                    var win=button.up('window');

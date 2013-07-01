@@ -114,6 +114,9 @@ Ext.define('EMS.controller.EMSMenu', {
                    if(menuitem.action === "ProjectDesigner"){
                        me.createWindow(menuitem.action,'EMS.view.Project.ProjectList',{});
                    }
+                   if(menuitem.action === "Help"){
+                       me.createWindow(menuitem.action,'EMS.view.Project.ATPFilter',{});
+                   }
                    /*
                      Create window for genome browser
                    */

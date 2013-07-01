@@ -10,9 +10,9 @@ $data=json_decode(stripslashes($_REQUEST['data']));
 if(!isset($data))
     $res->print_error("no data");
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
-//logmsg(print_r($data,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
+logmsg(print_r($data,true));
 
 
 function check_data($val) {
@@ -31,8 +31,13 @@ $count=1;
 $con->autocommit(FALSE);
 
 if(gettype($data)=="array") {
-
     foreach($data as $key => $val ) {
+        if($val->parentId=="root") {
+        execSQL($con,
+                "update ahead set status=? where id=?",
+                array("ii",$val->status,$val->item_id),true);
+            continue;
+        }
         if(check_data($val)) {
         execSQL($con,
                 "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
@@ -43,11 +48,17 @@ if(gettype($data)=="array") {
     $count=count($data);
 } else {
     $val=$data;
+    if($val->parentId=="root") {
+    execSQL($con,
+            "update ahead set status=? where id=?",
+            array("ii",$val->status,$val->item_id),true);
+    } else {
     if(check_data($val)) {
     execSQL($con,
             "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
             array("iis",$val->parentId,$val->item_id,$val->type),true);
         $data->id=$val->parentId.$con->insert_id;
+    }
     }
 }
 

@@ -7,9 +7,9 @@ require_once('database_connection.php');
 
 $data=json_decode($_REQUEST['data']);
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
-//logmsg(print_r($data,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
+logmsg(print_r($data,true));
 
 if(!isset($data))
     $res->print_error("no data");

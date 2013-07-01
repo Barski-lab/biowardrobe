@@ -29,6 +29,7 @@ Ext.define( 'EMS.model.AnalysisGroup', {
                    {name: 'item',     type: 'string'},
                    {name: 'type',     type: 'string'},
                    {name: 'leaf',     type: 'bool'},
+                   {name: 'children',     type: 'int', persistent: false},
                    {name: 'atype_id',     type: 'int'}
                ],
                proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {

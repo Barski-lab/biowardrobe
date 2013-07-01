@@ -89,19 +89,21 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          fieldLabel: 'Group name',
                                                          submitValue: false,
                                                          labelAlign: 'top',
+                                                         disabled: true,
                                                          flex: 1,
                                                          labelWidth: 120
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '22 5 0 5',
+                                                         margin: '18 5 0 5',
                                                          width: 100,
                                                          text: 'add',
+                                                         disabled: true,
                                                          id: 'projectdesign-group-add',
                                                          submitValue: false,
                                                          iconCls: 'folder-add'
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '22 5 0 5',
+                                                         margin: '18 5 0 5',
                                                          width: 110,
                                                          text: 'Laboratory data',
                                                          id: 'projectdesign-preliminary-button',
@@ -140,12 +142,11 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                          return;
                                                                      this.items[0].tooltip = 'Delete';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                                                         if(rec.data.status > 0 && rec.data.leaf === false) {
+                                                                         if(parseInt(record.data.status) > 0 && record.data.leaf === false) {
                                                                              Ext.Msg.show({
                                                                                               title: 'Deleteing group '+record.data.item,
-                                                                                              msg: 'Are you sure, that you want delete all data that belongs to "'+record.data.item
-                                                                                                   +'".<br> This process are going to delete the group from finished analysis<br>'+
-                                                                                                   'All plots and results that have the group will be deleted.',
+                                                                                              msg: 'You are going to delete all relative data that includes "'+record.data.item
+                                                                                                   +'"<br> in groups, calculations plots?',
                                                                                               icon: Ext.Msg.QUESTION,
                                                                                               buttons: Ext.Msg.YESNO,
                                                                                               fn: function(btn) {
@@ -211,7 +212,15 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          afterLabelTextTpl: required,
                                                          margin: '0 5 0 5',
                                                          labelWidth: 120,
-                                                         flex: 1
+                                                         flex: 1,
+                                                         listeners: {
+                                                             specialkey: function (field, event) {
+                                                                 if (event.getKey() === event.ENTER) {
+                                                                     var button=Ext.getCmp('analyse-add');
+                                                                     button.fireEvent('click',button);
+                                                                 }
+                                                             }
+                                                         }
                                                      } , {
                                                          xtype: 'combobox',
                                                          displayField: 'name',
@@ -228,7 +237,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                          width: 100
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '22 5 0 5',
+                                                         margin: '18 5 0 5',
                                                          width: 100,
                                                          text: 'add',
                                                          id: 'analyse-add',
@@ -237,7 +246,6 @@ Ext.define('EMS.view.Project.ProjectDesign', {
 
                                                      }]
                                              } , {
-
                                                  xtype: 'treepanel',
                                                  store: me.analysisStore,
                                                  rootVisible: false,
@@ -246,7 +254,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                  flex: 3,
                                                  columns: [{
                                                          xtype: 'treecolumn',
-                                                         text: 'Groups/items',
+                                                         text: 'Analysis/items',
                                                          flex: 1,
                                                          width: 70,
                                                          dataIndex: 'item'
@@ -261,7 +269,6 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  return rec.data.name;
                                                              }
                                                              if(record.data.leaf===true) {
-                                                                 //console.log(record);
                                                                  return record.data.type;
                                                              }
                                                              return '';
@@ -276,12 +283,13 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                  isDisabled: function(view,rowIndex,colIndex,item,record) {
                                                                      if(record.data.status > 1 || record.data.status === 0)
                                                                          return true;
+                                                                     if(record.data.status === 1 && record.data.atype_id !== 2 && record.data.children !== 2 )
+                                                                         return true;
                                                                      return false;
                                                                  },
                                                                  getClass: function(v, meta, rec) {
                                                                      if(rec.data.root === true || rec.data.leaf === true)
                                                                          return '';
-                                                                     //console.log(rec);
                                                                      this.items[0].tooltip = 'Run '+parseInt(rec.data.item_id)+'.';
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          record.data.status=2;
@@ -296,6 +304,14 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      return 'space';
                                                                  }
                                                              } , {
+                                                                 isDisabled: function(view,rowIndex,colIndex,item,record) {
+                                                                     if(record.data.root === true)
+                                                                         return true;
+                                                                     if(record.data.status > 1 && record.data.leaf) {
+                                                                         return true;
+                                                                     }
+                                                                     return false;
+                                                                 },
                                                                  getClass: function(v, meta, rec) {
                                                                      if(rec.data.root === true)
                                                                          return;
@@ -306,8 +322,12 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          var parent=record.parentNode;
                                                                          if(record.data.leaf===true) {
-                                                                             parent.data.status=(parent.length-1>0)?1:0;
+                                                                             parent.data.status=0;
+                                                                             parent.data.children=parseInt(parent.data.children)-1;
+                                                                             if(parent.length>0 && parent.data.atype_id===2)//PCA
+                                                                                 parent.data.status=1;
                                                                          }
+                                                                         grid.refresh();
                                                                          record.remove(true);
                                                                      }
                                                                      return 'folder-delete';
@@ -331,43 +351,79 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                              dropHandlers.wait = true;
                                                              overModel.expand(true,function(){
                                                                  for(var j=0; j<data.records.length;j++) {
-                                                                     if(overModel.findChild("item_id",data.records[j].data.item_id) !== null) {
+                                                                     if(overModel.findChild("item_id",data.records[j].data.item_id) !== null) {//repeats
                                                                          continue;
                                                                      }
                                                                      if(data.records[j].data.leaf===true)
                                                                          continue;
                                                                      if(overModel.data.status<2) {
+                                                                         var copy=data.records[j].copy();
+                                                                         copy.data.leaf=true;
+                                                                         copy.data.iconCls='folder';
+                                                                         copy.data.status=0;
+                                                                         copy.data.id=Math.random()+data.records[j].data.id;
                                                                          /*
                                                                           * Switch over Experement types in future separate class or function!
                                                                           */
                                                                          switch(overModel.data.atype_id) {
                                                                          case 1:
-                                                                             var copy=data.records[j].copy();
-                                                                             if(overModel.childNodes.length  >= 2) {
-                                                                                 overModel.data.status=1;
+                                                                             if(overModel.childNodes.length >= 2) {
                                                                                  continue;
                                                                              }
-                                                                             copy.data.leaf=true;
-                                                                             copy.data.iconCls='folder';
-                                                                             copy.data.id=Math.random()+data.records[j].data.id;
                                                                              if(overModel.childNodes.length === 0) {
                                                                                  copy.data.type="untreated";
                                                                              }
                                                                              if(overModel.childNodes.length === 1) {
                                                                                  copy.data.type="treated";
-                                                                                 overModel.data.status=1;
+                                                                                 overModel.set('status',1);
+                                                                                 overModel.set('children',2);
                                                                                  me.refresh();
+                                                                                 overModel.save();
                                                                              }
                                                                              overModel.appendChild(copy.data);
                                                                              break;
                                                                          case 2:
-                                                                             var copy=data.records[j].copy();
-                                                                             copy.data.leaf=true;
-                                                                             copy.data.iconCls='folder';
-                                                                             copy.data.id=Math.random()+data.records[j].data.id;
-                                                                             overModel.data.status=1;
+                                                                             overModel.set('status',1);
                                                                              me.refresh();
+                                                                             overModel.save();
                                                                              overModel.appendChild(copy.data);
+                                                                             break;
+                                                                         case 4:
+                                                                             if(overModel.childNodes.length  >= 2) {
+                                                                                 continue;
+                                                                             }
+                                                                             copy.data.type= EMS.store.RType.findRecord('id',data.records[j].data.rtype_id,0,false,false,true).data.name;
+
+                                                                             if(overModel.childNodes.length === 1) {
+                                                                                 if( (copy.data.type.indexOf('RPKM')!==0 && overModel.childNodes[0].data.type.indexOf('CHIP'))
+                                                                                         ||
+                                                                                      (copy.data.type.indexOf('CHIP')!==0 && overModel.childNodes[0].data.type.indexOf('RPKM'))
+                                                                                         )
+                                                                                 {
+                                                                                     overModel.set('status',1);
+                                                                                     overModel.set('children',2);
+                                                                                     me.refresh();
+                                                                                     overModel.save();
+                                                                                 } else {
+                                                                                     Ext.Msg.show({
+                                                                                                      title: 'Warning',
+                                                                                                      msg: 'Data should be of different types RPKM and CHIP but not the same.',
+                                                                                                      icon: Ext.Msg.WARNING,
+                                                                                                      buttons: Ext.Msg.OK
+                                                                                                  });
+                                                                                     continue;
+                                                                                 }
+                                                                             }
+                                                                             overModel.appendChild(copy.data);
+                                                                             break;
+                                                                         default:
+                                                                             Ext.Msg.show({
+                                                                                              title: 'Info',
+                                                                                              msg: 'Not yet implemented.',
+                                                                                              icon: Ext.Msg.INFO,
+                                                                                              buttons: Ext.Msg.OK
+                                                                                          });
+                                                                             continue;
                                                                              break;
                                                                          }
                                                                      }
@@ -388,7 +444,7 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                          margin: "0 0 0 0"
                                      } , {
                                          xtype: 'container',
-                                         margin: '5 5 5 0',
+                                         margin: '7 5 5 0',
                                          layout: {
                                              type: 'vbox',
                                              align: 'stretch'

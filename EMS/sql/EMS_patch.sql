@@ -130,4 +130,16 @@ ALTER TABLE `ems`.`labdata` ADD COLUMN `url` VARCHAR(2000) NULL COMMENT 'direct 
 ALTER TABLE `ems`.`genome` ADD COLUMN `annottable` VARCHAR(64) NULL DEFAULT NULL  AFTER `annotation` ;
 
 
+create table if not exists `condition` (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    name varchar(50),
+    type varchar(50),
+    ahead_id INTEGER NOT NULL,
+    index(ahead_id), FOREIGN KEY (ahead_id)
+    REFERENCES ahead(id),
+    analysis_id INTEGER NULL,
+    index(analysis_id), FOREIGN KEY (analysis_id)
+    REFERENCES analysis(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 set foreign_key_checks = 1 ;

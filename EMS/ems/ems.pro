@@ -288,4 +288,6 @@ OTHER_FILES += \
     app/store/ATPChart.js \
     app/view/charts/ATP.js \
     data/ATPChart.php \
-    app/view/LabDataEdit/ATPChart.js
+    app/view/LabDataEdit/ATPChart.js \
+    app/view/Project/ATPFilter.js \
+    data/ATPFilterSet.php
