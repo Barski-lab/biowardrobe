@@ -69,6 +69,9 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                                         waitMsg: 'Setting filter',
                                                                         success: function(fp, o) {
                                                                             me.close();
+                                                                            if(typeof me.initialConfig.onSubmit !== 'undefined') {
+                                                                                me.initialConfig.onSubmit();
+                                                                            }
                                                                         }
                                                                     });
                                                     }
@@ -141,7 +144,6 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                      var name=Ext.getCmp('filter-name');
                                                      form.add(me.addFilter(name.getValue()));
                                                      name.setValue('');
-
                                                  }
                                              } ]
                                      }]

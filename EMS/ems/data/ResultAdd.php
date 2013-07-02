@@ -27,14 +27,14 @@ $con=def_connect();
 $con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
-$data->id;//] => 0
-$data->name; //] => PCA1_result
-$data->description;//] => PCA1_result
-$data->rtype_id;//] => 0
-$data->atype_id;//] => 2
-$data->ahead_id;//] => 1
-$data->labdata_id;//] => 0
-$data->project_id;//] => 1
+//$data->id;//] => 0
+//$data->name; //] => PCA1_result
+//$data->description;//] => PCA1_result
+//$data->rtype_id;//] => 0
+//$data->atype_id;//] => 2
+//$data->ahead_id;//] => 1
+//$data->labdata_id;//] => 0
+//$data->project_id;//] => 1
 
 $rnd=mt_rand();
 $tablename="result_".ereg_replace("[^A-Za-z]", "", $data->name)."_".intVal($data->ahead_id)."_$rnd";
@@ -44,11 +44,6 @@ switch($data->atype_id) {
         exec("Rscript deseq.R $db_user $db_pass $db_name_experiments $db_host $data->ahead_id $tablename",$output,$retval);
         if($retval!=0)
             $res->print_error("Cant execute R");
-
-        if(execSQL($con,"insert into result(name,description,tableName,ahead_id,atype_id,project_id)
-          values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
-                $res->print_error("Cant insert");
-        }
             $status=2;
         break;
     case 2:
@@ -56,21 +51,29 @@ switch($data->atype_id) {
         if($retval!=0)
             $res->print_error("Cant execute R");
 
-        if(execSQL($con,"insert into result(name,description,tableName,ahead_id,atype_id,project_id)
-            values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
-            $res->print_error("Cant insert");
-        }
         $status=2;
         break;
     case 4:
+        //exec("Rscript PCA.R $db_user $db_pass $db_name_experiments $db_host $data->ahead_id $tablename",$output,$retval);
+        //if($retval!=0)
+        //    $res->print_error("Cant execute R");
+
+        $status=2;
 
         break;
+     default:
+        $res->print_error("Not supported");
+        break;
     }
+
+if(execSQL($con,"insert into result(name,description,tableName,ahead_id,atype_id,project_id)
+   values(?,?,?,?,?,?)",array("sssiii",$data->name,$data->description,$tablename,$data->ahead_id,$data->atype_id,$data->project_id),true)==0) {
+   $res->print_error("Cant insert");
+}
 
 if(execSQL($con,"update ahead set status=? where id=?",array("ii",$status,$data->ahead_id),true)==0) {
     $res->print_error("Cant update");
 }
-
 
 if(!$con->commit()) {
     $res->print_error("Cant commit");

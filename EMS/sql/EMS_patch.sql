@@ -30,8 +30,11 @@ create table if not exists atype (
     name varchar(200) NOT NULL
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-insert into atype(name) values('DEseq');
+insert into atype(name) values('DESeq');
 insert into atype(name) values('PCA');
+INSERT INTO `ems`.`atype` (`id`, `name`) VALUES ('3', 'DESeq2');
+INSERT INTO `ems`.`atype` (`id`, `name`) VALUES ('4', 'ATP & filter');
+INSERT INTO `ems`.`atype` (`id`, `name`) VALUES ('5', 'MANorm');
 
 create table if not exists project (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -131,9 +134,10 @@ ALTER TABLE `ems`.`genome` ADD COLUMN `annottable` VARCHAR(64) NULL DEFAULT NULL
 
 
 create table if not exists `condition` (
-    id INTEGER AUTO_INCREMENT PRIMARY KEY,
     name varchar(50),
-    type varchar(50),
+    field int(5),
+    filter int(5),
+    value float,
     ahead_id INTEGER NOT NULL,
     index(ahead_id), FOREIGN KEY (ahead_id)
     REFERENCES ahead(id),
