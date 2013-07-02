@@ -229,13 +229,12 @@ Ext.define('EMS.controller.Project', {
                    acaption.allowBlank=true;
                    acaption.setValue('');
                },
+
                startAnalysis: function(args) {
                    var me=this;
                    var grid=args[0];
                    var record=args[5];
                    var resultStore=me.getResultStore();
-                   //console.log(record);
-                   //console.log(arguments);
                    var model=Ext.create('EMS.model.Result', {
                                             name: record.data.item+'_result',
                                             description: record.data.item+'_result',
@@ -264,12 +263,9 @@ Ext.define('EMS.controller.Project', {
                                             record.data.status=1;
                                             me.progress.close();
                                         }});
-
-
                },
+
                ProjectDesignWindowGridDblClick:  function( view,record,item,index,e,eOpts ) {
-                   //console.log(record);
-                   //console.log(view);
                    var me=this;
                    switch(record.data.atype_id) {
                    case 2:

@@ -10,9 +10,9 @@ $data=json_decode($_REQUEST['data']);
 if(!isset($data))
 $res->print_error("no data");
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
-logmsg(print_r($data,true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($data,true));
 
 
 $count=1;

@@ -36,6 +36,20 @@ Ext.define('EMS.view.Project.ATPFilter', {
                width: 500,
                initComponent: function() {
                    var me = this;
+                   me.filters = Ext.create('Ext.data.Store', {
+                                               fields: ['id', 'name'],
+                                               data : [
+                                                   {"id":1, "name":"equal"},
+                                                   {"id":2, "name":"less than"},
+                                                   {"id":3, "name":"greater than"}
+                                               ]
+                                           });
+                   me.fields = Ext.create('Ext.data.Store', {
+                                              fields: ['id', 'name'],
+                                              data : [
+                                                  {"id":1, "name":"RPKM"}
+                                              ]
+                                          });
 
                    me.dockedItems= [{
                                         xtype: 'toolbar',
@@ -50,23 +64,14 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                 text: 'Set',
                                                 handler: function() {
                                                     var form = Ext.getCmp('ProjectATPFilterForm');
-                                                    console.log(form);
-                                                    if(form.getForm().isValid()){
-                                                        console.log('form is valid');
-                                                        form.submit();
-                                                        //                               form.submit({
-                                                        //                                               url: 'data/ATPFilterSet.php',
-                                                        ////                                               method: 'POST',
-                                                        ////                                               waitMsg: 'Setting filter',
-                                                        ////                                               success: function(fp, o) {
-                                                        ////                                                   //msg('Success', 'Processed file "' + o.result.file + '" on the server');
-                                                        ////                                                   console.log('Success',o);
-                                                        ////                                                   console.log('Success',fp);
-                                                        ////                                               }
-                                                        //                                           });
+                                                    if(form.getForm().isValid()) {
+                                                        form.submit({
+                                                                        waitMsg: 'Setting filter',
+                                                                        success: function(fp, o) {
+                                                                            me.close();
+                                                                        }
+                                                                    });
                                                     }
-
-                                                    me.close();
                                                 }
                                             }]
                                     }];
@@ -93,6 +98,14 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                              type: 'hbox'
                                          },
                                          items: [{
+                                                 xtype: 'hidden',
+                                                 name: 'analysis_id',
+                                                 value: me.initialConfig.analysis_id,
+                                             } , {
+                                                 xtype: 'hidden',
+                                                 name: 'ahead_id',
+                                                 value: me.initialConfig.ahead_id,
+                                             } , {
                                                  xtype: 'textfield',
                                                  margin: '0 5 0 5',
                                                  id: 'filter-name',
@@ -100,6 +113,9 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                  afterLabelTextTpl: required,
                                                  submitValue: false,
                                                  labelAlign: 'top',
+                                                 maxLength: 50,
+                                                 maxLengthText: 'Maximum length of this field is 50 chars',
+                                                 enforceMaxLength: true,
                                                  flex: 1,
                                                  labelWidth: 120,
                                                  enableKeyEvents: true,
@@ -107,7 +123,7 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                      specialkey: function (field, event) {
                                                          if (event.getKey() === event.ENTER) {
                                                              var button=Ext.getCmp('filter-add');
-                                                             button.fireEvent('click',button);
+                                                             button.handler();
                                                          }
                                                      }
                                                  }
@@ -122,31 +138,19 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                                  iconCls: '',
                                                  handler: function() {
                                                      var form = Ext.getCmp('ProjectATPFilterForm');
-                                                     form.add(me.addFilter(Ext.getCmp('filter-name').getValue()));
+                                                     var name=Ext.getCmp('filter-name');
+                                                     form.add(me.addFilter(name.getValue()));
+                                                     name.setValue('');
+
                                                  }
                                              } ]
                                      }]
                              }];
-
-                   //me.items[0].items.push(me.addFilter('Expressed'));
                    me.callParent(arguments);
                },
-               addFilter: function(name) {
-                   var filters = Ext.create('Ext.data.Store', {
-                                                fields: ['id', 'name'],
-                                                data : [
-                                                    {"id":1, "name":"equal"},
-                                                    {"id":2, "name":"less than"},
-                                                    {"id":3, "name":"greater than"}
-                                                ]
-                                            });
-                   var fields = Ext.create('Ext.data.Store', {
-                                               fields: ['id', 'name'],
-                                               data : [
-                                                   {"id":1, "name":"RPKM"}
-                                               ]
-                                           });
-                   return {
+               addFilter: function(name,params) {
+                   var me=this;
+                   var filter= {
                        xtype: 'fieldset',
                        title: 'Filter: '+name,
                        margin: '5 5 5 5',
@@ -155,17 +159,18 @@ Ext.define('EMS.view.Project.ATPFilter', {
                        layout: 'hbox',
                        items: [ {
                                xtype: 'textfield',
-                               name: name,
+                               name: name+'_name',
                                flex: 3,
                                value: name,
-                               allowBlank: false
+                               allowBlank: false,
+                               readOnly: true
                            } , {
                                xtype: 'combobox',
                                name : name+'_field',
                                displayField: 'name',
                                valueField: 'id',
                                value: 1,
-                               store: fields,
+                               store: me.fields,
                                flex: 3,
                                editable: false,
                                margin: '0 0 0 6',
@@ -176,14 +181,14 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                displayField: 'name',
                                valueField: 'id',
                                value: 1,
-                               store: filters,
+                               store: me.filters,
                                flex: 3,
                                editable: false,
                                margin: '0 0 0 6',
 
                            } , {
                                xtype: 'numberfield',
-                               name: name+'filter',
+                               name: name+'_value',
                                flex: 3,
                                margins: '0 0 0 6',
                                value: 0.0,
@@ -191,5 +196,10 @@ Ext.define('EMS.view.Project.ATPFilter', {
                                allowBlank: false
                            }]
                    };
+
+                   if(typeof params === 'undefined')
+                       return filter;
+
+                   return {};
                }
            });

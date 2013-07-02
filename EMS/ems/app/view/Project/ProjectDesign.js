@@ -294,7 +294,25 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                      this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
                                                                          record.data.status=2;
                                                                          grid.refresh();
-                                                                         me.fireEvent('startAnalysis',arguments);
+                                                                         switch(record.data.atype_id) {
+                                                                         case 1:
+                                                                         case 2:
+                                                                             me.fireEvent('startAnalysis',arguments);
+                                                                             break;
+                                                                         case 4:
+                                                                             console.log(record);
+                                                                             var arg=arguments;
+                                                                             Ext.create('EMS.view.Project.ATPFilter',{
+                                                                                            modal: true,
+                                                                                            ahead_id: record.data.item_id,
+                                                                                            onSubmit: function() {
+                                                                                                me.fireEvent('startAnalysis',arg);
+                                                                                            }
+                                                                                        }).show();
+                                                                             break;
+                                                                         default:
+                                                                             break;
+                                                                         }
                                                                      }
                                                                      return 'media-play-green';
                                                                  }
