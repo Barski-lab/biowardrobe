@@ -74,7 +74,7 @@ Arguments::~Arguments()
 /***************************************************************************************
 
 ****************************************************************************************/
-void Arguments::Init(QStringList l)
+void Arguments::Init(QStringList &l)
 {
     int correct=0;
     foreach(const QString &key,getVarValStorage().keys())
@@ -149,13 +149,16 @@ void Arguments::Init(QStringList l)
                 usage();
                 throw "Incorrect parameter";
             }
+            //index>0
         }
-        else if(!getVarValStorage()[key]._ininame.isEmpty() && setup->contains(getVarValStorage()[key]._ininame))
+
+        if(!getVarValStorage()[key]._ininame.isEmpty() && setup->contains(getVarValStorage()[key]._ininame))
         {
             getVarValStorage()[key]._value=setup->value(getVarValStorage()[key]._ininame);
             continue;
         }
-        else if(!getVarValStorage()[key]._ininame.isEmpty() && getVarValStorage()[key]._stdin)
+
+        if(!getVarValStorage()[key]._ininame.isEmpty() && getVarValStorage()[key]._stdin)
         {
             QTextStream stream(stdin);
             QString line;
@@ -220,7 +223,7 @@ void Arguments::argsList(void)
 
     Arguments::addArg("sql_driver","","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));
     Arguments::addArg("sql_dbname","sql_dbname","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));
-    Arguments::addArg("sql_host","sql_host","SQL/HOST",QVariant::String,"Database hostname",QString("10.200.42.25"));
+    Arguments::addArg("sql_host","sql_host","SQL/HOST",QVariant::String,"Database hostname",QString("localhost"));
     Arguments::addArg("sql_port","sql_port","SQL/PORT",QVariant::Int,"Database port",3306);
     Arguments::addArg("sql_user","sql_user","SQL/USER",QVariant::String,"Database user",QString("root"));
     Arguments::addArg("sql_pass","sql_pass","SQL/PASS",QVariant::ByteArray,"Database pass","",false,true);

@@ -81,7 +81,7 @@ public:
             _stdin(_s){};
     };
     static Arguments& Instance();
-    void Init(QStringList/*arguments list*/);
+    void Init(QStringList &/*arguments list*/);
 //	static QStringList
 
 private:

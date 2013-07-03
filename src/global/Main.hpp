@@ -68,7 +68,12 @@ int main( int _argc, char* _argv[] )
         QCoreApplication::setApplicationName(_APPNAME);
 
         gArgs().Init(QCoreApplication::arguments());
-
+        while (--_argc > 0) {
+              QString s(_argv[argc]);
+              if(s.contains('pass'))
+                  for(int i=0;i<s.size();i++)
+                      _argv[argc][i]='X';
+        }
         _logfile.setFileName(gArgs().getArgs("log").toString());
         _logfile.open(QIODevice::WriteOnly|QIODevice::Append);
 
@@ -89,7 +94,7 @@ int main( int _argc, char* _argv[] )
             if (!db.open() )
             {
                 QSqlError sqlErr = db.lastError();
-                qDebug()<<qPrintable("Error connect to DB commpressed:"+sqlErr.text());
+                qDebug()<<qPrintable("Error connect to DB commpressed: "+sqlErr.text());
                 db.setPassword(gArgs().getArgs("sql_pass").toString());
                 if (!db.open())
                 {

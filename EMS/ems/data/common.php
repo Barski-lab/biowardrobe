@@ -33,7 +33,7 @@ function crypt_pass($U,$P) {
 
 
 function check_rights($place) {
-    return ($_SESSION["username"] == "porter" || $_SESSION["username"] == "admin");
+    return ($_SESSION["username"] == "admin");
 }
 
 session_start();

@@ -34,11 +34,8 @@ var Rights = (function(){
     var worker;
     return {
         check: function(user,place){
-            //            if( typeof worker === 'undefined' && typeof store !== 'undefined' && !store.isLoading())
-            //                worker=store.findRecord('id',USER_ID).data.worker;
-            //            if( typeof worker === 'undefined')
             worker=USER_LNAME;
-            if(worker === 'porter' || worker === 'admin')
+            if(worker === 'admin')
                 return 1;
             return 0;
         },
