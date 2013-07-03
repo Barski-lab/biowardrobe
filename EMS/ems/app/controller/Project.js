@@ -22,8 +22,8 @@
 
 Ext.define('EMS.controller.Project', {
                extend: 'Ext.app.Controller',
-               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart','ATPChart'],
-               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart','ATPChart'],
+               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
+               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','Project','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
                views:  ['Project.Preliminary','Project.ProjectList','Project.ProjectDesign','charts.PCA','ProgressBar',
                    'charts.ATP'],
 
@@ -282,11 +282,19 @@ Ext.define('EMS.controller.Project', {
                        me.PCA.show();
                        break;
                    case 4:
+                       var storc=this.getConditionStore();
+                       storc.getProxy().setExtraParam('ahead_id',record.data['id']);
+                       storc.load();
                        var stor=this.getATPChartStore();
                        stor.getProxy().setExtraParam('tablename',record.data['tableName']);
                        stor.load({
                                      callback: function(records, operation, success) {
                                          if(success) {
+                                             var title=[];
+                                             for(var c=0; c<storc.getTotalCount();c++) {
+                                                 title.push(storc.getAt(c).raw['name']);
+                                             }
+                                             console.log(title);
                                              var cols=0;
                                              var prop=[];
                                              for(p in records[0].data) {
@@ -302,7 +310,7 @@ Ext.define('EMS.controller.Project', {
                                                          max=records[i].data[prop[j]];
                                              }
                                              var prc=Math.abs(parseInt(max.toString().split('e')[1]))+2;
-                                             var ATPChart = Ext.create("EMS.view.Project.ATPChart",{LEN: len, MAX: max, PRC: prc, BNAME: '', COLS:cols, COLSN:prop});
+                                             var ATPChart = Ext.create("EMS.view.Project.ATPChart",{LEN: len, MAX: max, PRC: prc, BNAME: title, COLS:cols, COLSN:prop});
                                              ATPChart.show();
                                          }
                                      }

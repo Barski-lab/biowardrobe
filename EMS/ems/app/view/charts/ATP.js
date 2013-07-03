@@ -29,9 +29,6 @@ Ext.define('EMS.view.charts.ATP',
                extend: 'Ext.chart.Chart',
                style: 'background:#fff',
                animate: false,
-               legend: {
-                   position: 'top'
-               },
                border: 0,
                shadow: false,
 
@@ -51,22 +48,24 @@ Ext.define('EMS.view.charts.ATP',
                                        'stroke-width': 2
                                    }
                                }];
+                   me.legend={ position: 'top' };
+
                    if(typeof me.initialConfig.COLSN !== 'undefined') {
                        fields=me.initialConfig.COLSN;
                        series=[];
+                       me.legend={ position: 'right' };
+
                        for(var i=0; i<me.initialConfig.COLS; i++) {
                            series.push({
                                            type: 'line',
                                            axis: 'left',
                                            xField: 'X',
                                            yField: fields[i],
-                                           //title:[me.initialConfig.BNAME],
+                                           title:[me.initialConfig.BNAME[i]],
                                            showMarkers: false,
-//                                           style: {
-//                                               //fill: '#3838AA',
-//                                               //stroke: '#3838AA',
-//                                               'stroke-width': 2
-//                                           }
+                                           style: {
+                                               'stroke-width': 2
+                                           }
                                        });
                        }
                    }

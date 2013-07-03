@@ -37,23 +37,23 @@ void printMsgHandler(QtMsgType type, const char * _str)
 
     switch (type)
     {
-    case QtDebugMsg:
-        _logfile.write(str.toLocal8Bit());
-        _logfile.flush();
+        case QtDebugMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
         break;
-    case QtWarningMsg:
-        fprintf(stderr, "Debug: %s\n", str.toLocal8Bit().data());
-        _logfile.write(str.toLocal8Bit());
-        _logfile.flush();
+        case QtWarningMsg:
+            fprintf(stderr, "Debug: %s\n", str.toLocal8Bit().data());
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
         break;
-    case QtCriticalMsg:
-        _logfile.write(str.toLocal8Bit());
-        _logfile.flush();
+        case QtCriticalMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
         break;
-    case QtFatalMsg:
-        _logfile.write(str.toLocal8Bit());
-        _logfile.flush();
-        exit(-1);
+        case QtFatalMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
+            exit(-1);
         break;
     }
     _logmut.unlock();
@@ -89,8 +89,13 @@ int main( int _argc, char* _argv[] )
             if (!db.open() )
             {
                 QSqlError sqlErr = db.lastError();
-                qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
-                throw "Error connect to DB";
+                qDebug()<<qPrintable("Error connect to DB commpressed:"+sqlErr.text());
+                db.setPassword(gArgs().getArgs("sql_pass").toString());
+                if (!db.open())
+                {
+                    qDebug()<<qPrintable("Error connect to DB uncopressed:"+sqlErr.text());
+                    throw "Error connect to DB";
+                }
             }
         }
 #endif

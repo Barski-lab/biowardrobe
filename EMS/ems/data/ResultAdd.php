@@ -54,9 +54,12 @@ switch($data->atype_id) {
         $status=2;
         break;
     case 4:
-        //exec("Rscript PCA.R $db_user $db_pass $db_name_experiments $db_host $data->ahead_id $tablename",$output,$retval);
-        //if($retval!=0)
-        //    $res->print_error("Cant execute R");
+        $aid=$data->ahead_id;
+        $command="/usr/local/bin/averagedensity -avd_aid=$aid -sql_table=\"$tablename\" -sql_host=localhost -sql_user=\"$db_user\" -sql_pass=\"$db_pass\" -sql_dbname=\"$db_name_ems\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
+        //-plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot"
+        exec("$command",$output,$retval);
+        if($retval!=0)
+            $res->print_error("Cant execute averagedensity command");
 
         $status=2;
 

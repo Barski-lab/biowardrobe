@@ -319,11 +319,11 @@ void AverageDensity::start() {
 QString get_condition(int filter,float value) {
     switch (filter) {
         case 1:
-            return QString("=%1").arg(value);
+        return QString("=%1").arg(value);
         case 2:
-            return QString("<%1").arg(value);
+        return QString("<%1").arg(value);
         case 3:
-            return QString(">%1").arg(value);
+        return QString(">%1").arg(value);
     }
     return "";
 }
@@ -488,9 +488,9 @@ void AverageDensity::batchsql() {
         }
         int lid =q.value(0).toInt();
 
-        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
-                  "from ems.labdata l,ems.experimenttype e,ems.genome g "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
+        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize,UPPER(w.worker) as worker "
+                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.worker w "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and l.worker_id=w.id and l.id=?");
         q.bindValue(0, lid);
         if(!q.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
@@ -500,6 +500,7 @@ void AverageDensity::batchsql() {
         //int fieldDb = q.record().indexOf("db");
         int fieldFilename = q.record().indexOf("filename");
         int fieldEtype = q.record().indexOf("etype");
+        int fieldWorker = q.record().indexOf("worker");
         //int fieldGBname = q.record().indexOf("name4browser");
         //int fieldAtable = q.record().indexOf("annottable");
         int fieldFsize = q.record().indexOf("fragmentsize");
@@ -514,14 +515,18 @@ void AverageDensity::batchsql() {
         if(filename.contains(';'))
             filename=filename.split(';').at(0);
         QString EType =q.value(fieldEtype).toString();
+        //QString EType_part=EType.left(3);
+        QString worker=q.value(fieldWorker).toString();
         //QString GBName =q.value(fieldGBname).toString();
         //QString annottable =q.value(fieldAtable).toString();
         int fragmentsize =q.value(fieldFsize).toInt();
         bool pair=(EType.indexOf("pair")!=-1);
-        //fileLabels.append();
 
+        QString BASE_DIR="/data/DATA/FASTQ-DATA";
+        QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
         sam_data.append(new gen_lines());
-        t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
+        qDebug()<<path+filename+".bam";
+        t_queue.append(new sam_reader_thread(sam_data.last(),path+filename+".bam"));
         t_pool->start(t_queue.last());
 
 
@@ -586,7 +591,7 @@ void AverageDensity::batchsql() {
                 qDebug()<<"Query error annot: "<<q.lastError().text();
                 return;
             }
-//get_condition
+            //get_condition
 
             int fieldChrom = q.record().indexOf("chrom");
             int fieldStrand = q.record().indexOf("strand");
@@ -647,7 +652,11 @@ void AverageDensity::batchsql() {
         for(int i=0; i<rows;i++) {
             SQL_QUERY+=QString(" (%1").arg((int)(i-rows/2));
             for(int c=0;c<nplot;c++) {
-                SQL_QUERY+=QString(",%1").arg(storages[c].at(i));
+                if(isnan(storages[c].at(i)) || isinf(storages[c].at(i))) {
+                    SQL_QUERY+=QString(",%1").arg(0);
+                } else {
+                    SQL_QUERY+=QString(",%1").arg(storages[c].at(i));
+                }
             }
             SQL_QUERY+=QString("),");
         }
@@ -655,6 +664,7 @@ void AverageDensity::batchsql() {
         SQL_QUERY.chop(1);
         if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
+            qDebug()<<"Query error batch up: "<<SQL_QUERY_BASE;
         }
     }//aid>0
 }
@@ -672,8 +682,8 @@ void AverageDensity::batchfile() {
 
     try{
         /*Reading bam file in thread
-             *TODO: incorrect working with QThread
-             *multi bam reader*/
+                *TODO: incorrect working with QThread
+                *multi bam reader*/
 
         QFile batchBamFiles;
         batchBamFiles.setFileName(gArgs().getArgs("in").toString());
@@ -715,8 +725,8 @@ void AverageDensity::batchfile() {
 
 
         /* SQL Query batch file format:
-             * - first line - grapht title
-             * - second line - sql query */
+                * - first line - grapht title
+                * - second line - sql query */
         QFile batchFile;
         batchFile.setFileName(gArgs().getArgs("batch").toString());
         batchFile.open(QIODevice::ReadOnly| QIODevice::Text);

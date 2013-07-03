@@ -10,7 +10,7 @@ else
     $res->print_error('Not enough required parameters. t');
 
 $AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
-$SpecialTable=array("labdata","grp_local","project");
+$SpecialTable=array("labdata","grp_local","project","condition");
 
 if(!in_array($tablename,$AllowedTable)) {
     if(!in_array($tablename,$SpecialTable)) {
@@ -41,6 +41,15 @@ if(!in_array($tablename,$AllowedTable)) {
             if($workerid != 0) {
                     $where=$where." and worker_id=$workerid ";
             }
+            $con=def_connect();
+            $con->select_db($db_name_ems);
+            break;
+        case "condition":
+            if(isset($_REQUEST['ahead_id']))
+                $ahead_id = intVal($_REQUEST['ahead_id']);
+            else
+                $res->print_error('Not enough required parameters.');
+            $cond=" and ahead_id=$ahead_id and analysis_id is NULL ";
             $con=def_connect();
             $con->select_db($db_name_ems);
             break;
