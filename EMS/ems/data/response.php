@@ -11,14 +11,24 @@ class Response {
         $this->message  = isset($params["message"]) ? $params["message"] : '';
         $this->total    = isset($params["total"]) ? $params["total"] : '';
         $this->data     = isset($params["data"])    ? $params["data"]    : array();
+        $this->meta     = isset($params["meta"])    ? $params["meta"]    : array();
     }
 
     public function to_json() {
+        if(count($this->meta)==0) {
+            $DATA=array(
+                'success'   => $this->success,
+                'message'   => $this->message,
+                'total'     => $this->total,
+                'data'      => $this->data );
+        } else {
         $DATA=array(
             'success'   => $this->success,
             'message'   => $this->message,
             'total'     => $this->total,
+            'metaData'  => $this->meta,
             'data'      => $this->data );
+        }
         return json_encode($DATA);
     }
 

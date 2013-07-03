@@ -5,6 +5,9 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
+
 if(isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
@@ -29,6 +32,21 @@ $totalquery->close();
 
 $query_array=execSQL($con,"SELECT * FROM `$tablename`",array(),false,0);
 $con->close();
+
+//logmsg(print_r($query_array,true));
+
+$fields=array();
+
+foreach($query_array[0] as $key => $val) {
+ $type="float";
+ if($key=="X") $type="int";
+ array_push($fields,array(
+    "name"=>$key,
+     "type"=>$type
+     ));
+}
+
+$res->meta=array( "fields"=>$fields );
 
 $res->success = true;
 $res->message = "Data loaded";

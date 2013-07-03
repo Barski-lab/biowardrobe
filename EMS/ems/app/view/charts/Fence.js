@@ -37,7 +37,6 @@ Ext.define('EMS.view.charts.Fence',
                initComponent: function() {
                    var me=this;
                    Ext.applyIf(me, {
-
                                    store: EMS.store.Fence,
                                    shadow: true,
                                    theme: 'Category1',

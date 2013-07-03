@@ -290,4 +290,5 @@ OTHER_FILES += \
     data/ATPChart.php \
     app/view/LabDataEdit/ATPChart.js \
     app/view/Project/ATPFilter.js \
-    data/ATPFilterSet.php
+    data/ATPFilterSet.php \
+    app/view/Project/ATPChart.js

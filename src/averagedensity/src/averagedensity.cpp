@@ -60,7 +60,7 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
                     position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
                     if(position<0) continue;
                     if(position<length)
-                            result[position]+=i.value()[c].getLevel();
+                        result[position]+=i.value()[c].getLevel();
                 }
                 if(position>=length)
                     break;
@@ -73,7 +73,7 @@ void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator 
                     position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
                     if(position<0) continue;
                     if(position<length)
-                            result[length-position-1]+=i.value()[c].getLevel();
+                        result[length-position-1]+=i.value()[c].getLevel();
                 }
                 if(position>=length)
                     break;
@@ -316,12 +316,31 @@ void AverageDensity::start() {
     }
 }
 
+QString get_condition(int filter,float value) {
+    switch (filter) {
+        case 1:
+            return QString("=%1").arg(value);
+        case 2:
+            return QString("<%1").arg(value);
+        case 3:
+            return QString(">%1").arg(value);
+    }
+    return "";
+}
+
+
 void AverageDensity::batchsql() {
     int avd_lid=gArgs().getArgs("avd_lid").toInt();
-    int avd_pid=gArgs().getArgs("avd_pid").toInt();
+    int avd_aid=gArgs().getArgs("avd_aid").toInt();
     int avd_window=gArgs().getArgs("avd_window").toInt();
+    QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-    if(avd_lid>0 && avd_pid>0) {
+    if(avd_table_name.isEmpty()) {
+        qDebug()<<"Error: Set --sql_table!";
+        return;
+    }
+
+    if(avd_lid>0 && avd_aid>0) {
         qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
         return;
     }
@@ -362,6 +381,7 @@ void AverageDensity::batchsql() {
         int fragmentsize =q.value(fieldFsize).toInt();
         bool pair=(EType.indexOf("pair")!=-1);
         //fileLabels.append();
+
         sam_data.append(new gen_lines());
         t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
         t_pool->start(t_queue.last());
@@ -452,9 +472,191 @@ void AverageDensity::batchsql() {
         //        outFile.write(avd_data_out.toAscii());
         //        outFile.close();
     }
+    //***************************
+    //***************************
+    if(avd_aid>0) {
+        q.prepare("select labdata_id,tableName,r.rtype_id from analysis a, rhead rh,resultintersection ri, result r "
+                  "where a.ahead_id=? and r.rtype_id=4 and rh.id=a.rhead_id and ri.rhead_id=rh.id and r.id=ri.result_id");
+        q.bindValue(0, avd_aid);
+        if(!q.exec()) {
+            qDebug()<<"Query error info: "<<q.lastError().text();
+            return;
+        }
+        if(!q.next()) {
+            qDebug()<<"No records";
+            return;
+        }
+        int lid =q.value(0).toInt();
 
-    if(avd_pid>0) {
-    }
+        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
+                  "from ems.labdata l,ems.experimenttype e,ems.genome g "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
+        q.bindValue(0, lid);
+        if(!q.exec()) {
+            qDebug()<<"Query error info: "<<q.lastError().text();
+            return;
+        }
+
+        //int fieldDb = q.record().indexOf("db");
+        int fieldFilename = q.record().indexOf("filename");
+        int fieldEtype = q.record().indexOf("etype");
+        //int fieldGBname = q.record().indexOf("name4browser");
+        //int fieldAtable = q.record().indexOf("annottable");
+        int fieldFsize = q.record().indexOf("fragmentsize");
+
+        if(!q.next()) {
+            qDebug()<<"No records";
+            return;
+        }
+
+        //QString DB =q.value(fieldDb).toString();
+        QString filename=q.value(fieldFilename).toString();
+        if(filename.contains(';'))
+            filename=filename.split(';').at(0);
+        QString EType =q.value(fieldEtype).toString();
+        //QString GBName =q.value(fieldGBname).toString();
+        //QString annottable =q.value(fieldAtable).toString();
+        int fragmentsize =q.value(fieldFsize).toInt();
+        bool pair=(EType.indexOf("pair")!=-1);
+        //fileLabels.append();
+
+        sam_data.append(new gen_lines());
+        t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
+        t_pool->start(t_queue.last());
+
+
+        q.prepare("select labdata_id,tableName,r.rtype_id from analysis a, rhead rh,resultintersection ri, result r "
+                  "where a.ahead_id=? and r.rtype_id<4 and rh.id=a.rhead_id and ri.rhead_id=rh.id and r.id=ri.result_id");
+        q.bindValue(0, avd_aid);
+        if(!q.exec()) {
+            qDebug()<<"Query error info: "<<q.lastError().text();
+            return;
+        }
+
+        int tab_nums=0;
+        QString avd_rpkm="(";
+        QString sel_tables="";
+        QString cond="";
+
+        while(q.next()) {
+            QString tabname=q.value(1).toString();
+            if(tabname.contains(';'))
+                tabname=tabname.split(';').at(0);
+            if(tab_nums==0) {
+                sel_tables+=QString("experiments.%1 a%2").arg(tabname).arg(tab_nums);
+                avd_rpkm+=QString("a%1.RPKM_0").arg(tab_nums);
+            } else {
+                sel_tables+=QString(",experiments.%1 a%2").arg(tabname).arg(tab_nums);
+                avd_rpkm+=QString("+a%1.RPKM_0").arg(tab_nums);
+                cond+=QString("and a0.chrom=a%1.chrom and a0.txStart=a%2.txStart and a0.txEnd=a%3.txEnd and a0.strand=a%4.strand").
+                      arg(tab_nums).arg(tab_nums).arg(tab_nums).arg(tab_nums);
+            }
+            tab_nums++;
+        }
+        if(tab_nums>1) {
+            avd_rpkm+=QString(")/%1").arg(tab_nums);
+        }
+
+        QString avd_window_str=QString("%1").arg(avd_window);
+
+        QString sql_queryp="select a0.chrom,a0.strand,a0.txStart-"+avd_window_str+" as start,a0.txStart+"+avd_window_str+" as end from "
+                           ""+sel_tables+" where a0.strand = '+' and a0.chrom not like '%\\_%' and a0.chrom like 'chr%' " + cond;
+        QString sql_querym="select a0.chrom,a0.strand,a0.txEnd-"+avd_window_str+" as start,a0.txEnd+"+avd_window_str+" as end from "
+                           ""+sel_tables+" where a0.strand = '-' and a0.chrom not like '%\\_%' and a0.chrom like 'chr%' " + cond;
+
+        if(t_pool->activeThreadCount()!=0) {
+            qDebug()<<"waiting threads";
+            t_pool->waitForDone();
+        }
+
+        QList<QList<double> > storages;
+
+        QSqlQuery qq;
+        qq.prepare("select name,field,filter,value from `condition` where ahead_id=? and analysis_id is NULL;");
+        qq.bindValue(0, avd_aid);
+        if(!qq.exec()) {
+            qDebug()<<"Query error info: "<<q.lastError().text();
+            return;
+        }
+        int nplot=0;
+        while(qq.next()) {
+            QString sql_query=sql_queryp+" and "+avd_rpkm+get_condition(qq.value(2).toInt(),qq.value(3).toFloat())+" union "+
+                              sql_querym+" and "+avd_rpkm+get_condition(qq.value(2).toInt(),qq.value(3).toFloat());
+            if(!q.exec(sql_query)) {
+                qDebug()<<"Query error annot: "<<q.lastError().text();
+                return;
+            }
+//get_condition
+
+            int fieldChrom = q.record().indexOf("chrom");
+            int fieldStrand = q.record().indexOf("strand");
+            int fieldStart= q.record().indexOf("start");
+            int fieldEnd= q.record().indexOf("end");
+            int length=avd_window*2+1;
+
+            QVector<double> avd_raw_data(length+1,0);
+
+            while(q.next()) {
+                bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
+                int Start=q.value(fieldStart).toInt();
+                int End=q.value(fieldEnd).toInt();
+                QString Chrom=q.value(fieldChrom).toString();
+
+                if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
+                    continue;
+                }
+                AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
+                                       strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data,pair);
+            }
+
+            QList<double>  storage;
+            int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
+            for(int w=0; w< length; w++)
+                storage<<(avd_raw_data[w]/total)/q.size();
+            storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
+            storages.append(storage);
+            nplot++;
+        }//qq.next
+
+        //avd_table_name
+        //upload data to
+        QString Y="`Y0` FLOAT NULL ,";
+        for(int i=1; i<nplot;i++) {
+            Y+=QString("`Y%1` FLOAT NULL ,").arg(i);
+        }
+
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1;"
+                                     "CREATE TABLE experiments.%2( "
+                                     "`X` INT NULL ,"+Y+
+                                     "INDEX X_idx (X) using btree"
+                                     ")"
+                                     "ENGINE = MyISAM "
+                                     "COMMENT = 'created by averagedensity';").
+                             arg(avd_table_name).
+                             arg(avd_table_name);
+
+        if(!q.exec(CREATE_TABLE)) {
+            qDebug()<<"Query error T: "<<q.lastError().text();
+        }
+
+        QString SQL_QUERY_BASE=QString("insert into experiments.%1 values ").
+                               arg(avd_table_name);
+        QString SQL_QUERY="";
+
+        int rows=storages[0].size();
+        for(int i=0; i<rows;i++) {
+            SQL_QUERY+=QString(" (%1").arg((int)(i-rows/2));
+            for(int c=0;c<nplot;c++) {
+                SQL_QUERY+=QString(",%1").arg(storages[c].at(i));
+            }
+            SQL_QUERY+=QString("),");
+        }
+
+        SQL_QUERY.chop(1);
+        if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
+            qDebug()<<"Query error batch up: "<<q.lastError().text();
+        }
+    }//aid>0
 }
 
 void AverageDensity::batchfile() {

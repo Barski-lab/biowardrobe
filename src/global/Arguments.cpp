@@ -243,7 +243,7 @@ void Arguments::argsList(void)
     Arguments::addArg("no-file","no-file","",QVariant::Bool,"Do not produce file output",false);
     Arguments::addArg("no-sql-upload","no-sql-upload","",QVariant::Bool,"Do not upload to SQL",false);
 
-    Arguments::addArg("sql_table","sql_table","",QVariant::String,"Sql table to create for bed graph","");
+    Arguments::addArg("sql_table","sql_table","",QVariant::String,"Sql table name","");
     Arguments::addArg("sql_grp","sql_grp","",QVariant::String,"Sql group for trackDb table","");
 
     Arguments::addArg("rna_seq","rna_seq","rnaseq",QVariant::String,"","");
@@ -261,7 +261,7 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_rawdata","avd_rawdata","AVD/RAWDATA",QVariant::Bool,"Output of raw data",false);
     Arguments::addArg("avd_wilc_region","avd_wilc_region","AVD/WILCREG",QVariant::String,"Which region dump with raw data -avd_wilc_region=\"-100:-5\"",QString(""));
     Arguments::addArg("avd_lid","avd_lid","AVD/LID",QVariant::Int,"Labdata id",0);
-    Arguments::addArg("avd_pid","avd_pid","AVD/PID",QVariant::Int,"Project id",0);
+    Arguments::addArg("avd_aid","avd_aid","AVD/PID",QVariant::Int,"Analysis head id",0);
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));

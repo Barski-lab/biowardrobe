@@ -20,10 +20,29 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.model.ATPChart', {
-               extend: 'Ext.data.Model',
+Ext.define('EMS.view.Project.ATPChart', {
+               extend: 'Ext.window.Window',
+               bodyPadding: 0,
+               border: false,
+               frame: false,
+               layout: 'border',
+               plain: true,
+               title: 'Average Tag Density',
+               iconCls: 'chart-line',
+               maximizable: true,
+               collapsible: false,
+               constrain: true,
+               minHeight: 350,
+               minWidth: 300,
+               height: 900,
+               width: 1180,
 
-               fields: [
-                   { name: 'X', type: 'int' }
-               ]
+               initComponent: function() {
+                   var me=this;
+                   me.chart= Ext.create('EMS.view.charts.ATP',me.initialConfig);
+                   me.items= [ me.chart ];
+                   me.callParent(arguments);
+               }
            });
+
+

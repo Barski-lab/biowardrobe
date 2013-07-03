@@ -37,19 +37,53 @@ Ext.define('EMS.view.charts.ATP',
 
                initComponent: function() {
                    var me=this;
+                   var fields=['Y'];
+                   var series=[{
+                                   type: 'line',
+                                   axis: 'left',
+                                   xField: 'X',
+                                   yField: 'Y',
+                                   title:[me.initialConfig.BNAME],
+                                   showMarkers: false,
+                                   style: {
+                                       fill: '#3838AA',
+                                       stroke: '#3838AA',
+                                       'stroke-width': 2
+                                   }
+                               }];
+                   if(typeof me.initialConfig.COLSN !== 'undefined') {
+                       fields=me.initialConfig.COLSN;
+                       series=[];
+                       for(var i=0; i<me.initialConfig.COLS; i++) {
+                           series.push({
+                                           type: 'line',
+                                           axis: 'left',
+                                           xField: 'X',
+                                           yField: fields[i],
+                                           //title:[me.initialConfig.BNAME],
+                                           showMarkers: false,
+//                                           style: {
+//                                               //fill: '#3838AA',
+//                                               //stroke: '#3838AA',
+//                                               'stroke-width': 2
+//                                           }
+                                       });
+                       }
+                   }
+
                    Ext.applyIf(me, {
                                    store: EMS.store.ATPChart,
                                    shadow: false,
                                    theme: 'Category1',
-//                                   items:[{
-//                                           type  : 'text',
-//                                           text  : me.initialConfig.BNAME,
-//                                           font  : 'italic bold 14px Arial',
-//                                           width : 100,
-//                                           height: 30,
-//                                           x : 180,
-//                                           y : 23
-//                                       }],
+                                   //                                   items:[{
+                                   //                                           type  : 'text',
+                                   //                                           text  : me.initialConfig.BNAME,
+                                   //                                           font  : 'italic bold 14px Arial',
+                                   //                                           width : 100,
+                                   //                                           height: 30,
+                                   //                                           x : 180,
+                                   //                                           y : 23
+                                   //                                       }],
                                    axes: [{
                                            type: 'Numeric',
                                            minimum: 0,
@@ -57,7 +91,7 @@ Ext.define('EMS.view.charts.ATP',
                                            adjustMaximumByMajorUnit: 1,
                                            decimals: me.initialConfig.PRC,
                                            position: 'left',
-                                           fields: ['Y'],
+                                           fields: fields,
                                            title: 'Average Tag Density (per bp)',
                                            minorTickSteps: 3,
                                            majorTickSteps: 3,
@@ -74,19 +108,7 @@ Ext.define('EMS.view.charts.ATP',
                                            minorTickSteps: 3,
                                            majorTickSteps: 3
                                        }],
-                                   series: [{
-                                           type: 'line',
-                                           axis: 'left',
-                                           xField: 'X',
-                                           yField: 'Y',
-                                           title:[me.initialConfig.BNAME],
-                                           showMarkers: false,
-                                           style: {
-                                               fill: '#3838AA',
-                                               stroke: '#3838AA',
-                                               'stroke-width': 2
-                                           }
-                                       }]
+                                   series: series
                                });
 
                    me.callParent(arguments);
