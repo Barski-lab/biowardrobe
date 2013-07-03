@@ -136,11 +136,11 @@ void SamReader<Storage>::Load(void)
         l=border[0].toInt();
         u=border[1].toInt();
     }
-    
+
     RNA=!gArgs().getArgs("rna_seq").toString().isEmpty();
 
     BamAlignment al;
-    while ( reader.GetNextAlignment(al) ) {
+    while ( reader.GetNextAlignmentCore(al) ) {
         output->total++;
         if(i_tids.contains(al.RefID)) { ignored++; continue; }
 

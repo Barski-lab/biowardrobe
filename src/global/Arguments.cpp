@@ -74,7 +74,7 @@ Arguments::~Arguments()
 /***************************************************************************************
 
 ****************************************************************************************/
-void Arguments::Init(QStringList &l)
+void Arguments::Init(QStringList l)
 {
     int correct=0;
     foreach(const QString &key,getVarValStorage().keys())

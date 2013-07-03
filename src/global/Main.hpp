@@ -68,11 +68,11 @@ int main( int _argc, char* _argv[] )
         QCoreApplication::setApplicationName(_APPNAME);
 
         gArgs().Init(QCoreApplication::arguments());
-        while (--_argc > 0) {
-              QString s(_argv[argc]);
-              if(s.contains('pass'))
+        for(int j=1; j< _argc;j++) {
+              QString s(_argv[j]);
+              if(s.contains("pass"))
                   for(int i=0;i<s.size();i++)
-                      _argv[argc][i]='X';
+                      _argv[j][i]='*';
         }
         _logfile.setFileName(gArgs().getArgs("log").toString());
         _logfile.open(QIODevice::WriteOnly|QIODevice::Append);
