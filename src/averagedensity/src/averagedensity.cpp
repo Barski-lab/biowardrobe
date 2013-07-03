@@ -497,12 +497,9 @@ void AverageDensity::batchsql() {
             return;
         }
 
-        //int fieldDb = q.record().indexOf("db");
         int fieldFilename = q.record().indexOf("filename");
         int fieldEtype = q.record().indexOf("etype");
         int fieldWorker = q.record().indexOf("worker");
-        //int fieldGBname = q.record().indexOf("name4browser");
-        //int fieldAtable = q.record().indexOf("annottable");
         int fieldFsize = q.record().indexOf("fragmentsize");
 
         if(!q.next()) {
@@ -510,22 +507,17 @@ void AverageDensity::batchsql() {
             return;
         }
 
-        //QString DB =q.value(fieldDb).toString();
         QString filename=q.value(fieldFilename).toString();
         if(filename.contains(';'))
             filename=filename.split(';').at(0);
         QString EType =q.value(fieldEtype).toString();
-        //QString EType_part=EType.left(3);
         QString worker=q.value(fieldWorker).toString();
-        //QString GBName =q.value(fieldGBname).toString();
-        //QString annottable =q.value(fieldAtable).toString();
         int fragmentsize =q.value(fieldFsize).toInt();
         bool pair=(EType.indexOf("pair")!=-1);
 
         QString BASE_DIR="/data/DATA/FASTQ-DATA";
         QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
         sam_data.append(new gen_lines());
-        qDebug()<<path+filename+".bam";
         t_queue.append(new sam_reader_thread(sam_data.last(),path+filename+".bam"));
         t_pool->start(t_queue.last());
 
