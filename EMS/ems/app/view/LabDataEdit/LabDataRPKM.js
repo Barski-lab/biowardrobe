@@ -34,13 +34,13 @@ Ext.define('EMS.view.LabDataEdit.LabDataRPKM', {
                    var me=this;
 
                    me.columns=[
-                               {   header: "RefsecId",  sortable: true, filterable: true,  width: 100,    dataIndex: 'refsec_id', hidden: false },
+                               {   header: "RefseqId",  sortable: true, filterable: true,  width: 100,    dataIndex: 'refseq_id', hidden: false },
                                {   header: "GeneId",    sortable: true, filterable: true, width: 100,    dataIndex: 'gene_id' },
                                {   header: 'chrom',     sortable: true, filterable: true, width: 60,    dataIndex: 'chrom'  },
                                {   header: 'txStart',   sortable: true,  width: 80,    dataIndex: 'txStart', align: 'right' },
                                {   header: 'txEnd',     sortable: true,  width: 85,    dataIndex: 'txEnd', align: 'right'   },
                                {   header: 'strand',    sortable: true, filterable: true, width: 40,    dataIndex: 'strand', align: 'center'  },
-                               {   header: 'TOT_R',      sortable: true, filterable: true, width: 85,    dataIndex: 'TOT_R_0', align: 'right', hidden: true },
+                               {   header: 'TOT_R',     sortable: true, filterable: true, width: 85,    dataIndex: 'TOT_R_0', align: 'right', hidden: true },
                                {   header: 'RPKM',      sortable: true, filterable: true, width: 85,    dataIndex: 'RPKM_0', align: 'right' }
                            ];
 

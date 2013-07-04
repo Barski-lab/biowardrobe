@@ -31,7 +31,7 @@ if($tablename=='' || $spikeins_id==0)
     $res->print_error("Error occured");
 
 if (!($stmt = $con->prepare("SELECT e1.id,e1.spikeins_id,e1.name,e1.concentration,e2.TOT_R_0,e2.RPKM_0
- FROM `$db_name_ems`.`spikeinslist` e1,`$db_name_experiments`.`$tablename` e2 where e1.name=e2.refsec_id and e2.chrom='control' and e1.spikeins_id=$spikeins_id"))) {
+ FROM `$db_name_ems`.`spikeinslist` e1,`$db_name_experiments`.`$tablename` e2 where e1.name=e2.refseq_id and e2.chrom='control' and e1.spikeins_id=$spikeins_id"))) {
     $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
 }
 if (!$stmt->execute()) {

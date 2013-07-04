@@ -31,8 +31,8 @@ typedef quint64 t_genome_coordinates;
 typedef unsigned int t_reads_count;
 
 typedef QSharedPointer<Isoform> IsoformPtr;
-typedef QVector< IsoformPtr > refsec;
-typedef QMap<QString, refsec> IsoformsOnChromosome;
+typedef QVector< IsoformPtr > refseq;
+typedef QMap<QString, refseq> IsoformsOnChromosome;
 //typedef bicl::interval_map<t_genome_coordinates,t_reads_count> chrom_coverage;
 
 typedef bicl::interval_map<t_genome_coordinates,QList< IsoformPtr > > chrom_coverage;

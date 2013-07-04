@@ -24,7 +24,7 @@ Ext.define( 'EMS.model.RPKM', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'refsec_id', type: 'string' },
+                   { name: 'refseq_id', type: 'string' },
                    { name: 'gene_id', type: 'string' },
                    { name: 'chrom', type: 'string' },
                    { name: 'txStart', type: 'int' },

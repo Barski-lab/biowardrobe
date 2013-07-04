@@ -135,9 +135,9 @@ set foreign_key_checks = 1 ;
 ALTER TABLE `ems`.`genome` ADD COLUMN `db` VARCHAR(100) NULL  AFTER `genome` , ADD COLUMN `findex` VARCHAR(200) NULL  AFTER `db` ;
 ALTER TABLE `ems`.`genome` ADD COLUMN `annotation` VARCHAR(200) NULL  AFTER `findex` ;
 
-update `ems`.`genome` set `db`='hg19',`findex`='hg19',`annotation`='hg19_refsec_genes' where id=1;
-update `ems`.`genome` set `db`='hg19',`findex`='hg19c',`annotation`='hg19_refsec_genes_control' where id=2;
-update `ems`.`genome` set `db`='mm9',`findex`='mm9',`annotation`='mm9_refsec_genes_2012' where id=3;
+update `ems`.`genome` set `db`='hg19',`findex`='hg19',`annotation`='hg19_refseq_genes' where id=1;
+update `ems`.`genome` set `db`='hg19',`findex`='hg19c',`annotation`='hg19_refseq_genes_control' where id=2;
+update `ems`.`genome` set `db`='mm9',`findex`='mm9',`annotation`='mm9_refseq_genes_2012' where id=3;
 
 #Patch two
 #

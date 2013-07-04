@@ -31,7 +31,7 @@ for(i in 1:expNum) {
     tblName<-paste(mainQuery[i,1],tblEnd,sep="")
 
     if( i==1 ) {
-        fullData<-dbGetQuery(con,paste("SELECT refsec_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd,strand"))
+        fullData<-dbGetQuery(con,paste("SELECT refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd,strand"))
     }
     if(i>1) {
         fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0,RPKM_0 from ",tblName,"order by chrom,txStart,txEnd,strand")))
@@ -40,7 +40,7 @@ for(i in 1:expNum) {
     names<-append(names,c(mainQuery$name[i],paste("RPKM",mainQuery$name[i])))
 }
 
-colnames(fullData)<-c("refsec_id","gene_id","chrom","txStart","txEnd","strand",names)
+colnames(fullData)<-c("refseq_id","gene_id","chrom","txStart","txEnd","strand",names)
 
 E1<-sum(groups==1)
 E2<-sum(groups==2)
