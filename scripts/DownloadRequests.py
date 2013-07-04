@@ -200,16 +200,16 @@ conn.commit()
 
 while True:
     row=[]
-    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e,w.email,w.notify from labdata a, worker w,experimenttype e "
+    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e,w.email,w.notify,a.url from labdata a, worker w,experimenttype e "
 	" where a.worker_id =w.id and e.id=experimenttype_id "
-	" and dnalogin is not null and dnalogin <> '' "
-	" and dnapass is not null and dnapass <> '' and a.libcode <> '' and libstatus in (0) limit 1")
+	" and (( dnalogin is not null and dnalogin <> '' and dnapass is not null and dnapass <> '' and a.libcode <> '') or (url is not null and url <> '' )) and libstatus in (0) limit 1")
     row = cursor.fetchone()
 
     if not row:
 	break
     
     notify=(int(row[7])==1)
+    url=row[8]
     email=row[6]
     
     PAIR=('pair' in row[5])
@@ -226,7 +226,14 @@ while True:
     except:
 	pass
     #print row[0]
-    a=get_file(row[0],row[1],row[2],basedir,PAIR)
+    a=list()
+    if row[2] != "":
+	a=get_file(row[0],row[1],row[2],basedir,PAIR)
+    else:
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("URL downloading in proccess",row[4]))
+	conn.commit()
+	continue
+		
     if 'Error' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
@@ -234,7 +241,6 @@ while True:
 	    cursor.execute("update worker set dnapass='' where worker like %s",(row[3]))
 	    conn.commit()
 	continue
-
     if 'Warning' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()

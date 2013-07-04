@@ -60,15 +60,58 @@ try:
 except e:
     error_msg('Cant open file '+str(e))
 
-FP_N.readline()
+POSS=FP_N.readline()
 
-CA=FP_N.readline().split()
-CC=FP_N.readline().split()
-CT=FP_N.readline().split()
-CG=FP_N.readline().split()
-CN=FP_N.readline().split()
+CAS=FP_N.readline()
+CCS=FP_N.readline()
+CTS=FP_N.readline()
+CGS=FP_N.readline()
+CNS=FP_N.readline()
 FP_N.close()
 
+CA=list()
+CC=list()
+CT=list()
+CG=list()
+CN=list()
+
+POS=POSS.split()
+idxo=0
+idx=0
+
+for i in range(0,len(POS)):
+    idx=POSS.find(POS[i])
+    idxe=idx+len(POS[i])
+    if i==0:
+	idxo=idxe
+	continue
+    
+    if(CAS[idxo:idxe].strip()==''):
+	CA.append(0)
+    else:
+	CA.append(int(CAS[idxo:idxe]))
+
+    if(CCS[idxo:idxe].strip()==''):
+	CC.append(0)
+    else:
+	CC.append(int(CCS[idxo:idxe]))
+    
+    if(CTS[idxo:idxe].strip()==''):
+	CT.append(0)
+    else:
+	CT.append(int(CTS[idxo:idxe]))
+    
+    if(CGS[idxo:idxe].strip()==''):
+	CG.append(0)
+    else:
+	CG.append(int(CGS[idxo:idxe]))
+    
+    if(CNS[idxo:idxe].strip()==''):
+	CN.append(0)
+    else:
+	CN.append(int(CNS[idxo:idxe]))
+    idxo=idxe
+    
 comma=""
 
 

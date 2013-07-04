@@ -140,11 +140,6 @@ def get_stat(infile):
 	error[1]='Cant read stat file'
 	return error
 
-
-    #if [ $? -eq 0 ]; then
-    #LC=`wc -l ${NA}|awk '{print $1/4}'`
-    #grep 'Aligned:' ${NA}.log |awk -v tot=${LC} -F'Aligned: ' '{printf("Total: %d\nAligned: %d\nPercent: %f\n",tot,$2,$2*100/tot);}' >${NA}.stat
-
 ######################################################
 try:
     conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
@@ -152,7 +147,7 @@ try:
     cursor = conn.cursor ()
 except Exception, e: 
     Error_str=str(e)
-    error_msg("Error database connection"+Error_str)
+    d.error_msg("Error database connection"+Error_str)
 
 
 cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'RNA%')")

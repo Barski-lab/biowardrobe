@@ -96,7 +96,7 @@ try:
     cursor = conn.cursor ()
 except Exception, e: 
     Error_str=str(e)
-    error_msg("Error database connection"+Error_str)
+    d.error_msg("Error database connection"+Error_str)
 
 
 cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'DNA%')")
