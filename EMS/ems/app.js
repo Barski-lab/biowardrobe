@@ -80,6 +80,16 @@ var Timer = (function(){
     };
 })();
 
+Ext.define('EMSLocalStorage',{
+               extend: 'Ext.data.Model',
+               fields: [
+                   {name: 'id',      type: 'int'},
+                   {name: 'data',    type: 'string'}],
+               proxy: {
+                   type: 'localstorage',
+                   id  : 'EMS-Local-Storage'
+               }
+           });
 
 
 Ext.application({

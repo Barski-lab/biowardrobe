@@ -115,7 +115,7 @@ Ext.define('EMS.controller.EMSMenu', {
                        me.createWindow(menuitem.action,'EMS.view.Project.ProjectList',{});
                    }
                    if(menuitem.action === "Help"){
-                       //me.createWindow(menuitem.action,'EMS.view.Project.ATPFilter',{});
+                      // me.createWindow(menuitem.action,'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
                    }
                    /*
                      Create window for genome browser

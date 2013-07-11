@@ -382,6 +382,12 @@
     height: 16px;
 }
 
+.add {
+    background-image: url( images/add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .garbage {
     background-image: url( images/garbage.png ) !important;
     width: 16px;

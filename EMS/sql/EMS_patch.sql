@@ -146,4 +146,31 @@ create table if not exists `condition` (
     REFERENCES analysis(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+drop table if exists `filter`;
+drop table if exists `fhead`;
+
+create table if not exists `fhead` (
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+        index using btree(id),
+    `name` varchar(50),
+    ahead_id INTEGER NOT NULL,
+    index(ahead_id), FOREIGN KEY (ahead_id)
+    REFERENCES ahead(id),
+    analysis_id INTEGER NULL,
+    index(analysis_id), FOREIGN KEY (analysis_id)
+    REFERENCES analysis(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+create table if not exists `filter` (
+    operand int(5),
+        tbl	varchar(64),
+    field int(5),
+    filter int(5),
+    value varchar(100),
+    fhead_id INTEGER NOT NULL,
+    index(fhead_id), FOREIGN KEY (fhead_id)
+    REFERENCES fhead(id) ON DELETE CASCADE ON UPDATE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 set foreign_key_checks = 1 ;

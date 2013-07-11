@@ -300,15 +300,23 @@ Ext.define('EMS.view.Project.ProjectDesign', {
                                                                              me.fireEvent('startAnalysis',arguments);
                                                                              break;
                                                                          case 4:
-                                                                             console.log(record);
+                                                                             //console.log(record);
+                                                                             //'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
                                                                              var arg=arguments;
-                                                                             Ext.create('EMS.view.Project.ATPFilter',{
+                                                                             Ext.create('EMS.view.Project.Filter',{
                                                                                             modal: true,
                                                                                             ahead_id: record.data.item_id,
                                                                                             onSubmit: function() {
                                                                                                 me.fireEvent('startAnalysis',arg);
                                                                                             }
                                                                                         }).show();
+//                                                                             Ext.create('EMS.view.Project.ATPFilter',{
+//                                                                                            modal: true,
+//                                                                                            ahead_id: record.data.item_id,
+//                                                                                            onSubmit: function() {
+//                                                                                                me.fireEvent('startAnalysis',arg);
+//                                                                                            }
+//                                                                                        }).show();
                                                                              break;
                                                                          default:
                                                                              break;

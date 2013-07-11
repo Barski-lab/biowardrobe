@@ -293,4 +293,9 @@ OTHER_FILES += \
     data/ATPFilterSet.php \
     app/view/Project/ATPChart.js \
     app/store/Condition.js \
-    app/model/Condition.js
+    app/model/Condition.js \
+    app/view/Project/Filter.js \
+    images/add.png \
+    data/FilterSet.php \
+    data/FilterSetUp.php \
+    data/FilterSetAdd.php

@@ -45,15 +45,16 @@ var Logger = (function(){
         },
         init: function(logv){
             panel = logv;
-//            panel.update({
-//                             now: new Date(),
-//                             cls: 'blue',
-//                             msg: 'Logging is on'
-//                         });
+            //            panel.update({
+            //                             now: new Date(),
+            //                             cls: 'blue',
+            //                             msg: 'Logging is on'
+            //                         });
             panel.body.scroll('b', 100000, true);
         }
     };
 })();
+
 
 STORE_DEFS = {
     //default parameters for store proxy
@@ -87,12 +88,12 @@ STORE_DEFS = {
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {
-//                            Ext.MessageBox.show({
-//                                                    title: operation.action+' failed',
-//                                                    msg: json.message,
-//                                                    icon: Ext.MessageBox.ERROR,
-//                                                    buttons: Ext.Msg.OK
-//                                                });
+                            //                            Ext.MessageBox.show({
+                            //                                                    title: operation.action+' failed',
+                            //                                                    msg: json.message,
+                            //                                                    icon: Ext.MessageBox.ERROR,
+                            //                                                    buttons: Ext.Msg.OK
+                            //                                                });
                             Logger.log(operation+' failed:',json.message,' error:',json.errors);
                         } else {
                             Ext.MessageBox.show({
@@ -120,7 +121,7 @@ STORE_DEFS = {
             prx.groupParam= undefined;
             prx.pageParam=undefined;
             prx.startParam=undefined;
-//            prx.sortParam=undefined;
+            //            prx.sortParam=undefined;
             prx.limitParam=undefined;
         }
         return prx;
