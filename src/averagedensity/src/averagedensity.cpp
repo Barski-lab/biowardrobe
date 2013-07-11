@@ -334,8 +334,8 @@ QString get_expression(int f){
 }
 QString get_operand(int o){
     if(o==2)
-        return QString("OR");
-    return QString("AND");
+        return QString(" OR ");
+    return QString(" AND ");
 }
 QString get_condition(int id,QString rpkm) {
 
@@ -347,7 +347,7 @@ QString get_condition(int id,QString rpkm) {
         return "";
     }
 
-    QString filter=" 0=0 ";
+    QString filter=" ";
 
     while(q.next()) {
         switch(q.value(2).toInt()) {//field
@@ -616,10 +616,11 @@ void AverageDensity::batchsql() {
         while(qq.next()) {
             QString conditions=get_condition(qq.value(0).toInt(),avd_rpkm);
 
-            QString sql_query=sql_queryp+" and "+conditions+" union "+
-                              sql_querym+" and "+conditions;
+            QString sql_query=sql_queryp+conditions+" union "+
+                              sql_querym+conditions;
             if(!q.exec(sql_query)) {
-                qDebug()<<"Query error annot: "<<q.lastError().text();
+                qDebug()<<"Query error "<<qq.value(1).toString()<<": "<<q.lastError().text();
+                qDebug()<<"SQL "<<sql_query;
                 return;
             }
             //get_condition

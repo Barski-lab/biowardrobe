@@ -50,7 +50,7 @@ Ext.define('EMS.view.Project.Filter', {
                                            });
                    var fieldsdata=[
                                {"id":1, "name":"RPKM"},
-                               {"id":2, "name":"Chrome"}
+                               {"id":2, "name":"Chromosome"}
                            ];
                    if(false) {
                        fieldsdata=fieldsdata.concat([{"id":3, "name":"Log Ratio"},
