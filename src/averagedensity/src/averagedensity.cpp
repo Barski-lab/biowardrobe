@@ -316,16 +316,51 @@ void AverageDensity::start() {
     }
 }
 
-QString get_condition(int filter,float value) {
-    switch (filter) {
+
+QString get_expression(int f){
+    switch (f) {
         case 1:
-        return QString("=%1").arg(value);
+            return QString("=");
         case 2:
-        return QString("<%1").arg(value);
+            return QString("<");
         case 3:
-        return QString(">%1").arg(value);
+            return QString(">");
+        case 4:
+            return QString("<=");
+        case 5:
+            return QString(">=");
     }
-    return "";
+    return QString("<>");
+}
+QString get_operand(int o){
+    if(o==2)
+        return QString("OR");
+    return QString("AND");
+}
+QString get_condition(int id,QString rpkm) {
+
+    QSqlQuery q;
+    q.prepare("select operand,tbl,field,filter,value from `filter` where fhead_id=?;");
+    q.bindValue(0, id);
+    if(!q.exec()) {
+        qDebug()<<"Query error info: "<<q.lastError().text();
+        return "";
+    }
+
+    QString filter=" 0=0 ";
+
+    while(q.next()) {
+        switch(q.value(2).toInt()) {//field
+            case 1: //RPKM
+                filter+=" "+get_operand(q.value(0).toInt())+" "+rpkm+get_expression(q.value(3).toInt())+q.value(4).toString()+" ";
+            break;
+            case 2: //Chrom
+                //TODO: potential SQL injection
+                filter+=" "+get_operand(q.value(0).toInt())+" a0.chrom like '"+q.value(4).toString()+"' ";
+            break;
+        }
+    }
+    return filter;
 }
 
 
@@ -567,9 +602,11 @@ void AverageDensity::batchsql() {
         }
 
         QList<QList<double> > storages;
-
+        /*
+ *  FILTERS
+ */
         QSqlQuery qq;
-        qq.prepare("select name,field,filter,value from `condition` where ahead_id=? and analysis_id is NULL;");
+        qq.prepare("select id,name from `fhead` where ahead_id=? and analysis_id is NULL order by name;");
         qq.bindValue(0, avd_aid);
         if(!qq.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
@@ -577,8 +614,10 @@ void AverageDensity::batchsql() {
         }
         int nplot=0;
         while(qq.next()) {
-            QString sql_query=sql_queryp+" and "+avd_rpkm+get_condition(qq.value(2).toInt(),qq.value(3).toFloat())+" union "+
-                              sql_querym+" and "+avd_rpkm+get_condition(qq.value(2).toInt(),qq.value(3).toFloat());
+            QString conditions=get_condition(qq.value(0).toInt(),avd_rpkm);
+
+            QString sql_query=sql_queryp+" and "+conditions+" union "+
+                              sql_querym+" and "+conditions;
             if(!q.exec(sql_query)) {
                 qDebug()<<"Query error annot: "<<q.lastError().text();
                 return;

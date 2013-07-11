@@ -83,7 +83,11 @@ function execSQL($mysqli,$sql, $params, $close,$round=3){
             }
             $results[] = $x;
         }
-        $result = $results;
+        if(isset($results)) {
+            $result = $results;
+        } else {
+            $result=array();
+        }
     }
 
     $stmt->close();

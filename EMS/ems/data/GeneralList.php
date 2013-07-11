@@ -10,7 +10,7 @@ else
     $res->print_error('Not enough required parameters. t');
 
 $AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
-$SpecialTable=array("labdata","grp_local","project","condition");
+$SpecialTable=array("labdata","grp_local","project","fhead");
 
 if(!in_array($tablename,$AllowedTable)) {
     if(!in_array($tablename,$SpecialTable)) {
@@ -44,7 +44,7 @@ if(!in_array($tablename,$AllowedTable)) {
             $con=def_connect();
             $con->select_db($db_name_ems);
             break;
-        case "condition":
+        case "fhead":
             if(isset($_REQUEST['ahead_id']))
                 $ahead_id = intVal($_REQUEST['ahead_id']);
             else
@@ -52,6 +52,7 @@ if(!in_array($tablename,$AllowedTable)) {
             $cond=" and ahead_id=$ahead_id and analysis_id is NULL ";
             $con=def_connect();
             $con->select_db($db_name_ems);
+            $order=" order by name ";
             break;
         case "grp_local":
             if(isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {

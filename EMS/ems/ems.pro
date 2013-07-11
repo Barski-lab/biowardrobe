@@ -297,5 +297,4 @@ OTHER_FILES += \
     app/view/Project/Filter.js \
     images/add.png \
     data/FilterSet.php \
-    data/FilterSetUp.php \
     data/FilterSetAdd.php

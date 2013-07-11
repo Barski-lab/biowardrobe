@@ -294,6 +294,7 @@ Ext.define('EMS.controller.Project', {
                                              for(var c=0; c<storc.getTotalCount();c++) {
                                                  title.push(storc.getAt(c).raw['name']);
                                              }
+                                             console.log(storc);
                                              console.log(title);
                                              var cols=0;
                                              var prop=[];

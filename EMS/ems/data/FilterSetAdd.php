@@ -5,16 +5,12 @@
    require_once('def_vars.php');
    require_once('database_connection.php');
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 try {
     $data = json_decode(file_get_contents('php://input'));
 }  catch(Exception $e) {
     $res->print_error("Cant read input".$e);
 }
-
-//logmsg(print_r($data,true));
-logmsg(print_r($data->ahead_id,true));
-
 
 $count=0;
 
@@ -67,9 +63,6 @@ $namelistq=rtrim($namelistq, ",");
 $namelist[0]=$namelist[0]."i";
 array_push($namelist,$data->ahead_id);
 $r=execSQL($con,"delete from `fhead` where name not in(".$namelistq.") and ahead_id=? and analysis_id is NULL;",$namelist,true);
-
-logmsg(print_r($r,true));
-logmsg(print_r($namelist,true));
 
 if(!$con->commit()) {
     $res->print_error("Cant commit");

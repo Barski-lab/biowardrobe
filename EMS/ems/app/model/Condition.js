@@ -24,9 +24,7 @@ Ext.define( 'EMS.model.Condition', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'name', type: 'string' },
-                   { name: 'field', type: 'int' },
-                   { name: 'filter', type: 'int' },
-                   { name: 'value', type: 'float' }
+                   { name: 'id', type: 'int' },
+                   { name: 'name', type: 'string' }
                ]
            });
