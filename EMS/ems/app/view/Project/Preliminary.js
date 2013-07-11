@@ -107,7 +107,7 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                          }
                                                      } , {
                                                          xtype: 'button',
-                                                         margin: '22 5 0 5',
+                                                         margin: '18 5 0 5',
                                                          width: 90,
                                                          text: 'add',
                                                          id: 'preliminary-group-add',
@@ -279,8 +279,8 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                  padding: 0,
                                                  margin: '0 0 5 0',
                                                  layout: {
-                                                     type: 'hbox',
-                                                     align: 'stretch'
+                                                     type: 'hbox'
+                                                     //align: 'stretch'
                                                  },
                                                  items: [{
                                                          xtype: 'combobox',

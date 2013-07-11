@@ -42,11 +42,11 @@ foreach( $data->filters as $k1 => $val ) {
     $id=execSQL($con,"select id from `fhead` where `name` like ? and ahead_id=? and analysis_id is NULL;",
         array("si",$val->name,$data->ahead_id),false);
 
-    if(count($id)>1) {
+    if($id!=0 && count($id)>1) {
         execSQL($con,"delete from `fhead` where `name` like ? and ahead_id=? and analysis_id is NULL;",
         array("si",$val->name,$data->ahead_id),true);
     }
-    if(count($id)==0) {
+    if($id==0 || count($id)==0) {
        execSQL($con,"insert into `fhead` (`name`,ahead_id) values(?,?);",
             array("si",$val->name,$data->ahead_id),true);
        $id=execSQL($con,"select LAST_INSERT_ID() as id;",array(),false);
