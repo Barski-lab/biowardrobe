@@ -587,6 +587,8 @@ void AverageDensity::batchsql() {
         }
         if(tab_nums>1) {
             avd_rpkm+=QString(")/%1").arg(tab_nums);
+        } else {
+            avd_rpkm+=")";
         }
 
         QString avd_window_str=QString("%1").arg(avd_window);
