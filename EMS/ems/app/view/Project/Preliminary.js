@@ -220,8 +220,8 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                      }
                                                                      if(cont) continue;
 
-                                                                     console.log("rt=",rtype);
-                                                                     console.log("ext=",Ext.getCmp('preliminary-type-changed').getValue());
+                                                                     //console.log("rt=",rtype);
+                                                                     //console.log("ext=",Ext.getCmp('preliminary-type-changed').getValue());
 
                                                                      if(typeof rtype !== 'undefined' && rtype!==Ext.getCmp('preliminary-type-changed').getValue()) {
 
@@ -235,10 +235,10 @@ Ext.define('EMS.view.Project.Preliminary', {
                                                                          return false;
                                                                      }
                                                                      if(typeof rtype === 'undefined') {
-                                                                         console.log("Ext before",Ext.getCmp('preliminary-type-changed').getValue());
+                                                                         //console.log("Ext before",Ext.getCmp('preliminary-type-changed').getValue());
                                                                          overModel.data.rtype_id=Ext.getCmp('preliminary-type-changed').getValue();
-                                                                         console.log("Ext after",Ext.getCmp('preliminary-type-changed').getValue());
-                                                                         console.log("Model after",overModel.data.rtype_id);
+                                                                         //console.log("Ext after",Ext.getCmp('preliminary-type-changed').getValue());
+                                                                         //console.log("Model after",overModel.data.rtype_id);
                                                                      }
 
                                                                      data.records[i].set('leaf', true);

@@ -187,11 +187,11 @@ Ext.define('EMS.view.Project.Filter', {
                                             success: function(response) {
                                                 var data=Ext.decode(response.responseText);
                                                 if(data.success) {
-                                                    console.log('succ');
+                                                    //console.log('succ');
                                                     me.setFormJson(data.data);
                                                     me.localSaveData(1,Ext.encode(data.data));
                                                 } else {
-                                                    console.log('fail');
+                                                    //console.log('fail');
                                                     me.localLoadData(1,{
                                                                          callback: function(records, operation, success) {
                                                                              if(success) {

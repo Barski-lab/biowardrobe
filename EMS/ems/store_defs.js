@@ -94,7 +94,8 @@ STORE_DEFS = {
                             //                                                    icon: Ext.MessageBox.ERROR,
                             //                                                    buttons: Ext.Msg.OK
                             //                                                });
-                            Logger.log(operation+' failed:',json.message,' error:',json.errors);
+                            Logger.log(operation+' failed:'+json.message+' error:'+json.errors);
+                            console.log(operation+' failed:',json.message,' error:',json.errors);
                         } else {
                             Ext.MessageBox.show({
                                                     title: operation.action+' failed',

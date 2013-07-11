@@ -63,7 +63,7 @@ if(gettype($data)=="array") {
     $val=$data;
     if(intVal($val->id) == intVal($val->item_id)) {
         if(check_data($val)==0)
-        insert_data($val);
+            insert_data($val);
     } else {
         execSQL($con,
                 "update result set name=?,description=? where id=?",

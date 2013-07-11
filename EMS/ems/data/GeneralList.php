@@ -19,11 +19,14 @@ if(!in_array($tablename,$AllowedTable)) {
         switch($tablename) {
         case "project":
         case "labdata":
-            if(isset($_REQUEST['workerid']))
+            if(isset($_REQUEST['workerid'])) {
                 $workerid = intVal($_REQUEST['workerid']);
+                if($workerid==0 && !check_rights())
+                    $res->print_error('Not enough required parameters. w');
+            }
             else
                 if(!check_rights())
-                $res->print_error('Not enough required parameters. w');
+                    $res->print_error('Not enough required parameters. w');
             if(isset($_REQUEST['typeid'])) {
                 $typeid = intVal($_REQUEST['typeid']);
                 $cond="";
@@ -38,7 +41,7 @@ if(!in_array($tablename,$AllowedTable)) {
                     $res->print_error('Not yet supported.');
                 }
             }
-            if($workerid != 0) {
+            if(isset($workerid) && $workerid != 0) {
                     $where=$where." and worker_id=$workerid ";
             }
             $con=def_connect();

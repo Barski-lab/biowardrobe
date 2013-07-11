@@ -23,7 +23,7 @@
         Loading...
     </div></div>
 
-   <script type="text/javascript" src="ext/ext-all-debug.js"></script>
+   <script type="text/javascript" src="ext/ext-all-dev.js"></script>
     <script type="text/javascript">
      var USER_NAME="<?php echo $_SESSION["fullname"] ?>";
      var USER_ID=parseInt("<?php echo $_SESSION["user_id"] ?>");

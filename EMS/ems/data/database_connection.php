@@ -86,7 +86,7 @@ function execSQL($mysqli,$sql, $params, $close,$round=3){
         if(isset($results)) {
             $result = $results;
         } else {
-            $result=array();
+            $result=0;
         }
     }
 
