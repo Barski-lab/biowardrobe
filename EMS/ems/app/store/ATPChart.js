@@ -31,11 +31,6 @@ Ext.define( 'EMS.store.ATPChart', {
                singleton: true,
                remoteSort: true,
                remoteFilter: true,
-//               sorters: [{
-//                       property: 'X',
-//                       direction: 'ASC'
-//                   }],
-//               pageSize: 200,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();

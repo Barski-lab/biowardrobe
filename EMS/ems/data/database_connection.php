@@ -57,14 +57,11 @@ function execSQL($mysqli,$sql, $params, $close,$round=3){
             $parameters[] = &$row[$field->name];
             $types[$field->name] = $field->type;
         }
-        logmsg(__FILE__);
 
         call_user_func_array(array($stmt, 'bind_result'), refValues($parameters));
         while ( $stmt->fetch() ) {
             $x = array();
-            logmsg(print_r($row,true));
             foreach( $row as $key => $val ) {
-                //if($val == null ) continue;
                 switch($types[$key]) {
                     case 4:
                     case 5:
@@ -73,6 +70,12 @@ function execSQL($mysqli,$sql, $params, $close,$round=3){
                         } else {
                             $x[$key] = $val;
                         }
+                    break;
+                    case 252:
+                    case 253:
+                    case 254:
+                        if($val == null ) continue;
+                        $x[$key] = $val;
                     break;
                     case 10:
                         $date = DateTime::createFromFormat('Y-m-d', $val);

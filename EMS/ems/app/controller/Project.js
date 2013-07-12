@@ -308,10 +308,6 @@ Ext.define('EMS.controller.Project', {
                                                      if(records[i].data[prop[j]]>max)
                                                          max=records[i].data[prop[j]];
                                              }
-                                             console.log(storc);
-                                             console.log(title);
-                                             console.log(cols);
-                                             console.log(prop);
 
                                              var prc=Math.abs(parseInt(max.toString().split('e')[1]))+2;
                                              var ATPChart = Ext.create("EMS.view.Project.ATPChart",{LEN: len, MAX: max, PRC: prc, BNAME: title, COLS:cols, COLSN:prop});
