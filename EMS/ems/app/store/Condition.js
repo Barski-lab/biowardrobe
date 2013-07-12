@@ -29,8 +29,12 @@ Ext.define( 'EMS.store.Condition', {
                storeId: 'Condition',
                autoLoad: false,
                singleton: true,
-               remoteSort: false,
+               remoteSort: true,
                remoteFilter: false,
+               sorters: [{
+                       property: 'name',
+                       direction: 'ASC'
+                   }],
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();

@@ -57,12 +57,14 @@ function execSQL($mysqli,$sql, $params, $close,$round=3){
             $parameters[] = &$row[$field->name];
             $types[$field->name] = $field->type;
         }
+        logmsg(__FILE__);
 
         call_user_func_array(array($stmt, 'bind_result'), refValues($parameters));
         while ( $stmt->fetch() ) {
             $x = array();
+            logmsg(print_r($row,true));
             foreach( $row as $key => $val ) {
-                if($val == null ) continue;
+                //if($val == null ) continue;
                 switch($types[$key]) {
                     case 4:
                     case 5:

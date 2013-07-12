@@ -116,7 +116,6 @@ Ext.define('EMS.view.Project.Filter', {
                                  border: false,
                                  frame: false,
                                  plain: true,
-                                 //url: 'data/FilterSet.php',
                                  autoScroll: true,
                                  fieldDefaults: {
                                      labelWidth: 120,
@@ -262,7 +261,7 @@ Ext.define('EMS.view.Project.Filter', {
                                               filterc: me.filterc,
                                               flex: 2,
                                               id: 'filter_fieldset_'+me.filterc,
-                                              layout: { type: 'vbox' },
+                                              layout: { type: 'fit' },
                                               items: [{
                                                       xtype: 'hidden',
                                                       name: 'filtername_'+me.filterc,
@@ -288,9 +287,12 @@ Ext.define('EMS.view.Project.Filter', {
                        id: 'filter_container_'+filterc+'_'+subfilter,
                        subfilter: subfilter,
                        defaults: { labelWidth: 120, labelAlign: 'top' },
-                       flex:1,
+                       //flex:1,
                        padding: '5',
-                       layout: 'hbox',
+                       layout: {
+                           type: 'hbox',
+                           align: 'stretch'
+                       },
                        items: [{
                                xtype: 'combobox',
                                name : filterc+'_'+subfilter+'_operand',
@@ -351,8 +353,9 @@ Ext.define('EMS.view.Project.Filter', {
                            } , {
                                xtype: 'textfield',
                                name: filterc+'_'+subfilter+'_t_value',
-                               flex: 3,
+                               flex: 2,
                                margins: '0 5 0 6',
+                               width: 70,
                                hidden: true,
                                value: me.checkVal(params,'value',''),
                                allowBlank: false,
@@ -360,8 +363,9 @@ Ext.define('EMS.view.Project.Filter', {
                            } , {
                                xtype: 'numberfield',
                                name: filterc+'_'+subfilter+'_n_value',
-                               flex: 3,
+                               flex: 2,
                                margins: '0 5 0 6',
+                               width: 70,
                                value: me.checkVal(params,'value',0.0),
                                step: 0.1,
                                allowBlank: false

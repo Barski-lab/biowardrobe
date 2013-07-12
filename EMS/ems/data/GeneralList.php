@@ -55,7 +55,14 @@ if(!in_array($tablename,$AllowedTable)) {
             $cond=" and ahead_id=$ahead_id and analysis_id is NULL ";
             $con=def_connect();
             $con->select_db($db_name_ems);
-            $order=" order by name ";
+            //$order=" order by name ";
+
+            if($cond != "") {
+                $where=$where.$cond;
+            } else {
+                $res->print_error('Not yet supported.');
+            }
+
             break;
         case "grp_local":
             if(isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
@@ -95,7 +102,6 @@ if(! ($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where")) ) {
 $row=$totalquery->fetch_row();
 $total=$row[0];
 $totalquery->close();
-
 $query_array=execSQL($con,"SELECT * FROM `$tablename` $where $order $limit",array(),false);
 $con->close();
 

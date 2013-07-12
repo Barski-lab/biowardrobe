@@ -283,7 +283,7 @@ Ext.define('EMS.controller.Project', {
                        break;
                    case 4:
                        var storc=this.getConditionStore();
-                       storc.getProxy().setExtraParam('ahead_id',record.data['id']);
+                       storc.getProxy().setExtraParam('ahead_id',record.data['ahead_id']);
                        storc.load();
                        var stor=this.getATPChartStore();
                        stor.getProxy().setExtraParam('tablename',record.data['tableName']);
@@ -294,8 +294,6 @@ Ext.define('EMS.controller.Project', {
                                              for(var c=0; c<storc.getTotalCount();c++) {
                                                  title.push(storc.getAt(c).raw['name']);
                                              }
-                                             //console.log(storc);
-                                             //console.log(title);
                                              var cols=0;
                                              var prop=[];
                                              for(p in records[0].data) {
@@ -310,6 +308,11 @@ Ext.define('EMS.controller.Project', {
                                                      if(records[i].data[prop[j]]>max)
                                                          max=records[i].data[prop[j]];
                                              }
+                                             console.log(storc);
+                                             console.log(title);
+                                             console.log(cols);
+                                             console.log(prop);
+
                                              var prc=Math.abs(parseInt(max.toString().split('e')[1]))+2;
                                              var ATPChart = Ext.create("EMS.view.Project.ATPChart",{LEN: len, MAX: max, PRC: prc, BNAME: title, COLS:cols, COLSN:prop});
                                              ATPChart.show();
