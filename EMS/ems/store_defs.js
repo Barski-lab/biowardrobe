@@ -102,7 +102,7 @@ STORE_DEFS = {
                                                     msg: operation.getError(),
                                                     icon: Ext.MessageBox.ERROR,
                                                     buttons: Ext.Msg.OK
-                                                });
+                                                 });
                         }
                     }
                     catch(Error)

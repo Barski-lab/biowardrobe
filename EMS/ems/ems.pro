@@ -123,7 +123,6 @@ OTHER_FILES += \
     app/view/user/Edit.js \
     app/view/WorkersEdit.js \
     app/view/EMSMenu.js \
-    ux/IFrame.js \
     app/view/Antibodies/List.js \
     app/controller/AntibodiesEdit.js \
     app/view/Antibodies/Antibodies.js \

@@ -370,7 +370,7 @@ void AverageDensity::batchsql() {
     int avd_window=gArgs().getArgs("avd_window").toInt();
     QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-    if(avd_table_name.isEmpty()) {
+    if(avd_table_name.isEmpty() && avd_aid>0) {
         qDebug()<<"Error: Set --sql_table!";
         return;
     }

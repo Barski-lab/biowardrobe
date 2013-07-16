@@ -21,8 +21,6 @@ if(!in_array($tablename,$AllowedTable)) {
         case "labdata":
             if(isset($_REQUEST['workerid'])) {
                 $workerid = intVal($_REQUEST['workerid']);
-                if($workerid==0 && !check_rights())
-                    $res->print_error('Not enough required parameters. w');
             }
             else
                 if(!check_rights())
