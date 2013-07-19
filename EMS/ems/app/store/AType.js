@@ -29,13 +29,17 @@ Ext.define( 'EMS.store.AType', {
                storeId: 'AType',
                autoLoad: false,
                singleton: true,
-               remoteSort: false,
+               remoteSort: true,
                remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
                        Timer.set();
                    }
                },
+               sorters: [{
+                       property: 'sort',
+                       direction: 'ASC'
+                   }],
                proxy: STORE_DEFS.proxy('atype',true)
            });
 

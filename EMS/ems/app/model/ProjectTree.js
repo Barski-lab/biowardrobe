@@ -19,16 +19,24 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-
-Ext.define( 'EMS.model.AType', {
+Ext.define( 'EMS.model.ProjectTree', {
                extend: 'Ext.data.Model',
-
                fields: [
-                   { name: 'id', type: 'int' },
-                   { name: 'name', type: 'string' },
+                   { name: 'id', type: 'int'},
+                   { name: 'leaf',     type: 'bool'},
+                   { name: 'worker_id', type: 'int'},
+                   { name: 'type', type: 'int' },
+                   { name: 'text', type: 'string' },
                    { name: 'description', type: 'string' },
-                   { name: 'imgsrc', type: 'string' },
-                   { name: 'sort', type: 'int' },
-                   { name: 'implemented', type: 'int' }
-               ]
+                   { name: 'article', type: 'string' },
+                   { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'}
+               ],
+               proxy: Ext.apply(STORE_DEFS.proxy('project',true), {
+                                    api: {
+                                        read : 'data/ProjectTree.php',
+//                                        update: 'data/ResultTreeUp.php',
+//                                        create: 'data/ResultTreeAdd.php',
+//                                        destroy: 'data/ResultTreeDel.php'
+                                    }
+                                })
            });

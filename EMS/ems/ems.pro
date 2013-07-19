@@ -296,4 +296,10 @@ OTHER_FILES += \
     app/view/Project/Filter.js \
     images/add.png \
     data/FilterSet.php \
-    data/FilterSetAdd.php
+    data/FilterSetAdd.php \
+    app/view/Project2/ProjectDesigner.js \
+    app/controller/Project2.js \
+    app/store/ProjectTree.js \
+    app/model/ProjectTree.js \
+    data/ProjectTree.php \
+    app/view/Project2/GenesLists.js

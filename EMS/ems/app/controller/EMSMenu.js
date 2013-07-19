@@ -114,6 +114,9 @@ Ext.define('EMS.controller.EMSMenu', {
                    if(menuitem.action === "ProjectDesigner"){
                        me.createWindow(menuitem.action,'EMS.view.Project.ProjectList',{});
                    }
+                   if(menuitem.action === "ProjectDesigner2"){
+                       me.createWindow(menuitem.action,'EMS.view.Project2.ProjectDesigner',{});
+                   }
                    if(menuitem.action === "Help"){
                       // me.createWindow(menuitem.action,'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
                    }

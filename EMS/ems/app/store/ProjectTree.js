@@ -19,16 +19,17 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-
-Ext.define( 'EMS.model.AType', {
-               extend: 'Ext.data.Model',
-
-               fields: [
-                   { name: 'id', type: 'int' },
-                   { name: 'name', type: 'string' },
-                   { name: 'description', type: 'string' },
-                   { name: 'imgsrc', type: 'string' },
-                   { name: 'sort', type: 'int' },
-                   { name: 'implemented', type: 'int' }
-               ]
+Ext.define( 'EMS.store.ProjectTree', {
+               extend: 'Ext.data.TreeStore',
+               requires: ['EMS.model.ProjectTree'],
+               storeId: 'ProjectTree',
+               model:  'EMS.model.ProjectTree',
+               autoLoad: false,
+               autoSync: true,
+               singleton: false,
+               listeners: {
+                   load: function(store,records,successful,eOpts) {
+                       Timer.set();
+                   }
+               }
            });

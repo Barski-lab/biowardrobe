@@ -109,6 +109,7 @@ Ext.application({
                         'EMS.controller.SequenceCutter',
                         'EMS.controller.Patients',
                         'EMS.controller.Project',
+                        'EMS.controller.Project2',
                         'EMS.controller.Info'
                     ],
 

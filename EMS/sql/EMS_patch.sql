@@ -173,4 +173,34 @@ create table if not exists `filter` (
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
+ALTER TABLE `ems`.`atype`
+ADD COLUMN `description` VARCHAR(2000) NULL  AFTER `name` ,
+ADD COLUMN `imgsrc` VARCHAR(300) NULL  AFTER `description` ,
+ADD COLUMN `sort` INT(11) NULL  AFTER `imgsrc` ,
+ADD COLUMN `implemented` INT(1) NULL  AFTER `sort` ;
+
+UPDATE `ems`.`atype` SET `implemented`=0;
+UPDATE `ems`.`atype` SET `sort`=999;
+
+insert into ems.atype (name,description,imgsrc,sort,implemented) values
+('Genes Lists','This function allows you to organize and manage genes lists (groupping, filtering) for future analysis.
+All lists can be saved in excel like format. If you dont know where to start, start from here.',
+'/ems/images/notebook3_big.png',1,1);
+
+update ems.atype set description='To produce differentially expressed gene lists use this function. You can use it to compare groups of treated and untreated
+experiments and also when you need differences in series of experiments.',
+imgsrc='/ems/images/index_view_big.png', sort=2,implemented=1 where id=1;
+
+update ems.atype set description='ATP is Average Tag Density Profile plot which shows modification level (enrichment) for particular gene list.
+You can combine all gene list created in "Genes Lists" or "DESeq" analysis and all DNA-Seq experiments in one plot.',
+imgsrc='/ems/images/chart_line_big.png', sort=2,implemented=1 where id=4;
+
+update ems.atype set description='PCA stands for Principle Component Analysis it can help to see similarities between all experimental data.',
+imgsrc='/ems/images/shopping_cart_big.png', sort=5,implemented=1 where id=2;
+
+update ems.atype set description='Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for
+differential expression based on a model using the negative binomial distribution.',
+imgsrc='', sort=999,implemented=0 where id=3;
+
+
 set foreign_key_checks = 1 ;
