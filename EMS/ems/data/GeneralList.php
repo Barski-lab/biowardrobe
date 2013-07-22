@@ -24,7 +24,8 @@ if(!in_array($tablename,$AllowedTable)) {
             }
             else
                 if(!check_rights())
-                    $res->print_error('Not enough required parameters. w');
+                    $workerid=$_SESSION["user_id"];
+                    //$res->print_error('Not enough required parameters. w');
             if(isset($_REQUEST['typeid'])) {
                 $typeid = intVal($_REQUEST['typeid']);
                 $cond="";

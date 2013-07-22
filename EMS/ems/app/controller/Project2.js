@@ -22,9 +22,9 @@
 
 Ext.define('EMS.controller.Project2', {
                extend: 'Ext.app.Controller',
-               models: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
-               stores: ['LabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
-               views:  ['Project2.ProjectDesigner','charts.ATP'],
+               models: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
+               stores: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
+               views:  ['Project2.ProjectDesigner','Project2.GenesLists','charts.ATP'],
 
                init: function() {
                    var me=this;
@@ -32,20 +32,32 @@ Ext.define('EMS.controller.Project2', {
                    me.control({
                                   'ProjectDesigner': {
                                       render: me.onProjectDesignerWindowRendered,
-                                      startAnalysis: me.startAnalysis
+                                      startAnalysis: me.startAnalysis,
+                                  },
+                                  '#Project2GenesLists': {
+                                      Back: me.onBack
                                   },
                                   '#project2-project-list': {
                                       select: me.onProjectSelect
+                                  },
+                                  '#project-worker-changed': {
+                                      select: me.onComboboxWorkerSelect
                                   }
                               });
                },//init
                onProjectDesignerWindowRendered: function(view) {
                },
-
+               /*************************************************************
+                *************************************************************/
+               onBack: function() {
+                   var mainPanel=Ext.getCmp('ProjectDesigner');
+                   mainPanel.restoreCenter();
+               },
                /*************************************************************
                 *************************************************************/
                onProjectSelect: function(selModel,record) {
                    var me=this;
+                   var mainPanel=Ext.getCmp('ProjectDesigner');
 
                    if (record.get('type')===1) {//project
 
@@ -54,6 +66,7 @@ Ext.define('EMS.controller.Project2', {
                        detailEl = bd.createChild();
 
                        var worker=this.getWorkerStore().findRecord('id',record.get('worker_id'),0,false,false,true).data.fullname;
+                       mainPanel.restoreCenter();
                        if(!me.atype) {
                            me.atype=me.getATypeStore();
                            me.atype.load({
@@ -93,6 +106,8 @@ Ext.define('EMS.controller.Project2', {
                /*************************************************************
                 *************************************************************/
                startAnalysis: function(data) {
+                   var me=this;
+                   var mainPanel=Ext.getCmp('ProjectDesigner');
                    switch(data.atypeid) {
                    case 1://DEseq
                        break;
@@ -105,9 +120,29 @@ Ext.define('EMS.controller.Project2', {
                    case 5://MANorm
                        break;
                    case 6://GeneList
-                       console.log('genelist');
+                       var labStore=me.getProjectLabDataStore();
+                       labStore.getProxy().setExtraParam('isrna',1);
+                       labStore.load();
+                       var gl=Ext.create('EMS.view.Project2.GenesLists',{labDataStore: labStore});
+                       mainPanel.replaceCenter(gl);
                        break;
                    }
                    //console.log('click',data.projectid,data.atypeid);
-               }
+               },
+
+               //               syncCombosAndGrid:function() {
+               //                   this.getRTypeStore().load();
+               //                   this.getLabDataStore().loadData([],false);
+               //                   if(Ext.getCmp('preliminary-type-changed').getValue()===0 || Ext.getCmp('preliminary-type-changed').getValue() === null) return;
+               //                   this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('preliminary-worker-changed').getValue());
+               //                   this.getLabDataStore().getProxy().setExtraParam('typeid',Ext.getCmp('preliminary-type-changed').getValue());
+               //                   this.getLabDataStore().sort('id', 'ASC');
+
+               //                   Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
+               //               },
+               onComboboxWorkerSelect: function(combo, records, options) {
+                   this.getProjectLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('project-worker-changed').getValue());
+                   Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
+               },
+
            });

@@ -302,4 +302,7 @@ OTHER_FILES += \
     app/store/ProjectTree.js \
     app/model/ProjectTree.js \
     data/ProjectTree.php \
-    app/view/Project2/GenesLists.js
+    app/view/Project2/GenesLists.js \
+    app/model/ProjectLabData.js \
+    app/store/ProjectLabData.js \
+    data/ProjectLabData.php

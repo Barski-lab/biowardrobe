@@ -38,6 +38,11 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                curColumn: 1,
                curRow: 1,
                maxColumn: 2,
+               localdata: {
+                   analysisPanelList: [],
+                   central: {},
+                   centerhided: false
+               },
                layout: {
                    type: 'border'
                },
@@ -78,24 +83,90 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                                         }]
                                 } , {
                                     xtype: 'panel',
-                                    id: 'project2-content-panel',
+                                    id: 'project2-center-panel',
                                     region: 'center',
-                                    layout: {
-                                        type: 'table',
-                                        columns: me.maxColumn,
-                                        tdAttrs: {
-                                            style: {
-                                                padding: 5,
-                                                width: 370,
-                                                height: 160
-                                            }
-                                        }
-                                    },
+                                    frame: true,
+                                    padding: 0,
+                                    layout: 'fit',
+                                    items:[{
+                                            xtype: 'panel',
+                                            id: 'project2-content-panel',
+                                            layout: {
+                                                type: 'table',
+                                                columns: me.maxColumn,
+                                                tdAttrs: {
+                                                    style: {
+                                                        padding: 5,
+                                                        width: 370,
+                                                        height: 160
+                                                    }
+                                                }
+                                            },
+                                            border: false
+
+                                        }],
                                     margins: '2 5 5 0',
                                     border: true
                                 }];
                    this.callParent(arguments);
                },
+               restoreCenter: function() {
+                   var me = this;
+                   var center=Ext.getCmp('project2-center-panel');
+                   if(me.localdata.centerhided) {
+                       me.localdata.centerhided=false;
+                       center.remove(center.getComponent(1));
+                       center.getComponent(0).getEl().slideIn('l', {
+                                                                   easing: 'easeInOut',
+                                                                   duration: 1000,
+                                                                   stopAnimation:true
+                                                               });
+                   }
+               },
+               replaceCenter: function(panel) {
+                   var me = this;
+                   var center=Ext.getCmp('project2-center-panel');
+                   if(!me.localdata.centerhided) {
+                       me.localdata.centerhided=true;
+                       me.localdata.central=Ext.getCmp('project2-content-panel');
+                       center.getComponent(0).getEl().slideOut('l', {
+                                                                   easing: 'easeInOut',
+                                                                   duration: 1000,
+                                                                   remove: false,
+                                                                   stopAnimation:true
+                                                               });
+                       center.add(panel);
+                   }
+               },
+               hideAnalysis: function() {
+                   var me=this;
+                   for(var i=0;i<me.localdata.analysisPanelList.length;i++) {
+                       var exist=Ext.getCmp(me.localdata.analysisPanelList[i]);
+                       if(exist) {
+                           var slide='t';
+                           exist.getEl().slideOut(slide, {
+                                                      easing: 'easeInOut',
+                                                      duration: 200,
+                                                      stopAnimation:true
+                                                  });
+                       }
+                   }
+               },
+               showAnalysis: function() {
+                   var me=this;
+                   for(var i=0;i<me.localdata.analysisPanelList.length;i++) {
+                       var exist=Ext.getCmp(me.localdata.analysisPanelList[i]);
+                       if(exist) {
+                           var slide='t';
+                           exist.getEl().slideIn(slide, {
+                                                     easing: 'easeInOut',
+                                                     duration: 200,
+                                                     stopAnimation:true
+                                                 });
+                       }
+                   }
+               },
+
                addAnalysis: function(data) {
                    var me =this;
                    var panel=Ext.getCmp('project2-content-panel');
@@ -104,13 +175,15 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                        exist.projectid=data.prjid;
                        var slide='t';
                        exist.getEl().slideIn(slide, {
-                                              easing: 'easeInOut',
-                                              duration: 200,
-                                              stopAnimation:true
-                                          });
+                                                 easing: 'easeInOut',
+                                                 duration: 200,
+                                                 remove: false,
+                                                 stopAnimation:true
+                                             });
 
                        return;
                    }
+                   me.localdata.analysisPanelList.push('project2-analysis-'+data.id);
                    var element ={
                        xtype: 'panel',
                        width: 370,
