@@ -27,14 +27,14 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
 
 $data=json_decode($_REQUEST['data']);
 
 if(!isset($data))
     $res->print_error("no data");
-logmsg(print_r($data,true));
+//logmsg(print_r($data,true));
 
 $count=1;
 
@@ -231,7 +231,7 @@ if(gettype($data)=="array") {
 
 
 if(!$con->commit()) {
-    logmsg(print_r('Cant commit',true));
+    //logmsg(print_r('Cant commit',true));
     $res->print_error("Cant commit");
 }
 

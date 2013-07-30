@@ -27,8 +27,8 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
 
 $data=json_decode($_REQUEST['data']);
 
@@ -41,7 +41,7 @@ $count=1;
 function delete_record ($id) {
     global $con,$db_name_ems,$db_name_experiments;
     $qr=execSQL($con,"select tableName from ".$db_name_ems.".genelist where id like ? and labdata_id is null and (`type`=2 or leaf=0 )",array("s",$id),false);
-    logmsg(print_r($qr,true));
+    //logmsg(print_r($qr,true));
     if($qr) {
         $tbname=$qr[0]['tableName'];
         execSQL($con,"drop view if exists ".$db_name_experiments.".".$tbname."_genes",array(),true);

@@ -27,7 +27,7 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
@@ -35,7 +35,7 @@ try {
     $res->print_error("Cant read input".$e);
 }
 //logmsg(print_r($_REQUEST,true));
-logmsg(print_r($data,true));
+//logmsg(print_r($data,true));
 
 
 

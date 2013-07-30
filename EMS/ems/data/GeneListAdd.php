@@ -6,8 +6,8 @@
    require_once('database_connection.php');
 
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
 
 //$data=json_decode($_REQUEST['data']);
 
