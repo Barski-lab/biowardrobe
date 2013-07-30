@@ -5,8 +5,8 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
 $tablename='labdata';
@@ -37,8 +37,6 @@ if(isset($_REQUEST['query'])) {
         $res->print_error('Incorrect required parameters.');
 
     $query='%'.$query.'%';
-//    if (strpos($query, ' ') !== FALSE) {
-//    }
 }
 
 
@@ -53,12 +51,14 @@ if(execSQL($con,"describe `$tablename`",array(),true)==0) {
     $res->print_error("Cant describe");
 }
 
-if(! ($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where")) ) {
+$qr=execSQL($con,"SELECT count(*) as c FROM `$tablename` $where and (cells like ? or conditions like ? or name4browser like ?)",array("sss",$query,$query,$query),false);
+
+if(!$qr) {
     $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
 }
-$row=$totalquery->fetch_row();
-$total=$row[0];
-$totalquery->close();
+//$row=$totalquery->fetch_row();
+$total=$qr[0]['c'];
+//$totalquery->close();
 $query_array=execSQL($con,"SELECT * FROM `$tablename` $where and (cells like ? or conditions like ? or name4browser like ?) $order $limit",array("sss",$query,$query,$query),false);
 $con->close();
 

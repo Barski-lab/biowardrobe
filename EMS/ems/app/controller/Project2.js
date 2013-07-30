@@ -22,9 +22,9 @@
 
 Ext.define('EMS.controller.Project2', {
                extend: 'Ext.app.Controller',
-               models: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
-               stores: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','Result','PCAChart','ATPChart','Condition'],
-               views:  ['Project2.ProjectDesigner','Project2.GenesLists','charts.ATP'],
+               models: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
+               stores: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
+               views:  ['Project2.ProjectDesigner','Project2.GenesLists','Project2.Filter','charts.ATP'],
 
                init: function() {
                    var me=this;
@@ -35,14 +35,25 @@ Ext.define('EMS.controller.Project2', {
                                       startAnalysis: me.startAnalysis,
                                   },
                                   '#Project2GenesLists': {
-                                      Back: me.onBack
+                                      Back: me.onBack,
+                                      groupadd: me.onGroupAdd,
+                                      filter: me.filterApply
                                   },
                                   '#project2-project-list': {
                                       select: me.onProjectSelect
                                   },
                                   '#project-worker-changed': {
                                       select: me.onComboboxWorkerSelect
+                                  },
+                                  '#projectgenelisttree': {
+                                      edit: me.onGeneListEdit,
+                                      beforeedit: me.onGeneListBeforeedit
+                                  },
+                                  '#projectgenelisttree > treeview': {
+                                      beforedrop: me.beforeGeneListDrop,
+                                      drop: me.GeneListDrop
                                   }
+
                               });
                },//init
                onProjectDesignerWindowRendered: function(view) {
@@ -90,6 +101,8 @@ Ext.define('EMS.controller.Project2', {
                 *************************************************************/
                UpdateAddAnalysis: function(records,record) {
                    var panel=Ext.getCmp('ProjectDesigner');
+                   this.projectid=record.get('id');
+
                    for(var i=0; i<records.length;i++) {
                        if(records[i].data.implemented===0)
                            continue;
@@ -108,6 +121,10 @@ Ext.define('EMS.controller.Project2', {
                startAnalysis: function(data) {
                    var me=this;
                    var mainPanel=Ext.getCmp('ProjectDesigner');
+                   var resStore=me.getGeneListStore();
+                   var RTypeStore=me.getRTypeStore();
+                   var labStore=me.getProjectLabDataStore();
+
                    switch(data.atypeid) {
                    case 1://DEseq
                        break;
@@ -120,29 +137,179 @@ Ext.define('EMS.controller.Project2', {
                    case 5://MANorm
                        break;
                    case 6://GeneList
-                       var labStore=me.getProjectLabDataStore();
                        labStore.getProxy().setExtraParam('isrna',1);
                        labStore.load();
-                       var gl=Ext.create('EMS.view.Project2.GenesLists',{labDataStore: labStore});
+                       resStore.getProxy().setExtraParam('projectid',data.projectid);
+                       resStore.load();
+                       RTypeStore.load();
+
+                       var gl=Ext.create('EMS.view.Project2.GenesLists',{
+                                             labDataStore: labStore,
+                                             resultStore: resStore,
+                                             RTypeStore: RTypeStore,
+                                             projectid: data.projectid
+                                         });
                        mainPanel.replaceCenter(gl);
                        break;
                    }
-                   //console.log('click',data.projectid,data.atypeid);
                },
 
-               //               syncCombosAndGrid:function() {
-               //                   this.getRTypeStore().load();
-               //                   this.getLabDataStore().loadData([],false);
-               //                   if(Ext.getCmp('preliminary-type-changed').getValue()===0 || Ext.getCmp('preliminary-type-changed').getValue() === null) return;
-               //                   this.getLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('preliminary-worker-changed').getValue());
-               //                   this.getLabDataStore().getProxy().setExtraParam('typeid',Ext.getCmp('preliminary-type-changed').getValue());
-               //                   this.getLabDataStore().sort('id', 'ASC');
-
-               //                   Ext.getCmp('ProjectPreliminary').m_PagingToolbar.moveFirst()
-               //               },
+               /*************************************************************
+                *************************************************************/
                onComboboxWorkerSelect: function(combo, records, options) {
                    this.getProjectLabDataStore().getProxy().setExtraParam('workerid',Ext.getCmp('project-worker-changed').getValue());
                    Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
                },
 
+               /*************************************************************
+                *************************************************************/
+               beforeGeneListDrop: function(node, data, overModel, dropPosition, dropHandlers) {
+                   var me=this;
+                   dropHandlers.wait = true;
+
+                   if( (dropPosition !== 'append' && overModel.data.leaf === false)
+                           || overModel.data.id === 'gl'
+                           || overModel.data.root === true) {
+                       dropHandlers.cancelDrop();
+                       return false;
+                   }
+
+                   overModel.expand(false,function() {
+                       var base=overModel.childNodes.length;
+
+                       for(var i=0; i<data.records.length;i++) {
+                           var cont=false;
+                           for(var j=0; j<base;j++) {
+                               if (typeof data.records[i].data.leaf!='undefined' && !data.records[i].data.leaf) {
+                                   dropHandlers.cancelDrop();
+                                   return false;
+                               }
+                               if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
+                                   data.records.splice(i,1);
+                                   cont=true;
+                                   i--;
+                                   break;
+                               }
+                           }
+                           if(cont) continue;
+
+                           var uuid=generateUUID();
+
+                           if(typeof data.records[i].data.name4browser !== 'undefined') {
+                               data.records[i].set('name', data.records[i].data.name4browser);
+                               data.records[i].set('item_id',uuid);
+                               data.records[i].set('labdata_id',data.records[i].data.id);
+                               data.records[i].set('project_id',me.projectid);
+                               data.records[i].set('expanded',false);
+                               data.records[i].set('isnew',true);
+                           } else {
+                               data.records[i].set('item_id',data.records[i].data.id);
+                               data.records[i].set('isnew',false);
+                           }
+                           data.records[i].set('parent_id',overModel.data.id);
+                           data.records[i].set('leaf', true);
+                           data.records[i].set('type',1);
+                       }
+                       dropHandlers.processDrop();
+                   });
+
+                   return true;
+               },//beforeGeneListDrop
+
+               /*************************************************************
+                *************************************************************/
+               GeneListDrop: function(node, data, overModel, dropPosition, eOpts) {
+                   for(var i=0; i<data.records.length;i++) {
+                       //console.log(data.records[i]);
+                       if(data.records[i].data.isnew)
+                           data.records[i].data.id=data.records[i].raw.item_id;
+                   }
+                   this.getGeneListStore().sync();
+               },
+
+               /*************************************************************
+                *************************************************************/
+               onGroupAdd: function(field,event) {
+                   var me=this;
+                   var grpname=field[0];
+                   grpname.allowBlank=false;
+                   grpname.validate();
+                   if(!grpname.isValid())
+                       return false;
+
+                   var store=me.getGeneListStore();
+                   var uuid=generateUUID();
+                   var r = Ext.create('EMS.model.GeneList', {
+                                          id: uuid,
+                                          item_id: uuid,
+                                          name: grpname.getValue(),
+                                          type: 1,
+                                          isnew: true,
+                                          leaf: false,
+                                          expanded: true,
+                                          project_id: me.projectid
+                                      });
+                   store.getRootNode().getChildAt(0).appendChild(r);
+                   store.sync();
+                   //console.log(store.getRootNode().getChildAt(0));
+                   grpname.allowBlank=true;
+                   grpname.setValue(undefined);
+               },
+
+               /*************************************************************
+                *************************************************************/
+               filterApply: function(grid,rowIndex,colIndex,actionItem,event,record,row) {
+                   var me=this;
+                   var filterForm=Ext.create('EMS.view.Project2.Filter',{
+                                                 modal: true,
+                                                 item_id: record.data.item_id,
+                                                 tables: me.getGeneListStore().getRootNode(),
+                                                 onSubmit: function() {
+                                                     me.filterSubmit(filterForm,record);
+                                                 }
+                                             }).show();
+
+               },
+               filterSubmit: function(form,record) {
+                   var me=this;
+                   var uuid=generateUUID();
+                   var formData=form.getFormJson();
+                   Ext.Ajax.request({
+                                        url: 'data/FilterSetPrjAdd.php',
+                                        method: 'POST',
+                                        success: function(response) {
+                                            var store=me.getGeneListStore();
+                                            var r = Ext.create('EMS.model.GeneList', {
+                                                                   id: uuid,
+                                                                   item_id: uuid,
+                                                                   name: formData[0].name,
+                                                                   type: 2,
+                                                                   isnew: false,
+                                                                   leaf: true,
+                                                                   project_id: me.projectid
+                                                               });
+                                            store.getRootNode().getChildAt(1).appendChild(r);
+                                            r.commit();
+                                            form.close();
+                                        },
+                                        failure: function() {
+                                        },
+                                        jsonData: Ext.encode({
+                                                                 "project_id": me.projectid,
+                                                                 "uuid": uuid,
+                                                                 "filters": formData
+                                                             })
+                                    });
+
+               },
+               /*************************************************************
+                *************************************************************/
+               onGeneListEdit: function(editor,e) {
+                   e.record.save();
+               },
+               onGeneListBeforeedit: function(editor,e) {
+                   if(e.record.data.parentId==='root')
+                       return false;
+               }
            });
+

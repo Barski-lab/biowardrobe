@@ -29,6 +29,17 @@ Ext.Loader.setPath(
 
 var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
 
+function generateUUID(){
+    var d = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (d + Math.random()*16)%16 | 0;
+        d = Math.floor(d/16);
+        return (c==='x' ? r : (r&0x7|0x8)).toString(16);
+    });
+    return uuid;
+};
+
+
 var Rights = (function(){
     var store;
     var worker;
@@ -83,14 +94,64 @@ var Timer = (function(){
 Ext.define('EMSLocalStorage',{
                extend: 'Ext.data.Model',
                fields: [
-                   {name: 'id',      type: 'int'},
-                   {name: 'data',    type: 'string'}],
+                   {name: 'id', type: 'int'},
+                   {name: 'data'}],
                proxy: {
                    type: 'localstorage',
                    id  : 'EMS-Local-Storage'
                }
            });
 
+var LocalStorage = (function(){
+    return {
+        init: function() {
+            var me=this;
+            me.store = Ext.create('Ext.data.Store', {
+                                      model: 'EMSLocalStorage'
+                                  });
+            me.store.load(/*{callback: function(){console.log('loaded',arguments,me.store);}}*/);
+            return me.store;
+        },
+        createData: function(id,json) {
+            var me=this;
+            Ext.create('EMSLocalStorage',{ 'id': id, 'data': json }).save();
+            me.store.load();
+        },
+        findRecord: function(id) {
+            var me=this;
+            return me.store.findRecord('id', id,0,false,false,true);
+        },
+        findData: function(id) {
+            var me=this;
+            var record = me.findRecord(id);
+            if(record) {
+                return Ext.decode(record.data.data);
+            }
+            return undefined;
+        },
+        setParam: function(id,param,val) {
+            var me=this;
+            var data=me.findData(id);
+            if(typeof data === 'undefined') {
+                data={};
+            }
+            data[param]=val;
+            me.createData(id,Ext.encode(data));
+        },
+        getParam: function(id,param) {
+            var me=this;
+            var data=me.findData(id);
+            if(typeof data === 'undefined') {
+                return undefined;
+            }
+            return data[param];
+        }
+    };
+})();
+
+
+/******************************************************************
+ ******************************************************************/
 
 Ext.application({
                     name: 'EMS',
@@ -121,6 +182,7 @@ Ext.application({
 
                     launch: function() {
                         Rights.init(Ext.getStore('Worker'));
+                        var STORER=LocalStorage.init();
                         var viewport=Ext.create('Ext.container.Viewport',
                                                 {
                                                     layout: 'border',

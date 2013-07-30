@@ -39,7 +39,7 @@ Ext.define('EMS.view.Project2.GenesLists', {
                initComponent: function() {
                    var me = this;
 
-                   me.addEvents('Back');
+                   me.addEvents('Back','groupadd','filter');
 
                    me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
                                                        store: me.labDataStore,
@@ -48,7 +48,6 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                                        margin: 0,
                                                        padding: 0
                                                    });
-
                    var rawData={
                        xtype: 'panel',
                        region: 'west',
@@ -84,31 +83,20 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                        labelWidth: 120,
                                        store: EMS.store.Worker,
                                        value: USER_ID
-                                   },{
+                                   } , {
                                        xtype: 'searchfield',
                                        submitValue: false,
                                        emptyText: 'Search string',
                                        flex: 1,
                                        store: me.labDataStore,
-                                   }/* , {
-                                       xtype: 'combobox',
-                                       displayField: 'name',
-                                       valueField: 'id',
-                                       editable: false,
-                                       id: 'preliminary-type-changed',
-                                       fieldLabel: 'Type',
-                                       labelAlign: 'top',
-                                       labelWidth: 120,
-                                       margin: '0 5 0 5',
-                                       store: EMS.store.RType,
-                                       flex: 4
-                                   }*/]
+                                   }]
                            } , {
                                xtype: 'grid',
                                border: false,
                                columnLines: true,
                                store: me.labDataStore,
                                multiSelect: true,
+                               hideHeaders: true,
                                viewConfig: {
                                    plugins: {
                                        ptype: 'gridviewdragdrop',
@@ -125,7 +113,7 @@ Ext.define('EMS.view.Project2.GenesLists', {
                            }
                        ]
                    };
-                   ß
+
                    var geneList ={
                        xtype: 'panel',
                        title: 'Genes Lists',
@@ -136,9 +124,145 @@ Ext.define('EMS.view.Project2.GenesLists', {
                        minWidth: 100,
                        //id
                        collapsible: false,
-                       collapsed: false
+                       collapsed: false,
+                       layout: {
+                           type: 'vbox',
+                           align: 'stretch'
+                       },
+                       items: [
+                           {
+                               xtype: 'container',
+                               padding: 0,
+                               margin: 5,
+                               layout: {
+                                   type: 'hbox'
+                                   //align: 'stretch'
+                               },
+                               items: [{
+                                       xtype: 'textfield',
+                                       submitValue: false,
+                                       emptyText: 'Type group name then press enter to add',
+                                       flex: 2,
+                                       enableKeyEvents: true,
+                                       listeners: {
+                                           specialkey: function (field, event) {
+                                               if (event.getKey() === event.ENTER) {
+                                                   me.fireEvent('groupadd',arguments);
+                                               }
+                                           }
+                                       }
+                                   }]
+                           } , {
+                               xtype: 'treepanel',
+                               id: 'projectgenelisttree',
+                               //useArrows: true,
+                               store: me.resultStore,
+                               rootVisible: false,
+                               hideHeaders: true,
+                               //singleExpand: false,
+                               border: false,
+                               columnLines: true,
+                               //rowLines: true,
+                               flex: 1,
+                               selType: 'cellmodel',
+                               viewConfig: {
+                                   //copy: false,
+                                   //enableTextSelection: false,
+                                   toggleOnDblClick: false,
+                                   plugins: {
+                                       ptype: 'treeviewdragdrop',
+                                       appendOnly: true,
+                                       sortOnDrop: true,
+                                       ddGroup: 'ldata2results'
+                                   }
+                               },
+                               plugins: [
+                                   Ext.create('Ext.grid.plugin.CellEditing', {
+                                                  clicksToEdit: 2
+                                              })
+                               ],
+                               columns: [{
+                                       xtype: 'treecolumn',
+                                       flex: 1,
+                                       minWidth: 150,
+                                       dataIndex: 'name',
+                                       editor: {
+                                           xtype: 'textfield',
+                                           allowBlank: false
+                                       }
+                                   } , {
+                                       xtype: 'actioncolumn',
+                                       width:80,
+                                       align: 'right',
+                                       sortable: false,
+                                       items: [
+                                           {
+                                               getClass: function(v, meta, rec) {
+                                                   if(rec.data.root === true || rec.data.parentId === 'root')
+                                                       meta.css = 'x-hide-display';
+                                                   if(rec.data.parentId !== 'gd')
+                                                       return;
+                                                   this.items[0].text='filter';
+                                                   this.items[0].tooltip='apply filter';
+                                                   this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                       me.fireEvent('filter',grid,rowIndex,colIndex,actionItem,event,record,row);
+                                                   };
+                                                   return 'funnel-add';
+                                               }
+                                           } , {
+                                               getClass: function(v, meta, rec) {
+                                                   return 'space5';
+                                               }
+                                           } , {
+                                               getClass: function(v, meta, rec) {
+                                                   if(rec.data.root === true || rec.data.parentId === 'root')
+                                                       return;
+                                                   this.items[2].text='download';
+                                                   this.items[2].tooltip='download';
+                                                   this.items[2].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                       window.location="data/csvgl.php?id="+record.data['id']+"&grp="+!record.data['leaf'];
+                                                   };
+                                                   return 'disk';
 
+                                               }/*,
+                                               isDisabled: function(view,rowIndex,colIndex,item,record) {
+                                                   if(record.data.atype_id===1)
+                                                       return false;
+                                                   return true;
+                                               }*/
+                                           } , {
+                                               getClass: function(v, meta, rec) {
+                                                   return 'space';
+                                               }
+                                           } , {
+                                               getClass: function(v, meta, rec) {
+                                                   if(rec.data.root === true || rec.data.parentId === 'root')
+                                                       return;
+                                                   this.items[4].tooltip = 'Delete';
+                                                   this.items[4].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                                       Ext.Msg.show({
+                                                                        title: 'Deleteing record '+record.data.name,
+                                                                        msg: 'Are you sure, that you want to delete the record "'+record.data.name
+                                                                             +'"  all data that belongs to it will be deleted. This process is nonreversible '+
+                                                                             'and will delete all other records that have used this one.',
+                                                                        icon: Ext.Msg.QUESTION,
+                                                                        buttons: Ext.Msg.YESNO,
+                                                                        fn: function(btn) {
+                                                                            if(btn !== "yes") return;
+                                                                            record.remove(true);
+                                                                        }
+                                                                    });
+                                                   }
+                                                   if(rec.data.leaf===false)
+                                                       return 'folder-delete';
+                                                   else
+                                                       return 'table-row-delete';
+                                               }
+                                           }]
+                                   }]
+                           }]
                    };
+                   /////////////////////////////
                    me.items=[rawData, geneList];
                    me.tools = [{
                                    xtype: 'tbfill'

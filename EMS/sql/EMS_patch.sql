@@ -202,5 +202,42 @@ update ems.atype set description='Estimate variance-mean dependence in count dat
 differential expression based on a model using the negative binomial distribution.',
 imgsrc='', sort=999,implemented=0 where id=3;
 
+drop table if exists genelist;
+create table if not exists genelist (
+    id varchar(36) PRIMARY KEY,
+    name varchar(100) NOT NULL,
+    leaf bool not null default false,
+    `type` INTEGER NOT NULL,
+    conditions TEXT,
+    gblink TEXT,
+    db varchar(64) NOT NULL default 'experiments',
+    tableName varchar(64) NULL,
+    labdata_id INTEGER default NULL,
+    rtype_id INTEGER default NULL,
+    atype_id INTEGER default NULL,
+    project_id INTEGER NOT NULL,
+    parent_id varchar(36) default NULL,
+
+index(rtype_id), FOREIGN KEY (rtype_id)
+REFERENCES rtype(id),
+
+index(atype_id), FOREIGN KEY (atype_id)
+REFERENCES atype(id),
+
+index(project_id), FOREIGN KEY (project_id)
+REFERENCES project(id),
+
+index(labdata_id), FOREIGN KEY (labdata_id)
+REFERENCES labdata(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `ems`.`genelist`
+  ADD CONSTRAINT `genelist_ifbk_5`
+  FOREIGN KEY (`parent_id` )
+  REFERENCES `ems`.`genelist` (`id` )
+  ON DELETE CASCADE
+  ON UPDATE CASCADE
+, ADD INDEX `genelist_ifbk_5_idx` (`parent_id` ASC) ;
+
 
 set foreign_key_checks = 1 ;

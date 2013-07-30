@@ -26,43 +26,58 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-if(isset($_REQUEST['tablename']))
-    $tablename = $_REQUEST['tablename'];
-else
+if(!isset($_REQUEST['id']))
     $res->print_error('Not enough required parameters.');
 
-check_val($tablename);
+if(!isset($_REQUEST['grp']))
+    $res->print_error('Not enough required parameters.');
+
+$id = $_REQUEST['id'];
+$grp = ($_REQUEST['grp']=="true");
 
 $con=def_connect();
-if($tablename=="labdata") {
-    $con->select_db($db_name_ems);
-} else {
-    $con->select_db($db_name_experiments);
-}
-if (!($stmt = $con->prepare("describe `$tablename`"))) {
-    $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
-}
-if (!$stmt->execute()) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-}
-$result = $stmt->get_result();
-
-$TYPE=array();
-$HEAD=array();
-while($row=$result->fetch_assoc()) {
-    $TYPE[$row['Field']]=$row['Type'];
-    $HEAD[$row['Field']]=$row['Field'];
-}
-$stmt->close();
+$con->select_db($db_name_experiments);
 
 
-if (!($stmt = $con->prepare("SELECT * FROM `$tablename`"))) {
-    $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+function get_tbl_descr($tablename) {
+    global $con,$res;
+    if (!($stmt = $con->prepare("describe `$tablename`"))) {
+        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+    }
+    if (!$stmt->execute()) {
+        $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    }
+    $result = $stmt->get_result();
+
+    $TYPE=array();
+    $HEAD=array();
+    while($row=$result->fetch_assoc()) {
+        $TYPE[$row['Field']]=$row['Type'];
+        $HEAD[$row['Field']]=$row['Field'];
+    }
+    $stmt->close();
+    return array('TYPE'=>$TYPE,'HEAD'=>$HEAD);
 }
-if (!($stmt->execute())) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-}
-$result = $stmt->get_result();
+
+
+
+//if(!$grp) {
+    $qr=execSQL($con,"select tableName from ".$db_name_ems.".genelist where id like ?",array("s",$id),false);
+    $tablename=$qr[0]['tableName'];
+    $descr=get_tbl_descr($tablename);
+    $HEAD=$descr['HEAD'];
+    $TYPE=$descr['TYPE'];
+
+    if (!($stmt = $con->prepare("SELECT * FROM `$tablename` order by refseq_id,txStart,txEnd"))) {
+        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+    }
+    if (!($stmt->execute())) {
+        $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    }
+    $result = $stmt->get_result();
+//}
+
+
 
 header("Content-type: text/csv");
 header("Content-Disposition: attachment; filename=$tablename.csv");
@@ -78,9 +93,9 @@ while($row=$result->fetch_assoc()) {
     $RPKM = array();
     foreach($TYPE as $key => $val) {
         if($val == 'float')
-        $RPKM[$key] = round($row[$key],2);
+            $RPKM[$key] = round($row[$key],2);
         else
-        $RPKM[$key] = $row[$key];
+            $RPKM[$key] = $row[$key];
     }
     fputcsv($outstream, $RPKM,',','"');
     $i++;

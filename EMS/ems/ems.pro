@@ -305,4 +305,18 @@ OTHER_FILES += \
     app/view/Project2/GenesLists.js \
     app/model/ProjectLabData.js \
     app/store/ProjectLabData.js \
-    data/ProjectLabData.php
+    data/ProjectLabData.php \
+    app/model/GeneList.js \
+    app/store/GeneList.js \
+    data/GeneList.php \
+    data/GeneListAdd.php \
+    data/GeneListUp.php \
+    data/GeneListDel.php \
+    images/shopping_cart_big.png \
+    images/notebook3_big.png \
+    images/index_view_big.png \
+    images/chart_line_big.png \
+    images/funnel_add.png \
+    data/csvgl.php \
+    app/view/Project2/Filter.js \
+    data/FilterSetPrjAdd.php

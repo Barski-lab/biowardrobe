@@ -108,6 +108,12 @@
     height: 16px;
 }
 
+.space5 {
+    //background-image: url( images/space123.png ) !important;
+    width: 5px;
+    height: 16px;
+}
+
 .about {
     background-image: url( images/about.png ) !important;
     width: 16px;
@@ -572,6 +578,12 @@
 
 .media-play-green {
     background-image: url( images/media_play_green.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.funnel-add {
+    background-image: url( images/funnel_add.png ) !important;
     width: 16px;
     height: 16px;
 }
