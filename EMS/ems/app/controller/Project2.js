@@ -22,8 +22,8 @@
 
 Ext.define('EMS.controller.Project2', {
                extend: 'Ext.app.Controller',
-               models: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
-               stores: ['ProjectLabData','Worker','RPKM','ResultsGroupping','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
+               models: ['ProjectLabData','Worker','RPKM','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
+               stores: ['ProjectLabData','Worker','RPKM','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
                views:  ['Project2.ProjectDesigner','Project2.GenesLists','Project2.Filter','charts.ATP'],
 
                init: function() {

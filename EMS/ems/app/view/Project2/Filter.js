@@ -77,13 +77,13 @@ Ext.define('EMS.view.Project2.Filter', {
                                         id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
                                         name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
                                     });
-                   }
+                   }/*
                    for(i=0;i<me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
                        tablesN.push({
                                         id: me.initialConfig.tables.getChildAt(1).childNodes[i].data.id,
                                         name: me.initialConfig.tables.getChildAt(1).childNodes[i].data.name
                                     });
-                   }
+                   }*/
                    me.tables =  Ext.create('Ext.data.Store', {
                                                fields: [ 'id','name'],
                                                data : tablesN
@@ -151,16 +151,16 @@ Ext.define('EMS.view.Project2.Filter', {
                                                  displayField: 'name',
                                                  valueField: 'id',
                                                  editable: false,
-                                                 value: LocalStorage.getParam(2,'default_annotation_groupping'),
+                                                 value: LocalStorage.getParam(2,'default_annotation_grouping'),
                                                  id: 'filter-rna-type',
-                                                 fieldLabel: 'Annotation groupping',
+                                                 fieldLabel: 'Annotation grouping',
                                                  labelAlign: 'top',
                                                  labelWidth: 300,
                                                  margin: '0 5 0 5',
                                                  allowBlank: false,
                                                  listeners: {
                                                      'select': function(combo, records) {
-                                                         LocalStorage.setParam(2,'default_annotation_groupping',combo.getValue())
+                                                         LocalStorage.setParam(2,'default_annotation_grouping',combo.getValue())
                                                      }
                                                  },
                                                  store: Ext.create('Ext.data.Store', {
