@@ -28,7 +28,7 @@ else
     $res->print_error('Not enough required parameters.');
 check_val($findex);
 
-if( !($findex=='hg19' || $findex=='mm9') )
+if( !($findex=='hg19' || $findex=='mm10') )
     $res->print_error('Genome not supported');
 
 

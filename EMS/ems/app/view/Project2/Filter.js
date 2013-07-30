@@ -100,7 +100,21 @@ Ext.define('EMS.view.Project2.Filter', {
                                                 text: 'Set',
                                                 handler: function() {
                                                     var form = Ext.getCmp('ProjectFilterForm');
-
+                                                    var name=Ext.getCmp('filter-name');
+                                                    for(i=0;i<me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
+                                                        if(name.getValue().trim().toUpperCase()===me.initialConfig.tables.getChildAt(1).childNodes[i].data.name.trim().toUpperCase()) {
+                                                            Ext.MessageBox.show({
+                                                                                    title: 'For you information',
+                                                                                    msg: 'Filter name "'+name.getValue()+'" already exists please provide the other one.',
+                                                                                    icon: Ext.MessageBox.ERROR,
+                                                                                    fn: function(){
+                                                                                        name.focus(false,200);
+                                                                                    },
+                                                                                    buttons: Ext.Msg.OK
+                                                                                });
+                                                            return;
+                                                        }
+                                                    }
                                                     if(form.getForm().isValid()) {
                                                         var formData = me.getFormJson();
                                                         LocalStorage.createData(1,Ext.encode(formData));
@@ -392,9 +406,10 @@ Ext.define('EMS.view.Project2.Filter', {
                    var form = Ext.getCmp('filter_fieldset_0');
                    var formData = [];
                    var i={
-                       name: Ext.getCmp('filter-name').getValue(),
+                       name: Ext.getCmp('filter-name').getValue().trim(),
                        annottype: Ext.getCmp('filter-rna-type').getValue(),
-                       conditions: [] };
+                       conditions: []
+                   };
                    form.items.each(function(si) {
                        if(si.getXType() === 'fieldcontainer') {
                            var struct={

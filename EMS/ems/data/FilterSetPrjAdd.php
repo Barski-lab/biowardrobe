@@ -119,7 +119,7 @@ $UUID=$data->uuid;
 $tbname=str_replace('-','',$UUID);
 $project_id=intval($data->project_id);
 
-$READABLE="";
+$READABLE=$EXT['name']." were used <br>";
 $FROM="";
 $RPKMS="";
 $gblink="";

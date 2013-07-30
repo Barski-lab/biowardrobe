@@ -185,7 +185,8 @@ Ext.define('EMS.controller.Project2', {
                                    dropHandlers.cancelDrop();
                                    return false;
                                }
-                               if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id) {
+                               if(data.records[i].data.id===overModel.childNodes[j].data.labdata_id ||
+                                       (typeof data.records[i].data.labdata_id !== 'undefined' && data.records[i].data.labdata_id===overModel.childNodes[j].data.labdata_id)) {
                                    data.records.splice(i,1);
                                    cont=true;
                                    i--;
