@@ -123,6 +123,7 @@ $READABLE="";
 $FROM="";
 $RPKMS="";
 $gblink="";
+$retdata=array();
 
 foreach( $V->conditions as $k2 => $val ) {
     check_val($val->table);
@@ -161,9 +162,6 @@ foreach( $V->conditions as $k2 => $val ) {
     $READABLE=$READABLE."$op'".$tablenames[$val->table]['name']."' ".$field['name']." ".$exp['name']." ".floatval($val->value)."<br>\n";
 }
 
-
-//execSQL($con,"drop view if exists ".$db_name_experiments.".".$tbname,array(),true);
-
 $SQL="CREATE VIEW ".$db_name_experiments.".".$tbname." AS ".
     "select a0.refseq_id as refseq_id,".
     "a0.gene_id AS gene_id,".
@@ -178,9 +176,6 @@ execSQL($con,$SQL,array(),true);
 execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions) values(?,?,?,1,?,2,?,?,?)",
         array("ssissss",$UUID,$V->name,$project_id,$db_name_experiments,$tbname,$gblink,$READABLE),true);
 
-//logmsg(print_r($SQL,true));
-
-
 if(!$con->commit()) {
     $res->print_error("Cant commit");
 }
@@ -191,6 +186,7 @@ $con->close();
 $res->success = true;
 $res->message = "Data loaded";
 $res->total = 1;
+$res->data=array("id"=>$UUID,"conditions"=>$READABLE,"gblink"=>$gblink);
 print_r($res->to_json());
 
 ?>

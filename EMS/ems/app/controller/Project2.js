@@ -280,6 +280,7 @@ Ext.define('EMS.controller.Project2', {
                                         method: 'POST',
                                         success: function(response) {
                                             var json = Ext.decode(response.responseText);
+                                            console.log(json);
                                             if(json.success) {
                                                 var store=me.getGeneListStore();
                                                 var r = Ext.create('EMS.model.GeneList', {
@@ -289,6 +290,7 @@ Ext.define('EMS.controller.Project2', {
                                                                        type: 2,
                                                                        isnew: false,
                                                                        leaf: true,
+                                                                       conditions: json.data.conditions,
                                                                        project_id: me.projectid
                                                                    });
                                                 store.getRootNode().getChildAt(1).appendChild(r);
