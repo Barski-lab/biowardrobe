@@ -56,6 +56,7 @@ function make_a_view($id,$parentid,$add=true) {
         $AV_R="a0.TOT_R_0";
         $AV_RP="a0.RPKM_0";
         $TABLES="";
+        $gblink="";
         $WHERE="0=0";
         //logmsg(print_r($qr,true));
 
@@ -66,6 +67,7 @@ function make_a_view($id,$parentid,$add=true) {
                 $AV_R=$AV_R."+a".$c.".TOT_R_0";
                 $AV_RP=$AV_RP."+a".$c.".RPKM_0";
                 $TABLES=$TABLES.",".$db_name_experiments.".".$val['tableName']." a".$c;
+                $gblink=$gblink."&".$val['tableName']."=full";
                 $WHERE=$WHERE." and a".($c-1).".refseq_id=a".$c.".refseq_id";
                 $WHERE=$WHERE." and a".($c-1).".chrom=a".$c.".chrom";
                 $WHERE=$WHERE." and a".($c-1).".txStart=a".$c.".txStart";
@@ -73,6 +75,7 @@ function make_a_view($id,$parentid,$add=true) {
                 $WHERE=$WHERE." and a".($c-1).".strand=a".$c.".strand";
             } else {
                 $TABLES=$db_name_experiments.".".$val['tableName']." a0";
+                $gblink=$val['tableName']."=full";
             }
             $c++;
         }
@@ -138,6 +141,9 @@ function make_a_view($id,$parentid,$add=true) {
             " group by gene_id ";
          execSQL($con,$SQL,array(),true);
 
+         execSQL($con,"update ".$db_name_ems.".genelist set gblink=? where id like ?",
+         array("ss",$gblink,$parentid),true);
+
     }//if add
 }//function
 
@@ -151,20 +157,23 @@ function update_insert ($val) {
     check_val($val->item_id);
 
     $tablename="";
+    $gblink="";
+
     if($val->isnew && $val->leaf) {
         $qr=execSQL($con,"select filename from labdata where id=?",array("i",$lid),false);
         $tb=explode(';',$qr[0]['filename']);
         $tablename=$tb[0];
+        $gblink=$tablename."=full";
     }
 
     if($val->parentId=="gd") {
         if($val->isnew)
             if($val->leaf)//new record in a GD
-                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,labdata_id,tableName) values(?,?,?,1,'experiments',1,?,?)",
-                array("ssiis",$val->item_id,$val->name,$val->project_id,$lid,$tablename),true);
+                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,labdata_id,tableName,gblink) values(?,?,?,1,'experiments',1,?,?,?)",
+                array("ssiiss",$val->item_id,$val->name,$val->project_id,$lid,$tablename,$gblink),true);
             else { //new folder in GD
                 $tbn=str_replace('-','',$val->item_id);
-                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName) values(?,?,?,0,'experiments',1,?,1)",
+                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName) values(?,?,?,0,'experiments',1,?)",
                 array("ssis",$val->item_id,$val->name,$val->project_id,$tbn),true);
             }
         else //move record to GD
@@ -173,8 +182,8 @@ function update_insert ($val) {
     } else {
         if($val->isnew)
             if($val->leaf) { //add record in a folder
-                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,parent_id,db,`type`,labdata_id,tableName) values(?,?,?,?,?,'experiments',1,?,?)",
-                array("ssiisis",$val->item_id,$val->name,$val->project_id,$val->leaf,$val->parentId,$lid,$tablename),true);
+                execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,parent_id,db,`type`,labdata_id,tableName,gblink) values(?,?,?,?,?,'experiments',1,?,?,?)",
+                array("ssiisiss",$val->item_id,$val->name,$val->project_id,$val->leaf,$val->parentId,$lid,$tablename,$gblink),true);
                 make_a_view($val->item_id,$val->parentId);
             }
             else //looks like inccorect situation (add folder into folder)

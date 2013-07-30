@@ -47,7 +47,8 @@ Ext.define('EMS.controller.Project2', {
                                   },
                                   '#projectgenelisttree': {
                                       edit: me.onGeneListEdit,
-                                      beforeedit: me.onGeneListBeforeedit
+                                      beforeedit: me.onGeneListBeforeedit,
+                                      select: me.onGeneListSelect
                                   },
                                   '#projectgenelisttree > treeview': {
                                       beforedrop: me.beforeGeneListDrop,
@@ -278,19 +279,25 @@ Ext.define('EMS.controller.Project2', {
                                         url: 'data/FilterSetPrjAdd.php',
                                         method: 'POST',
                                         success: function(response) {
-                                            var store=me.getGeneListStore();
-                                            var r = Ext.create('EMS.model.GeneList', {
-                                                                   id: uuid,
-                                                                   item_id: uuid,
-                                                                   name: formData[0].name,
-                                                                   type: 2,
-                                                                   isnew: false,
-                                                                   leaf: true,
-                                                                   project_id: me.projectid
-                                                               });
-                                            store.getRootNode().getChildAt(1).appendChild(r);
-                                            r.commit();
-                                            form.close();
+                                            var json = Ext.decode(response.responseText);
+                                            if(json.success) {
+                                                var store=me.getGeneListStore();
+                                                var r = Ext.create('EMS.model.GeneList', {
+                                                                       id: uuid,
+                                                                       item_id: uuid,
+                                                                       name: formData[0].name,
+                                                                       type: 2,
+                                                                       isnew: false,
+                                                                       leaf: true,
+                                                                       project_id: me.projectid
+                                                                   });
+                                                store.getRootNode().getChildAt(1).appendChild(r);
+                                                r.commit();
+                                                form.close();
+                                            } else {
+                                                Logger.log("Cant add filter error: "+json.message);
+                                                form.close();
+                                            }
                                         },
                                         failure: function() {
                                         },
@@ -307,9 +314,31 @@ Ext.define('EMS.controller.Project2', {
                onGeneListEdit: function(editor,e) {
                    e.record.save();
                },
+               /*************************************************************
+                *************************************************************/
                onGeneListBeforeedit: function(editor,e) {
                    if(e.record.data.parentId==='root')
                        return false;
+               },
+               /*************************************************************
+                *************************************************************/
+               onGeneListSelect: function(rowmodel, record, index){
+                   //console.log(arguments);
+                   var panel=Ext.getCmp('genelist-details-panel');
+                   var bd = panel.body;
+                   if(record.get('parentId')==='gl') {
+                       panel.expand(500);
+
+                       bd.update('').setStyle('background','#fff');
+                       detailEl = bd.createChild();
+                       detailEl.hide().update('<div align="left" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; ">'+
+                                              'Conditions:<br>'+
+                                              '<div align="justify" style="margin-left: 5px; padding: 0; line-height:1.5em; "><i>'+record.get('conditions')+'</i></div>'
+                                              +'</div>').
+                       slideIn('l', {stopAnimation:true,duration: 200});
+                   } else {
+                       panel.collapse();
+                   }
                }
            });
 

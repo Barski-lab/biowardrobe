@@ -56,13 +56,17 @@ $con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
 if(gettype($data)=="array") {
-    $res->print_error("Not supported yet.");
+    foreach($data as $key => $val ) {
+        if($val->item_id=="root" || $val->item_id=="gl" || $val->item_id=="gd")
+            $res->print_error("Cant delete");
+        delete_record($val->item_id);
+    }
 } else {
     $val=$data;
     if($val->item_id=="root" || $val->item_id=="gl" || $val->item_id=="gd")
         $res->print_error("Cant delete");
 
-        delete_record($val->item_id);
+    delete_record($val->item_id);
 
 }
 

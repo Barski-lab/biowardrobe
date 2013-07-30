@@ -84,7 +84,7 @@ STORE_DEFS = {
             },
             listeners: {
                 exception: function(proxy, response, operation) {
-                    Logger.log(proxy, response, operation);
+                    //Logger.log(proxy, response, operation);
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {
@@ -94,8 +94,8 @@ STORE_DEFS = {
                             //                                                    icon: Ext.MessageBox.ERROR,
                             //                                                    buttons: Ext.Msg.OK
                             //                                                });
-                            Logger.log(operation+' failed:'+json.message+' error:'+json.errors);
-                            console.log(operation+' failed:',json.message,' error:',json.errors);
+                            Logger.log(operation+' failed:'+json.message);
+                            console.log(operation+' failed:',json.message,' data:',json.data);
                         } else {
                             Ext.MessageBox.show({
                                                     title: operation.action+' failed',

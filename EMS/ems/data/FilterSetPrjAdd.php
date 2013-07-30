@@ -96,7 +96,7 @@ function get_operand($o){
 
 function get_table_name($val) {
     global $con,$db_name_ems;
-    $qr=execSQL($con,"select tableName,name from ".$db_name_ems.".genelist where id like ?",array("s",$val->table),false);
+    $qr=execSQL($con,"select tableName,name,gblink from ".$db_name_ems.".genelist where id like ?",array("s",$val->table),false);
     return $qr;
 }
 /**************************************************************
@@ -122,6 +122,7 @@ $project_id=intval($data->project_id);
 $READABLE="";
 $FROM="";
 $RPKMS="";
+$gblink="";
 
 foreach( $V->conditions as $k2 => $val ) {
     check_val($val->table);
@@ -131,7 +132,6 @@ foreach( $V->conditions as $k2 => $val ) {
         if(!$tn)
             $res->print_error("no tablename data");
         $tablenames[$val->table]=array("table"=>$tn[0]['tableName'],"alias"=>"a$c","name"=>$tn[0]['name']);
-
         if($c>0) {
             $WHERE=$WHERE." and a".($c-1).".refseq_id=a".$c.".refseq_id";
             $WHERE=$WHERE." and a".($c-1).".chrom=a".$c.".chrom";
@@ -140,9 +140,11 @@ foreach( $V->conditions as $k2 => $val ) {
             $WHERE=$WHERE." and a".($c-1).".strand=a".$c.".strand";
             $FROM=$FROM.",".$db_name_experiments.".".$tablenames[$val->table]['table'].$EXT['ext']." ".$tablenames[$val->table]['alias'];
             $RPKMS=$RPKMS.",".$tablenames[$val->table]['alias']."."."RPKM_0 as `RPKM ".$tablenames[$val->table]['name']."`";
+            $gblink=$gblink."&".$tn[0]['gblink'];
         } else {
             $FROM=$db_name_experiments.".".$tablenames[$val->table]['table'].$EXT['ext']." ".$tablenames[$val->table]['alias'];
             $RPKMS=$tablenames[$val->table]['alias']."."."RPKM_0 as `RPKM ".$tablenames[$val->table]['name']."`";
+            $gblink=$tn[0]['gblink'];
         }
         $c++;
     }
@@ -173,8 +175,8 @@ $SQL="CREATE VIEW ".$db_name_experiments.".".$tbname." AS ".
     " FROM ".$FROM." WHERE ".$WHERE;
 execSQL($con,$SQL,array(),true);
 
-execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName) values(?,?,?,1,?,2,?)",
-        array("ssiss",$UUID,$V->name,$project_id,$db_name_experiments,$tbname),true);
+execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions) values(?,?,?,1,?,2,?,?,?)",
+        array("ssissss",$UUID,$V->name,$project_id,$db_name_experiments,$tbname,$gblink,$READABLE),true);
 
 //logmsg(print_r($SQL,true));
 

@@ -163,7 +163,7 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                border: false,
                                columnLines: true,
                                //rowLines: true,
-                               flex: 1,
+                               flex: 3,
                                selType: 'cellmodel',
                                viewConfig: {
                                    //copy: false,
@@ -260,7 +260,26 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                                }
                                            }]
                                    }]
-                           }]
+                           } , {
+                               xtype: 'splitter'
+                           } , {
+                               xtype: 'panel',
+                               id: 'genelist-details-panel',
+                               title: 'Details',
+                               collapsible: true,
+                               collapsed: true,
+                               border: false,
+                               minWidth: 50,
+                               minHeight: 50,
+                               margin: 0,
+                               layout: {
+                                   type: 'fit'
+                               },
+                               flex: 1,
+                               bodyStyle: 'padding-bottom:15px;background:#eee;',
+                               autoScroll: true,
+                               html: '<p class="details-info">Select a row in &quot;Gene List&quot; folder, detailed information will appear.</p>'
+                       }]
                    };
                    /////////////////////////////
                    me.items=[rawData, geneList];

@@ -235,7 +235,7 @@ Ext.define('EMS.view.Project2.Filter', {
                addFilter: function(name,params) {
                    var me=this;
                    if(me.filterc>0) return;
-                   console.log('adding');
+                   //console.log('adding');
                    var filter= Ext.create('Ext.form.FieldSet',{
                                               xtype: 'fieldset',
                                               title: 'Filter ',

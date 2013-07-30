@@ -102,6 +102,8 @@ function get_filtered_list ($prjid) {
                'id' => $val['id'],
                'item_id' => $val['id'],
                'name' => $val['name'],
+               'gblink' => $val['gblink'],
+               'conditions' => $val['conditions'],
                'leaf' => !!$val['leaf'],
                'expanded' => false,
                'type' => $val['type'],
