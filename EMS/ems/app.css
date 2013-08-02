@@ -59,6 +59,17 @@
             color: green;
 }
 
+.red-back .x-grid-cell {
+     background:#ffe2e2 !important;
+ }
+.blue-back {
+     background:#58ACFA !important;
+ }
+
+.deseq-number {
+    text-align: center;
+}
+
 .experiment-descr{
   width:100%;
   border-collapse: collapse;
@@ -584,6 +595,18 @@
 
 .funnel-add {
     background-image: url( images/funnel_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.index-add {
+    background-image: url( images/index_add.png ) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.index2 {
+    background-image: url( images/index2.png ) !important;
     width: 16px;
     height: 16px;
 }

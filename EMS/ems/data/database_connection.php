@@ -1,6 +1,27 @@
 <?php
+/****************************************************************************
+**
+** Copyright (C) 2011 Andrey Kartashov .
+** All rights reserved.
+** Contact: Andrey Kartashov (porter@porter.st)
+**
+** This file is part of the EMS web interface module of the genome-tools.
+**
+** GNU Lesser General Public License Usage
+** This file may be used under the terms of the GNU Lesser General Public
+** License version 2.1 as published by the Free Software Foundation and
+** appearing in the file LICENSE.LGPL included in the packaging of this
+** file. Please review the following information to ensure the GNU Lesser
+** General Public License version 2.1 requirements will be met:
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** Other Usage
+** Alternatively, this file may be used in accordance with the terms and
+** conditions contained in a signed written agreement between you and Andrey Kartashov.
+**
+****************************************************************************/
 
-   include('/etc/settings/config.php');
+include('/etc/settings/config.php');
 
 require_once('response.php');
 
@@ -109,6 +130,52 @@ function refValues($arr){
     }
     return $arr;
 }
+
+/**************************************************************
+***************************************************************/
+
+function get_extention($f){
+    switch ($f) {
+        case 2:
+            return array("name"=>"genes","ext"=>"_genes","id"=>$f);
+        case 3:
+            return array("name"=>"common tss","ext"=>"_common_tss","id"=>$f);
+    }
+    return array("name"=>"isoforms","ext"=>"","id"=>$f);
+}
+
+function get_expression($f){
+    switch ($f) {
+        case 1:
+            return array("name"=>"equal","exp"=>"=");
+        case 2:
+            return array("name"=>"not equal","exp"=>"<>");
+        case 3:
+            return array("name"=>"less than","exp"=>"<");
+        case 4:
+            return array("name"=>"less than or equal","exp"=>"<=");
+        case 5:
+            return array("name"=>"greater than","exp"=>">");
+        case 6:
+            return array("name"=>"greater than or equal","exp"=>">=");
+    }
+    $res->print_error("get expression error $f");
+}
+
+function get_operand($o){
+    if($o==2)
+        return " OR ";
+    return " AND ";
+}
+
+function get_table_name($val) {
+    global $con,$db_name_ems;
+    $qr=execSQL($con,"select tableName,name,gblink from ".$db_name_ems.".genelist where id like ?",array("s",$val),false);
+    return $qr;
+}
+/**************************************************************
+***************************************************************/
+
 /*
 numerics
 -------------

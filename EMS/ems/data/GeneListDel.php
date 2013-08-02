@@ -37,16 +37,18 @@ if(!isset($data))
 //logmsg(print_r($data,true));
 
 $count=1;
+//check rights??
 
 function delete_record ($id) {
     global $con,$db_name_ems,$db_name_experiments;
-    $qr=execSQL($con,"select tableName from ".$db_name_ems.".genelist where id like ? and labdata_id is null and (`type`=2 or leaf=0 )",array("s",$id),false);
+    $qr=execSQL($con,"select tableName from ".$db_name_ems.".genelist where id like ? and labdata_id is null and (`type`<>1 or leaf=0 )",array("s",$id),false);
     //logmsg(print_r($qr,true));
     if($qr) {
         $tbname=$qr[0]['tableName'];
         execSQL($con,"drop view if exists ".$db_name_experiments.".".$tbname."_genes",array(),true);
         execSQL($con,"drop view if exists ".$db_name_experiments.".".$tbname."_common_tss",array(),true);
         execSQL($con,"drop view if exists ".$db_name_experiments.".".$tbname,array(),true);
+        execSQL($con,"drop table if exists ".$db_name_experiments.".".$tbname,array(),true);
     }
     execSQL($con,"delete from ".$db_name_ems.".genelist where id like ?",array("s",$id),true);
 }
@@ -67,7 +69,6 @@ if(gettype($data)=="array") {
         $res->print_error("Cant delete");
 
     delete_record($val->item_id);
-
 }
 
 
@@ -80,7 +81,6 @@ $con->close();
 $res->success = true;
 $res->message = "Data deleted";
 $res->total = $count;
-//$res->data = $query_array;
 print_r($res->to_json());
 
 ?>

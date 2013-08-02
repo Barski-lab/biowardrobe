@@ -191,6 +191,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                        id: 'project2-analysis-'+data.id,
                        projectid: data.prjid,
                        //column: me.curColumn,
+                       columnWidth: 380,
                        margin: 5,
                        padding: 0,
                        draggable: true,

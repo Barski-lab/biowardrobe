@@ -20,81 +20,33 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.view.Project2.Filter', {
+Ext.define('EMS.view.Project2.DESeqRun', {
                extend: 'Ext.window.Window',
                requires: ['Ext.form.Panel'],
-               title : 'Filter settings',
-               id: 'Project2Filter',
+               title : 'DESeq settings',
+               id: 'Project2DESeqRun',
                layout: 'fit',
-               iconCls: 'funnel-add',
+               iconCls: 'index-add',
                maximizable: false,
                collapsible: false,
                constrain: true,
                minHeight: 350,
                minWidth: 300,
-               height: 400,
-               width: 700,
+               height: 450,
+               width: 550,
                initComponent: function() {
                    var me = this;
                    me.groups=[];
                    me.filterc=0;
-                   me.filters = Ext.create('Ext.data.Store', {
-                                               fields: ['id', 'name'],
-                                               data : [
-                                                   {"id":1, "name":"equal"},
-                                                   {"id":2, "name":"not equal"},
-                                                   {"id":3, "name":"less than"},
-                                                   {"id":4, "name":"less than or equal"},
-                                                   {"id":5, "name":"greater than"},
-                                                   {"id":6, "name":"greater than or equal"}
-                                               ]
-                                           });
-                   var fieldsdata;
-                   me.deseq=false;
-                   if(typeof me.initialConfig.deseq !== 'undefined' && me.initialConfig.deseq) {
-                       me.deseq=true;
-                       fieldsdata=[
-                                   {"id":1, "name":"P-value"},
-                                   {"id":2, "name":"Log2 Ratio"},
-                                   {"id":3, "name":"P-adjasted"},
-                                   {"id":4, "name":"RPKM1"},
-                                   {"id":5, "name":"RPKM2"},
-                                   {"id":6, "name":"Chromosome"}
-                               ];
-                   } else {
-                       fieldsdata=[
-                                   {"id":1, "name":"RPKM"},
-                                   {"id":2, "name":"Chromosome"}];
-                   }
 
-                   me.fields =  Ext.create('Ext.data.Store', {
-                                               fields: ['id', 'name'],
-                                               data : fieldsdata
-                                           });
-
-                   me.operand =  Ext.create('Ext.data.Store', {
-                                                fields: ['id', 'name'],
-                                                data : [
-                                                    {"id":1, "name":"AND"},
-                                                    {"id":2, "name":"OR"}
-                                                ]
-                                            });
                    var tablesN=[];
                    var i=0;
-                   if(!me.deseq) {
-                       for(i=0;i<me.initialConfig.tables.getChildAt(0).childNodes.length; i++) {
-                           tablesN.push({
-                                            id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
-                                            name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
-                                        });
-                       }
-                   } else {
-                       for(i=0;i<me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
-                           tablesN.push({
-                                            id: me.initialConfig.tables.getChildAt(1).childNodes[i].data.id,
-                                            name: me.initialConfig.tables.getChildAt(1).childNodes[i].data.name
-                                        });
-                       }
+
+                   for(i=0;i<me.initialConfig.tables.getChildAt(0).childNodes.length; i++) {
+                       tablesN.push({
+                                        id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
+                                        name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
+                                    });
                    }
                    me.tables =  Ext.create('Ext.data.Store', {
                                                fields: [ 'id','name'],
@@ -108,16 +60,19 @@ Ext.define('EMS.view.Project2.Filter', {
                                         layout: { pack: 'center' },
                                         items: [{
                                                 xtype: 'button',
-                                                minWidth: 90,
-                                                text: 'Set',
+                                                minWidth: 100,
+                                                minHeight: 30,
+                                                text: 'Run',
+                                                iconCls:'media-play-green',
+                                                id: 'deseq-run',
                                                 handler: function() {
-                                                    var form = Ext.getCmp('ProjectFilterForm');
-                                                    var name=Ext.getCmp('filter-name');
+                                                    var form = Ext.getCmp('ProjectDESeqForm');
+                                                    var name=Ext.getCmp('deseq-name');
                                                     for(i=0;i<me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
                                                         if(name.getValue().trim().toUpperCase()===me.initialConfig.tables.getChildAt(1).childNodes[i].data.name.trim().toUpperCase()) {
                                                             Ext.MessageBox.show({
                                                                                     title: 'For you information',
-                                                                                    msg: 'Filter name "'+name.getValue()+'" already exists please provide the other one.',
+                                                                                    msg: 'DESeq name "'+name.getValue()+'" already exists please provide the other one.',
                                                                                     icon: Ext.MessageBox.ERROR,
                                                                                     fn: function(){
                                                                                         name.focus(false,200);
@@ -129,10 +84,22 @@ Ext.define('EMS.view.Project2.Filter', {
                                                     }
                                                     if(form.getForm().isValid()) {
                                                         var formData = me.getFormJson();
-                                                        LocalStorage.createData(1,Ext.encode(formData));
+                                                        if(me.isTablesUniq(formData)) {
+                                                            LocalStorage.createData(3,Ext.encode(formData));
 
-                                                        if(typeof me.initialConfig.onSubmit !== 'undefined') {
-                                                            me.initialConfig.onSubmit();
+                                                            if(typeof me.initialConfig.onSubmit !== 'undefined') {
+                                                                me.initialConfig.onSubmit();
+                                                            }
+                                                        } else {
+                                                            Ext.MessageBox.show({
+                                                                                    title: 'For you information',
+                                                                                    msg: 'You cant run DESeq on the same data.',
+                                                                                    icon: Ext.MessageBox.ERROR,
+                                                                                    fn: function(){
+                                                                                        name.focus(false,200);
+                                                                                    },
+                                                                                    buttons: Ext.Msg.OK
+                                                                                });
                                                         }
                                                     }
                                                 }
@@ -141,25 +108,68 @@ Ext.define('EMS.view.Project2.Filter', {
 
                    me.items=[{
                                  xtype: 'form',
-                                 id: 'ProjectFilterForm',
+                                 id: 'ProjectDESeqForm',
                                  border: false,
                                  frame: false,
                                  plain: true,
                                  autoScroll: true,
                                  items: [
+
                                      {
+                                         xtype: 'panel',
+                                         margin: 5,
+                                         padding: 0,
+                                         draggable: false,
+                                         border: false,
+                                         frame: true,
+                                         layout: {
+                                             type: 'vbox',
+                                             align: 'stretch'
+                                         },
+                                         bodyStyle: 'background: #dfe9f6',
+                                         items:[{
+                                                 xtype: 'container',
+                                                 flex: 1,
+                                                 minHeight:50,
+                                                 layout: {
+                                                     type: 'hbox',
+                                                     align: 'stretch'
+                                                 },
+                                                 items:[/*{
+                                                         xtype: 'image',
+                                                         maxWidth: 40,
+                                                         maxHeight: 40,
+                                                         margin: 5,
+                                                         src: 'images/about_big.png',
+                                                     },*/{
+                                                         flex: 1,
+                                                         xtype: 'label',
+                                                         html: '<div align="justify" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; ">'+
+                                                               '<img src=images/about_big.png width=40 height=40 align=left><i>&nbsp;&nbsp;&nbsp;&nbsp;'+
+                                                               'To run DESeq at first you have to type name which will be assigned to the result.'+
+                                                               ' Then choose which annotation grouping to apply (isoforms, genes, common tss).'
+                                                               +' After that in "DESeq input" fieldset you should choose data to compare,'+
+                                                               ' it has to be at least two records, to add more press "+", to delete press "x".'+
+                                                               ' If you added more then two records time series will be made and index will be added to the name.'
+                                                               +'</i></div>'
+                                                     }]
+                                             }]
+
+
+
+
+                                     } , {
                                          xtype: 'container',
                                          padding: 0,
                                          layout: {
-                                             type: 'hbox',
-                                             align: 'stretch'
+                                             type: 'hbox'
                                          },
                                          items: [
                                              {
                                                  xtype: 'textfield',
                                                  margin: '0 5 0 5',
-                                                 id: 'filter-name',
-                                                 fieldLabel: 'Filter name, will be saved with this name',
+                                                 id: 'deseq-name',
+                                                 fieldLabel: 'Name for DESeq result',
                                                  afterLabelTextTpl: required,
                                                  submitValue: true,
                                                  allowBlank: false,
@@ -177,9 +187,9 @@ Ext.define('EMS.view.Project2.Filter', {
                                                  displayField: 'name',
                                                  valueField: 'id',
                                                  editable: false,
-                                                 value: LocalStorage.getParam(2,'default_annotation_grouping'),
-                                                 id: 'filter-rna-type',
                                                  afterLabelTextTpl: required,
+                                                 value: LocalStorage.getParam(2,'default_annotation_grouping'),
+                                                 id: 'deseq-rna-type',
                                                  fieldLabel: 'Annotation grouping',
                                                  labelAlign: 'top',
                                                  labelWidth: 300,
@@ -204,11 +214,16 @@ Ext.define('EMS.view.Project2.Filter', {
 
 
                    this.on('afterrender',function() {
-                       var data=LocalStorage.findData(1);
+                       var data=LocalStorage.findData(3);
                        if(data) {
                            me.setFormJson(data);
                        } else {
-                           Ext.getCmp('ProjectFilterForm').add(me.addFilter());
+                           var filter = me.addFilter();
+                           me.addSubFilter(filter);
+                           me.addSubFilter(filter);
+                           Ext.getCmp('ProjectDESeqForm').add(filter);
+                           me.firstOpReadOnly(filter);
+                           me.reApplyLabels();
                        }
                    },{single: true});
                    me.callParent(arguments);
@@ -226,37 +241,31 @@ Ext.define('EMS.view.Project2.Filter', {
 
                /******************************************************************
                 ******************************************************************/
-               firstOpReadOnly: function(filterc) {
-                   var combo=Ext.getCmp('filter_fieldset_'+filterc).getComponent(0).getComponent(0);
-                   combo.setValue(1);
-                   combo.setReadOnly(true);
-                   var bt=Ext.getCmp('filter_fieldset_'+filterc).getComponent(0).getComponent(7);
-                   bt.setDisabled(true);
+               firstOpReadOnly: function(grp) {
+                   //var grp=Ext.getCmp('filter_fieldset_'+filterc);
+                   var num=grp.subfilterc;
+                   if(num<=2) {
+                       grp.getComponent(0).getComponent(grp.getComponent(0).items.length-1).setDisabled(true);
+                       grp.getComponent(1).getComponent(grp.getComponent(1).items.length-1).setDisabled(true);
+                   }else{
+                       grp.getComponent(0).getComponent(grp.getComponent(0).items.length-1).setDisabled(false);
+                       grp.getComponent(1).getComponent(grp.getComponent(1).items.length-1).setDisabled(false);
+                   }
                },
 
                /******************************************************************
                 ******************************************************************/
-               chrSelected: function(val,filterc,subfilter) {
-                   var form=Ext.getCmp('ProjectFilterForm').getForm();
-                   var cond = form.findField(filterc+'_'+subfilter+'_condition');
-                   var t_v = form.findField(filterc+'_'+subfilter+'_t_value');
-                   var n_v = form.findField(filterc+'_'+subfilter+'_n_value');
-                   if(val===2) {
-                       cond.setValue(1);
-                       cond.setReadOnly(true);
-                       t_v.setVisible(true);
-                       t_v.setDisabled(false);
-                       n_v.setVisible(false);
-                       n_v.setDisabled(true);
-                   } else {
-                       cond.setReadOnly(false);
-                       t_v.setVisible(false);
-                       t_v.setDisabled(true);
-                       n_v.setVisible(true);
-                       n_v.setDisabled(false);
-                   }
-               },
+               reApplyLabels: function(){
+                   var form = Ext.getCmp('filter_fieldset_0');
+                   var i=0;
+                   form.items.each(function(si) {
+                       if(si.getXType() === 'fieldcontainer') {
+                           i++;
+                           si.getComponent(0).setValue(i);
+                       }
+                   });
 
+               },
                /******************************************************************
                 ******************************************************************/
                addFilter: function(name,params) {
@@ -265,129 +274,79 @@ Ext.define('EMS.view.Project2.Filter', {
                    //console.log('adding');
                    var filter= Ext.create('Ext.form.FieldSet',{
                                               xtype: 'fieldset',
-                                              title: 'Filter ',
+                                              title: ' DESeq input',
                                               margin: '5 5 5 5',
-                                              subfilter: 1,
+                                              subfilter: 0,
                                               subfilterc: 0,
                                               filterc: me.filterc,
                                               flex: 2,
                                               id: 'filter_fieldset_'+me.filterc,
                                               layout: { type: 'fit' },
                                           });
-                   me.addSubFilter(me.filterc,filter,params);
-                   me.firstOpReadOnly(me.filterc);
                    me.filterc++;
-
                    return filter;
                },
 
                /******************************************************************
                 ******************************************************************/
-               addSubFilter: function(filterc,pf,params) {
+               addSubFilter: function(pf,params) {
                    var me=this;
-                   var subfilter=pf.subfilter;
                    pf.subfilter++;
                    pf.subfilterc++;
+                   var subfilter=pf.subfilter;
                    var subf={
                        xtype: 'fieldcontainer',
-                       id: 'filter_container_'+filterc+'_'+subfilter,
+                       id: 'filter_container_'+pf.filterc+'_'+subfilter,
                        subfilter: subfilter,
                        padding: 4,
                        layout: {
                            type: 'hbox',
                            align: 'stretch'
                        },
-                       items: [{
-                               xtype: 'combobox',
-                               name : filterc+'_'+subfilter+'_operand',
-                               displayField: 'name',
-                               valueField: 'id',
-                               value: parseInt(me.checkVal(params,'operand',1)),
-                               store: me.operand,
-                               flex: 1,
-                               width: 65,
-                               editable: false,
-                               margin: 0
+                       items: [ {
+                               xtype: 'textfield',
+                               name: 'order',
+                               readOnly: true,
+                               minWidth: 20,
+                               maxWidth: 40,
+                               width: 30,
+                               border: false,
+                               fieldCls: 'deseq-number',
+                               margin: '0 5 0 0'
                            } , {
                                xtype: 'combobox',
-                               name : filterc+'_'+subfilter+'_tbl',
+                               name : pf.filterc+'_'+subfilter+'_tbl',
                                displayField: 'name',
                                store: me.tables,
                                valueField: 'id',
-                               value: me.initialConfig.item_id,
-                               minWidth: 120,
-                               flex: 3,
-                               editable: false,
-                               margin: '0 0 0 6'
-                           } , {
-                               xtype: 'combobox',
-                               name : filterc+'_'+subfilter+'_field',
-                               displayField: 'name',
-                               valueField: 'id',
-                               value: parseInt(me.checkVal(params,'field',1)),
-                               store: me.fields,
-                               flex: 2,
-                               editable: false,
-                               margin: '0 0 0 6',
-                               listeners: {
-                                   'select': function(sender, values) {
-                                       me.chrSelected(values[0].data.id,filterc,subfilter);
-                                   },
-                                   'render': function(sender) {
-                                       me.chrSelected(sender.getValue(),filterc,subfilter);
-                                   }
-                               }
-
-                           } , {
-                               xtype: 'combobox',
-                               name : filterc+'_'+subfilter+'_condition',
-                               displayField: 'name',
-                               valueField: 'id',
-                               value: parseInt(me.checkVal(params,'condition',1)),
-                               store: me.filters,
-                               flex: 2,
-                               editable: false,
-                               margin: '0 0 0 6',
-
-                           } , {
-                               xtype: 'textfield',
-                               name: filterc+'_'+subfilter+'_t_value',
-                               flex: 1,
-                               margins: '0 5 0 6',
-                               width: 70,
-                               hidden: true,
-                               value: me.checkVal(params,'value',''),
-                               allowBlank: false,
-                               disabled: true
-                           } , {
-                               xtype: 'numberfield',
-                               name: filterc+'_'+subfilter+'_n_value',
-                               flex: 1,
-                               margins: '0 5 0 6',
-                               width: 70,
-                               value: me.checkVal(params,'value',0.0),
-                               step: 0.1,
-                               allowBlank: false
+                               value: pf.subfilterc===1?me.initialConfig.item_id:me.checkVal(params,'table',me.initialConfig.item_id),
+                                                         minWidth: 120,
+                                                         flex: 3,
+                                                         editable: false,
+                                                         margin: '0 5 0 5'
                            } , {
                                xtype: 'button',
                                margin: '0 5 0 5',
                                submitValue: false,
                                iconCls: 'add',
                                handler: function() {
-                                   pf.add(me.addSubFilter(filterc,pf));
+                                   me.addSubFilter(pf);
+                                   me.firstOpReadOnly(pf);
+                                   me.reApplyLabels();
                                }
                            } , {
                                xtype: 'button',
-                               margin: '0 5 0 5',
+                               margin: '0 0 0 5',
                                submitValue: false,
                                iconCls: 'delete',
                                handler: function() {
                                    pf.subfilterc--;
-                                   if(pf.subfilterc===0) {
-                                       pf.subfilterc=1;
+                                   if(pf.subfilterc===1) {
+                                       pf.subfilterc=2;
                                    } else {
-                                       pf.remove('filter_container_'+filterc+'_'+subfilter,true);
-                                       me.firstOpReadOnly(filterc);
+                                       pf.remove('filter_container_'+pf.filterc+'_'+subfilter,true);
+                                       me.firstOpReadOnly(pf);
+                                       me.reApplyLabels();
                                    }
                                }
                            }]
@@ -399,17 +358,15 @@ Ext.define('EMS.view.Project2.Filter', {
                 ******************************************************************/
                setFormJson: function(data) {
                    var me=this,
-                           form = Ext.getCmp('ProjectFilterForm'),i=0;
-                   var filter;
-                   Ext.getCmp('filter-name').setValue(data[i].name);
-                   for(var j=0;j<data[i].conditions.length;j++) {
-                       if(j==0) {
-                           filter=me.addFilter(data[i].name,data[i].conditions[j]);
-                           form.add(filter);
-                       } else {
-                           me.addSubFilter(filter.filterc,filter,data[i].conditions[j]);
-                       }
+                           form = Ext.getCmp('ProjectDESeqForm'),filter;
+                   Ext.getCmp('deseq-name').setValue(data.name);
+                   filter=me.addFilter(data.name,data.deseq[j]);
+                   form.add(filter);
+                   for(var j=0;j<data.deseq.length;j++) {
+                       me.addSubFilter(filter,data.deseq[j]);
                    }
+                   me.firstOpReadOnly(filter);
+                   me.reApplyLabels();
                    form.getForm().clearInvalid();
                },
 
@@ -417,29 +374,35 @@ Ext.define('EMS.view.Project2.Filter', {
                 ******************************************************************/
                getFormJson: function() {
                    var form = Ext.getCmp('filter_fieldset_0');
-                   var formData = [];
                    var i={
-                       name: Ext.getCmp('filter-name').getValue().trim(),
-                       annottype: Ext.getCmp('filter-rna-type').getValue(),
-                       conditions: []
+                       name: Ext.getCmp('deseq-name').getValue().trim(),
+                       annottype: Ext.getCmp('deseq-rna-type').getValue(),
+                       deseq: []
                    };
+
                    form.items.each(function(si) {
                        if(si.getXType() === 'fieldcontainer') {
                            var struct={
-                               operand: si.getComponent(0).getValue(),
+                               order: parseInt(si.getComponent(0).getValue()),
                                table: si.getComponent(1).getValue(),
-                               field: si.getComponent(2).getValue(),
-                               condition: si.getComponent(3).getValue(),
-                               value: si.getComponent(5).getValue(),
                            };
-                           if(struct.field === 2) {
-                               struct.value=si.getComponent(4).getValue();
-                           }
-                           i.conditions.push(struct);
+                           i.deseq.push(struct);
                        }
                    });
-                   formData.push(i);
-                   return formData;
+                   return i;
+               },
+
+               /******************************************************************
+                ******************************************************************/
+               isTablesUniq: function (data) {
+                   var items=data.deseq;
+                   for(var i=0;i<items.length-1;i++) {
+                       for(var j=i+1;j<items.length;j++) {
+                           if(items[i].table===items[j].table)
+                               return false;
+                       }
+                   }
+                   return true;
                }
 
            });

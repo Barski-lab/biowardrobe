@@ -197,7 +197,7 @@ function update_insert ($val) {
     }
 }
 
-function update_gl ($val) {
+function update_gl_de ($val) {
     global $con,$db_name_ems;
     check_val($val->item_id);
     execSQL($con,"update ".$db_name_ems.".genelist set name=? where id like ?",
@@ -210,8 +210,8 @@ if(gettype($data)=="array") {
     foreach($data as $key => $val ) {
         if($val->parentId=="root")
             continue;
-        if($val->parentId=="gl") {
-            update_gl($val);
+        if($val->parentId=="gl" || $val->parentId=="de") {
+            update_gl_de($val);
         } else {
             update_insert($val);
         }
@@ -220,8 +220,8 @@ if(gettype($data)=="array") {
     $retdata[]=array("id"=>$val->item_id,"isnew"=>false);
 } else {
     $val=$data;
-    if($val->parentId=="gl") {
-        update_gl($val);
+    if($val->parentId=="gl" || $val->parentId=="de") {
+        update_gl_de($val);
     } else
     if($val->parentId!="root")
         update_insert($val);

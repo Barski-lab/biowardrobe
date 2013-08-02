@@ -319,4 +319,12 @@ OTHER_FILES += \
     images/funnel_add.png \
     data/csvgl.php \
     app/view/Project2/Filter.js \
-    data/FilterSetPrjAdd.php
+    data/FilterSetPrjAdd.php \
+    app/view/Project2/DESeq.js \
+    app/view/Project2/DESeqRun.js \
+    images/index2.png \
+    images/index.png \
+    images/index_preferences.png \
+    images/index_add.png \
+    data/DESeqPrjRun.php \
+    data/DESeqN.R

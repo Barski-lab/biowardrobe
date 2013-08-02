@@ -18,7 +18,7 @@ $res->print_error("no data");
 $count=1;
 
 if(gettype($data)=="array") {
-$res->print_error("Not supported yet.");
+    $res->print_error("Not supported yet.");
 }
 
 

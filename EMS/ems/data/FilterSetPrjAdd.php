@@ -45,16 +45,6 @@ if(!isset($V->name) || !isset($V->conditions) || !isset($data->uuid) || !isset($
     $res->print_error("no data");
 /**************************************************************
 ***************************************************************/
-function get_extention($f){
-    switch ($f) {
-        case 2:
-            return array("name"=>"RPKM genes","ext"=>"_genes");
-        case 3:
-            return array("name"=>"RPKM common tss","ext"=>"_common_tss");
-    }
-    return array("name"=>"RPKM isoforms","ext"=>"");
-}
-
 function get_field($f){
     switch($f) {
         case 1:
@@ -69,38 +59,6 @@ function get_field($f){
             return array("name"=>"P-adjasted","field"=>"padj");
     }
 }
-
-function get_expression($f){
-    switch ($f) {
-        case 1:
-            return array("name"=>"equal","exp"=>"=");
-        case 2:
-            return array("name"=>"not equal","exp"=>"<>");
-        case 3:
-            return array("name"=>"less than","exp"=>"<");
-        case 4:
-            return array("name"=>"less than or equal","exp"=>"<=");
-        case 5:
-            return array("name"=>"greater than","exp"=>">");
-        case 6:
-            return array("name"=>"greater than or equal","exp"=>">=");
-    }
-    $res->print_error("get expression error $f");
-}
-
-function get_operand($o){
-    if($o==2)
-        return " OR ";
-    return " AND ";
-}
-
-function get_table_name($val) {
-    global $con,$db_name_ems;
-    $qr=execSQL($con,"select tableName,name,gblink from ".$db_name_ems.".genelist where id like ?",array("s",$val->table),false);
-    return $qr;
-}
-/**************************************************************
-***************************************************************/
 
 $con=def_connect();
 $con->select_db($db_name_ems);
@@ -129,7 +87,7 @@ foreach( $V->conditions as $k2 => $val ) {
     check_val($val->table);
 
     if(!isset($tablenames[$val->table])) {
-        $tn=get_table_name($val);
+        $tn=get_table_name($val->table);
         if(!$tn)
             $res->print_error("no tablename data");
         $tablenames[$val->table]=array("table"=>$tn[0]['tableName'],"alias"=>"a$c","name"=>$tn[0]['name']);
@@ -173,8 +131,8 @@ $SQL="CREATE VIEW ".$db_name_experiments.".".$tbname." AS ".
     " FROM ".$FROM." WHERE ".$WHERE;
 execSQL($con,$SQL,array(),true);
 
-execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions) values(?,?,?,1,?,2,?,?,?)",
-        array("ssissss",$UUID,$V->name,$project_id,$db_name_experiments,$tbname,$gblink,$READABLE),true);
+execSQL($con,"insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?)",
+        array("ssissss",$UUID,$V->name,$project_id,$db_name_experiments,$tbname,$gblink,$READABLE,$EXT['id']),true);
 
 if(!$con->commit()) {
     $res->print_error("Cant commit");

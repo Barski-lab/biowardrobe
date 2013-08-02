@@ -24,7 +24,7 @@ Ext.define('EMS.controller.Project2', {
                extend: 'Ext.app.Controller',
                models: ['ProjectLabData','Worker','RPKM','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
                stores: ['ProjectLabData','Worker','RPKM','RType','AType','ProjectTree','AnalysisGroup','GeneList','PCAChart','ATPChart'],
-               views:  ['Project2.ProjectDesigner','Project2.GenesLists','Project2.Filter','charts.ATP'],
+               views:  ['Project2.ProjectDesigner','Project2.GenesLists','Project2.Filter','Project2.DESeq','charts.ATP'],
 
                init: function() {
                    var me=this;
@@ -38,6 +38,12 @@ Ext.define('EMS.controller.Project2', {
                                       Back: me.onBack,
                                       groupadd: me.onGroupAdd,
                                       filter: me.filterApply
+                                  },
+                                  '#Project2DESeq': {
+                                      Back: me.onBack,
+                                      groupadd: me.onGroupAdd,
+                                      filter: me.filterApplyDeseq,
+                                      deseq: me.runDESeq,
                                   },
                                   '#project2-project-list': {
                                       select: me.onProjectSelect
@@ -123,11 +129,22 @@ Ext.define('EMS.controller.Project2', {
                    var me=this;
                    var mainPanel=Ext.getCmp('ProjectDesigner');
                    var resStore=me.getGeneListStore();
-                   var RTypeStore=me.getRTypeStore();
+                   //var RTypeStore=me.getRTypeStore();
                    var labStore=me.getProjectLabDataStore();
 
                    switch(data.atypeid) {
                    case 1://DEseq
+                       labStore.getProxy().setExtraParam('isrna',1);
+                       labStore.load();
+                       resStore.getProxy().setExtraParam('projectid',data.projectid);
+                       resStore.getProxy().setExtraParam('atypeid',data.atypeid);
+                       resStore.load();
+                       var de=Ext.create('EMS.view.Project2.DESeq',{
+                                             labDataStore: labStore,
+                                             resultStore: resStore,
+                                             projectid: data.projectid
+                                         });
+                       mainPanel.replaceCenter(de);
                        break;
                    case 2://PCA
                        break;
@@ -141,13 +158,12 @@ Ext.define('EMS.controller.Project2', {
                        labStore.getProxy().setExtraParam('isrna',1);
                        labStore.load();
                        resStore.getProxy().setExtraParam('projectid',data.projectid);
+                       resStore.getProxy().setExtraParam('atypeid',data.atypeid);
                        resStore.load();
-                       RTypeStore.load();
 
                        var gl=Ext.create('EMS.view.Project2.GenesLists',{
                                              labDataStore: labStore,
                                              resultStore: resStore,
-                                             RTypeStore: RTypeStore,
                                              projectid: data.projectid
                                          });
                        mainPanel.replaceCenter(gl);
@@ -257,7 +273,74 @@ Ext.define('EMS.controller.Project2', {
                    grpname.allowBlank=true;
                    grpname.setValue(undefined);
                },
+               /*************************************************************
+                *************************************************************/
+               runDESeq: function(grid,rowIndex,colIndex,actionItem,event,record,row) {
+                   var me=this;
+                   var filterForm=Ext.create('EMS.view.Project2.DESeqRun',{
+                                                 modal: true,
+                                                 item_id: record.data.item_id,
+                                                 tables: me.getGeneListStore().getRootNode(),
+                                                 onSubmit: function() {
+                                                     me.deseqSubmit(filterForm,record);
+                                                 }
+                                             }).show();
+               },
+               deseqSubmit: function(form,record) {
+                   var me=this;
+                   var formData=form.getFormJson();
+                   Ext.Ajax.request({
+                                        url: 'data/DESeqPrjRun.php',
+                                        method: 'POST',
+                                        timeout: 600000,//600 sec
+                                        success: function(response) {
+                                            var json = Ext.decode(response.responseText);
+                                            var store=me.getGeneListStore();
+                                            store.load({ node: store.getRootNode().getChildAt(1) });
+                                            if(!json.success) {
+                                                Logger.log("Cant run deseq, error: "+json.message);
+                                                Ext.MessageBox.show({
+                                                                        title: 'For you information',
+                                                                        msg: 'There was an error with DESeq.You have to rerun.<br>Do you want dialog for DESeq to be shown?<br>'+json.message,
+                                                                        icon: Ext.MessageBox.ERROR,
+                                                                        fn: function(buttonId){
+                                                                            if(buttonId==="yes") {
+                                                                                form.show();
+                                                                            } else {
+                                                                                form.close();
+                                                                            }
+                                                                        },
+                                                                        buttons: Ext.Msg.YESNO
+                                                                    });
+                                            }
+                                        },
+                                        failure: function() {
+                                            Logger.log("Cant run deseq, error");
+                                            form.close();
+                                        },
+                                        jsonData: Ext.encode({
+                                                                 "project_id": me.projectid,
+                                                                 "atype_id": 1,
+                                                                 "deseq": formData
+                                                             })
+                                    });
+                   form.hide();
+               },
+               /*************************************************************
+                *************************************************************/
+               filterApplyDeseq: function(grid,rowIndex,colIndex,actionItem,event,record,row) {
+                   var me=this;
+                   var filterForm=Ext.create('EMS.view.Project2.Filter',{
+                                                 modal: true,
+                                                 item_id: record.data.item_id,
+                                                 tables: me.getGeneListStore().getRootNode(),
+                                                 deseq: true,
+                                                 onSubmit: function() {
+                                                     me.filterSubmit(filterForm,record);
+                                                 }
+                                             }).show();
 
+               },
                /*************************************************************
                 *************************************************************/
                filterApply: function(grid,rowIndex,colIndex,actionItem,event,record,row) {
@@ -281,7 +364,6 @@ Ext.define('EMS.controller.Project2', {
                                         method: 'POST',
                                         success: function(response) {
                                             var json = Ext.decode(response.responseText);
-                                            console.log(json);
                                             if(json.success) {
                                                 var store=me.getGeneListStore();
                                                 var r = Ext.create('EMS.model.GeneList', {
@@ -306,6 +388,7 @@ Ext.define('EMS.controller.Project2', {
                                         },
                                         jsonData: Ext.encode({
                                                                  "project_id": me.projectid,
+                                                                 "atype_id": 1,
                                                                  "uuid": uuid,
                                                                  "filters": formData
                                                              })
@@ -329,16 +412,17 @@ Ext.define('EMS.controller.Project2', {
                    //console.log(arguments);
                    var panel=Ext.getCmp('genelist-details-panel');
                    var bd = panel.body;
-                   if(record.get('parentId')==='gl') {
-                       panel.expand(500);
+                   if(record.get('parentId')==='gl' || record.get('parentId')==='de') {
+                       panel.expand();
 
                        bd.update('').setStyle('background','#fff');
-                       detailEl = bd.createChild();
-                       detailEl.hide().update('<div align="left" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; ">'+
-                                              'Conditions:<br>'+
-                                              '<div align="justify" style="margin-left: 5px; padding: 0; line-height:1.5em; "><i>'+record.get('conditions')+'</i></div>'
-                                              +'</div>').
-                       slideIn('l', {stopAnimation:true,duration: 200});
+                       //var detailEl = bd.createChild();
+                       //detailEl.hide().update
+                       bd.setHTML('<div align="left" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; height: 100%;">'+
+                                  'Conditions:<br>'+
+                                  '<div align="justify" style="margin-left: 5px; padding: 0; line-height:1.5em; "><i>'+record.get('conditions')+'</i></div>'
+                                  +'</div>');
+                       //slideIn('l', {stopAnimation:true,duration: 200});
                    } else {
                        panel.collapse();
                    }
