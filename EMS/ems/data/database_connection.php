@@ -144,12 +144,20 @@ function get_extention($f){
     return array("name"=>"isoforms","ext"=>"","id"=>$f);
 }
 
-function get_expression($f){
+function get_expression($f,$d=false){
     switch ($f) {
         case 1:
-            return array("name"=>"equal","exp"=>"=");
+            if($d) {
+                return array("name"=>"equal","exp"=>" like ");
+            }else{
+                return array("name"=>"equal","exp"=>"=");
+            }
         case 2:
-            return array("name"=>"not equal","exp"=>"<>");
+            if($d) {
+                return array("name"=>"not equal","exp"=>" not like ");
+            } else {
+                return array("name"=>"not equal","exp"=>"<>");
+            }
         case 3:
             return array("name"=>"less than","exp"=>"<");
         case 4:
@@ -170,7 +178,7 @@ function get_operand($o){
 
 function get_table_name($val) {
     global $con,$db_name_ems;
-    $qr=execSQL($con,"select tableName,name,gblink from ".$db_name_ems.".genelist where id like ?",array("s",$val),false);
+    $qr=execSQL($con,"select tableName,name,gblink,rtype_id from ".$db_name_ems.".genelist where id like ?",array("s",$val),false);
     return $qr;
 }
 /**************************************************************

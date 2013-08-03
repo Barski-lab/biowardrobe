@@ -312,6 +312,8 @@ Ext.define('EMS.controller.Project2', {
                                                                         },
                                                                         buttons: Ext.Msg.YESNO
                                                                     });
+                                            } else {
+                                                form.close();
                                             }
                                         },
                                         failure: function() {
@@ -333,12 +335,54 @@ Ext.define('EMS.controller.Project2', {
                    var filterForm=Ext.create('EMS.view.Project2.Filter',{
                                                  modal: true,
                                                  item_id: record.data.item_id,
+                                                 rtype_id: record.data.rtype_id,
                                                  tables: me.getGeneListStore().getRootNode(),
                                                  deseq: true,
+                                                 localid: LocalStorage.FILTER_DESEQ,
                                                  onSubmit: function() {
-                                                     me.filterSubmit(filterForm,record);
+                                                     me.filterSubmitDeseq(filterForm,record);
                                                  }
                                              }).show();
+
+               },
+               filterSubmitDeseq: function(form,record) {
+                   var me=this;
+                   var uuid=generateUUID();
+                   var formData=form.getFormJson();
+                   Ext.Ajax.request({
+                                        url: 'data/FilterSetPrjDeseqAdd.php',
+                                        method: 'POST',
+                                        success: function(response) {
+                                            var json = Ext.decode(response.responseText);
+                                            if(json.success) {
+                                                var store=me.getGeneListStore();
+                                                var r = Ext.create('EMS.model.GeneList', {
+                                                                       id: uuid,
+                                                                       item_id: uuid,
+                                                                       name: formData[0].name,
+                                                                       type: 2,
+                                                                       isnew: false,
+                                                                       leaf: true,
+                                                                       conditions: json.data.conditions,
+                                                                       project_id: me.projectid
+                                                                   });
+                                                store.getRootNode().getChildAt(2).appendChild(r);
+                                                r.commit();
+                                                form.close();
+                                            } else {
+                                                Logger.log("Cant add filter error: "+json.message);
+                                                form.close();
+                                            }
+                                        },
+                                        failure: function() {
+                                        },
+                                        jsonData: Ext.encode({
+                                                                 "project_id": me.projectid,
+                                                                 "atype_id": 6,
+                                                                 "uuid": uuid,
+                                                                 "filters": formData
+                                                             })
+                                    });
 
                },
                /*************************************************************
@@ -349,6 +393,8 @@ Ext.define('EMS.controller.Project2', {
                                                  modal: true,
                                                  item_id: record.data.item_id,
                                                  tables: me.getGeneListStore().getRootNode(),
+                                                 deseq: false,
+                                                 localid: LocalStorage.FILTER_STORAGE,
                                                  onSubmit: function() {
                                                      me.filterSubmit(filterForm,record);
                                                  }
@@ -388,7 +434,7 @@ Ext.define('EMS.controller.Project2', {
                                         },
                                         jsonData: Ext.encode({
                                                                  "project_id": me.projectid,
-                                                                 "atype_id": 1,
+                                                                 "atype_id": 6,
                                                                  "uuid": uuid,
                                                                  "filters": formData
                                                              })

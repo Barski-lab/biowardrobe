@@ -95,19 +95,24 @@ $gblink="";
 $READABLE="";
 
 for($i=0;$i<$tbpairlen;$i++) {
+    $output="";
     set_time_limit(300);
+    sleep(5);
     $UUID=guid();
     $TNAME=str_replace("-","",$UUID);
-    $RNAME=$NAME;
+    $TNAMES[]=$TNAME;
     $CMD="Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems ".$tablepairs[$i]['t1']." ".$tablepairs[$i]['t2']." $rtypeid $TNAME";
     exec($CMD ,$output,$retval);
+
+    if($retval!=0) {
+        $res->print_error("Cant execute R."); #.print_r($output,true)
+        //logmsg(print_r($output,true));
+    }
+
+    $RNAME=$NAME;
     if($tbpairlen!=1) {
         $c=$i+1;
         $RNAME=$NAME." ($c)";
-    }
-    if($retval!=0) {
-        $res->print_error("Cant execute R. ".print_r($output,true));
-        logmsg(print_r($output,true));
     }
 
     $gblink=$tablenames[$tablepairs[$i]['t1']]['gblink']."&".$tablenames[$tablepairs[$i]['t2']]['gblink'];
@@ -118,7 +123,35 @@ for($i=0;$i<$tbpairlen;$i++) {
     execSQL($con,
     "insert into ".$db_name_ems.".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id,atype_id) values(?,?,?,1,?,3,?,?,?,?,?)",
             array("ssissssii",$UUID,$RNAME,$projectid,$db_name_experiments,$TNAME,$gblink,$READABLE,$rtypeid,$atypeid),true);
+
+     if(!$con->commit()) {
+                $res->print_error("Cant commit");
+     }
+
 }
+
+for($i=0;$i<count($TNAMES);$i++) {
+    execSQL($con,
+        "ALTER TABLE `".$db_name_experiments."`.`".$TNAMES[$i]."` ".
+        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(400) NULL DEFAULT NULL".
+        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(400) NULL DEFAULT NULL".
+        ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL".
+        ", CHANGE COLUMN `txStart` `txStart` INT(11) NULL DEFAULT NULL".
+        ", CHANGE COLUMN `txEnd` `txEnd` INT(11) NULL DEFAULT NULL".
+        ", CHANGE COLUMN `strand` `strand` VARCHAR(1) NULL DEFAULT NULL".
+        ", ADD INDEX `''index1` USING HASH (`refseq_id`(150) ASC)".
+        ", ADD INDEX `index2` USING HASH (`gene_id`(150) ASC)".
+        ", ADD INDEX `index3` USING HASH (`chrom` ASC)".
+        ", ADD INDEX `index4` USING HASH (`strand` ASC)".
+        ", ADD INDEX `index5` USING BTREE (`txStart` ASC)".
+        ", ADD INDEX `index6` USING BTREE (`txEnd` ASC);",array(),true);
+
+}
+
+if(!$con->commit()) {
+    $res->print_error("Cant commit");
+}
+
 
 /*
 //$data->id;//] => 0
@@ -132,9 +165,6 @@ for($i=0;$i<$tbpairlen;$i++) {
 
 */
 
-if(!$con->commit()) {
-    $res->print_error("Cant commit");
-}
 
 $con->close();
 

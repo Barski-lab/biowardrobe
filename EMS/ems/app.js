@@ -104,6 +104,10 @@ Ext.define('EMSLocalStorage',{
 
 var LocalStorage = (function(){
     return {
+        FILTER_STORAGE: 1,
+        PARAMS_STORAGE: 2,
+        DESEQ_STORAGE: 3,
+        FILTER_DESEQ: 4,
         init: function() {
             var me=this;
             me.store = Ext.create('Ext.data.Store', {

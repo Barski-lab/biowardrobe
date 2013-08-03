@@ -9,7 +9,8 @@ if(DESeqA==2) {
     library(DESeq)
 }
 
-con <- dbConnect(MySQL(), user=args[1], password=args[2],dbname=args[3],host=args[4])
+DRV <- dbDriver("MySQL")
+con <- dbConnect(DRV, user=args[1], password=args[2],dbname=args[3],host=args[4],client.flag = CLIENT_MULTI_STATEMENTS) #MySQL()
 EMS<-args[5]
 T1<-args[6]
 T2<-args[7]

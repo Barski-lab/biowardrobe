@@ -327,4 +327,5 @@ OTHER_FILES += \
     images/index_preferences.png \
     images/index_add.png \
     data/DESeqPrjRun.php \
-    data/DESeqN.R
+    data/DESeqN.R \
+    data/FilterSetPrjDeseqAdd.php

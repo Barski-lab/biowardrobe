@@ -46,8 +46,11 @@ if(!isset($_REQUEST['node'])) {
 
 if(intVal($_REQUEST['node']) > 0) {
 } else {
-        //$qr=execSQL($con,"select * from project where worker_id=?",array("i",$user_id),false);
-        $qr=execSQL($con,"select * from project",array(),false);
+        if(check_rights('ProjectTree')) {
+            $qr=execSQL($con,"select * from project",array(),false);
+        } else {
+            $qr=execSQL($con,"select * from project where worker_id=?",array("i",$user_id),false);
+        }
         foreach($qr as $key => $val) {
             $data[]=array(
             'id' => $val['id'],

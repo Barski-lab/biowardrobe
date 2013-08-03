@@ -51,6 +51,16 @@
     text-decoration: underline;
 }
 
+.panel-text {
+    margin-right:5px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: justify;
+    line-height:1.5em;
+    color:#04408C;
+    font-style: italic;
+}
+
 .blue {
             color: blue;
 }

@@ -85,7 +85,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                                     if(form.getForm().isValid()) {
                                                         var formData = me.getFormJson();
                                                         if(me.isTablesUniq(formData)) {
-                                                            LocalStorage.createData(3,Ext.encode(formData));
+                                                            LocalStorage.createData(LocalStorage.DESEQ_STORAGE,Ext.encode(formData));
 
                                                             if(typeof me.initialConfig.onSubmit !== 'undefined') {
                                                                 me.initialConfig.onSubmit();
@@ -144,14 +144,14 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                                      },*/{
                                                          flex: 1,
                                                          xtype: 'label',
-                                                         html: '<div align="justify" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; ">'+
-                                                               '<img src=images/about_big.png width=40 height=40 align=left><i>&nbsp;&nbsp;&nbsp;&nbsp;'+
+                                                         html: '<div class="panel-text">'+
+                                                               '<img src=images/about_big.png width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;'+
                                                                'To run DESeq at first you have to type name which will be assigned to the result.'+
                                                                ' Then choose which annotation grouping to apply (isoforms, genes, common tss).'
                                                                +' After that in "DESeq input" fieldset you should choose data to compare,'+
                                                                ' it has to be at least two records, to add more press "+", to delete press "x".'+
                                                                ' If you added more then two records time series will be made and index will be added to the name.'
-                                                               +'</i></div>'
+                                                               +'</div>'
                                                      }]
                                              }]
 
@@ -188,7 +188,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                                  valueField: 'id',
                                                  editable: false,
                                                  afterLabelTextTpl: required,
-                                                 value: LocalStorage.getParam(2,'default_annotation_grouping'),
+                                                 value: LocalStorage.getParam(LocalStorage.PARAMS_STORAGE,'default_annotation_grouping'),
                                                  id: 'deseq-rna-type',
                                                  fieldLabel: 'Annotation grouping',
                                                  labelAlign: 'top',
@@ -197,7 +197,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                                  allowBlank: false,
                                                  listeners: {
                                                      'select': function(combo, records) {
-                                                         LocalStorage.setParam(2,'default_annotation_grouping',combo.getValue())
+                                                         LocalStorage.setParam(LocalStorage.PARAMS_STORAGE,'default_annotation_grouping',combo.getValue())
                                                      }
                                                  },
                                                  store: Ext.create('Ext.data.Store', {
@@ -214,7 +214,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
 
 
                    this.on('afterrender',function() {
-                       var data=LocalStorage.findData(3);
+                       var data=LocalStorage.findData(LocalStorage.DESEQ_STORAGE);
                        if(data) {
                            me.setFormJson(data);
                        } else {
