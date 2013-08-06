@@ -197,28 +197,29 @@ Ext.define('EMS.view.Project2.DESeq', {
                             sortable: false,
                             items: [
                                 {
+                                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        if (record.data.parentId === 'de') {
+                                            me.fireEvent('filter', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                        }
+                                        if (record.data.parentId === 'gd') {
+                                            me.fireEvent('deseq', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                        }
+                                    },
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             meta.css = 'x-hide-display';
-                                        //this.items[0].text='run command';
-                                        //                                                       this.items[0].tooltip='apply filter';
-                                        this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            if (record.data.parentId === 'de') {
-                                                me.fireEvent('filter', grid, rowIndex, colIndex, actionItem, event, record, row);
-                                            }
-                                            if (record.data.parentId === 'gd') {
-                                                me.fireEvent('deseq', grid, rowIndex, colIndex, actionItem, event, record, row);
-                                            }
-                                        };
+                                        //                                        this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        //                                            if (record.data.parentId === 'de') {
+                                        //                                                me.fireEvent('filter', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                        //                                            }
+                                        //                                            if (record.data.parentId === 'gd') {
+                                        //                                                me.fireEvent('deseq', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                        //                                            }
+                                        //                                        };
                                         if (rec.data.parentId === 'de') {
                                             return 'funnel-add';
                                         }
                                         if (rec.data.parentId === 'gd') {
-                                            //                                                       this.items[0].text='DESeq';
-                                            //                                                       this.items[0].tooltip='RUN DESeq';
-                                            //                                                       this.items[0].handler = function(grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            //                                                           me.fireEvent('deseq',grid,rowIndex,colIndex,actionItem,event,record,row);
-                                            //                                                       };
                                             return 'index-add';
                                         }
                                     }

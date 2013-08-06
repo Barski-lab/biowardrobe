@@ -79,7 +79,8 @@ Ext.define('EMS.controller.Project2', {
     onProjectAdd: function () {
         var me = this;
         var name = Ext.getCmp('project2-project-name').getValue();
-
+        if (name.trim() === "")
+            return;
         var store = me.getProjectTreeStore();
         var uuid = generateUUID();
 
@@ -95,6 +96,7 @@ Ext.define('EMS.controller.Project2', {
         });
         store.getRootNode().appendChild(r);
         store.sync();
+        Ext.getCmp('project2-project-name').setValue(undefined);
     },
 
     /*************************************************************

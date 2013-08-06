@@ -140,10 +140,51 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                         id: 'project2-content-panel',
                         layout: {
                             type: 'table',
-                            columns: me.maxColumn
+                            columns: me.maxColumn,
+                            tableAttrs: {
+                                style: {
+                                    width: '100%'
+                                }
+                            }
                         },
-                        border: false
-
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'panel',
+                                margin: 10,
+                                padding: 0,
+                                draggable: false,
+                                border: false,
+                                minWidth: 370,
+                                minHeight: 80,
+                                //id: 'project2-analysis-' + data.id,
+                                colspan: 2,
+                                frame: true,
+                                layout: {
+                                    type: 'vbox',
+                                    align: 'stretch'
+                                },
+                                bodyStyle: 'background: #dfe9f6',
+                                items: [
+                                    {
+                                        xtype: 'container',
+                                        flex: 1,
+                                        minHeight: 50,
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                flex: 1,
+                                                xtype: 'label',
+                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' + 'To add new project type project name in textfield which is in the left top conner and then press enter. New project name will be shown ' + ' in panel under the textfield with folder icon. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done in "Genes Lists" and "DESeq" analysis. </div>'
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
                     }
                 ],
                 margins: '2 5 5 0',
@@ -227,12 +268,12 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         me.localdata.analysisPanelList.push('project2-analysis-' + data.id);
         var element = {
             xtype: 'panel',
-            width: 370,
-            height: 160,
+            minWidth: 370,
+            minHeight: 160,
             id: 'project2-analysis-' + data.id,
             projectid: data.prjid,
             //column: me.curColumn,
-            columnWidth: 380,
+            //columnWidth: 380,
             margin: 10,
             padding: 0,
             draggable: true,

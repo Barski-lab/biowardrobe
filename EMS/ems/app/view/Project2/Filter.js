@@ -203,10 +203,6 @@ Ext.define('EMS.view.Project2.Filter', {
                                 ]
                             }
                         ]
-
-
-
-
                     } ,
                     {
                         xtype: 'container',
