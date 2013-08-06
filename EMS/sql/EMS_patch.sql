@@ -203,6 +203,21 @@ differential expression based on a model using the negative binomial distributio
 imgsrc='', sort=999,implemented=0 where id=3;
 
 drop table if exists genelist;
+drop table if exists project2;
+
+
+create table if not exists project2 (
+    id varchar(36) PRIMARY KEY,
+    name varchar(200) NOT NULL,
+    description TEXT,
+    article TEXT,
+    worker_id INTEGER NOT NULL,
+	dateadd	DATE NOT NULL,
+	index(worker_id), FOREIGN KEY(worker_id)
+	REFERENCES worker(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 create table if not exists genelist (
     id varchar(36) PRIMARY KEY,
     name varchar(100) NOT NULL,
@@ -215,19 +230,19 @@ create table if not exists genelist (
     labdata_id INTEGER default NULL,
     rtype_id INTEGER default NULL,
     atype_id INTEGER default NULL,
-    project_id INTEGER NOT NULL,
+    project_id VARCHAR(36) NOT NULL,
     parent_id varchar(36) default NULL,
 
-index(rtype_id), FOREIGN KEY (rtype_id)
+index(rtype_id) using BTREE, FOREIGN KEY (rtype_id)
 REFERENCES rtype(id),
 
-index(atype_id), FOREIGN KEY (atype_id)
+index(atype_id) using BTREE, FOREIGN KEY (atype_id)
 REFERENCES atype(id),
 
-index(project_id), FOREIGN KEY (project_id)
-REFERENCES project(id),
+index(project_id) using HASH, FOREIGN KEY (project_id)
+REFERENCES project2(id),
 
-index(labdata_id), FOREIGN KEY (labdata_id)
+index(labdata_id) using BTREE, FOREIGN KEY (labdata_id)
 REFERENCES labdata(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -237,7 +252,7 @@ ALTER TABLE `ems`.`genelist`
   REFERENCES `ems`.`genelist` (`id` )
   ON DELETE CASCADE
   ON UPDATE CASCADE
-, ADD INDEX `genelist_ifbk_5_idx` (`parent_id` ASC) ;
+, ADD INDEX `genelist_ifbk_5_idx` USING HASH (`parent_id` ASC) ;
 
 
 set foreign_key_checks = 1 ;

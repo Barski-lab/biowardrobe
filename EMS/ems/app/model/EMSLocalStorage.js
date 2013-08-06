@@ -19,25 +19,20 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.model.ProjectTree', {
+
+Ext.define('EMS.model.EMSLocalStorage', {
     extend: 'Ext.data.Model',
-    fields: [
-        { name: 'id', type: 'string'},
-        { name: 'leaf', type: 'bool'},
-        { name: 'worker_id', type: 'int'},
-        { name: 'type', type: 'int' },
-        { name: 'text', type: 'string' },
-        { name: 'description', type: 'string' },
-        { name: 'article', type: 'string' },
-        { name: 'isnew', type: 'int'},
-        { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'}
+    requires: [
+        'Ext.data.proxy.LocalStorage'
     ],
-    proxy: Ext.apply(STORE_DEFS.proxy('project', true), {
-        api: {
-            read: 'data/ProjectTree.php',
-            update: 'data/ProjectTreeUp.php'
-            //                                        create: 'data/ResultTreeAdd.php',
-            //                                        destroy: 'data/ResultTreeDel.php'
-        }
-    })
+
+    fields: [
+        {name: 'id', type: 'int'},
+        {name: 'internalid', type: 'int'},
+        {name: 'data'}
+    ],
+    proxy: {
+        type: 'localstorage',
+        id: 'EMS-Local-Storage'
+    }
 });

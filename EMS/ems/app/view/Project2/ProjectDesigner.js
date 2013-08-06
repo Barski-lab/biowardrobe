@@ -46,12 +46,13 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
     layout: {
         type: 'border'
     },
-    initComponent: function() {
+    initComponent: function () {
         var me = this;
 
         me.addEvents('startAnalysis');
 
-        me.items = [{
+        me.items = [
+            {
                 xtype: 'panel',
                 layout: {
                     type: 'vbox',
@@ -61,19 +62,58 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                 border: false,
                 frame: false,
                 split: true,
+                title: 'Projects',
                 margins: '2 0 5 5',
                 width: 290,
                 items: [
                     {
+                        xtype: 'textfield',
+                        id: 'project2-project-name',
+                        emptyText: 'Type project name, press enter to add',
+                        margin: "5 0 5 0",
+                        enableKeyEvents: true,
+                        listeners: {
+                            specialkey: function (field, event) {
+                                if (event.getKey() === event.ENTER) {
+                                    me.fireEvent('projectAdd');
+                                }
+                            }
+                        }
+                    } ,
+                    {
                         id: 'project2-project-list',
                         xtype: 'treepanel',
-                        title: 'Projects',
                         flex: 2,
                         rootVisible: false,
-                        store: 'ProjectTree'
-                    }, {
+                        store: 'ProjectTree',
+                        hideHeaders: true,
+                        selType: 'cellmodel',
+                        viewConfig: {
+                            toggleOnDblClick: false
+                        },
+                        plugins: [
+                            Ext.create('Ext.grid.plugin.CellEditing', {
+                                clicksToEdit: 2
+                            })
+                        ],
+                        columns: [
+                            {
+                                xtype: 'treecolumn',
+                                flex: 1,
+                                //minWidth: 150,
+                                dataIndex: 'text',
+                                editor: {
+                                    xtype: 'textfield',
+                                    allowBlank: false
+                                }
+                            }
+                        ]
+
+                    },
+                    {
                         xtype: 'splitter'
-                    }, {
+                    },
+                    {
                         xtype: 'panel',
                         id: 'project2-details-panel',
                         title: 'Details',
@@ -84,30 +124,35 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                         minHeight: 100,
                         flex: 1,
                         html: '<p class="details-info">To start working with project designer. Please select project your want to work with or press "add" to start a new project design.</p>'
-                    }]
-            }, {
+                    }
+                ]
+            },
+            {
                 xtype: 'panel',
                 id: 'project2-center-panel',
                 region: 'center',
                 frame: true,
                 padding: 0,
                 layout: 'fit',
-                items: [{
+                items: [
+                    {
                         xtype: 'panel',
                         id: 'project2-content-panel',
                         layout: {
                             type: 'table',
-                            columns: me.maxColumn,
+                            columns: me.maxColumn
                         },
                         border: false
 
-                    }],
+                    }
+                ],
                 margins: '2 5 5 0',
                 border: true
-            }];
+            }
+        ];
         this.callParent(arguments);
     },
-    restoreCenter: function() {
+    restoreCenter: function () {
         var me = this;
         var center = Ext.getCmp('project2-center-panel');
         if (me.localdata.centerhided) {
@@ -120,7 +165,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             });
         }
     },
-    replaceCenter: function(panel) {
+    replaceCenter: function (panel) {
         var me = this;
         var center = Ext.getCmp('project2-center-panel');
         if (!me.localdata.centerhided) {
@@ -135,7 +180,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             center.add(panel);
         }
     },
-    hideAnalysis: function() {
+    hideAnalysis: function () {
         var me = this;
         for (var i = 0; i < me.localdata.analysisPanelList.length; i++) {
             var exist = Ext.getCmp(me.localdata.analysisPanelList[i]);
@@ -149,7 +194,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             }
         }
     },
-    showAnalysis: function() {
+    showAnalysis: function () {
         var me = this;
         for (var i = 0; i < me.localdata.analysisPanelList.length; i++) {
             var exist = Ext.getCmp(me.localdata.analysisPanelList[i]);
@@ -163,7 +208,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             }
         }
     },
-    addAnalysis: function(data) {
+    addAnalysis: function (data) {
         var me = this;
         var panel = Ext.getCmp('project2-content-panel');
         var exist = Ext.getCmp('project2-analysis-' + data.id);
@@ -199,19 +244,20 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             },
             bodyStyle: 'background: #dfe9f6',
             listeners: {
-                'render': function(panel) {
-                    panel.body.on('click', function() {
+                'render': function (panel) {
+                    panel.body.on('click', function () {
                         me.fireEvent('startAnalysis', {projectid: panel.projectid, atypeid: data.id});
                     });
-                    panel.body.on('mouseover', function() {
+                    panel.body.on('mouseover', function () {
                         panel.setBodyStyle('background', '#bed3ef');
                     });
-                    panel.body.on('mouseout', function() {
+                    panel.body.on('mouseout', function () {
                         panel.setBodyStyle('background', '#dfe9f6');
                     });
                 }
             },
-            items: [{
+            items: [
+                {
                     xtype: 'container',
                     flex: 1,
                     minHeight: 50,
@@ -219,22 +265,27 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                         type: 'hbox',
                         align: 'stretch'
                     },
-                    items: [{
+                    items: [
+                        {
                             xtype: 'image',
                             maxWidth: 40,
                             maxHeight: 40,
                             margin: 5,
                             src: data.imgsrc
-                        }, {
+                        },
+                        {
                             xtype: 'label',
                             flex: 1,
                             html: '<div align="center"><font size=+3 color=#04408C>&nbsp;' + data.name + '</font></div>'
-                        }]
-                }, {
+                        }
+                    ]
+                },
+                {
                     flex: 2,
                     xtype: 'label',
                     html: '<div class="panel-text">&nbsp;&nbsp;&nbsp;&nbsp;' + data.description + '</div>'
-                }]
+                }
+            ]
         };
         panel.add(element);
 
