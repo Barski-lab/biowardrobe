@@ -123,7 +123,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                         collapsed: true,
                         minHeight: 100,
                         flex: 1,
-                        html: '<p class="details-info">To start working with project designer. Please select project your want to work with or press "add" to start a new project design.</p>'
+                        html: '<p class="details-info">To start working with project designer. Please select project your want to work with or type a new project name then press enter.</p>'
                     }
                 ]
             },
@@ -178,7 +178,8 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                                             {
                                                 flex: 1,
                                                 xtype: 'label',
-                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' + 'To add new project type project name in textfield which is in the left top conner and then press enter. New project name will be shown ' + ' in panel under the textfield with folder icon. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done in "Genes Lists" and "DESeq" analysis. </div>'
+                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
+                                                    'To add a new project type project name in textfield, which is in the left top conner and then press enter. New project name (with folder icon) will be shown ' + ' in a panel under the textfield. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done in "Genes Lists" and "DESeq" analysis. </div>'
                                             }
                                         ]
                                     }
