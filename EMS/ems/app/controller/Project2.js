@@ -105,8 +105,13 @@ Ext.define('EMS.controller.Project2', {
 
     /*************************************************************
      *************************************************************/
-    onProjectSelect: function (selModel, record) {
+    onProjectSelect: function (selModel, record, index) {
         var me = this;
+        if (typeof me.PrjSelect !== 'undefined' && me.PrjSelect === index) {
+            return;
+        }
+        me.PrjSelect = index;
+
         var mainPanel = Ext.getCmp('ProjectDesigner');
 
         if (record.get('type') === 0) {//project
@@ -115,7 +120,6 @@ Ext.define('EMS.controller.Project2', {
             detp.expand();
             var bd = detp.body;
             bd.update('').setStyle('background', '#fff');
-            //detailEl = bd.createChild();
 
             var worker = this.getWorkerStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
             mainPanel.restoreCenter();
@@ -130,21 +134,12 @@ Ext.define('EMS.controller.Project2', {
             } else {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
-            bd.setHTML('<p padding=5>' + '&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</p>');
-            //slideIn('l', {stopAnimation: true, duration: 200});
+            bd.setHTML('<div style="padding:5px;">&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</div>');
             detp.getEl().slideIn('b', {
                 easing: 'easeInOut',
                 duration: 500,
                 stopAnimation: true
             });
-
-            /*detailEl.hide().update('<p padding=5>' +
-             '&nbsp;Project by: <b>' + worker + '</b><br>' +
-             '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' +
-             '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>'
-             + '</p>').
-             slideIn('l', {stopAnimation: true, duration: 200});
-             */
         }//if project
     },
     /*************************************************************
@@ -489,6 +484,7 @@ Ext.define('EMS.controller.Project2', {
     onGeneListBeforeedit: function (editor, e) {
         if (e.record.data.parentId === 'root')
             return false;
+        return true;
     },
     /*************************************************************
      *************************************************************/
@@ -498,12 +494,8 @@ Ext.define('EMS.controller.Project2', {
         var bd = panel.body;
         if (record.get('parentId') === 'gl' || record.get('parentId') === 'de') {
             panel.expand();
-
             bd.update('').setStyle('background', '#fff');
-            //var detailEl = bd.createChild();
-            //detailEl.hide().update
-            bd.setHTML('<div align="left" style="margin-right:5px; margin-left: 5px; padding: 0; line-height:1.5em; height: 100%;">' + 'Conditions:<br>' + '<div align="justify" style="margin-left: 5px; padding: 0; line-height:1.5em; "><i>' + record.get('conditions') + '</i></div>' + '</div>');
-            //slideIn('l', {stopAnimation:true,duration: 200});
+            bd.setHTML('<div style="margin-right:5px; color: #04408C; margin-left: 5px; align: left; padding: 0; line-height:1.5em; height: 100%;">' + 'Conditions:' + '<div class="panel-text">' + record.get('conditions') + '</div></div>');
         } else {
             panel.collapse();
         }

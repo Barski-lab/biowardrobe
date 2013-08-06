@@ -276,7 +276,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                         {
                             xtype: 'label',
                             flex: 1,
-                            html: '<div align="center"><font size=+3 color=#04408C>&nbsp;' + data.name + '</font></div>'
+                            html: '<div style="text-align: center; font-size: 200%; color:#04408C;">&nbsp;' + data.name + '</div>'
                         }
                     ]
                 },

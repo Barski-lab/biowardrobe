@@ -1,622 +1,627 @@
 #loading-mask {
-      position: absolute;
-      left:     0;
-      top:      0;
-      width:    100%;
-      height:   100%;
-      z-index:  20000;
-      background-color: white;
-      cursor:wait;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20000;
+    background-color: white;
+    cursor: wait;
 }
 
 #loading {
-      position: absolute;
-      left:     50%;
-      top:      50%;
-      padding:  2px;
-      z-index:  20001;
-      height:   auto;
-      margin:   -35px 0 0 -30px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    padding: 2px;
+    z-index: 20001;
+    height: auto;
+    margin: -35px 0 0 -30px;
 }
 
 #loading .loading-indicator {
-      background: url(ext/resources/themes/images/default/grid/loading.gif) no-repeat;
-      background-position:5px center;
-      color:      #555;
-      font:       bold 13px tahoma,arial,helvetica;
-      padding:    8px 42px;
-      margin:     0;
-      text-align: center;
-      height:     auto;
-      //cursor:wait;
-      //border:1px solid #d0d0d0;
-      //background-color:#eee;
+    background: url(ext/resources/themes/images/default/grid/loading.gif) no-repeat 5px center;
+    color: #555;
+    font: bold 13px tahoma, arial, helvetica;
+    padding: 8px 42px;
+    margin: 0;
+    text-align: center;
+    height: auto;
+    /*cursor:wait;
+    border:1px solid #d0d0d0;
+    background-color:#eee;*/
 }
 
 #project2-details-panel .details-info {
-    margin:15px;
-    padding:15px;
-    border:1px dotted #999;
-    color:#555;
+    margin: 15px;
+    padding: 15px;
+    border: 1px dotted #999;
+    color: #555;
     background: #f9f9f9;
 }
+
 #project2-details-panel a {
-    color:#15428B;
+    color: #15428B;
 }
+
 #project2-details-panel a:link,
 #project2-details-panel a:visited {
     text-decoration: none;
 }
+
 #project2-details-panel a:hover {
     text-decoration: underline;
 }
 
 .panel-text {
-    margin-right:5px;
+    margin-right: 5px;
     margin-left: 5px;
     padding: 0;
     text-align: justify;
-    line-height:1.5em;
-    color:#04408C;
+    line-height: 1.5em;
+    color: #04408C;
     font-style: italic;
 }
 
 .blue {
-            color: blue;
+    color: blue;
 }
 
 .green {
-            color: green;
+    color: green;
 }
 
 .red-back .x-grid-cell {
-     background:#ffe2e2 !important;
- }
+    background: #ffe2e2 !important;
+}
+
 .blue-back {
-     background:#58ACFA !important;
- }
+    background: #58ACFA !important;
+}
 
 .deseq-number {
     text-align: center;
 }
 
-.experiment-descr{
-  width:100%;
-  border-collapse: collapse;
-  margin-left: 5pt;
-  margin-top: 5pt;
+.experiment-descr {
+    width: 100%;
+    border-collapse: collapse;
+    margin-left: 5pt;
+    margin-top: 5pt;
 }
 
-.experiment-descr-1{
-  width:200;
-  font-size: 85%;
-  font-weight: bold;
-  border-bottom: 1px solid #cccccc;
-  padding-top: 4pt;
+.experiment-descr-1 {
+    width: 200px;
+    font-size: 85%;
+    font-weight: bold;
+    border-bottom: 1px solid #cccccc;
+    padding-top: 4pt;
 }
-.experiment-descr-2{
-  width:auto;
-  height: auto;
-  font-size: 85%;
-  font-style: italic;
-  margin-left: 1em;
-  padding-top: 4pt;
-  border-bottom: 1px solid #cccccc;
+
+.experiment-descr-2 {
+    width: auto;
+    height: auto;
+    font-size: 85%;
+    font-style: italic;
+    margin-left: 1em;
+    padding-top: 4pt;
+    border-bottom: 1px solid #cccccc;
 }
-.experiment-descr-3{
-  width:200;
-  height:112;
-  align: center;
-  margin: '0 0 0 0';
-  padding: '0 0 0 0';
+
+.experiment-descr-3 {
+    width: 200px;
+    height: 112px;
+    text-align: center;
+    margin: 0;
+    padding: 0;
 }
 
 .windows {
-    background-image: url( images/windows.png ) !important;
+    background-image: url(images/windows.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .default {
-    background-image: url( images/windows.png ) !important;
+    background-image: url(images/windows.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .space {
-    //background-image: url( images/space123.png ) !important;
+    /* background-image : url ( images/space123.png ) !important;*/
     width: 16px;
     height: 16px;
 }
 
 .space5 {
-    //background-image: url( images/space123.png ) !important;
+    /* background-image : url ( images/space123.png ) !important;*/
     width: 5px;
     height: 16px;
 }
 
 .about {
-    background-image: url( images/about.png ) !important;
+    background-image: url(images/about.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .cut {
-    background-image: url( images/cut.png ) !important;
+    background-image: url(images/cut.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .help {
-    background-image: url( images/unknown.png ) !important;
+    background-image: url(images/unknown.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .wrench {
-    background-image: url( images/wrench.png ) !important;
+    background-image: url(images/wrench.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .refresh {
-    background-image: url( images/refresh.png ) !important;
+    background-image: url(images/refresh.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .information {
-    background-image: url( images/information.png ) !important;
+    background-image: url(images/information.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .question_and_answer {
-    background-image: url( images/question_and_answer.png ) !important;
+    background-image: url(images/question_and_answer.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .surveillance-camera {
-    background-image: url( images/surveillance_camera.png ) !important;
+    background-image: url(images/surveillance_camera.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .users3 {
-    background-image: url( images/users3.png ) !important;
+    background-image: url(images/users3.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .users3-edit {
-    background-image: url( images/users3_edit.png ) !important;
+    background-image: url(images/users3_edit.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .users3-add {
-    background-image: url( images/users3_add.png ) !important;
+    background-image: url(images/users3_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .users3-delete {
-    background-image: url( images/users3_delete.png ) !important;
+    background-image: url(images/users3_delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .users3-preferences {
-    background-image: url( images/users3_preferences.png ) !important;
+    background-image: url(images/users3_preferences.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .user {
-    background-image: url( images/user.png ) !important;
+    background-image: url(images/user.png) !important;
     width: 16px;
     height: 16px;
 }
+
 .user-add {
-    background-image: url( images/user_add.png ) !important;
+    background-image: url(images/user_add.png) !important;
     width: 16px;
     height: 16px;
 }
+
 .user-new {
-    background-image: url( images/user_new.png ) !important;
+    background-image: url(images/user_new.png) !important;
     width: 16px;
     height: 16px;
 }
+
 .user-information {
-    background-image: url( images/user_information.png ) !important;
+    background-image: url(images/user_information.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .user-preferences {
-    background-image: url( images/user_preferences.png ) !important;
+    background-image: url(images/user_preferences.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table2 {
-    background-image: url( images/table2.png ) !important;
+    background-image: url(images/table2.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table2-add {
-    background-image: url( images/table2_add.png ) !important;
+    background-image: url(images/table2_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table2-check {
-    background-image: url( images/table2_check.png ) !important;
+    background-image: url(images/table2_check.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table2-ok {
-    background-image: url( images/table2_ok.png ) !important;
+    background-image: url(images/table2_ok.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table-refresh {
-    background-image: url( images/table_refresh.png ) !important;
+    background-image: url(images/table_refresh.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table-ok {
-    background-image: url( images/table_ok.png ) !important;
+    background-image: url(images/table_ok.png) !important;
     width: 16px;
     height: 16px;
 }
 
-
 .table-row-add {
-    background-image: url( images/table_row_add.png ) !important;
+    background-image: url(images/table_row_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table-row-delete {
-    background-image: url( images/table_row_delete.png ) !important;
+    background-image: url(images/table_row_delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .table-row-edit {
-    background-image: url( images/table_row_edit.png ) !important;
+    background-image: url(images/table_row_edit.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .chart {
-    background-image: url( images/chart_area.png ) !important;
+    background-image: url(images/chart_area.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .chart-line {
-    background-image: url( images/chart_line.png ) !important;
+    background-image: url(images/chart_line.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .check {
-    background-image: url( images/check.png ) !important;
+    background-image: url(images/check.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .clock {
-    background-image: url( images/clock.png ) !important;
+    background-image: url(images/clock.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .battery-red {
-    background-image: url( images/battery_red_10.png ) !important;
+    background-image: url(images/battery_red_10.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .battery-green {
-    background-image: url( images/battery_green_67.png ) !important;
+    background-image: url(images/battery_green_67.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .magazine-folder {
-    background-image: url( images/magazine_folder.png ) !important;
+    background-image: url(images/magazine_folder.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .form-blue {
-    background-image: url( images/form_blue.png ) !important;
+    background-image: url(images/form_blue.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .form-blue-add {
-    background-image: url( images/form_blue_add.png ) !important;
+    background-image: url(images/form_blue_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .form-blue-edit {
-    background-image: url( images/form_blue_edit.png ) !important;
+    background-image: url(images/form_blue_edit.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder {
-    background-image: url( images/folder.png ) !important;
+    background-image: url(images/folder.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder-add {
-    background-image: url( images/folder_add.png ) !important;
+    background-image: url(images/folder_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder-delete {
-    background-image: url( images/folder_delete.png ) !important;
+    background-image: url(images/folder_delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder-into {
-    background-image: url( images/folder_into.png ) !important;
+    background-image: url(images/folder_into.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder2 {
-    background-image: url( images/folder2.png ) !important;
+    background-image: url(images/folder2.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder3 {
-    background-image: url( images/folder3.png ) !important;
+    background-image: url(images/folder3.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .folder-document {
-    background-image: url( images/folder_document.png ) !important;
+    background-image: url(images/folder_document.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .army-knife {
-    background-image: url( images/army_knife.png ) !important;
+    background-image: url(images/army_knife.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .genome-browser {
-    background-image: url( images/genome_browser.png ) !important;
+    background-image: url(images/genome_browser.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .atom {
-    background-image: url( images/atom.png ) !important;
+    background-image: url(images/atom.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .bottle-pills {
-    background-image: url( images/bottle_of_pills.png ) !important;
+    background-image: url(images/bottle_of_pills.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .delete {
-    background-image: url( images/delete.png ) !important;
+    background-image: url(images/delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .add {
-    background-image: url( images/add.png ) !important;
+    background-image: url(images/add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .garbage {
-    background-image: url( images/garbage.png ) !important;
+    background-image: url(images/garbage.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .garbage-delete {
-    background-image: url( images/garbage_delete.png ) !important;
+    background-image: url(images/garbage_delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .application-enterprise-error {
-    background-image: url( images/application_enterprise_error.png ) !important;
+    background-image: url(images/application_enterprise_error.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .application-enterprise-new {
-    background-image: url( images/application_enterprise_new.png ) !important;
+    background-image: url(images/application_enterprise_new.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .application-enterprise-ok {
-    background-image: url( images/application_enterprise_ok.png ) !important;
+    background-image: url(images/application_enterprise_ok.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .application-enterprise-warning {
-    background-image: url( images/application_enterprise_warning.png ) !important;
+    background-image: url(images/application_enterprise_warning.png) !important;
     width: 16px;
     height: 16px;
 }
 
-
 .data-0-0 {
-    background-image: url( images/data_new.png ) !important;
+    background-image: url(images/data_new.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .data-0-1 {
-    background-image: url( images/data_copy.png ) !important;
+    background-image: url(images/data_copy.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .data-0-2 {
-    background-image: url( images/data_ok.png ) !important;
+    background-image: url(images/data_ok.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .data-2-0 {
-    background-image: url( images/data_error.png ) !important;
+    background-image: url(images/data_error.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .data-1-0 {
-    background-image: url( images/data_warning.png ) !important;
+    background-image: url(images/data_warning.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .data-down {
-    background-image: url( images/data_down.png ) !important;
+    background-image: url(images/data_down.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear {
-    background-image: url( images/gear.png ) !important;
+    background-image: url(images/gear.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear-0-10 {
-    background-image: url( images/gear_new.png ) !important;
+    background-image: url(images/gear_new.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear-0-11 {
-    background-image: url( images/gear_run.png ) !important;
+    background-image: url(images/gear_run.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear-0-12 {
-    background-image: url( images/gear_ok.png ) !important;
+    background-image: url(images/gear_ok.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear-2-10 {
-    background-image: url( images/gear_error.png ) !important;
+    background-image: url(images/gear_error.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .gear-1-10 {
-    background-image: url( images/gear_warning.png ) !important;
+    background-image: url(images/gear_warning.png) !important;
     width: 16px;
     height: 16px;
 }
 
-
 .step-0-20 {
-    background-image: url( images/step_new.png ) !important;
+    background-image: url(images/step_new.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .step-0-21 {
-    background-image: url( images/step_run.png ) !important;
+    background-image: url(images/step_run.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .step-0-22 {
-    background-image: url( images/step.png ) !important;
+    background-image: url(images/step.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .step-2-20 {
-    background-image: url( images/step_delete.png ) !important;
+    background-image: url(images/step_delete.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .floppy-disk-add {
-    background-image: url( images/floppy_disk_add.png ) !important;
+    background-image: url(images/floppy_disk_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .disk {
-    background-image: url( images/disk.png ) !important;
+    background-image: url(images/disk.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .element-edit {
-    background-image: url( images/element_edit.png ) !important;
+    background-image: url(images/element_edit.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .notebook-edit {
-    background-image: url( images/notebook_edit.png ) !important;
+    background-image: url(images/notebook_edit.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .notebook3 {
-    background-image: url( images/notebook3.png ) !important;
+    background-image: url(images/notebook3.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .media-play-green {
-    background-image: url( images/media_play_green.png ) !important;
+    background-image: url(images/media_play_green.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .funnel-add {
-    background-image: url( images/funnel_add.png ) !important;
+    background-image: url(images/funnel_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .index-add {
-    background-image: url( images/index_add.png ) !important;
+    background-image: url(images/index_add.png) !important;
     width: 16px;
     height: 16px;
 }
 
 .index2 {
-    background-image: url( images/index2.png ) !important;
+    background-image: url(images/index2.png) !important;
     width: 16px;
     height: 16px;
 }

@@ -111,7 +111,7 @@ Ext.define('EMS.view.Project.ProjectList', {
                                         grid.getStore().load();
                                     }
                                 });
-                            }
+                            };
                             return 'folder-delete';
                         }
                     }
