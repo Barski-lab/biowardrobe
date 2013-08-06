@@ -113,15 +113,15 @@ Ext.define('EMS.controller.Project2', {
         me.PrjSelect = index;
 
         var mainPanel = Ext.getCmp('ProjectDesigner');
+        var detp = Ext.getCmp('project2-details-panel');
 
         if (record.get('type') === 0) {//project
+            var worker = this.getWorkerStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
 
-            var detp = Ext.getCmp('project2-details-panel');
             detp.expand();
             var bd = detp.body;
             bd.update('').setStyle('background', '#fff');
 
-            var worker = this.getWorkerStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
             mainPanel.restoreCenter();
             if (!me.atype) {
                 me.atype = me.getATypeStore();
@@ -134,12 +134,12 @@ Ext.define('EMS.controller.Project2', {
             } else {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
-            bd.setHTML('<div style="padding:5px;">&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</div>');
             detp.getEl().slideIn('b', {
                 easing: 'easeInOut',
                 duration: 500,
                 stopAnimation: true
             });
+            bd.setHTML('<div style="padding:5px;">&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</div>');
         }//if project
     },
     /*************************************************************
@@ -169,20 +169,29 @@ Ext.define('EMS.controller.Project2', {
         var resStore = me.getGeneListStore();
         //var RTypeStore=me.getRTypeStore();
         var labStore = me.getProjectLabDataStore();
+        var centralPan;
 
         switch (data.atypeid) {
             case 1://DEseq
+            case 6://GeneList
                 labStore.getProxy().setExtraParam('isrna', 1);
                 labStore.load();
                 resStore.getProxy().setExtraParam('projectid', data.projectid);
                 resStore.getProxy().setExtraParam('atypeid', data.atypeid);
                 resStore.load();
-                var de = Ext.create('EMS.view.Project2.DESeq', {
-                    labDataStore: labStore,
-                    resultStore: resStore,
-                    projectid: data.projectid
-                });
-                mainPanel.replaceCenter(de);
+                if (data.atypeid === 1) {
+                    centralPan = Ext.create('EMS.view.Project2.DESeq', {
+                        labDataStore: labStore,
+                        resultStore: resStore,
+                        projectid: data.projectid
+                    });
+                } else {
+                    centralPan = Ext.create('EMS.view.Project2.GenesLists', {
+                        labDataStore: labStore,
+                        resultStore: resStore,
+                        projectid: data.projectid
+                    });
+                }
                 break;
             case 2://PCA
                 break;
@@ -192,21 +201,10 @@ Ext.define('EMS.controller.Project2', {
                 break;
             case 5://MANorm
                 break;
-            case 6://GeneList
-                labStore.getProxy().setExtraParam('isrna', 1);
-                labStore.load();
-                resStore.getProxy().setExtraParam('projectid', data.projectid);
-                resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-                resStore.load();
 
-                var gl = Ext.create('EMS.view.Project2.GenesLists', {
-                    labDataStore: labStore,
-                    resultStore: resStore,
-                    projectid: data.projectid
-                });
-                mainPanel.replaceCenter(gl);
                 break;
         }
+        mainPanel.replaceCenter(centralPan);
     },
     /*************************************************************
      *************************************************************/
@@ -482,9 +480,7 @@ Ext.define('EMS.controller.Project2', {
     /*************************************************************
      *************************************************************/
     onGeneListBeforeedit: function (editor, e) {
-        if (e.record.data.parentId === 'root')
-            return false;
-        return true;
+        return e.record.data.parentId !== 'root';
     },
     /*************************************************************
      *************************************************************/
