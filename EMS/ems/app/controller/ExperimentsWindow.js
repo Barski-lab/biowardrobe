@@ -19,13 +19,10 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.Loader.setConfig({enabled: true});
 
-//Ext.Loader.setPath({'EMS': 'app'}, {'Ext.ux': 'ux'});
-
-//Ext.require([
-//    'Ext.grid.*', 'Ext.data.*', 'Ext.ux.grid.FiltersFeature'
-//]);
+Ext.require([
+    'Ext.grid.*', 'Ext.data.*', 'Ext.ux.grid.FiltersFeature'
+]);
 
 
 Ext.define('EMS.controller.ExperimentsWindow', {

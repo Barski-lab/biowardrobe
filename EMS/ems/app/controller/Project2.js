@@ -20,7 +20,6 @@
  **
  ****************************************************************************/
 
-    //Ext.Loader.setPath({'EMS': 'app'}, {'Ext.ux': 'ux'});
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
@@ -123,6 +122,12 @@ Ext.define('EMS.controller.Project2', {
             detp.expand();
             var bd = detp.body;
             bd.update('').setStyle('background', '#fff');
+            detp.getEl().slideIn('b', {
+                easing: 'easeInOut',
+                duration: 500,
+                stopAnimation: true
+            });
+            bd.setHTML('<div style="padding:5px;">&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</div>');
 
             mainPanel.restoreCenter();
             if (!me.atype) {
@@ -136,12 +141,6 @@ Ext.define('EMS.controller.Project2', {
             } else {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
-            detp.getEl().slideIn('b', {
-                easing: 'easeInOut',
-                duration: 500,
-                stopAnimation: true
-            });
-            bd.setHTML('<div style="padding:5px;">&nbsp;Project by: <b>' + worker + '</b><br>' + '&nbsp;Project date: <b>' + Ext.util.Format.date(record.get('dateadd'), 'm/d/Y') + '</b><br>' + '&nbsp;Description: <br>&nbsp;<i>' + record.get('description') + '</i><br>' + '</div>');
         }//if project
     },
     /*************************************************************
@@ -194,6 +193,7 @@ Ext.define('EMS.controller.Project2', {
                         projectid: data.projectid
                     });
                 }
+                mainPanel.replaceCenter(centralPan);
                 break;
             case 2://PCA
                 break;
@@ -203,10 +203,7 @@ Ext.define('EMS.controller.Project2', {
                 break;
             case 5://MANorm
                 break;
-
-                break;
         }
-        mainPanel.replaceCenter(centralPan);
     },
     /*************************************************************
      *************************************************************/

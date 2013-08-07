@@ -132,12 +132,14 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                 id: 'project2-center-panel',
                 region: 'center',
                 frame: true,
+                width: 800,
                 padding: 0,
                 layout: 'fit',
                 items: [
                     {
                         xtype: 'panel',
                         id: 'project2-content-panel',
+                        width: 800,
                         layout: {
                             type: 'table',
                             columns: me.maxColumn,
@@ -200,11 +202,12 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         if (me.localdata.centerhided) {
             me.localdata.centerhided = false;
             center.remove(center.getComponent(1));
-            center.getComponent(0).getEl().slideIn('l', {
-                easing: 'easeInOut',
-                duration: 1000,
-                stopAnimation: true
-            });
+            center.getComponent(0).setVisible(true);
+//                .getEl().slideIn('l', {
+//                easing: 'easeInOut',
+//                duration: 1000,
+//                stopAnimation: true
+//            });
         }
     },
     replaceCenter: function (panel) {
@@ -213,12 +216,13 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         if (!me.localdata.centerhided) {
             me.localdata.centerhided = true;
             me.localdata.central = Ext.getCmp('project2-content-panel');
-            center.getComponent(0).getEl().slideOut('l', {
-                easing: 'easeInOut',
-                duration: 1000,
-                remove: false,
-                stopAnimation: true
-            });
+                        center.getComponent(0).setVisible(false);
+//            center.getComponent(0).getEl().slideOut('l', {
+//                easing: 'easeInOut',
+//                duration: 1000,
+//                remove: false,
+//                stopAnimation: true
+//            });
             center.add(panel);
         }
     },
@@ -263,9 +267,9 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                 remove: false,
                 stopAnimation: true
             });
-
             return;
         }
+
         me.localdata.analysisPanelList.push('project2-analysis-' + data.id);
         var element = {
             xtype: 'panel',
@@ -274,7 +278,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             id: 'project2-analysis-' + data.id,
             projectid: data.prjid,
             //column: me.curColumn,
-            //columnWidth: 380,
+            columnWidth: 380,
             margin: 10,
             padding: 0,
             draggable: true,

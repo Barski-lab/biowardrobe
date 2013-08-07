@@ -20,11 +20,9 @@
  **
  ****************************************************************************/
 
-    //Ext.Loader.setPath({'EMS': 'app'}, {'Ext.ux': 'ux'});
-
-    //Ext.require([
-    //    'Ext.ux.IFrame'
-    //]);
+Ext.require([
+    'Ext.ux.IFrame'
+]);
 
 
 Ext.define('EMS.controller.EMSMenu', {
