@@ -27,8 +27,8 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
 
 $data = json_decode($_REQUEST['data']);
 
@@ -174,8 +174,8 @@ function update_insert($val)
     if ($val->parentId == "gd") {
         if ($val->isnew)
             if ($val->leaf) //new record in a GD
-            execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,labdata_id,tableName,gblink) values(?,?,?,1,'experiments',1,?,?,?)",
-                array("sssiss", $val->item_id, $val->name, $val->project_id, $lid, $tablename, $gblink), true);
+            execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,labdata_id,tableName,gblink,conditions) values(?,?,?,1,'experiments',1,?,?,?,?)",
+                array("sssisss", $val->item_id, $val->name, $val->project_id, $lid, $tablename, $gblink,$val->conditions), true);
             else { //new folder in GD
                 $tbn = str_replace('-', '', $val->item_id);
                 execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName) values(?,?,?,0,'experiments',1,?)",
@@ -187,8 +187,8 @@ function update_insert($val)
     } else {
         if ($val->isnew)
             if ($val->leaf) { //add record in a folder
-                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,parent_id,db,`type`,labdata_id,tableName,gblink) values(?,?,?,?,?,'experiments',1,?,?,?)",
-                    array("sssisiss", $val->item_id, $val->name, $val->project_id, $val->leaf, $val->parentId, $lid, $tablename, $gblink), true);
+                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,parent_id,db,`type`,labdata_id,tableName,gblink,conditions) values(?,?,?,?,?,'experiments',1,?,?,?,?)",
+                    array("sssisisss", $val->item_id, $val->name, $val->project_id, $val->leaf, $val->parentId, $lid, $tablename, $gblink,$val->conditions), true);
                 make_a_view($val->item_id, $val->parentId);
             } else //looks like inccorect situation (add folder into folder)
             $res->print_error("Incorrect situation");
