@@ -251,6 +251,7 @@ Ext.define('EMS.controller.Project2', {
                     data.records[i].set('project_id', me.projectid);
                     data.records[i].set('expanded', false);
                     data.records[i].set('isnew', true);
+                    data.records[i].set('conditions', data.records[i].data.combined);
                 } else {
                     data.records[i].set('item_id', data.records[i].data.id);
                     data.records[i].set('isnew', false);
@@ -487,13 +488,14 @@ Ext.define('EMS.controller.Project2', {
         //console.log(arguments);
         var panel = Ext.getCmp('genelist-details-panel');
         var bd = panel.body;
-        if (record.get('parentId') === 'gl' || record.get('parentId') === 'de') {
+        //if (record.get('parentId') === 'gl' || record.get('parentId') === 'de') {
+        {
             panel.expand();
             bd.update('').setStyle('background', '#fff');
             bd.setHTML('<div style="margin-right:5px; color: #04408C; margin-left: 5px; align: left; padding: 0; line-height:1.5em; height: 100%;">' + 'Conditions:' + '<div class="panel-text">' + record.get('conditions') + '</div></div>');
-        } else {
+        }/* else {
             panel.collapse();
-        }
+        }*/
     }
 });
 

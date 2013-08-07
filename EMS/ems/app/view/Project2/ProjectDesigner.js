@@ -132,20 +132,18 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                 id: 'project2-center-panel',
                 region: 'center',
                 frame: true,
-                width: 800,
                 padding: 0,
                 layout: 'fit',
                 items: [
                     {
                         xtype: 'panel',
                         id: 'project2-content-panel',
-                        width: 800,
                         layout: {
                             type: 'table',
                             columns: me.maxColumn,
                             tableAttrs: {
                                 style: {
-                                    width: '100%'
+                                    width: 780
                                 }
                             }
                         },
@@ -180,8 +178,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                                             {
                                                 flex: 1,
                                                 xtype: 'label',
-                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
-                                                    'To add a new project type project name in textfield, which is in the left top conner and then press enter. New project name (with folder icon) will be shown ' + ' in a panel under the textfield. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done in "Genes Lists" and "DESeq" analysis. </div>'
+                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' + 'To add a new project type project name in a textfield, which is in the left top conner of the window and then press enter. New project name (with folder icon) will be shown ' + ' in a panel under the textfield. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done by "Genes Lists" or "DESeq" analysis, to do it just click on the corresponded panel. </div>'
                                             }
                                         ]
                                     }
@@ -201,13 +198,22 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         var center = Ext.getCmp('project2-center-panel');
         if (me.localdata.centerhided) {
             me.localdata.centerhided = false;
-            center.remove(center.getComponent(1));
-            center.getComponent(0).setVisible(true);
-//                .getEl().slideIn('l', {
-//                easing: 'easeInOut',
-//                duration: 1000,
-//                stopAnimation: true
-//            });
+            center.getComponent(1).getEl().slideOut('l', {
+                easing: 'easeInOut',
+                duration: 500,
+                stopAnimation: true,
+                listeners: {
+                    'lastframe':function() {
+                        center.getComponent(0).getEl().slideIn('l', {
+                            easing: 'easeInOut',
+                            duration: 500,
+                            stopAnimation: true
+                        });
+                        center.getComponent(0).setVisible(true);
+                        center.remove(center.getComponent(1));
+                    }
+                }
+            });
         }
     },
     replaceCenter: function (panel) {
@@ -216,14 +222,22 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         if (!me.localdata.centerhided) {
             me.localdata.centerhided = true;
             me.localdata.central = Ext.getCmp('project2-content-panel');
-                        center.getComponent(0).setVisible(false);
-//            center.getComponent(0).getEl().slideOut('l', {
-//                easing: 'easeInOut',
-//                duration: 1000,
-//                remove: false,
-//                stopAnimation: true
-//            });
+            center.getComponent(0).setVisible(false);
+            //            center.getComponent(0).getEl().slideOut('l', {
+            //                easing: 'easeInOut',
+            //                duration: 1000,
+            //                remove: false,
+            //                stopAnimation: true
+            //            });
+            panel.setVisible(false);
             center.add(panel);
+            center.getComponent(1).getEl().slideIn('l', {
+                easing: 'easeInOut',
+                duration: 500,
+                remove: false,
+                stopAnimation: true
+            });
+            panel.setVisible(true);
         }
     },
     hideAnalysis: function () {
@@ -259,13 +273,30 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         var panel = Ext.getCmp('project2-content-panel');
         var exist = Ext.getCmp('project2-analysis-' + data.id);
         if (exist) {
+            var x = exist.getX();
+            var y = exist.getY();
             exist.projectid = data.prjid;
             var slide = 't';
+            var from = {
+                x: x,
+                y: y,
+                height: 30
+            };
+            var to = {
+                x: x,
+                y: y,
+                height: 160
+            };
+
             exist.getEl().slideIn(slide, {
-                easing: 'easeInOut',
-                duration: 200,
+                easing: 'linear',
+                duration: 300,
                 remove: false,
-                stopAnimation: true
+                //preserveScroll: true,
+                //stopAnimation: true,
+                to: to,
+                from: from
+
             });
             return;
         }
@@ -277,7 +308,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             minHeight: 160,
             id: 'project2-analysis-' + data.id,
             projectid: data.prjid,
-            //column: me.curColumn,
+            column: me.curColumn,
             columnWidth: 380,
             margin: 10,
             padding: 0,
