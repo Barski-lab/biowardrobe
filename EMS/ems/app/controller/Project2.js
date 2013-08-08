@@ -209,7 +209,10 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     onComboboxWorkerSelect: function (combo, records, options) {
         this.getProjectLabDataStore().getProxy().setExtraParam('workerid', Ext.getCmp('project-worker-changed').getValue());
-        Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
+        if(Ext.getCmp('Project2DESeq')) 
+            Ext.getCmp('Project2DESeq').m_PagingToolbar.moveFirst();
+        if(Ext.getCmp('Project2GenesLists'))
+            Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
     },
     /*************************************************************
      *************************************************************/

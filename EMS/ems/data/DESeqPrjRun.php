@@ -134,8 +134,8 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 for ($i = 0; $i < count($TNAMES); $i++) {
     execSQL($con,
         "ALTER TABLE `" . $db_name_experiments . "`.`" . $TNAMES[$i] . "` " .
-        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(400) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(400) NULL DEFAULT NULL" .
+        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(1000) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(500) NULL DEFAULT NULL" .
         ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL" .
         ", CHANGE COLUMN `txStart` `txStart` INT(11) NULL DEFAULT NULL" .
         ", CHANGE COLUMN `txEnd` `txEnd` INT(11) NULL DEFAULT NULL" .

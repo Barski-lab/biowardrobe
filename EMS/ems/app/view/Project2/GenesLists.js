@@ -20,8 +20,7 @@
  **
  ****************************************************************************/
 Ext.require([
-    'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*'
-    //'Ext.ux.form.SearchField'
+    'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*', 'Ext.ux.form.SearchField'
 ]);
 
 Ext.define('EMS.view.Project2.GenesLists', {
