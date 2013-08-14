@@ -82,7 +82,7 @@ Ext.define('EMS.controller.EMSMenu', {
             me.createWindow(menuitem.action, 'EMS.view.WorkersEdit', {});
         }
         if (menuitem.action === "Worker") {
-            me.WorkerEditWindow = me.getController('WorkersEdit').edit();
+            me.WorkerEditWindow = me.getController('EMS.controller.WorkersEdit').edit();
             Ext.getCmp('EMSMenu').add(me.WorkerEditWindow);
         }
         if (menuitem.action === "Antibodies") {

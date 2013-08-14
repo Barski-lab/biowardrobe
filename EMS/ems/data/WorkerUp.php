@@ -1,8 +1,34 @@
 <?php
-require('common.php');
+/****************************************************************************
+ **
+ ** Copyright (C) 2011 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
+
+require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
+
+
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST,true));
 
 $con=def_connect();
 $con->select_db($db_name_ems);
@@ -13,6 +39,7 @@ if(!isset($data))
     $res->print_error("no data");
 if(intVal($data->id)==0)
     $res->print_error("no id");
+
 if($data->passwd=='' && !check_rights('worker'))
     $res->print_error("no passwd");
 
@@ -41,10 +68,16 @@ if(sizeof($result) != 1) {
     $res->print_error("Something wrong");
 }
 
-$crp=crypt_pass($data->worker,$data->passwd);
-if($data->passwd==$result[0]['passwd'] || $crp==$result[0]['passwd'] || check_rights('worker')) {
+$salt = substr($result[0]['passwd'], 0, 64);
+$hash = $salt . $data->passwd;
+for ($i = 0; $i < 100000; $i++) {
+    $hash = hash('sha256', $hash);
+}
+$hash = $salt . $hash;
+
+if($hash == $result[0]['passwd'] || check_rights('worker')) {
     if(execSQL($con,$SQL_STR,$PARAMS,true)==0) {
-        $res->print_error("Cant update");
+        $res->print_error("Can't update");
     } else {
         $res->success = true;
         $res->message = "Data updated";

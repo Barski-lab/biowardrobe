@@ -22,10 +22,10 @@
 
 Ext.define( 'EMS.model.Worker', {
                extend: 'Ext.data.Model',
-               idProperty: 'id',
+               //idProperty: 'id',
                fields:
                  [
-                   { name: 'id', type: 'int', persist: true },
+                   { name: 'id', type: 'int'},
                    { name: 'worker', type: 'string' },
                    { name: 'passwd', type: 'string' },
                    { name: 'fname', type: 'string' },

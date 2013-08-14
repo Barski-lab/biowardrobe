@@ -178,7 +178,8 @@ Ext.application({
 
     appFolder: 'app',
     controllers: [
-        'EMS.controller.EMSMenu', 'EMS.controller.ExperimentTypeEdit', 'EMS.controller.ExperimentsWindow', 'EMS.controller.WorkersEdit', 'EMS.controller.GenomeEdit', 'EMS.controller.AntibodiesEdit', 'EMS.controller.CrosslinkEdit', 'EMS.controller.FragmentationEdit', 'EMS.controller.Spikeins', 'EMS.controller.SequenceCutter', 'EMS.controller.Patients', 'EMS.controller.Project', 'EMS.controller.Project2', 'EMS.controller.Info'
+        'EMS.controller.ExperimentTypeEdit', 'EMS.controller.ExperimentsWindow', 'EMS.controller.WorkersEdit', 'EMS.controller.GenomeEdit', 'EMS.controller.AntibodiesEdit', 'EMS.controller.CrosslinkEdit', 'EMS.controller.FragmentationEdit', 'EMS.controller.Spikeins', 'EMS.controller.SequenceCutter', 'EMS.controller.Patients', 'EMS.controller.Project', 'EMS.controller.Project2', 'EMS.controller.Info',
+        'EMS.controller.EMSMenu'
     ],
 
     stores: ['EMSLocalStorage'],

@@ -30,18 +30,15 @@ if ($_SESSION["attempt"] > 6) {
 }
 
 $_SESSION["changepass"] = 0;
-if ($_REQUEST["password"] == $query_array[0]['passwd']) {
-    $_SESSION["changepass"] = 1;
-} else {
-    $salt = substr($query_array[0]['passwd'], 0, 64);
-    $hash = $salt . $_REQUEST["password"];
-    for ($i = 0; $i < 100000; $i++) {
-        $hash = hash('sha256', $hash);
-    }
-    $hash = $salt . $hash;
-    if ($hash != $query_array[0]['passwd']) {
-        $res->print_error("Incorrect user name or password");
-    }
+
+$salt = substr($query_array[0]['passwd'], 0, 64);
+$hash = $salt . $_REQUEST["password"];
+for ($i = 0; $i < 100000; $i++) {
+    $hash = hash('sha256', $hash);
+}
+$hash = $salt . $hash;
+if ($hash != $query_array[0]['passwd']) {
+    $res->print_error("Incorrect user name or password");
 }
 
 $_SESSION["username"] = $query_array[0]['worker'];
