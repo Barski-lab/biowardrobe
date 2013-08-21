@@ -77,37 +77,46 @@ function get_by_id($parentid)
     return $data;
 }
 
-function get_raw_list($prjid, $exp = '')
+//function get_raw_list($prjid, $exp = '')
+function get_raw_list($prjid, $type = 1)
 {
     global $con;
     $data = array();
-    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = 1 and parent_id is null order by leaf,name", array("s", $prjid), false);
+    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = ? and parent_id is null order by leaf,name", array("si", $prjid, $type), false);
     foreach ($qr as $key => $val) {
-        if ($exp != $val['id']) {
-            $data[] = array(
-                'id' => $val['id'],
-                'item_id' => $val['id'],
-                'name' => $val['name'],
-                'leaf' => !!$val['leaf'],
-                'conditions' => $val['conditions'],
-                'expanded' => false,
-                'type' => $val['type'],
-                'labdata_id' => $val['labdata_id'],
-                'rtype_id' => $val['rtype_id'],
-                'atype_id' => $val['atype_id'],
-                'project_id' => $val['project_id'],
-                'parent_id' => isset($val['parent_id']) ? $val['parent_id'] : 0
-            );
-        }
+        //if ($exp != $val['id']) {
+        $data[] = array(
+            'id' => $val['id'],
+            'item_id' => $val['id'],
+            'name' => $val['name'],
+            'leaf' => !!$val['leaf'],
+            'conditions' => $val['conditions'],
+            'expanded' => false,
+            'type' => $val['type'],
+            'labdata_id' => $val['labdata_id'],
+            'rtype_id' => $val['rtype_id'],
+            'atype_id' => $val['atype_id'],
+            'project_id' => $val['project_id'],
+            'parent_id' => isset($val['parent_id']) ? $val['parent_id'] : 0
+        );
+        //}
     }
-    return $data;
+    $rd = array(
+        'id' => 'gd',
+        'name' => 'Raw Data',
+        'leaf' => false,
+        'expanded' => true,
+        'parent_id' => 'root',
+        'data' => $data);
+
+    return $rd;
 }
 
-function get_filtered_list($prjid)
+function get_filtered_list($prjid,$type=2,$expanded=true)
 {
     global $con;
     $data = array();
-    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = 2 order by name", array("s", $prjid), false);
+    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = ? order by name", array("si", $prjid,$type), false);
     foreach ($qr as $key => $val) {
         $data[] = array(
             'id' => $val['id'],
@@ -125,7 +134,15 @@ function get_filtered_list($prjid)
             'parent_id' => isset($val['parent_id']) ? $val['parent_id'] : 0
         );
     }
-    return $data;
+    $gl = array(
+        'id' => 'gl',
+        'name' => 'Gene List',
+        'leaf' => false,
+        'expanded' => $expanded,
+        'parent_id' => 'root',
+        'data' => $data);
+
+    return $gl;
 }
 
 function get_deseq_list($prjid)
@@ -155,41 +172,42 @@ function get_deseq_list($prjid)
 
 
 if ($node == 'root') {
-    $rd = array(
-        'id' => 'gd',
-        'name' => 'Raw Data',
-        'leaf' => false,
-        'expanded' => true,
-        'parent_id' => 'root',
-        'data' => get_raw_list($prjid));
-    $gl = array(
-        'id' => 'gl',
-        'name' => 'Gene List',
-        'leaf' => false,
-        'expanded' => true,
-        'parent_id' => 'root',
-        'data' => get_filtered_list($prjid));
+
 
     switch ($atypeid) {
         case 1: //deseq
-            $de = array(
-                'id' => 'de',
-                'name' => 'DESeq results',
-                'leaf' => false,
-                'expanded' => true,
-                'parent_id' => 'root',
-                'data' => get_deseq_list($prjid));
-            echo json_encode(array(
-                'text' => '.',
-                'expanded' => true,
-                'data' => array($rd, $de, $gl)
-            ));
-            break;
         case 6: //filters
+        $gl = get_filtered_list($prjid);
+        $rd = get_raw_list($prjid);
+            if ($atypeid == 1) {
+                $de = array(
+                    'id' => 'de',
+                    'name' => 'DESeq results',
+                    'leaf' => false,
+                    'expanded' => true,
+                    'parent_id' => 'root',
+                    'data' => get_deseq_list($prjid));
+                echo json_encode(array(
+                    'text' => '.',
+                    'expanded' => true,
+                    'data' => array($rd, $de, $gl)
+                ));
+            } else {
+                //break;
+                echo json_encode(array(
+                    'text' => '.',
+                    'expanded' => true,
+                    'data' => array($rd, $gl)
+                ));
+            }
+            break;
+        case 4: //ATDP
+            $gl =  get_filtered_list($prjid,2,false);
+            $rd = get_raw_list($prjid,101);
             echo json_encode(array(
                 'text' => '.',
                 'expanded' => true,
-                'data' => array($rd, $gl)
+                'data' => array($rd,$gl)
             ));
             break;
     }

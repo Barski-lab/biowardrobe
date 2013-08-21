@@ -129,8 +129,8 @@ $SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . " AS " .
     " FROM " . $FROM . " WHERE $WHERE $WHEREC ";
 execSQL($con, $SQL, array(), true);
 
-execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?)",
-    array("sssssss", $UUID, $V->name, $project_id, $db_name_experiments, $tbname, $gblink, $READABLE, $EXT['id']), true);
+execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
+    array("sssssssi", $UUID, $V->name, $project_id, $db_name_experiments, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
 if (!$con->commit()) {
     $res->print_error("Cant commit");

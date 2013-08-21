@@ -34,7 +34,7 @@ $data = json_decode($_REQUEST['data']);
 
 if (!isset($data))
     $res->print_error("no data");
-//logmsg(print_r($data,true));
+logmsg(print_r($data,true));
 
 $count = 1;
 
@@ -174,12 +174,12 @@ function update_insert($val)
     if ($val->parentId == "gd") {
         if ($val->isnew)
             if ($val->leaf) //new record in a GD
-            execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,labdata_id,tableName,gblink,conditions) values(?,?,?,1,'experiments',1,?,?,?,?)",
-                array("sssisss", $val->item_id, $val->name, $val->project_id, $lid, $tablename, $gblink,$val->conditions), true);
+            execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,labdata_id,tableName,gblink,conditions,`type`) values(?,?,?,1,'experiments',?,?,?,?,?)",
+                array("sssisssi", $val->item_id, $val->name, $val->project_id, $lid, $tablename, $gblink,$val->conditions,$val->type), true);
             else { //new folder in GD
                 $tbn = str_replace('-', '', $val->item_id);
-                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName) values(?,?,?,0,'experiments',1,?)",
-                    array("ssss", $val->item_id, $val->name, $val->project_id, $tbn), true);
+                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,tableName,`type`) values(?,?,?,0,'experiments',?,?)",
+                    array("ssssi", $val->item_id, $val->name, $val->project_id, $tbn,$val->type), true);
             }
         else //move record to GD
         execSQL($con, "update " . $db_name_ems . ".genelist set name=?,parent_id=null,leaf=? where id like ?",
@@ -187,8 +187,8 @@ function update_insert($val)
     } else {
         if ($val->isnew)
             if ($val->leaf) { //add record in a folder
-                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,parent_id,db,`type`,labdata_id,tableName,gblink,conditions) values(?,?,?,?,?,'experiments',1,?,?,?,?)",
-                    array("sssisisss", $val->item_id, $val->name, $val->project_id, $val->leaf, $val->parentId, $lid, $tablename, $gblink,$val->conditions), true);
+                execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,parent_id,db,labdata_id,tableName,gblink,conditions,`type`) values(?,?,?,?,?,'experiments',?,?,?,?,?)",
+                    array("sssisisssi", $val->item_id, $val->name, $val->project_id, $val->leaf, $val->parentId, $lid, $tablename, $gblink,$val->conditions,$val->type), true);
                 make_a_view($val->item_id, $val->parentId);
             } else //looks like inccorect situation (add folder into folder)
             $res->print_error("Incorrect situation");

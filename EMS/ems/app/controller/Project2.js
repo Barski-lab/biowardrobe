@@ -46,6 +46,12 @@ Ext.define('EMS.controller.Project2', {
                 filter: me.filterApplyDeseq,
                 deseq: me.runDESeq
             },
+            '#Project2ATDP': {
+                Back: me.onBack
+                //groupadd: me.onGroupAdd,
+                //filter: me.filterApplyDeseq,
+                //deseq: me.runDESeq
+            },
             '#project2-project-list': {
                 select: me.onProjectSelect,
                 edit: me.onProjectEdit
@@ -200,6 +206,17 @@ Ext.define('EMS.controller.Project2', {
             case 3://DESeq2
                 break;
             case 4://ATP
+                labStore.getProxy().setExtraParam('isrna', 0);
+                labStore.load();
+                resStore.getProxy().setExtraParam('projectid', data.projectid);
+                resStore.getProxy().setExtraParam('atypeid', data.atypeid);
+                resStore.load();
+                centralPan = Ext.create('EMS.view.Project2.ATDP', {
+                    labDataStore: labStore,
+                    resultStore: resStore,
+                    projectid: data.projectid
+                });
+                mainPanel.replaceCenter(centralPan);
                 break;
             case 5://MANorm
                 break;
@@ -209,14 +226,19 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     onComboboxWorkerSelect: function (combo, records, options) {
         this.getProjectLabDataStore().getProxy().setExtraParam('workerid', Ext.getCmp('project-worker-changed').getValue());
-        if(Ext.getCmp('Project2DESeq')) 
-            Ext.getCmp('Project2DESeq').m_PagingToolbar.moveFirst();
-        if(Ext.getCmp('Project2GenesLists'))
-            Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
+        //console.log(combo.up('panel').up('panel'));
+        combo.up('panel').up('panel').m_PagingToolbar.moveFirst();
+        //        if (Ext.getCmp('Project2DESeq'))
+        //            Ext.getCmp('Project2DESeq').m_PagingToolbar.moveFirst();
+        //        if (Ext.getCmp('Project2GenesLists'))
+        //            Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
+        //        if (Ext.getCmp('Project2ATDP'))
+        //            Ext.getCmp('Project2ATDP').m_PagingToolbar.moveFirst()
     },
     /*************************************************************
      *************************************************************/
     beforeGeneListDrop: function (node, data, overModel, dropPosition, dropHandlers) {
+        console.log(arguments);
         var me = this;
         dropHandlers.wait = true;
 
@@ -246,6 +268,12 @@ Ext.define('EMS.controller.Project2', {
                     continue;
 
                 var uuid = generateUUID();
+                var type=1;
+                if (typeof data.records[i].data.experimenttype_id !== 'undefined') {
+                    if(data.records[i].data.experimenttype_id<=2) {
+                        type=101;
+                    }
+                }
 
                 if (typeof data.records[i].data.name4browser !== 'undefined') {
                     data.records[i].set('name', data.records[i].data.name4browser);
@@ -261,7 +289,7 @@ Ext.define('EMS.controller.Project2', {
                 }
                 data.records[i].set('parent_id', overModel.data.id);
                 data.records[i].set('leaf', true);
-                data.records[i].set('type', 1);
+                data.records[i].set('type', type);
             }
             dropHandlers.processDrop();
         });
@@ -496,9 +524,10 @@ Ext.define('EMS.controller.Project2', {
             panel.expand();
             bd.update('').setStyle('background', '#fff');
             bd.setHTML('<div style="margin-right:5px; color: #04408C; margin-left: 5px; align: left; padding: 0; line-height:1.5em; height: 100%;">' + 'Conditions:' + '<div class="panel-text">' + record.get('conditions') + '</div></div>');
-        }/* else {
-            panel.collapse();
-        }*/
+        }
+        /* else {
+         panel.collapse();
+         }*/
     }
 });
 
