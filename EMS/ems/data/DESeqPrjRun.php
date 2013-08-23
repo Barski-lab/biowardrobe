@@ -39,18 +39,19 @@ try {
 logmsg(print_r($data, true));
 $count = 0;
 
-if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->deseq) || !isset($data->deseq->name)) {
+if (gettype($data->deseq) == "array") {
+    $res->print_error("Not supported yet.");
+}
+
+if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->deseq) || !isset($data->deseq->name) || !isset($data->deseq->seriestype)) {
     $res->print_error("no data");
 }
 
 $atypeid = intval($data->atype_id);
+$timeseries = intval($data->deseq->seriestype);
+
 check_val($data->project_id);
 $projectid = $data->project_id;
-
-
-if (gettype($data->deseq) == "array") {
-    $res->print_error("Not supported yet.");
-}
 
 $NAME = $data->deseq->name;
 $rtypeid = intVal($data->deseq->annottype);
@@ -76,26 +77,66 @@ $tablenames[$deseq[0]->table] = array("table" => $tn[0]['tableName'], "gblink" =
 if (intval($deseq[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
 
-for ($i = 1; $i < $delength; $i++) {
-    check_val($deseq[$i]->table);
-    $tn = get_table_name($deseq[$i]->table);
-    if (!$tn)
-        $res->print_error("no tablename data");
-    $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
+$prefix = "";
 
-    $tablepairs[] = array("id" => $i, "t1" => $deseq[$i - 1]->table, "t2" => $deseq[$i]->table);
+if ($delength == 2 || $timeseries == 1) {
+    for ($i = 1; $i < $delength; $i++) {
+        check_val($deseq[$i]->table);
+        $tn = get_table_name($deseq[$i]->table);
+        if (!$tn)
+            $res->print_error("no tablename data");
+        $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
 
-    if (intval($deseq[$i]->order) != $i + 1)
-        $res->print_error("Incorrect ordering.");
+        $tablepairs[] = array("id" => $i, "t1" => $deseq[$i - 1]->table, "t2" => $deseq[$i]->table);
+
+        if (intval($deseq[$i]->order) != $i + 1)
+            $res->print_error("Incorrect ordering.");
+    }
+    $prefix = "t";
+} elseif ($timeseries == 2) { // kinetics
+    for ($i = 1; $i < $delength; $i++) {
+        check_val($deseq[$i]->table);
+        $tn = get_table_name($deseq[$i]->table);
+        if (!$tn)
+            $res->print_error("no tablename data");
+        $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
+
+        $tablepairs[] = array("id" => $i, "t1" => $deseq[0]->table, "t2" => $deseq[$i]->table);
+
+        if (intval($deseq[$i]->order) != $i + 1)
+            $res->print_error("Incorrect ordering.");
+    }
+    $prefix = "k";
+} elseif ($timeseries == 3) { // pairwise
+    $c = 1;
+    for ($i = 0; $i < $delength - 1; $i++) {
+        if (intval($deseq[$i]->order) != $i + 1)
+            $res->print_error("Incorrect ordering.");
+        check_val($deseq[$i]->table);
+        $tn = get_table_name($deseq[$i]->table);
+        if (!$tn)
+            $res->print_error("no tablename data");
+        $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
+        for ($j = $i + 1; $j < $delength; $j++) {
+            check_val($deseq[$j]->table);
+            $tn1 = get_table_name($deseq[$j]->table);
+            if (!$tn1)
+                $res->print_error("no tablename data");
+            $tablenames[$deseq[$j]->table] = array("table" => $tn1[0]['tableName'], "gblink" => $tn1[0]['gblink'], "name" => $tn1[0]['name']);
+            $tablepairs[] = array("id" => $c, "t1" => $deseq[$i]->table, "t2" => $deseq[$j]->table);
+            $c++;
+        }
+    }
+    $prefix = "p";
 }
 
 $tbpairlen = count($tablepairs);
 
 $gblink = "";
 $READABLE = "";
-$DESEQN="DESeq";
-if($atypeid==3)
-    $DESEQN="DESeq2";
+$DESEQN = "DESeq";
+if ($atypeid == 3)
+    $DESEQN = "DESeq2";
 
 for ($i = 0; $i < $tbpairlen; $i++) {
     $output = "";
@@ -115,7 +156,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     $RNAME = $NAME;
     if ($tbpairlen != 1) {
         $c = $i + 1;
-        $RNAME = $NAME . " ($c)";
+        $RNAME = $NAME . " ($prefix$c)";
     }
 
     $gblink = $tablenames[$tablepairs[$i]['t1']]['gblink'] . "&" . $tablenames[$tablepairs[$i]['t2']]['gblink'];

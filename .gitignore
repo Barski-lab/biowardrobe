@@ -7,3 +7,4 @@ SNP
 *.pyc
 RUN*
 boost
+.idea

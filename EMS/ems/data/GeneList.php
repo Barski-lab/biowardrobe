@@ -152,7 +152,7 @@ if ($node == 'root') {
         case 4: //ATDP
             $gl = get_list_by_type($prjid, 2, 'gl', 'Gene List', false);
             $rd = get_raw_list($prjid, 101);
-            $ar = get_list_by_type($prjid, 102, 'ar', 'ATDP results', false);
+            $ar = get_list_by_type($prjid, 102, 'ar', 'ATDP results');
             echo json_encode(array(
                 'text' => '.',
                 'expanded' => true,
@@ -163,10 +163,11 @@ if ($node == 'root') {
 }
 
 if ($node == 'de') {
+    $de=get_list_by_type($prjid, 3, 'de', 'DESeq results');
     echo json_encode(array(
         'text' => '.',
         'expanded' => true,
-        'data' => get_list_by_type($prjid, 3, 'de', 'DESeq results')
+        'data' => $de['data']
     ));
 }
 

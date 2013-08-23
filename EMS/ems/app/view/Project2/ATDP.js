@@ -210,12 +210,12 @@ Ext.define('EMS.view.Project2.ATDP', {
                                             meta.css = 'x-hide-display';
                                         if (rec.data.parentId !== 'gd')
                                             return;
-                                        this.items[0].text = 'filter';
-                                        this.items[0].tooltip = 'apply filter';
+                                        this.items[0].text = 'ATD';
+                                        this.items[0].tooltip = 'average tag density profile';
                                         this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            me.fireEvent('filter', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                            me.fireEvent('atdp', grid, rowIndex, colIndex, actionItem, event, record, row);
                                         };
-                                        return 'funnel-add';
+                                        return 'chart-line';
                                     }
                                 } ,
                                 {
