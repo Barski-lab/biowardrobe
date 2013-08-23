@@ -178,48 +178,42 @@ Ext.define('EMS.controller.Project2', {
         var labStore = me.getProjectLabDataStore();
         var centralPan;
 
-        switch (data.atypeid) {
-            case 1://DEseq
-            case 6://GeneList
-                labStore.getProxy().setExtraParam('isrna', 1);
-                labStore.load();
-                resStore.getProxy().setExtraParam('projectid', data.projectid);
-                resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-                resStore.load();
-                if (data.atypeid === 1) {
-                    centralPan = Ext.create('EMS.view.Project2.DESeq', {
-                        labDataStore: labStore,
-                        resultStore: resStore,
-                        projectid: data.projectid
-                    });
-                } else {
-                    centralPan = Ext.create('EMS.view.Project2.GenesLists', {
-                        labDataStore: labStore,
-                        resultStore: resStore,
-                        projectid: data.projectid
-                    });
-                }
-                mainPanel.replaceCenter(centralPan);
-                break;
-            case 2://PCA
-                break;
-            case 3://DESeq2
-                break;
-            case 4://ATP
-                labStore.getProxy().setExtraParam('isrna', 0);
-                labStore.load();
-                resStore.getProxy().setExtraParam('projectid', data.projectid);
-                resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-                resStore.load();
-                centralPan = Ext.create('EMS.view.Project2.ATDP', {
+        if (data.atypeid == 1 || data.atypeid == 6 || data.atypeid == 3) { //deseq, filter, deseq2
+            labStore.getProxy().setExtraParam('isrna', 1);
+            labStore.load();
+            resStore.getProxy().setExtraParam('projectid', data.projectid);
+            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
+            resStore.load();
+            if (data.atypeid === 1 || data.atypeid === 3) {
+                centralPan = Ext.create('EMS.view.Project2.DESeq', {
                     labDataStore: labStore,
                     resultStore: resStore,
-                    projectid: data.projectid
+                    projectid: data.projectid,
+                    atypeid: data.atypeid
                 });
-                mainPanel.replaceCenter(centralPan);
-                break;
-            case 5://MANorm
-                break;
+            } else {
+                centralPan = Ext.create('EMS.view.Project2.GenesLists', {
+                    labDataStore: labStore,
+                    resultStore: resStore,
+                    projectid: data.projectid,
+                    atypeid: data.atypeid
+                });
+            }
+            mainPanel.replaceCenter(centralPan);
+        } else if (data.atypeid == 2) {
+        } else if (data.atypeid == 4) {
+            labStore.getProxy().setExtraParam('isrna', 0);
+            labStore.load();
+            resStore.getProxy().setExtraParam('projectid', data.projectid);
+            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
+            resStore.load();
+            centralPan = Ext.create('EMS.view.Project2.ATDP', {
+                labDataStore: labStore,
+                resultStore: resStore,
+                projectid: data.projectid
+            });
+            mainPanel.replaceCenter(centralPan);
+        } else if (data.atypeid == 5) {
         }
     },
     /*************************************************************
@@ -337,18 +331,19 @@ Ext.define('EMS.controller.Project2', {
     },
     /*************************************************************
      *************************************************************/
-    runDESeq: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+    runDESeq: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var me = this;
         var filterForm = Ext.create('EMS.view.Project2.DESeqRun', {
             modal: true,
             item_id: record.data.item_id,
+            atypeid: atypeid,
             tables: me.getGeneListStore().getRootNode(),
             onSubmit: function () {
-                me.deseqSubmit(filterForm, record);
+                me.deseqSubmit(filterForm, record, atypeid);
             }
         }).show();
     },
-    deseqSubmit: function (form, record) {
+    deseqSubmit: function (form, record,atypeid) {
         var me = this;
         var formData = form.getFormJson();
         Ext.Ajax.request({
@@ -384,7 +379,7 @@ Ext.define('EMS.controller.Project2', {
             },
             jsonData: Ext.encode({
                 "project_id": me.projectid,
-                "atype_id": 1,
+                "atype_id": atypeid,
                 "deseq": formData
             })
         });

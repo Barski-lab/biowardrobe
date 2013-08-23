@@ -1,8 +1,14 @@
 args <- commandArgs(trailingOnly = TRUE)
 
+#$CMD = "Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME $atypeid";
+#                           args[1]  args[2]                                                                                                          8       9      10
+
 library(DBI)
 library(RMySQL)
 DESeqA=1
+if(args[10]==3)
+    DESeqA=2
+
 if(DESeqA==2) {
     library(DESeq2)
 } else {
@@ -40,10 +46,10 @@ for(i in 1:T1C) {
   tblName<-paste(T1T[i,1],tblEnd,sep="")
   names<-append(names,c(paste("R_u",i,sep=""),paste("RPKM_u",i,sep="")))
   if( i==1 ) {
-    fullData<-dbGetQuery(con,paste("SELECT refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0 as R_u",i,",RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
+    fullData<-dbGetQuery(con,paste("SELECT refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0 as R_u",i,",RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
   }
   if(i>1) {
-    fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0 as R_u",i,",RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep="")))
+    fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0 as R_u",i,",RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep="")))
   }
 }
 
@@ -56,23 +62,23 @@ for(i in 1:T2C) {
 if(T1C==1) {
   tblName<-paste(T1T[1,1],tblEnd,sep="")
   T1NAME<-T1T[1,2]
-  T1RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
+  T1RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
 } else {
   T1Th<-dbGetQuery(con,paste("select tableName,name from ",EMS,".genelist where leaf=0 and id like '",T1,"'",sep=""))
   tblName<-paste(T1Th[1,1],tblEnd,sep="")
   T1NAME<-T1Th[1,2]
-  T1RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
+  T1RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
 }
 
 if(T2C==1) {
   tblName<-paste(T2T[1,1],tblEnd,sep="")
   T2NAME<-T2T[1,2]
-  T2RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
+  T2RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
 } else {
   T2Th<-dbGetQuery(con,paste("select tableName,name from ",EMS,".genelist where leaf=0 and id like '",T2,"'",sep=""))
   tblName<-paste(T2Th[1,1],tblEnd,sep="")
   T2NAME<-T2Th[1,2]
-  T2RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
+  T2RPKM<-dbGetQuery(con,paste("SELECT RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep=""))
 }
 
 colnames(fullData)<-c("refseq_id","gene_id","chrom","txStart","txEnd","strand",names)

@@ -25,7 +25,6 @@ Ext.require([
 
 Ext.define('EMS.view.Project2.DESeq', {
     extend: 'Ext.panel.Panel',
-    title: 'DESeq analysis',
     id: 'Project2DESeq',
     layout: 'border',
     region: 'center',
@@ -35,6 +34,8 @@ Ext.define('EMS.view.Project2.DESeq', {
 
     initComponent: function () {
         var me = this;
+
+        me.title= me.atypeid==1?'DESeq analysis':'DESeq2 analysis';
 
         me.addEvents('Back', 'groupadd', 'filter');
 
@@ -202,7 +203,7 @@ Ext.define('EMS.view.Project2.DESeq', {
                                             me.fireEvent('filter', grid, rowIndex, colIndex, actionItem, event, record, row);
                                         }
                                         if (record.data.parentId === 'gd') {
-                                            me.fireEvent('deseq', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                            me.fireEvent('deseq', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
                                         }
                                     },
                                     getClass: function (v, meta, rec) {

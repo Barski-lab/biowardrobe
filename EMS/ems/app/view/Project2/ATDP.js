@@ -146,6 +146,7 @@ Ext.define('EMS.view.Project2.ATDP', {
                             submitValue: false,
                             emptyText: 'Type group name then press enter to add',
                             flex: 2,
+                            disabled: true,
                             enableKeyEvents: true,
                             listeners: {
                                 specialkey: function (field, event) {

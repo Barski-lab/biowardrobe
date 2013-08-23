@@ -55,4 +55,6 @@ function guid(){
 
 session_start();
 require_authentication();
+session_write_close();
+
 ?>

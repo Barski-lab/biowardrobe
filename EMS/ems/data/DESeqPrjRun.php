@@ -37,7 +37,6 @@ try {
     $res->print_error("Cant read input" . $e);
 }
 logmsg(print_r($data, true));
-
 $count = 0;
 
 if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->deseq) || !isset($data->deseq->name)) {
@@ -94,6 +93,9 @@ $tbpairlen = count($tablepairs);
 
 $gblink = "";
 $READABLE = "";
+$DESEQN="DESeq";
+if($atypeid==3)
+    $DESEQN="DESeq2";
 
 for ($i = 0; $i < $tbpairlen; $i++) {
     $output = "";
@@ -102,7 +104,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     $UUID = guid();
     $TNAME = str_replace("-", "", $UUID);
     $TNAMES[] = $TNAME;
-    $CMD = "Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME";
+    $CMD = "Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME $atypeid";
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
@@ -118,7 +120,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
     $gblink = $tablenames[$tablepairs[$i]['t1']]['gblink'] . "&" . $tablenames[$tablepairs[$i]['t2']]['gblink'];
     $EXT = get_extention($rtypeid);
-    $READABLE = "Annotation grouping (" . $EXT['name'] . ") were used for DESeq analysis.<br> Data from " .
+    $READABLE = "Annotation grouping (" . $EXT['name'] . ") were used for $DESEQN analysis.<br> Data from " .
         "'" . $tablenames[$tablepairs[$i]['t1']]['name'] . "' and '" . $tablenames[$tablepairs[$i]['t2']]['name'] . "' has been chosen.";
 
     execSQL($con,
