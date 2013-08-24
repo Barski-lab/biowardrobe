@@ -51,6 +51,8 @@ function delete_record ($id) {
         execSQL($con,"drop table if exists ".$db_name_experiments.".".$tbname,array(),true);
     }
     execSQL($con,"delete from ".$db_name_ems.".genelist where id like ?",array("s",$id),true);
+    if(!$qr)
+        make_a_gl_group_view($val->item_id, $val->parentId);
 }
 
 $con=def_connect();

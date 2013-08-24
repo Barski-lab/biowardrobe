@@ -36,7 +36,7 @@ Ext.define('EMS.view.Project2.ATDP', {
     initComponent: function () {
         var me = this;
 
-        me.addEvents('Back', 'groupadd', 'filter');
+        me.addEvents('Back', 'groupadd', 'atdp');
 
         me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
             store: me.labDataStore,

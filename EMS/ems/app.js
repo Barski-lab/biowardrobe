@@ -104,6 +104,7 @@ var LocalStorage = (function () {
         PARAMS_STORAGE: 2,
         DESEQ_STORAGE: 3,
         FILTER_DESEQ: 4,
+        ATDP_STORAGE: 5,
 
         init: function () {
             var me = this;

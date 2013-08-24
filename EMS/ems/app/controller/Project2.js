@@ -30,46 +30,46 @@ Ext.define('EMS.controller.Project2', {
         var me = this;
         me.atype = undefined;
         me.control({
-            'ProjectDesigner': {
-                render: me.onProjectDesignerWindowRendered,
-                startAnalysis: me.startAnalysis,
-                projectAdd: me.onProjectAdd
-            },
-            '#Project2GenesLists': {
-                Back: me.onBack,
-                groupadd: me.onGroupAdd,
-                filter: me.filterApply
-            },
-            '#Project2DESeq': {
-                Back: me.onBack,
-                groupadd: me.onGroupAdd,
-                filter: me.filterApplyDeseq,
-                deseq: me.runDESeq
-            },
-            '#Project2ATDP': {
-                Back: me.onBack
-                //groupadd: me.onGroupAdd,
-                //filter: me.filterApplyDeseq,
-                //deseq: me.runDESeq
-            },
-            '#project2-project-list': {
-                select: me.onProjectSelect,
-                edit: me.onProjectEdit
-            },
-            '#project-worker-changed': {
-                select: me.onComboboxWorkerSelect
-            },
-            '#projectgenelisttree': {
-                edit: me.onGeneListEdit,
-                beforeedit: me.onGeneListBeforeedit,
-                select: me.onGeneListSelect
-            },
-            '#projectgenelisttree > treeview': {
-                beforedrop: me.beforeGeneListDrop,
-                drop: me.GeneListDrop
-            }
+                       'ProjectDesigner': {
+                           render: me.onProjectDesignerWindowRendered,
+                           startAnalysis: me.startAnalysis,
+                           projectAdd: me.onProjectAdd
+                       },
+                       '#Project2GenesLists': {
+                           Back: me.onBack,
+                           groupadd: me.onGroupAdd,
+                           filter: me.filterApply
+                       },
+                       '#Project2DESeq': {
+                           Back: me.onBack,
+                           groupadd: me.onGroupAdd,
+                           filter: me.filterApplyDeseq,
+                           deseq: me.runDESeq
+                       },
+                       '#Project2ATDP': {
+                           Back: me.onBack,
+                           atdp: me.runATDP
+                           //groupadd: me.onGroupAdd,
+                           //filter: me.filterApplyDeseq,
+                       },
+                       '#project2-project-list': {
+                           select: me.onProjectSelect,
+                           edit: me.onProjectEdit
+                       },
+                       '#project-worker-changed': {
+                           select: me.onComboboxWorkerSelect
+                       },
+                       '#projectgenelisttree': {
+                           edit: me.onGeneListEdit,
+                           beforeedit: me.onGeneListBeforeedit,
+                           select: me.onGeneListSelect
+                       },
+                       '#projectgenelisttree > treeview': {
+                           beforedrop: me.beforeGeneListDrop,
+                           drop: me.GeneListDrop
+                       }
 
-        });
+                   });
     }, //init
     onProjectDesignerWindowRendered: function (view) {
     },
@@ -139,11 +139,11 @@ Ext.define('EMS.controller.Project2', {
             if (!me.atype) {
                 me.atype = me.getATypeStore();
                 me.atype.load({
-                    callback: function (records, operation, success) {
-                        if (success) {
-                            me.UpdateAddAnalysis(records, record);
-                        }
-                    }});
+                                  callback: function (records, operation, success) {
+                                      if (success) {
+                                          me.UpdateAddAnalysis(records, record);
+                                      }
+                                  }});
             } else {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
@@ -159,13 +159,13 @@ Ext.define('EMS.controller.Project2', {
             if (records[i].data.implemented === 0)
                 continue;
             panel.addAnalysis({
-                name: records[i].data.name,
-                description: records[i].data.description,
-                imgsrc: records[i].data.imgsrc,
-                id: records[i].data.id,
-                implemented: records[i].data.implemented,
-                prjid: record.get('id')
-            });
+                                  name: records[i].data.name,
+                                  description: records[i].data.description,
+                                  imgsrc: records[i].data.imgsrc,
+                                  id: records[i].data.id,
+                                  implemented: records[i].data.implemented,
+                                  prjid: record.get('id')
+                              });
         }
     },
     /*************************************************************
@@ -262,10 +262,10 @@ Ext.define('EMS.controller.Project2', {
                     continue;
 
                 var uuid = generateUUID();
-                var type=1;
+                var type = 1;
                 if (typeof data.records[i].data.experimenttype_id !== 'undefined') {
-                    if(data.records[i].data.experimenttype_id<=2) {
-                        type=101;
+                    if (data.records[i].data.experimenttype_id <= 2) {
+                        type = 101;
                     }
                 }
 
@@ -331,6 +331,64 @@ Ext.define('EMS.controller.Project2', {
     },
     /*************************************************************
      *************************************************************/
+    runATDP: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var me = this;
+        var filterForm = Ext.create('EMS.view.Project2.ATDPRun', {
+            modal: true,
+            item_id: record.data.item_id,
+            atypeid: atypeid,
+            tables: me.getGeneListStore().getRootNode(),
+            onSubmit: function () {
+                me.atdpSubmit(filterForm, record, atypeid);
+            }
+        }).show();
+    },
+    atdpSubmit: function (form, record, atypeid) {
+        var me = this;
+        var formData = form.getFormJson();
+        Ext.Ajax.request({
+                             url: 'data/ATDPPrjRun.php',
+                             method: 'POST',
+                             timeout: 600000, //600 sec
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 var store = me.getGeneListStore();
+                                 store.load({node: store.getRootNode().getChildAt(1)});
+                                 if (!json.success) {
+                                     Logger.log("Cant run atdp, error: " + json.message);
+                                     Ext.MessageBox.show({
+                                                             title: 'For you information',
+                                                             msg: 'There was an error with ATDP.You have to rerun it.<br>Do you want dialog for ATDP to be shown?<br>' + json.message,
+                                                             icon: Ext.MessageBox.ERROR,
+                                                             fn: function (buttonId) {
+                                                                 if (buttonId === "yes") {
+                                                                     form.show();
+                                                                 } else {
+                                                                     form.close();
+                                                                 }
+                                                             },
+                                                             buttons: Ext.Msg.YESNO
+                                                         });
+                                 } else {
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                                 Logger.log("Cant run atdp, error");
+                                 form.close();
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": atypeid,
+                                                      "name": formData.name,
+                                                      "atdp": formData.atdp
+                                                  })
+                         });
+        form.hide();
+
+    },
+    /*************************************************************
+     *************************************************************/
     runDESeq: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var me = this;
         var filterForm = Ext.create('EMS.view.Project2.DESeqRun', {
@@ -343,46 +401,46 @@ Ext.define('EMS.controller.Project2', {
             }
         }).show();
     },
-    deseqSubmit: function (form, record,atypeid) {
+    deseqSubmit: function (form, record, atypeid) {
         var me = this;
         var formData = form.getFormJson();
         Ext.Ajax.request({
-            url: 'data/DESeqPrjRun.php',
-            method: 'POST',
-            timeout: 600000, //600 sec
-            success: function (response) {
-                var json = Ext.decode(response.responseText);
-                var store = me.getGeneListStore();
-                store.load({node: store.getRootNode().getChildAt(1)});
-                if (!json.success) {
-                    Logger.log("Cant run deseq, error: " + json.message);
-                    Ext.MessageBox.show({
-                        title: 'For you information',
-                        msg: 'There was an error with DESeq.You have to rerun.<br>Do you want dialog for DESeq to be shown?<br>' + json.message,
-                        icon: Ext.MessageBox.ERROR,
-                        fn: function (buttonId) {
-                            if (buttonId === "yes") {
-                                form.show();
-                            } else {
-                                form.close();
-                            }
-                        },
-                        buttons: Ext.Msg.YESNO
-                    });
-                } else {
-                    form.close();
-                }
-            },
-            failure: function () {
-                Logger.log("Cant run deseq, error");
-                form.close();
-            },
-            jsonData: Ext.encode({
-                "project_id": me.projectid,
-                "atype_id": atypeid,
-                "deseq": formData
-            })
-        });
+                             url: 'data/DESeqPrjRun.php',
+                             method: 'POST',
+                             timeout: 600000, //600 sec
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 var store = me.getGeneListStore();
+                                 store.load({node: store.getRootNode().getChildAt(1)});
+                                 if (!json.success) {
+                                     Logger.log("Cant run deseq, error: " + json.message);
+                                     Ext.MessageBox.show({
+                                                             title: 'For you information',
+                                                             msg: 'There was an error with DESeq.You have to rerun.<br>Do you want dialog for DESeq to be shown?<br>' + json.message,
+                                                             icon: Ext.MessageBox.ERROR,
+                                                             fn: function (buttonId) {
+                                                                 if (buttonId === "yes") {
+                                                                     form.show();
+                                                                 } else {
+                                                                     form.close();
+                                                                 }
+                                                             },
+                                                             buttons: Ext.Msg.YESNO
+                                                         });
+                                 } else {
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                                 Logger.log("Cant run deseq, error");
+                                 form.close();
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": atypeid,
+                                                      "deseq": formData
+                                                  })
+                         });
         form.hide();
     },
     /*************************************************************
@@ -407,39 +465,39 @@ Ext.define('EMS.controller.Project2', {
         var uuid = generateUUID();
         var formData = form.getFormJson();
         Ext.Ajax.request({
-            url: 'data/FilterSetPrjDeseqAdd.php',
-            method: 'POST',
-            success: function (response) {
-                var json = Ext.decode(response.responseText);
-                if (json.success) {
-                    var store = me.getGeneListStore();
-                    var r = Ext.create('EMS.model.GeneList', {
-                        id: uuid,
-                        item_id: uuid,
-                        name: formData[0].name,
-                        type: 2,
-                        isnew: false,
-                        leaf: true,
-                        conditions: json.data.conditions,
-                        project_id: me.projectid
-                    });
-                    store.getRootNode().getChildAt(2).appendChild(r);
-                    r.commit();
-                    form.close();
-                } else {
-                    Logger.log("Cant add filter error: " + json.message);
-                    form.close();
-                }
-            },
-            failure: function () {
-            },
-            jsonData: Ext.encode({
-                "project_id": me.projectid,
-                "atype_id": 6,
-                "uuid": uuid,
-                "filters": formData
-            })
-        });
+                             url: 'data/FilterSetPrjDeseqAdd.php',
+                             method: 'POST',
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 if (json.success) {
+                                     var store = me.getGeneListStore();
+                                     var r = Ext.create('EMS.model.GeneList', {
+                                         id: uuid,
+                                         item_id: uuid,
+                                         name: formData[0].name,
+                                         type: 2,
+                                         isnew: false,
+                                         leaf: true,
+                                         conditions: json.data.conditions,
+                                         project_id: me.projectid
+                                     });
+                                     store.getRootNode().getChildAt(2).appendChild(r);
+                                     r.commit();
+                                     form.close();
+                                 } else {
+                                     Logger.log("Cant add filter error: " + json.message);
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": 6,
+                                                      "uuid": uuid,
+                                                      "filters": formData
+                                                  })
+                         });
 
     },
     /*************************************************************
@@ -463,39 +521,39 @@ Ext.define('EMS.controller.Project2', {
         var uuid = generateUUID();
         var formData = form.getFormJson();
         Ext.Ajax.request({
-            url: 'data/FilterSetPrjAdd.php',
-            method: 'POST',
-            success: function (response) {
-                var json = Ext.decode(response.responseText);
-                if (json.success) {
-                    var store = me.getGeneListStore();
-                    var r = Ext.create('EMS.model.GeneList', {
-                        id: uuid,
-                        item_id: uuid,
-                        name: formData[0].name,
-                        type: 2,
-                        isnew: false,
-                        leaf: true,
-                        conditions: json.data.conditions,
-                        project_id: me.projectid
-                    });
-                    store.getRootNode().getChildAt(1).appendChild(r);
-                    r.commit();
-                    form.close();
-                } else {
-                    Logger.log("Cant add filter error: " + json.message);
-                    form.close();
-                }
-            },
-            failure: function () {
-            },
-            jsonData: Ext.encode({
-                "project_id": me.projectid,
-                "atype_id": 6,
-                "uuid": uuid,
-                "filters": formData
-            })
-        });
+                             url: 'data/FilterSetPrjAdd.php',
+                             method: 'POST',
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 if (json.success) {
+                                     var store = me.getGeneListStore();
+                                     var r = Ext.create('EMS.model.GeneList', {
+                                         id: uuid,
+                                         item_id: uuid,
+                                         name: formData[0].name,
+                                         type: 2,
+                                         isnew: false,
+                                         leaf: true,
+                                         conditions: json.data.conditions,
+                                         project_id: me.projectid
+                                     });
+                                     store.getRootNode().getChildAt(1).appendChild(r);
+                                     r.commit();
+                                     form.close();
+                                 } else {
+                                     Logger.log("Cant add filter error: " + json.message);
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": 6,
+                                                      "uuid": uuid,
+                                                      "filters": formData
+                                                  })
+                         });
 
     },
     /*************************************************************
