@@ -92,18 +92,18 @@ Ext.define('EMS.view.Project2.Filter', {
         if (!me.deseq) {
             for (i = 0; i < me.initialConfig.tables.getChildAt(0).childNodes.length; i++) {
                 tablesN.push({
-                    id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
-                    name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
-                });
+                                 id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
+                                 name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
+                             });
             }
         } else {
             for (i = 0; i < me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
                 if (me.initialConfig.tables.getChildAt(1).childNodes[i].data.rtype_id !== me.initialConfig.rtype_id)
                     continue;
                 tablesN.push({
-                    id: me.initialConfig.tables.getChildAt(1).childNodes[i].data.id,
-                    name: me.initialConfig.tables.getChildAt(1).childNodes[i].data.name
-                });
+                                 id: me.initialConfig.tables.getChildAt(1).childNodes[i].data.id,
+                                 name: me.initialConfig.tables.getChildAt(1).childNodes[i].data.name
+                             });
             }
         }
         me.tables = Ext.create('Ext.data.Store', {
@@ -130,24 +130,24 @@ Ext.define('EMS.view.Project2.Filter', {
                             for (i = 0; i < me.initialConfig.tables.getChildAt(ind).childNodes.length; i++) {
                                 if (name.getValue().trim().toUpperCase() === me.initialConfig.tables.getChildAt(ind).childNodes[i].data.name.trim().toUpperCase()) {
                                     Ext.MessageBox.show({
-                                        title: 'For you information',
-                                        msg: 'Filter name "' + name.getValue() + '" already exists please provide the other one.',
-                                        icon: Ext.MessageBox.ERROR,
-                                        fn: function () {
-                                            name.focus(false, 200);
-                                        },
-                                        buttons: Ext.Msg.OK
-                                    });
+                                                            title: 'For you information',
+                                                            msg: 'Filter name "' + name.getValue() + '" already exists please provide the other one.',
+                                                            icon: Ext.MessageBox.ERROR,
+                                                            fn: function () {
+                                                                name.focus(false, 200);
+                                                            },
+                                                            buttons: Ext.Msg.OK
+                                                        });
                                     return;
                                 }
                             }
                             if (Ext.getCmp('filter_fieldset_0').openclose !== 0) {
                                 Ext.MessageBox.show({
-                                    title: 'For you information',
-                                    msg: 'Number of opened parantheses is bigger then closed.<br> Plese close.',
-                                    icon: Ext.MessageBox.ERROR,
-                                    buttons: Ext.Msg.OK
-                                });
+                                                        title: 'For you information',
+                                                        msg: 'Number of opened and closed parantheses is not the same.<br> Plese fix.',
+                                                        icon: Ext.MessageBox.ERROR,
+                                                        buttons: Ext.Msg.OK
+                                                    });
                                 return;
                             }
                             if (form.getForm().isValid()) {
@@ -390,176 +390,179 @@ Ext.define('EMS.view.Project2.Filter', {
         pf.subfilter++;
         pf.subfilterc++;
         var subf = {
-            xtype: 'fieldcontainer',
-            id: 'filter_container_' + filterc + '_' + subfilter,
-            subfilter: subfilter,
-            padding: 4,
-            layout: {
-                type: 'hbox',
-                align: 'stretch'
-            },
-            items: [
-                {
-                    xtype: 'combobox',
-                    name: filterc + '_' + subfilter + '_operand',
-                    displayField: 'name',
-                    valueField: 'id',
-                    value: pf.subfilterc === 1 ? 1 : parseInt(me.checkVal(params, 'operand', 1)),
-                    readOnly: pf.subfilterc === 1,
-                    store: me.operand,
-                    flex: 1,
-                    width: 60,
-                    editable: false,
-                    margin: 0
-                } ,
-                {
-                    xtype: 'button',
-                    name: filterc + '_' + subfilter + '_bracketl',
-                    margins: '0 0 0 6',
-                    width: 20,
-                    order: me.checkVal(params, 'bracketr', '') === '' ? 1 : 0,
-                    text: me.checkVal(params, 'bracketl', ''),
-                    listeners: {
-                        'click': function () {
-                            switch (this.order++) {
-                                case 0:
-                                    pf.openclose--;
-                                    this.setText('');
-                                    break;
-                                case 1:
-                                    pf.openclose++;
-                                    this.setText('(');
-                                    this.order = 0;
-                                    break;
-                            }
-                        }
-                    }
-                } ,
-                {
-                    xtype: 'combobox',
-                    name: filterc + '_' + subfilter + '_tbl',
-                    displayField: 'name',
-                    store: me.tables,
-                    valueField: 'id',
-                    value: me.initialConfig.item_id,
-                    minWidth: 120,
-                    flex: 3,
-                    editable: false,
-                    margin: '0 0 0 6'
-                } ,
-                {
-                    xtype: 'combobox',
-                    name: filterc + '_' + subfilter + '_field',
-                    displayField: 'name',
-                    valueField: 'id',
-                    value: parseInt(me.checkVal(params, 'field', 1)),
-                    store: me.fields,
-                    flex: 2,
-                    editable: false,
-                    margin: '0 0 0 6',
-                    listeners: {
-                        'select': function (sender, values) {
-                            me.chrSelected(values[0].data.id, filterc, subfilter);
-                        },
-                        'render': function (sender) {
-                            me.chrSelected(sender.getValue(), filterc, subfilter, true);
-                        }
-                    }
-
-                } ,
-                {
-                    xtype: 'combobox',
-                    name: filterc + '_' + subfilter + '_condition',
-                    displayField: 'name',
-                    valueField: 'id',
-                    value: parseInt(me.checkVal(params, 'condition', 1)),
-                    store: (parseInt(me.checkVal(params, 'field', 1)) === 2 && !me.deseq) || (parseInt(me.checkVal(params, 'field', 1)) === 6 && me.deseq) ? me.filterschr : me.filters,
-                    flex: 2,
-                    editable: false,
-                    margin: '0 0 0 6'
-
-                } ,
-                {
-                    xtype: 'textfield',
-                    name: filterc + '_' + subfilter + '_t_value',
-                    flex: 1,
-                    margins: '0 0 0 6',
-                    width: 70,
-                    hidden: true,
-                    value: me.checkVal(params, 'value', ''),
-                    allowBlank: false,
-                    disabled: true
-                } ,
-                {
-                    xtype: 'numberfield',
-                    name: filterc + '_' + subfilter + '_n_value',
-                    flex: 1,
-                    margins: '0 0 0 6',
-                    width: 70,
-                    value: me.checkVal(params, 'value', 0.0),
-                    step: 0.1,
-                    allowBlank: false
-                } ,
-                {
-                    xtype: 'button',
-                    name: filterc + '_' + subfilter + '_bracketl',
-                    margins: '0 5 0 6',
-                    width: 20,
-                    order: me.checkVal(params, 'bracketr', '') === '' ? 1 : 0,
-                    text: me.checkVal(params, 'bracketr', ''),
-                    listeners: {
-                        'click': function () {
-                            switch (this.order++) {
-                                case 0:
-                                    pf.openclose++;
-                                    this.setText('');
-                                    break;
-                                case 1:
-                                    if (pf.openclose !== 0) {
-                                        pf.openclose--;
-                                        this.setText(')');
-                                        this.order = 0;
-                                    } else {
-                                        Ext.MessageBox.show({
-                                            title: 'For you information',
-                                            msg: 'You have to open parentheses first.',
-                                            icon: Ext.MessageBox.ERROR,
-                                            buttons: Ext.Msg.OK
-                                        });
-                                        this.order = 1;
+                    xtype: 'fieldcontainer',
+                    id: 'filter_container_' + filterc + '_' + subfilter,
+                    subfilter: subfilter,
+                    padding: 4,
+                    layout: {
+                        type: 'hbox',
+                        align: 'stretch'
+                    },
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            name: filterc + '_' + subfilter + '_operand',
+                            displayField: 'name',
+                            valueField: 'id',
+                            value: pf.subfilterc === 1 ? 1 : parseInt(me.checkVal(params, 'operand', 1)),
+                            readOnly: pf.subfilterc === 1,
+                            store: me.operand,
+                            flex: 1,
+                            width: 60,
+                            editable: false,
+                            margin: 0
+                        } ,
+                        {
+                            xtype: 'button',
+                            name: filterc + '_' + subfilter + '_bracketl',
+                            margins: '0 0 0 6',
+                            width: 20,
+                            order: me.checkVal(params, 'bracketl', '') === '' ? 1 : 0,
+                            text: me.checkVal(params, 'bracketl', ''),
+                            listeners: {
+                                'click': function () {
+                                    switch (this.order) {
+                                        case 0:
+                                            pf.openclose--;
+                                            this.setText('');
+                                            break;
+                                        case 1:
+                                            pf.openclose++;
+                                            this.setText('(');
+                                            this.order = 0;
+                                            break;
                                     }
-                                    break;
+                                    this.order++;
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: filterc + '_' + subfilter + '_tbl',
+                            displayField: 'name',
+                            store: me.tables,
+                            valueField: 'id',
+                            value: me.initialConfig.item_id,
+                            minWidth: 120,
+                            flex: 3,
+                            editable: false,
+                            margin: '0 0 0 6'
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: filterc + '_' + subfilter + '_field',
+                            displayField: 'name',
+                            valueField: 'id',
+                            value: parseInt(me.checkVal(params, 'field', 1)),
+                            store: me.fields,
+                            flex: 2,
+                            editable: false,
+                            margin: '0 0 0 6',
+                            listeners: {
+                                'select': function (sender, values) {
+                                    me.chrSelected(values[0].data.id, filterc, subfilter);
+                                },
+                                'render': function (sender) {
+                                    me.chrSelected(sender.getValue(), filterc, subfilter, true);
+                                }
+                            }
+
+                        },
+                        {
+                            xtype: 'combobox',
+                            name: filterc + '_' + subfilter + '_condition',
+                            displayField: 'name',
+                            valueField: 'id',
+                            value: parseInt(me.checkVal(params, 'condition', 1)),
+                            store: (parseInt(me.checkVal(params, 'field', 1)) === 2 && !me.deseq) || (parseInt(me.checkVal(params, 'field', 1)) === 6 && me.deseq) ? me.filterschr : me.filters,
+                            flex: 2,
+                            editable: false,
+                            margin: '0 0 0 6'
+
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: filterc + '_' + subfilter + '_t_value',
+                            flex: 1,
+                            margins: '0 0 0 6',
+                            width: 70,
+                            hidden: true,
+                            value: me.checkVal(params, 'value', ''),
+                            allowBlank: false,
+                            disabled: true
+                        },
+                        {
+                            xtype: 'numberfield',
+                            name: filterc + '_' + subfilter + '_n_value',
+                            flex: 1,
+                            margins: '0 0 0 6',
+                            width: 70,
+                            value: me.checkVal(params, 'value', 0.0),
+                            step: 0.1,
+                            allowBlank: false
+                        },
+                        {
+                            xtype: 'button',
+                            name: filterc + '_' + subfilter + '_bracketl',
+                            margins: '0 5 0 6',
+                            width: 20,
+                            order: me.checkVal(params, 'bracketr', '') === '' ? 1 : 0,
+                            text: me.checkVal(params, 'bracketr', ''),
+                            listeners: {
+                                'click': function () {
+                                    switch (this.order) {
+                                        case 0:
+                                            pf.openclose++;
+                                            this.setText('');
+                                            break;
+                                        case 1:
+                                            if (pf.openclose !== 0) {
+                                                pf.openclose--;
+                                                this.setText(')');
+                                                this.order = 0;
+                                            } else {
+                                                Ext.MessageBox.show({
+                                                                        title: 'For you information',
+                                                                        msg: 'You have to open parentheses first.',
+                                                                        icon: Ext.MessageBox.ERROR,
+                                                                        buttons: Ext.Msg.OK
+                                                                    });
+                                                this.order = 1;
+                                            }
+                                            break;
+                                    }
+                                    this.order++;
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            margin: '0 5 0 5',
+                            submitValue: false,
+                            iconCls: 'add',
+                            handler: function () {
+                                pf.add(me.addSubFilter(filterc, pf));
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            margin: '0 5 0 5',
+                            submitValue: false,
+                            disabled: pf.subfilterc === 1,
+                            iconCls: 'delete',
+                            handler: function () {
+                                pf.subfilterc--;
+                                if (pf.subfilterc === 0) {
+                                    pf.subfilterc = 1;
+                                } else {
+                                    pf.remove('filter_container_' + filterc + '_' + subfilter, true);
+                                    me.firstOpReadOnly(filterc);
+                                }
                             }
                         }
-                    }
-                } ,
-                {
-                    xtype: 'button',
-                    margin: '0 5 0 5',
-                    submitValue: false,
-                    iconCls: 'add',
-                    handler: function () {
-                        pf.add(me.addSubFilter(filterc, pf));
-                    }
-                } ,
-                {
-                    xtype: 'button',
-                    margin: '0 5 0 5',
-                    submitValue: false,
-                    disabled: pf.subfilterc === 1,
-                    iconCls: 'delete',
-                    handler: function () {
-                        pf.subfilterc--;
-                        if (pf.subfilterc === 0) {
-                            pf.subfilterc = 1;
-                        } else {
-                            pf.remove('filter_container_' + filterc + '_' + subfilter, true);
-                            me.firstOpReadOnly(filterc);
-                        }
-                    }
+                    ]
                 }
-            ]
-        };
+                ;
         pf.add(subf);
     },
 
@@ -614,4 +617,5 @@ Ext.define('EMS.view.Project2.Filter', {
         return formData;
     }
 
-});
+})
+;

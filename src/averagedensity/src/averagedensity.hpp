@@ -36,6 +36,12 @@ typedef genome::GenomeDescription gen_lines;
 
 class sam_reader_thread;
 
+struct DNA_SEQ_DATA {
+        int fragmentsize;
+        bool pair;
+        gen_lines* sam_data;
+};
+
 class AverageDensity: public QObject
 {
     Q_OBJECT

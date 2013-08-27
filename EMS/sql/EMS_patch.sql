@@ -202,6 +202,7 @@ update ems.atype set description='Estimate variance-mean dependence in count dat
 differential expression based on a model using the negative binomial distribution.',
 imgsrc='', sort=999,implemented=0 where id=3;
 
+drop table if exists atdp;
 drop table if exists genelist;
 drop table if exists project2;
 
@@ -254,5 +255,17 @@ ALTER TABLE `ems`.`genelist`
   ON UPDATE CASCADE
 , ADD INDEX `genelist_ifbk_5_idx` USING HASH (`parent_id` ASC) ;
 
+create table if not exists atdp (
+    genelist_id varchar(36),
+    tbl1_id varchar(36),
+    tbl2_id varchar(36),
+    pltname varchar(200) NOT NULL,
+index(genelist_id) using HASH, FOREIGN KEY (genelist_id)
+REFERENCES genelist(id),
+index(tbl1_id) using HASH, FOREIGN KEY (tbl1_id)
+REFERENCES genelist(id),
+index(tbl2_id) using HASH, FOREIGN KEY (tbl2_id)
+REFERENCES genelist(id)
+);
 
 set foreign_key_checks = 1 ;

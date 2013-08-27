@@ -316,19 +316,19 @@ void AverageDensity::start() {
     }
 }
 
-
+/*
 QString get_expression(int f){
     switch (f) {
         case 1:
-            return QString("=");
+        return QString("=");
         case 2:
-            return QString("<");
+        return QString("<");
         case 3:
-            return QString(">");
+        return QString(">");
         case 4:
-            return QString("<=");
+        return QString("<=");
         case 5:
-            return QString(">=");
+        return QString(">=");
     }
     return QString("<>");
 }
@@ -362,20 +362,21 @@ QString get_condition(int id,QString rpkm) {
     }
     return filter;
 }
-
+*/
 
 void AverageDensity::batchsql() {
     int avd_lid=gArgs().getArgs("avd_lid").toInt();
-    int avd_aid=gArgs().getArgs("avd_aid").toInt();
+    QString avd_id=gArgs().getArgs("avd_id").toString();
     int avd_window=gArgs().getArgs("avd_window").toInt();
+
     QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-    if(avd_table_name.isEmpty() && avd_aid>0) {
-        qDebug()<<"Error: Set --sql_table!";
-        return;
+    if(avd_id.length()>0) {
+        avd_table_name=avd_id;
+        avd_table_name=avd_table_name.replace("-","");
     }
 
-    if(avd_lid>0 && avd_aid>0) {
+    if(avd_lid>0 && avd_id.length()>0) {
         qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
         return;
     }
@@ -415,7 +416,6 @@ void AverageDensity::batchsql() {
         QString annottable =q.value(fieldAtable).toString();
         int fragmentsize =q.value(fieldFsize).toInt();
         bool pair=(EType.indexOf("pair")!=-1);
-        //fileLabels.append();
 
         sam_data.append(new gen_lines());
         t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
@@ -482,14 +482,8 @@ void AverageDensity::batchsql() {
                                arg(filename);
         QString SQL_QUERY="";
 
-        //        QString avd_data_out="N";
-        //        avd_data_out+=QString(",%1").arg(GBName);
-        //        avd_data_out=avd_data_out+"\n";
         int rows=storage.size();
         for(int i=0; i<rows;i++) {
-            //            avd_data_out+=QString("%1").arg((int)(i-rows/2));
-            //            avd_data_out+=QString(",%1").arg(storage.at(i));
-            //            avd_data_out=avd_data_out+"\n";
 
             SQL_QUERY+=QString(" (%1,%2),").
                        arg((int)(i-rows/2)).
@@ -501,32 +495,19 @@ void AverageDensity::batchsql() {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
         }
 
-        //        QFile outFile;
-        //        outFile.setFileName(gArgs().getArgs("out").toString());
-        //        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        //        outFile.write(avd_data_out.toAscii());
-        //        outFile.close();
     }
-    //***************************
-    //***************************
-    if(avd_aid>0) {
-        q.prepare("select labdata_id,tableName,r.rtype_id from analysis a, rhead rh,resultintersection ri, result r "
-                  "where a.ahead_id=? and r.rtype_id=4 and rh.id=a.rhead_id and ri.rhead_id=rh.id and r.id=ri.result_id");
-        q.bindValue(0, avd_aid);
-        if(!q.exec()) {
-            qDebug()<<"Query error info: "<<q.lastError().text();
-            return;
-        }
-        if(!q.next()) {
-            qDebug()<<"No records";
-            return;
-        }
-        int lid =q.value(0).toInt();
+    //************************************************************************************
+    //************************************************************************************
+    if(avd_id.length()>0) {
+        QMap<QString,DNA_SEQ_DATA> table_to_data;
+        QString BASE_DIR="/data/DATA/FASTQ-DATA";
 
-        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize,UPPER(w.worker) as worker "
-                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.worker w "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.worker_id=w.id and l.id=?");
-        q.bindValue(0, lid);
+        q.prepare("select distinct e.etype,l.name4browser,g.db,filename,l.fragmentsize,UPPER(w.worker) as worker,a.tbl1_id "
+                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.worker w , ems.atdp a,ems.genelist ge "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and l.worker_id=w.id and "
+                  "l.id=ge.labdata_id and a.tbl1_id=ge.id and a.genelist_id like ?;");
+        q.bindValue(0, avd_id);
+
         if(!q.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
             return;
@@ -536,96 +517,69 @@ void AverageDensity::batchsql() {
         int fieldEtype = q.record().indexOf("etype");
         int fieldWorker = q.record().indexOf("worker");
         int fieldFsize = q.record().indexOf("fragmentsize");
+        int fieldTbl = q.record().indexOf("tbl1_id");
 
-        if(!q.next()) {
+
+        while(q.next()) {
+            QString filename=q.value(fieldFilename).toString();
+            if(filename.contains(';'))
+                filename=filename.split(';').at(0);
+            QString EType =q.value(fieldEtype).toString();
+            QString worker=q.value(fieldWorker).toString();
+            int fragmentsize =q.value(fieldFsize).toInt();
+            QString TBL = q.value(fieldTbl).toString();
+            bool pair=(EType.indexOf("pair")!=-1);
+
+            QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
+
+            DNA_SEQ_DATA dsd;
+            dsd.fragmentsize=fragmentsize;
+            dsd.pair=pair;
+            dsd.sam_data=new gen_lines();
+            table_to_data[TBL]=dsd;
+            t_queue.append(new sam_reader_thread(table_to_data[TBL].sam_data,path+filename+".bam"));
+            t_pool->start(t_queue.last());
+        }
+
+        if(table_to_data.size()==0) {
             qDebug()<<"No records";
             return;
         }
 
-        QString filename=q.value(fieldFilename).toString();
-        if(filename.contains(';'))
-            filename=filename.split(';').at(0);
-        QString EType =q.value(fieldEtype).toString();
-        QString worker=q.value(fieldWorker).toString();
-        int fragmentsize =q.value(fieldFsize).toInt();
-        bool pair=(EType.indexOf("pair")!=-1);
-
-        QString BASE_DIR="/data/DATA/FASTQ-DATA";
-        QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
-        sam_data.append(new gen_lines());
-        t_queue.append(new sam_reader_thread(sam_data.last(),path+filename+".bam"));
-        t_pool->start(t_queue.last());
-
-
-        q.prepare("select labdata_id,tableName,r.rtype_id from analysis a, rhead rh,resultintersection ri, result r "
-                  "where a.ahead_id=? and r.rtype_id<4 and rh.id=a.rhead_id and ri.rhead_id=rh.id and r.id=ri.result_id");
-        q.bindValue(0, avd_aid);
-        if(!q.exec()) {
-            qDebug()<<"Query error info: "<<q.lastError().text();
-            return;
-        }
-
-        int tab_nums=0;
-        QString avd_rpkm="(";
-        QString sel_tables="";
-        QString cond="";
-
-        while(q.next()) {
-            QString tabname=q.value(1).toString();
-            if(tabname.contains(';'))
-                tabname=tabname.split(';').at(0);
-            if(tab_nums==0) {
-                sel_tables+=QString("experiments.%1 a%2").arg(tabname).arg(tab_nums);
-                avd_rpkm+=QString("a%1.RPKM_0").arg(tab_nums);
-            } else {
-                sel_tables+=QString(",experiments.%1 a%2").arg(tabname).arg(tab_nums);
-                avd_rpkm+=QString("+a%1.RPKM_0").arg(tab_nums);
-                cond+=QString("and a0.chrom=a%1.chrom and a0.txStart=a%2.txStart and a0.txEnd=a%3.txEnd and a0.strand=a%4.strand").
-                      arg(tab_nums).arg(tab_nums).arg(tab_nums).arg(tab_nums);
-            }
-            tab_nums++;
-        }
-        if(tab_nums>1) {
-            avd_rpkm+=QString(")/%1").arg(tab_nums);
-        } else {
-            avd_rpkm+=")";
-        }
-
-        QString avd_window_str=QString("%1").arg(avd_window);
-
-        QString sql_queryp="select a0.chrom,a0.strand,a0.txStart-"+avd_window_str+" as start,a0.txStart+"+avd_window_str+" as end from "
-                           ""+sel_tables+" where a0.strand = '+' and a0.chrom not like '%\\_%' and a0.chrom like 'chr%' " + cond;
-        QString sql_querym="select a0.chrom,a0.strand,a0.txEnd-"+avd_window_str+" as start,a0.txEnd+"+avd_window_str+" as end from "
-                           ""+sel_tables+" where a0.strand = '-' and a0.chrom not like '%\\_%' and a0.chrom like 'chr%' " + cond;
 
         if(t_pool->activeThreadCount()!=0) {
             qDebug()<<"waiting threads";
             t_pool->waitForDone();
         }
 
+        QString avd_window_str=QString("%1").arg(avd_window);
         QList<QList<double> > storages;
-        /*
- *  FILTERS
- */
+
         QSqlQuery qq;
-        qq.prepare("select id,name from `fhead` where ahead_id=? and analysis_id is NULL order by name;");
-        qq.bindValue(0, avd_aid);
+        qq.prepare("select tbl1_id,tableName,name from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
+        qq.bindValue(0, avd_id);
         if(!qq.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
             return;
         }
         int nplot=0;
         while(qq.next()) {
-            QString conditions=get_condition(qq.value(0).toInt(),avd_rpkm);
+            QString cur_tbl = qq.value(0).toString();
+            QString sel_table = "experiments."+qq.value(1).toString();
+            //QString plt_name=qq.value(2).toString();
 
-            QString sql_query=sql_queryp+conditions+" union "+
-                              sql_querym+conditions;
+            QString sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
+                               ""+sel_table+" where strand = '+' ";
+            QString sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
+                               ""+sel_table+" where strand = '-' ";
+
+            QString sql_query=sql_queryp+" union "+sql_querym;
+
             if(!q.exec(sql_query)) {
-                qDebug()<<"Query error "<<qq.value(1).toString()<<": "<<q.lastError().text();
+                qDebug()<<"Query error "<<sel_table<<": "<<q.lastError().text();
                 qDebug()<<"SQL "<<sql_query;
                 return;
             }
-            //get_condition
 
             int fieldChrom = q.record().indexOf("chrom");
             int fieldStrand = q.record().indexOf("strand");
@@ -645,11 +599,12 @@ void AverageDensity::batchsql() {
                     continue;
                 }
                 AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
-                                       strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data,pair);
+                                       strand/*bool strand*/,table_to_data[cur_tbl].fragmentsize/2/*shift*/,
+                                       table_to_data[cur_tbl].sam_data,avd_raw_data,table_to_data[cur_tbl].pair);
             }
 
             QList<double>  storage;
-            int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
+            int total=table_to_data[cur_tbl].sam_data->total-table_to_data[cur_tbl].sam_data->notAligned;
             for(int w=0; w< length; w++)
                 storage<<(avd_raw_data[w]/total)/q.size();
             storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
@@ -657,8 +612,6 @@ void AverageDensity::batchsql() {
             nplot++;
         }//qq.next
 
-        //avd_table_name
-        //upload data to
         QString Y="`Y0` FLOAT NULL ,";
         for(int i=1; i<nplot;i++) {
             Y+=QString("`Y%1` FLOAT NULL ,").arg(i);

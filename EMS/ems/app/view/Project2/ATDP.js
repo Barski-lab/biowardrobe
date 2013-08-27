@@ -20,8 +20,8 @@
  **
  ****************************************************************************/
 Ext.require([
-    'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*', 'Ext.ux.form.SearchField'
-]);
+                'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*', 'Ext.ux.form.SearchField'
+            ]);
 
 Ext.define('EMS.view.Project2.ATDP', {
     extend: 'Ext.panel.Panel',
@@ -36,7 +36,7 @@ Ext.define('EMS.view.Project2.ATDP', {
     initComponent: function () {
         var me = this;
 
-        me.addEvents('Back', 'groupadd', 'atdp');
+        me.addEvents('Back', 'groupadd', 'atdp', 'atdpview');
 
         me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
             store: me.labDataStore,
@@ -213,7 +213,7 @@ Ext.define('EMS.view.Project2.ATDP', {
                                         this.items[0].text = 'ATD';
                                         this.items[0].tooltip = 'average tag density profile';
                                         this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            me.fireEvent('atdp', grid, rowIndex, colIndex, actionItem, event, record, row);
+                                            me.fireEvent('atdp', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
                                         };
                                         return 'chart-line';
                                     }
@@ -227,12 +227,21 @@ Ext.define('EMS.view.Project2.ATDP', {
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             return;
-                                        this.items[2].text = 'download';
-                                        this.items[2].tooltip = 'download';
+                                        this.items[2].tooltip = 'view';
                                         this.items[2].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            window.location = "data/csvgl.php?id=" + record.data['id'] + "&grp=" + !record.data['leaf'];
-                                        };
-                                        return 'disk';
+                                            if (record.data.parentId !== 'ar') {
+                                                window.location = "data/csvgl.php?id=" + record.data['id'] + "&grp=" + !record.data['leaf'];
+                                            } else {
+                                                me.fireEvent('atdpview', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
+                                            }
+                                        }
+                                        if (rec.data.parentId !== 'ar')
+                                            return 'disk';
+                                        else if (rec.data.tableName === "")
+                                            return 'loading';
+                                        else
+                                            return 'view';
+
 
                                     }/*,
                                  isDisabled: function(view,rowIndex,colIndex,item,record) {
@@ -247,25 +256,30 @@ Ext.define('EMS.view.Project2.ATDP', {
                                     }
                                 } ,
                                 {
+                                    isDisabled: function (view, rowIndex, colIndex, item, record) {
+                                        if (record.data.tableName === "" && record.data.parentId === "ar")
+                                            return true;
+                                        return false;
+                                    },
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             return;
                                         this.items[4].tooltip = 'Delete';
                                         this.items[4].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
                                             Ext.Msg.show({
-                                                title: 'Deleteing record ' + record.data.name,
-                                                msg: 'Are you sure, that you want to delete the record "' + record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' + 'and will delete all other records that have used this one.',
-                                                icon: Ext.Msg.QUESTION,
-                                                buttons: Ext.Msg.YESNO,
-                                                fn: function (btn) {
-                                                    if (btn !== "yes") return;
-                                                    record.remove(true);
-                                                }
-                                            });
+                                                             title: 'Deleteing record ' + record.data.name,
+                                                             msg: 'Are you sure, that you want to delete the record "' + record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' + 'and will delete all other records that have used this one.',
+                                                             icon: Ext.Msg.QUESTION,
+                                                             buttons: Ext.Msg.YESNO,
+                                                             fn: function (btn) {
+                                                                 if (btn !== "yes") return;
+                                                                 record.remove(true);
+                                                             }
+                                                         });
                                         }
                                         if (rec.data.leaf === false)
-                                            return 'folder-delete'; else
-                                            return 'table-row-delete';
+                                            return 'folder-delete';
+                                        return 'table-row-delete';
                                     }
                                 }
                             ]

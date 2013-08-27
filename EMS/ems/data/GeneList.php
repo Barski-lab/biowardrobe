@@ -62,6 +62,7 @@ function make_array($qr)
             'name' => $val['name'],
             'leaf' => !!$val['leaf'],
             'conditions' => $val['conditions'],
+            'tableName' => $val['tableName'],
             'expanded' => false,
             'type' => $val['type'],
             'labdata_id' => $val['labdata_id'],
@@ -168,6 +169,15 @@ if ($node == 'de') {
         'text' => '.',
         'expanded' => true,
         'data' => $de['data']
+    ));
+}
+
+if ($node == 'ar') {
+    $ar = get_list_by_type($prjid, 102, 'ar', 'ATDP results');
+    echo json_encode(array(
+        'text' => '.',
+        'expanded' => true,
+        'data' => $ar['data']
     ));
 }
 

@@ -30,6 +30,7 @@ Ext.define('EMS.model.GeneList', {
         {name: 'item_id', type: 'string', persist: true},
         {name: 'gblink', type: 'string', persist: false},
         {name: 'conditions', type: 'string', persist: true},
+        {name: 'tableName', type: 'string'},
         {name: 'type', type: 'int'},
         {name: 'rtype_id', type: 'int'},
         {name: 'atype_id', type: 'int'},
