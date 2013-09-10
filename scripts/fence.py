@@ -100,7 +100,7 @@ for i in alfa_pos.keys():
   try:
    STRING+=str(alfa_pos[i][j]).rjust(align)
   except KeyError: 
-   STRING+=str().rjust(align)
+   STRING+=str(0).rjust(align)
  FIN+=STRING+str('\n')
 
 print STH

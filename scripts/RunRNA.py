@@ -183,7 +183,9 @@ while True:
     if DUTP:
         ADD_TOPHAT=" --library-type fr-firststrand " #DUTP
 	BEDFORMAT='8'
-        
+
+    if PAIR:    
+	ADD_TOPHAT=" --no-mixed --no-discordant "+ADD_TOPHAT
 
     ADD_TOPHAT=" -g 1 --no-novel-juncs "+ADD_TOPHAT
 

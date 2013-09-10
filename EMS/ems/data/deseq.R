@@ -10,8 +10,7 @@ ID<-args[5]
 
 mainQuery<-dbGetQuery(con,paste("SELECT r1.tableName,r1.rtype_id,r1.name,r2.rhead_id,a.type
 from ems.result r1,ems.resultintersection r2,ems.analysis a
-where r1.id=r2.result_id and r2.rhead_id=a.rhead_id and a.ahead_id=",ID," order by rhead_id,r1.name"))
-
+where r1.id=r2.result_id and r2.rhead_id=a.rhead_id and a.ahead_id=",ID," order by a.type desc,rhead_id,r1.name"))
 
 uniqGrp<-unique(mainQuery$rhead_id)
 

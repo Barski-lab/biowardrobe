@@ -206,6 +206,13 @@ while True:
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()
 
+    a=d.run_atp(LID)
+    if type(a[0]) == str and 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
+
+    #statistics must be followed last update
     a=get_stat(FNAME)
     if type(a[0]) == str and 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
@@ -214,12 +221,5 @@ while True:
 
     cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
     conn.commit()
-
-
-
-    #cursor.execute("update labdata set libstatustxt='processing',libstatus=10 where id=%s",LID)
-    #conn.commit()    
-    #('RNA-Seq dUTP', 'Activated_rested CD4', 'hg19', 'hg19c', 'hg19_refsec_genes_control', 'run0140_lane5_read1_index10_ABYR14', 'yrina')
-    
     
         

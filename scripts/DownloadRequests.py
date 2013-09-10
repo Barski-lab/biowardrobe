@@ -16,6 +16,9 @@ import glob
 import DefFunctions as d
 import subprocess as s # import call
 import datetime
+import urlparse
+import urllib2
+import shutil
 
 print str(datetime.datetime.now())
 
@@ -53,7 +56,7 @@ def file_exist(basedir,libcode):
 
 def make_fname(fname):
     outfname=os.path.basename(fname)
-    outfname=re.sub(r'[\.gz$][\.'+extension+']','',outfname)
+    outfname=re.sub(r'\.gz$|\.bz2$|\.zip$|\.'+extension,'',outfname)
     try:
 	outfname=re.match(r'(.*index[0-9]*).*',outfname).group(1)
     except:
@@ -64,7 +67,7 @@ def make_fname(fname):
     return outfname+'_'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+str(random.randrange(10,99))
 
 
-def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
+def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
     #
     flist=list()
     fl=file_exist(basedir,libcode)
@@ -177,8 +180,79 @@ def get_file(USERNAME,PASSWORD,libcode,basedir,pair):
 
 
 
-#USERNAME=''
-#PASSWORD=''
+######################################################################
+
+def get_file(url,basedir,pair):
+    #
+    flist=list()
+
+    ofname=str()
+    
+    urlparsed=urlparse.urlparse(url)
+    if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
+	error[1]='ftp and http methods are supported'
+	return error
+    
+    r=urllib2.urlopen(url)
+    if r.info().has_key('Content-Disposition'):
+    # If the response has Content-Disposition, we take file name from it
+	fname = r.info()['Content-Disposition'].split('filename=')[1]
+	if fname[0] == '"' or fname[0] == "'":
+	    fname = fname[1:-1]
+    else:
+	fname=os.path.basename(urlparse.urlparse(r.url)[2])
+	    
+    if len(fname)==0:
+	fname="default"
+
+    if 'fastq' not in fname:
+	warning[1]='File has to contain fastq string'
+	return warning
+    	
+    if not pair:
+	outfname=make_fname(fname) #+'_'+str(random.randrange(10000,99999))
+	if os.path.isfile(basedir+'/'+outfname+'.'+extension):
+	    error[1] = 'Now file exist'
+	    return error
+	    
+	ofname=basedir+'/'+outfname+'.'+extension
+	
+	PAR=""
+	if re.search("\.gz$",fname):
+	    ofname=ofname+'.gz'
+	    PAR='gunzip '+ofname
+	if re.search("\.bz2$",fname):
+	    ofname=ofname+'.bz2'
+	    PAR='bunzip2 '+ofname
+	if re.search("\.zip$",fname):
+	    PAR='unzip -p '+ofname+'.zip >'+ofname
+	    ofname=ofname+'.zip'
+
+	try:
+            with open(ofname, 'wb') as f:
+                shutil.copyfileobj(r,f)
+        except Exception,e:
+    	    warning[1]='Cant download from '+url
+	    return warning
+        finally:
+            r.close()
+
+	if len(PAR) != 0:
+	    RET=''
+	    try:
+		RET=s.check_output(PAR,shell=True)
+	    except Exception,e:
+    		warning[1]='Cant uncompress '+ofname
+		return warning
+	flist.append(outfname)
+	return flist
+
+    warning[1]='Cant find file'
+    return warning
+#### end of def get_file
+
+######################################################################
+
 
 pidfile = "/tmp/DownloadRequests.pid"
 d.check_running(pidfile)
@@ -210,6 +284,7 @@ while True:
     
     notify=(int(row[7])==1)
     url=row[8]
+    libcode=row[2]
     email=row[6]
     
     PAIR=('pair' in row[5])
@@ -217,8 +292,6 @@ while True:
     if 'RNA' in row[5]:
 	SUBDIR='/RNA'
 
-    cursor.execute("update labdata set libstatustxt='downloading',libstatus=1 where id=%s",row[4])
-    conn.commit()
 	
     basedir=BASE_DIR+'/'+row[3].upper()+SUBDIR
     try:
@@ -227,13 +300,19 @@ while True:
 	pass
     #print row[0]
     a=list()
-    if row[2] != "":
-	a=get_file(row[0],row[1],row[2],basedir,PAIR)
-    else:
+    if len(libcode)>0 and len(url) == 0:
+	cursor.execute("update labdata set libstatustxt='downloading',libstatus=1 where id=%s",row[4])
+	conn.commit()
+	a=get_file_core(row[0],row[1],row[2],basedir,PAIR)
+    if len(libcode)==0 and len(url) > 0:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("URL downloading in proccess",row[4]))
 	conn.commit()
-	continue
-		
+	a=get_file(url,basedir,PAIR)
+    if len(libcode)>0 and len(url) > 0:
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",("Libcode and url are set together!",row[4]))
+	conn.commit()
+	continue		
+
     if 'Error' in a[0]:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
@@ -245,9 +324,9 @@ while True:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",(a[0]+":"+a[1],row[4]))
 	conn.commit()
 	continue
+
     if len(a)==1 and not PAIR:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0],row[4]))
-
     if len(a)==2 and PAIR:
 	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
 
