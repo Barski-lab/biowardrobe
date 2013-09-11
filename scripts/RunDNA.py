@@ -189,7 +189,7 @@ while True:
         conn.commit()
         continue
 	
-    if ISLANDS <100:
+    if ISLANDS <100 or FRAGMENT<90:
         FRAGMENT=150
     a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,FRAGMENT,isRNA)
     if 'Error' in a[0]:

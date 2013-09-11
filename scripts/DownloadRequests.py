@@ -305,11 +305,11 @@ while True:
 	conn.commit()
 	a=get_file_core(row[0],row[1],row[2],basedir,PAIR)
     if len(libcode)==0 and len(url) > 0:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("URL downloading in proccess",row[4]))
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where id=%s",("URL downloading in proccess",row[4]))
 	conn.commit()
 	a=get_file(url,basedir,PAIR)
     if len(libcode)>0 and len(url) > 0:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",("Libcode and url are set together!",row[4]))
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("Libcode and url are set together!",row[4]))
 	conn.commit()
 	continue		
 
