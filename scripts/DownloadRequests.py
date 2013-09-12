@@ -182,32 +182,38 @@ def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
 
 ######################################################################
 
-def get_file(url,basedir,pair):
+def get_file(urlin,basedir,pair):
     #
     flist=list()
 
     ofname=str()
+    urls=urlin.split(';')
     
-    urlparsed=urlparse.urlparse(url)
-    if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
-	error[1]='ftp and http methods are supported'
-	return error
+    for url in urls:
+	if len(url) == 0: 
+	    print "empty"
+	    continue
+	urlparsed=urlparse.urlparse(url)
+	if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
+	    warning[1]='ftp and http methods are supported'
+    	    return warning
     
-    r=urllib2.urlopen(url)
-    if r.info().has_key('Content-Disposition'):
-    # If the response has Content-Disposition, we take file name from it
-	fname = r.info()['Content-Disposition'].split('filename=')[1]
-	if fname[0] == '"' or fname[0] == "'":
-	    fname = fname[1:-1]
-    else:
-	fname=os.path.basename(urlparse.urlparse(r.url)[2])
+	r=urllib2.urlopen(url)
+	if r.info().has_key('Content-Disposition'):
+	# If the response has Content-Disposition, we take file name from it
+	    fname = r.info()['Content-Disposition'].split('filename=')[1]
+	    if fname[0] == '"' or fname[0] == "'":
+		fname = fname[1:-1]
+	else:
+	    fname=os.path.basename(urlparse.urlparse(r.url)[2])
 	    
-    if len(fname)==0:
-	fname="default"
+	if len(fname)==0:
+	    fname="default_fastq"
 
-    if 'fastq' not in fname:
-	warning[1]='File has to contain fastq string'
-	return warning
+	if 'fastq' not in fname:
+	    warning[1]='File has to contain fastq string'
+	    return warning
+	#r.close();
     	
     if not pair:
 	outfname=make_fname(fname) #+'_'+str(random.randrange(10000,99999))
@@ -216,28 +222,32 @@ def get_file(url,basedir,pair):
 	    return error
 	    
 	ofname=basedir+'/'+outfname+'.'+extension
-	
+
 	PAR=""
 	if re.search("\.gz$",fname):
+	    PAR='zcat '+ofname+'.gz >>'+ofname+'; rm -f '+ofname+'.gz'
 	    ofname=ofname+'.gz'
-	    PAR='gunzip '+ofname
-	if re.search("\.bz2$",fname):
+	elif re.search("\.bz2$",fname):
+	    PAR='bzcat '+ofname+'.bz2 >>'+ofname+'; rm -f '+ofname+'.bz2'
 	    ofname=ofname+'.bz2'
-	    PAR='bunzip2 '+ofname
-	if re.search("\.zip$",fname):
-	    PAR='unzip -p '+ofname+'.zip >'+ofname
+	elif re.search("\.zip$",fname):
+	    PAR='unzip -p '+ofname+'.zip >>'+ofname+'; rm -f '+ofname+'.zip'
 	    ofname=ofname+'.zip'
+	else:
+	    PAR='cat '+ofname+'.part >>'+ofname+'; rm -f '+ofname+'.part'
+	    ofname=ofname+'.part'
+	
+	for url in urls:
+	    r=urllib2.urlopen(url)
+	    try:
+        	with open(ofname, 'wb') as f:
+            	    shutil.copyfileobj(r,f)
+    	    except Exception,e:
+    		warning[1]='Cant download from '+url
+		return warning
+    	    finally:
+        	r.close()
 
-	try:
-            with open(ofname, 'wb') as f:
-                shutil.copyfileobj(r,f)
-        except Exception,e:
-    	    warning[1]='Cant download from '+url
-	    return warning
-        finally:
-            r.close()
-
-	if len(PAR) != 0:
 	    RET=''
 	    try:
 		RET=s.check_output(PAR,shell=True)
