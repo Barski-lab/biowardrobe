@@ -97,6 +97,10 @@
     text-align: center;
 }
 
+.manorm-number {
+    text-align: center;
+}
+
 .experiment-descr {
     width: 100%;
     border-collapse: collapse;

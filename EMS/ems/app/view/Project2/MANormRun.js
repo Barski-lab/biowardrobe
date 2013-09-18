@@ -148,9 +148,9 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                         html: '<div class="panel-text">' +
                                               '<img src=images/about_big.png width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
                                               'To run MANorm at first you have to type name which will be assigned to the result.' +
-                                              ' ' +
-                                              ' After that in "MANorm input" fieldset you should choose data to compare,' +
-                                              ' it has to be at least two records, to add more press "+", to delete press "x".' +
+                                              ' After that in "MANorm input" fieldset you should choose data to compare.' +
+                                              ' In combobox choose ChIP-seq data (islands) than in numberfield put island flanked region (bp).' +
+                                              ' It has to be at least two records, to add more press "+", to delete press "x".' +
                                               ' If you added more then two records time series will be made and index will be added to the name.' + '</div>'
                                     }
                                 ]
@@ -328,12 +328,22 @@ Ext.define('EMS.view.Project2.MANormRun', {
                     displayField: 'name',
                     store: me.tables,
                     valueField: 'id',
-                    value: pf.subfilterc === 1 ? me.initialConfig.item_id : me.checkVal(params, 'table', me.initialConfig.item_id),
+                    value: pf.subfilterc === 1 ? me.initialConfig.item_id: undefined,
+                            //pf.subfilterc === 1 ? me.initialConfig.item_id : me.checkVal(params, 'table', me.initialConfig.item_id),
                     minWidth: 120,
                     flex: 3,
                     editable: false,
                     margin: '0 5 0 5'
-                } ,
+                } ,                        {
+                    xtype: 'numberfield',
+                    name: pf.filterc + '_' + subfilter + '_flanked',
+                    flex: 1,
+                    margins: '0 0 0 6',
+                    width: 70,
+                    value: me.checkVal(params, 'flanked', 300),
+                    step: 10,
+                    allowBlank: false
+                },
                 {
                     xtype: 'button',
                     margin: '0 5 0 5',
@@ -398,6 +408,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
                 var struct = {
                     order: parseInt(si.getComponent(0).getValue()),
                     table: si.getComponent(1).getValue(),
+                    flanked: si.getComponent(2).getValue()
                 };
                 i.manorm.push(struct);
             }

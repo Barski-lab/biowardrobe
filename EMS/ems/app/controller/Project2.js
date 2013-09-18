@@ -253,7 +253,7 @@ Ext.define('EMS.controller.Project2', {
         var me = this;
         dropHandlers.wait = true;
 
-        if ((dropPosition !== 'append' && overModel.data.leaf === false) || overModel.data.id !== 'gd' || overModel.data.root === true) {
+        if ((dropPosition !== 'append' && overModel.data.leaf === false) || ( overModel.data.id !== 'gd' && overModel.data.parentId!=='gd') || overModel.data.root === true) {
             dropHandlers.cancelDrop();
             return false;
         }
