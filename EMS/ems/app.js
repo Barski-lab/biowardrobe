@@ -105,6 +105,7 @@ var LocalStorage = (function () {
         DESEQ_STORAGE: 3,
         FILTER_DESEQ: 4,
         ATDP_STORAGE: 5,
+        MANORM_STORAGE: 6,
 
         init: function () {
             var me = this;

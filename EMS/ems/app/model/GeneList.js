@@ -36,7 +36,8 @@ Ext.define('EMS.model.GeneList', {
         {name: 'atype_id', type: 'int'},
         {name: 'labdata_id', type: 'int'},
         {name: 'project_id', type: 'string'},
-        {name: 'parent_id', type: 'string'}
+        {name: 'parent_id', type: 'string'},
+        {name: 'status', type: 'int'}
     ],
     proxy: Ext.apply(STORE_DEFS.proxy('', true), {
         api: {

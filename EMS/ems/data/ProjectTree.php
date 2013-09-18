@@ -36,22 +36,16 @@ $user_id = $_SESSION["user_id"];
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
-$data = array();
 
+$data = array();
 
 if (!isset($_REQUEST['node'])) {
     $res->print_error("Not enough arguments.");
 }
 
-check_val($_REQUEST['node']);
-
-if ($_REQUEST['node'] != 'root') {
-} else {
-    if (check_rights('ProjectTree')) {
-        $qr = execSQL($con, "select * from project2", array(), false);
-    } else {
-        $qr = execSQL($con, "select * from project2 where worker_id=?", array("i", $user_id), false);
-    }
+function make_array($qr) {
+    $data=array();
+    if(!$qr) return $data;
     foreach ($qr as $key => $val) {
         $data[] = array(
             'id' => $val['id'],
@@ -65,6 +59,40 @@ if ($_REQUEST['node'] != 'root') {
             'expanded' => false,
             'iconCls' => 'folder-into');
     }
+    return $data;
+}
+
+check_val($_REQUEST['node']);
+
+if ($_REQUEST['node'] != 'root') {
+} else {
+    if (check_rights('ProjectTree')) {
+        $qr = execSQL($con, "select * from project2", array(), false);
+    } else {
+        $qr = execSQL($con, "select * from project2 where worker_id=?", array("i", $user_id), false);
+    }
+
+    $data[] = array(
+        'text' => 'Owned',
+        'type' => 1,
+        'id' => 'own',
+        'expanded' => true,
+        'data' => make_array($qr)
+    );
+
+    if (!check_rights('ProjectTree')) {
+        $qr = execSQL($con, "select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?", array("i", $user_id), false);
+
+        $data[] = //array($data,
+            array(
+                'text' => 'Shared',
+                'expanded' => true,
+                'type' => 1,
+                'id' => 'share',
+                'data' => make_array($qr)
+            );
+        //$data=$data1;
+    }
 }
 
 $con->close();
@@ -72,6 +100,7 @@ $con->close();
 
 echo json_encode(array(
     'text' => '.',
-    'data' => $data));
+    'data' => $data
+    ));
 
 ?>

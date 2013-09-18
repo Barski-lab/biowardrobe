@@ -389,6 +389,10 @@ Ext.define('EMS.view.Project2.Filter', {
         var subfilter = pf.subfilter;
         pf.subfilter++;
         pf.subfilterc++;
+        if (me.checkVal(params, 'bracketl', '') === '(')
+            pf.openclose++;
+        if (me.checkVal(params, 'bracketr', '') === ')')
+            pf.openclose--;
         var subf = {
                     xtype: 'fieldcontainer',
                     id: 'filter_container_' + filterc + '_' + subfilter,
@@ -417,22 +421,25 @@ Ext.define('EMS.view.Project2.Filter', {
                             name: filterc + '_' + subfilter + '_bracketl',
                             margins: '0 0 0 6',
                             width: 20,
-                            order: me.checkVal(params, 'bracketl', '') === '' ? 1 : 0,
                             text: me.checkVal(params, 'bracketl', ''),
                             listeners: {
                                 'click': function () {
-                                    switch (this.order) {
-                                        case 0:
+                                    if (this.getText() === '') {
+                                        pf.openclose++;
+                                        this.setText('(');
+                                    } else {
+                                        if (pf.openclose > 0) {
                                             pf.openclose--;
                                             this.setText('');
-                                            break;
-                                        case 1:
-                                            pf.openclose++;
-                                            this.setText('(');
-                                            this.order = 0;
-                                            break;
+                                        } else {
+                                            Ext.MessageBox.show({
+                                                                    title: 'For you information',
+                                                                    msg: 'You have to remove right parentheses first.',
+                                                                    icon: Ext.MessageBox.ERROR,
+                                                                    buttons: Ext.Msg.OK
+                                                                });
+                                        }
                                     }
-                                    this.order++;
                                 }
                             }
                         },
@@ -503,35 +510,28 @@ Ext.define('EMS.view.Project2.Filter', {
                         },
                         {
                             xtype: 'button',
-                            name: filterc + '_' + subfilter + '_bracketl',
+                            name: filterc + '_' + subfilter + '_bracketr',
                             margins: '0 5 0 6',
                             width: 20,
-                            order: me.checkVal(params, 'bracketr', '') === '' ? 1 : 0,
                             text: me.checkVal(params, 'bracketr', ''),
                             listeners: {
                                 'click': function () {
-                                    switch (this.order) {
-                                        case 0:
-                                            pf.openclose++;
-                                            this.setText('');
-                                            break;
-                                        case 1:
-                                            if (pf.openclose !== 0) {
-                                                pf.openclose--;
-                                                this.setText(')');
-                                                this.order = 0;
-                                            } else {
-                                                Ext.MessageBox.show({
-                                                                        title: 'For you information',
-                                                                        msg: 'You have to open parentheses first.',
-                                                                        icon: Ext.MessageBox.ERROR,
-                                                                        buttons: Ext.Msg.OK
-                                                                    });
-                                                this.order = 1;
-                                            }
-                                            break;
+                                    if (this.getText() === '') {
+                                        if (pf.openclose > 0) {
+                                            pf.openclose--;
+                                            this.setText(')');
+                                        } else {
+                                            Ext.MessageBox.show({
+                                                                    title: 'For you information',
+                                                                    msg: 'You have to add left parentheses first.',
+                                                                    icon: Ext.MessageBox.ERROR,
+                                                                    buttons: Ext.Msg.OK
+                                                                });
+                                        }
+                                    } else {
+                                        pf.openclose++;
+                                        this.setText('');
                                     }
-                                    this.order++;
                                 }
                             }
                         },

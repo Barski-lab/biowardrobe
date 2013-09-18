@@ -47,9 +47,11 @@ Ext.define('EMS.controller.Project2', {
                            deseq: me.runDESeq
                        },
                        '#Project2ATDP': {
+                           Back: me.onBack
+                       },
+                       '#Project2MANorm': {
                            Back: me.onBack,
-                           atdp: me.runATDP,
-                           atdpview: me.ATDPview
+                           manorm: me.runMANORM
                        },
                        '#project2-project-list': {
                            select: me.onProjectSelect,
@@ -92,13 +94,14 @@ Ext.define('EMS.controller.Project2', {
             id: uuid,
             text: name,
             name: name,
+            worker_id: USER_ID,
             dateadd: Ext.Date.format(new Date(), 'm/d/Y'),
             type: 0,
             isnew: 1,
             leaf: false,
             expanded: true
         });
-        store.getRootNode().appendChild(r);
+        store.getRootNode().getChildAt(0).appendChild(r);
         store.sync();
         Ext.getCmp('project2-project-name').setValue(undefined);
     },
@@ -147,6 +150,10 @@ Ext.define('EMS.controller.Project2', {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
         }//if project
+        if (record.get('type') === 1) {//folder owner/shared
+            mainPanel.restoreCenter();
+            mainPanel.hideAnalysis();
+        }
     },
     /*************************************************************
      *************************************************************/
@@ -212,7 +219,18 @@ Ext.define('EMS.controller.Project2', {
                 projectid: data.projectid
             });
             mainPanel.replaceCenter(centralPan);
-        } else if (data.atypeid == 5) {
+        } else if (data.atypeid == 5) {//MANorm
+            labStore.getProxy().setExtraParam('isrna', 0);
+            labStore.load();
+            resStore.getProxy().setExtraParam('projectid', data.projectid);
+            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
+            resStore.load();
+            centralPan = Ext.create('EMS.view.Project2.MANorm', {
+                labDataStore: labStore,
+                resultStore: resStore,
+                projectid: data.projectid
+            });
+            mainPanel.replaceCenter(centralPan);
         }
     },
     /*************************************************************
@@ -385,6 +403,62 @@ Ext.define('EMS.controller.Project2', {
                          });
         form.hide();
 
+    },
+    /*************************************************************
+     *************************************************************/
+    runMANORM: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var me = this;
+        var filterForm = Ext.create('EMS.view.Project2.MANormRun', {
+            modal: true,
+            item_id: record.data.item_id,
+            atypeid: atypeid,
+            tables: me.getGeneListStore().getRootNode(),
+            onSubmit: function () {
+                me.manormSubmit(filterForm, record, atypeid);
+            }
+        }).show();
+    },
+    manormSubmit: function (form, record, atypeid) {
+        var me = this;
+        var formData = form.getFormJson();
+        Ext.Ajax.request({
+                             url: 'data/MANormPrjRun.php',
+                             method: 'POST',
+                             timeout: 600000, //600 sec
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 var store = me.getGeneListStore();
+                                 store.load({node: store.getRootNode().getChildAt(1)});
+                                 if (!json.success) {
+                                     Logger.log("Cant run manorm, error: " + json.message);
+                                     Ext.MessageBox.show({
+                                                             title: 'For you information',
+                                                             msg: 'There was an error with MANorm.You have to rerun.<br>Do you want dialog for MANorm to be shown?<br>' + json.message,
+                                                             icon: Ext.MessageBox.ERROR,
+                                                             fn: function (buttonId) {
+                                                                 if (buttonId === "yes") {
+                                                                     form.show();
+                                                                 } else {
+                                                                     form.close();
+                                                                 }
+                                                             },
+                                                             buttons: Ext.Msg.YESNO
+                                                         });
+                                 } else {
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                                 Logger.log("Cant run manorm, error");
+                                 form.close();
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": atypeid,
+                                                      "manorm": formData
+                                                  })
+                         });
+        form.hide();
     },
     /*************************************************************
      *************************************************************/

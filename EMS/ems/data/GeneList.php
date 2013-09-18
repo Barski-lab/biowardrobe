@@ -30,8 +30,8 @@ require_once('database_connection.php');
 $con = def_connect();
 $con->select_db($db_name_ems);
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
 if (!isset($_REQUEST['projectid']))
@@ -126,6 +126,12 @@ function get_list_by_type($prjid, $type = 2, $id, $name, $expanded = true)
  *
  **************************************************************************/
 
+$ListDescription = array(
+     2 => array('gl','Gene List'),
+     3 => array('de','DESeq results'),
+     102 => array('ar','ATDP results'),
+     103 => array('ma','MANorm results')
+);
 
 if ($node == 'root') {
     switch ($atypeid) {
@@ -160,6 +166,15 @@ if ($node == 'root') {
                 'data' => array($rd, $ar, $gl)
             ));
             break;
+        case 5: //MANorm
+            $rd = get_raw_list($prjid, 101);
+            $ar = get_list_by_type($prjid, 103, 'ma', 'MANorm results');
+            echo json_encode(array(
+                'text' => '.',
+                'expanded' => true,
+                'data' => array($rd, $ar)
+            ));
+            break;
     }
 }
 
@@ -174,6 +189,15 @@ if ($node == 'de') {
 
 if ($node == 'ar') {
     $ar = get_list_by_type($prjid, 102, 'ar', 'ATDP results');
+    echo json_encode(array(
+        'text' => '.',
+        'expanded' => true,
+        'data' => $ar['data']
+    ));
+}
+
+if ($node == 'ma') {
+    $ar = get_list_by_type($prjid, 102, 'ma', 'MANorm results');
     echo json_encode(array(
         'text' => '.',
         'expanded' => true,

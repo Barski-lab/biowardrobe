@@ -114,7 +114,9 @@ if (gettype($data) == "array") {
     foreach ($data as $key => $val) {
         if ($val->parentId == "root")
             continue;
-        if ($val->parentId == "gl" || $val->parentId == "de") {
+
+        if(in_array($val->parentId,array('gl','de','ar','ma'))) {
+            //if ($val->parentId == "gl" || $val->parentId == "de") {
             update_gl_de($val);
         } else {
             update_insert($val);
@@ -124,7 +126,7 @@ if (gettype($data) == "array") {
     $retdata[] = array("id" => $val->item_id, "isnew" => false);
 } else {
     $val = $data;
-    if ($val->parentId == "gl" || $val->parentId == "de") {
+    if(in_array($val->parentId,array('gl','de','ar','ma'))) {
         update_gl_de($val);
     } else
         if ($val->parentId != "root")

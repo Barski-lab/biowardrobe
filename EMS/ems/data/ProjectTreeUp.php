@@ -48,11 +48,11 @@ function update_insert($val)
     global $con, $res, $db_name_ems;
     check_val($val->id);
 
-    if ($val->parentId == "root" && intVal($val->isnew) == 1) {
+    if ($val->parentId == "own" && intVal($val->isnew) == 1) {
         execSQL($con, "insert into " . $db_name_ems . ".project2 (id,name,dateadd,worker_id) values(?,?,?,?)",
             array("sssi", $val->id, $val->text, DateTime::createFromFormat('m/d/Y', $val->dateadd)->format('Y-m-d'), $_SESSION["user_id"]), true);
     }
-    if ($val->parentId == "root" && intVal($val->isnew) == 0) {
+    if ($val->parentId == "own" && intVal($val->isnew) == 0) {
         execSQL($con, "update " . $db_name_ems . ".project2 set name=?,description=? where id like ?",
             array("sss", $val->text, $val->description, $val->id), true);
     }
@@ -65,7 +65,7 @@ if (gettype($data) == "array") {
     $res->print_error("Cannot be array");
 } else {
     $val = $data;
-    if ($val->parentId == "root")
+    if ($val->parentId == "own")
         update_insert($val);
 
     $retdata[] = array("id" => $val->id, "isnew" => 0, "text" => $val->text, 'iconCls' => 'folder-into');

@@ -268,4 +268,22 @@ index(tbl2_id) using HASH, FOREIGN KEY (tbl2_id)
 REFERENCES genelist(id)
 );
 
+create table if not exists project2_share (
+    project_id varchar(36),
+    worker_id INTEGER NOT NULL,
+	index(project_id)using HASH, FOREIGN KEY(project_id)
+	REFERENCES project2(id),
+	index(worker_id), FOREIGN KEY(worker_id)
+	REFERENCES worker(id)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+update ems.atype set description='To compare two sets of islands you can use MANorm.',
+imgsrc='/ems/images/documents_preferences_b.png', sort=999,implemented=1 where id=5;
+
+ALTER TABLE `ems`.`genelist` 
+ADD COLUMN `status` INT(3) NULL AFTER `parent_id`;
+update `ems`.`genelist` set `status`= 0; 
+ALTER TABLE `ems`.`genelist` 
+CHANGE COLUMN `status` `status` INT(3) NOT NULL DEFAULT 0 ;
+
 set foreign_key_checks = 1 ;

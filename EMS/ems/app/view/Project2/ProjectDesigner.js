@@ -245,10 +245,10 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
         for (var i = 0; i < me.localdata.analysisPanelList.length; i++) {
             var exist = Ext.getCmp(me.localdata.analysisPanelList[i]);
             if (exist) {
-                var slide = 't';
+                var slide = 'l';
                 exist.getEl().slideOut(slide, {
                     easing: 'easeInOut',
-                    duration: 200,
+                    duration: 500,
                     stopAnimation: true
                 });
             }
