@@ -47,7 +47,9 @@ Ext.define('EMS.controller.Project2', {
                            deseq: me.runDESeq
                        },
                        '#Project2ATDP': {
-                           Back: me.onBack
+                           Back: me.onBack,
+                           atdp: me.runATDP,
+                           atdpview: me.ATDPview
                        },
                        '#Project2MANorm': {
                            Back: me.onBack,

@@ -149,7 +149,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                               '<img src=images/about_big.png width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
                                               'To run MANorm at first you have to type name which will be assigned to the result.' +
                                               ' After that in "MANorm input" fieldset you should choose data to compare.' +
-                                              ' In combobox choose ChIP-seq data (islands) than in numberfield put island flanked region (bp).' +
+                                              ' In combobox choose ChIP-seq data (islands) then in numberfield put island flanked region (bp).' +
                                               ' It has to be at least two records, to add more press "+", to delete press "x".' +
                                               ' If you added more then two records time series will be made and index will be added to the name.' + '</div>'
                                     }

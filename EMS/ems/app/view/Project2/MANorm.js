@@ -257,7 +257,8 @@ Ext.define('EMS.view.Project2.MANorm', {
                                             Ext.Msg.show({
                                                              title: 'Deleteing record ' + record.data.name,
                                                              msg: 'Are you sure, that you want to delete the record "' +
-                                                                  record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' + 'and will delete all other records that have used this one.',
+                                                                  record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' +
+                                                                  'and will delete all other records that have used this one.',
                                                              icon: Ext.Msg.QUESTION,
                                                              buttons: Ext.Msg.YESNO,
                                                              fn: function (btn) {
