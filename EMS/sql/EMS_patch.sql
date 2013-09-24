@@ -266,7 +266,7 @@ index(tbl1_id) using HASH, FOREIGN KEY (tbl1_id)
 REFERENCES genelist(id),
 index(tbl2_id) using HASH, FOREIGN KEY (tbl2_id)
 REFERENCES genelist(id)
-);
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 create table if not exists project2_share (
     project_id varchar(36),

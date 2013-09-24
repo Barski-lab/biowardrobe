@@ -187,10 +187,12 @@ function get_operand($o)
 function get_table_name($val)
 {
     global $con, $db_name_ems;
-    $qr = execSQL($con, "select tableName,name,gblink,rtype_id from " . $db_name_ems . ".genelist where id like ?", array("s", $val), false);
+    //$qr = execSQL($con, "select tableName,name,gblink,rtype_id from " . $db_name_ems . ".genelist where id like ?", array("s", $val), false);
+    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize from " . $db_name_ems .".genelist g
+     left join (" . $db_name_ems .".labdata l," . $db_name_ems .".worker w) on (labdata_id=l.id and worker_id=w.id)
+     where g.id like ?", array("s", $val), false);
     return $qr;
 }
-
 
 function make_a_gl_group_view($id, $parentid, $add = true)
 {

@@ -323,9 +323,22 @@ Ext.define('EMS.view.Project2.Filter', {
         //                   }else{
         //                       grp.getComponent(0).getComponent(grp.getComponent(0).items.length-1).setDisabled(false);
         //                   }
-
     },
-
+    braketFix: function () {
+        var form = Ext.getCmp('filter_fieldset_0');
+        var count=0;
+        form.items.each(function (si) {
+            if (si.getXType() === 'fieldcontainer') {
+                if(si.getComponent(1).getText() == '(') {count++;
+                    console.log("(",count);
+                }
+                if(si.getComponent(7).getText() == ')') {count--;
+                    console.log(")",count);
+                }
+                }
+        });
+        form.openclose=count;
+    },
     /******************************************************************
      ******************************************************************/
     chrSelected: function (val, filterc, subfilter, render) {
@@ -556,6 +569,7 @@ Ext.define('EMS.view.Project2.Filter', {
                                     pf.subfilterc = 1;
                                 } else {
                                     pf.remove('filter_container_' + filterc + '_' + subfilter, true);
+                                    me.braketFix();
                                     me.firstOpReadOnly(filterc);
                                 }
                             }
@@ -571,7 +585,7 @@ Ext.define('EMS.view.Project2.Filter', {
     setFormJson: function (data) {
         var me = this, form = Ext.getCmp('ProjectFilterForm'), i = 0;
         var filter;
-        Ext.getCmp('filter-name').setValue(data[i].name);
+        //Ext.getCmp('filter-name').setValue(data[i].name);
         for (var j = 0; j < data[i].conditions.length; j++) {
             if (j == 0) {
                 filter = me.addFilter(data[i].name, data[i].conditions[j]);

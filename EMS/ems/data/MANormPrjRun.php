@@ -39,28 +39,27 @@ try {
 logmsg(print_r($data, true));
 $count = 0;
 
-/*
-if (gettype($data->deseq) == "array") {
+
+if (gettype($data->manorm) == "array") {
     $res->print_error("Not supported yet.");
 }
 
-if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->deseq) || !isset($data->deseq->name) || !isset($data->deseq->seriestype)) {
+if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->manorm) || !isset($data->manorm->name) || !isset($data->manorm->seriestype)) {
     $res->print_error("no data");
 }
 
 $atypeid = intval($data->atype_id);
-$timeseries = intval($data->deseq->seriestype);
+$timeseries = intval($data->manorm->seriestype);
 
 check_val($data->project_id);
 $projectid = $data->project_id;
 
-$NAME = $data->deseq->name;
-$rtypeid = intVal($data->deseq->annottype);
+$NAME = $data->manorm->name;
 
-$deseq = $data->deseq->deseq;
-$delength = count($deseq);
+$manorm = $data->manorm->manorm;
+$malength = count($manorm);
 
-if ($delength < 2) {
+if ($malength < 2) {
     $res->print_error("Is it me who post this?");
 }
 
@@ -70,31 +69,50 @@ $con->autocommit(FALSE);
 
 $tablepairs = array();
 
-check_val($deseq[0]->table);
-$tn = get_table_name($deseq[0]->table);
+check_val($manorm[0]->table);
+$tn = get_table_name($manorm[0]->table);
 if (!$tn)
     $res->print_error("no tablename data");
-$tablenames[$deseq[0]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
-if (intval($deseq[0]->order) != 1)
+
+$tablenames[$manorm[0]->table] = array(
+    "table" => $tn[0]['tableName'],
+    "gblink" => $tn[0]['gblink'],
+    "name" => $tn[0]['name'],
+    "worker" => $tn[0]['worker'],
+    "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
+    "flanked" => intval($manorm[0]->flanked));
+
+if (intval($manorm[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
 
 $prefix = "";
 
-if ($delength == 2 || $timeseries == 1) {
-    for ($i = 1; $i < $delength; $i++) {
-        check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+if ($malength == 2 || $timeseries == 1) {
+    for ($i = 1; $i < $malength; $i++) {
+        check_val($manorm[$i]->table);
+        $tn = get_table_name($manorm[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
-        $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
 
-        $tablepairs[] = array("id" => $i, "t1" => $deseq[$i - 1]->table, "t2" => $deseq[$i]->table);
+        $tablenames[$manorm[$i]->table] = array(
+            "table" => $tn[0]['tableName'],
+            "gblink" => $tn[0]['gblink'],
+            "name" => $tn[0]['name'],
+            "worker" => $tn[0]['worker'],
+            "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
+            "flanked" => intval($manorm[$i]->flanked));
 
-        if (intval($deseq[$i]->order) != $i + 1)
+        $tablepairs[] = array("id" => $i, "t1" => $manorm[$i - 1]->table, "t2" => $manorm[$i]->table);
+
+        if (intval($manorm[$i]->order) != $i + 1)
             $res->print_error("Incorrect ordering.");
     }
     $prefix = "t";
-} elseif ($timeseries == 2) { // kinetics
+} else {
+}
+
+
+/*elseif ($timeseries == 2) { // kinetics
     for ($i = 1; $i < $delength; $i++) {
         check_val($deseq[$i]->table);
         $tn = get_table_name($deseq[$i]->table);
@@ -130,14 +148,12 @@ if ($delength == 2 || $timeseries == 1) {
     }
     $prefix = "p";
 }
+*/
 
 $tbpairlen = count($tablepairs);
 
 $gblink = "";
 $READABLE = "";
-$DESEQN = "DESeq";
-if ($atypeid == 3)
-    $DESEQN = "DESeq2";
 
 for ($i = 0; $i < $tbpairlen; $i++) {
     $output = "";
@@ -146,13 +162,24 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     $UUID = guid();
     $TNAME = str_replace("-", "", $UUID);
     $TNAMES[] = $TNAME;
-    $CMD = "Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME $atypeid";
+    $T1 = $tablepairs[$i]['t1'];
+    $T2 = $tablepairs[$i]['t2'];
+    $CMD = "./MAnormSQLMacs.sh " . $tablenames[$T1]['table'] . "_macs " . $tablenames[$T2]['table'] . "_macs " .
+        $BASE_DIR . "/" . $tablenames[$T1]['worker'] . "/DNA/" . $tablenames[$T1]['table'] . ".bam " .
+        $BASE_DIR . "/" . $tablenames[$T2]['worker'] . "/DNA/" . $tablenames[$T2]['table'] . ".bam " .
+        $tablenames[$T1]['fragmentsize'] . " " .
+        $tablenames[$T2]['fragmentsize'] . " " .
+        $tablenames[$T1]['flanked'] . " " .
+        $tablenames[$T2]['flanked'] . " " . $TNAME;
+    //$db_name_experiments;
+
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
-        $res->print_error("Cant execute R."); #.print_r($output,true)
-        //logmsg(print_r($output,true));
+        logmsg(print_r($output, true));
+        $res->print_error("Cant execute MANorm . "); #.print_r($output,true)
     }
+
 
     $RNAME = $NAME;
     if ($tbpairlen != 1) {
@@ -161,35 +188,55 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     }
 
     $gblink = $tablenames[$tablepairs[$i]['t1']]['gblink'] . "&" . $tablenames[$tablepairs[$i]['t2']]['gblink'];
-    $EXT = get_extention($rtypeid);
-    $READABLE = "Annotation grouping (" . $EXT['name'] . ") were used for $DESEQN analysis.<br> Data from " .
-        "'" . $tablenames[$tablepairs[$i]['t1']]['name'] . "' and '" . $tablenames[$tablepairs[$i]['t2']]['name'] . "' has been chosen.";
+
+    $READABLE = "MANorm were used for analysis .<br > Data from " .
+        "'" . $tablenames[$tablepairs[$i]['t1']]['name'] . "' and '" . $tablenames[$tablepairs[$i]['t2']]['name'] . "' has been compared. ";
+
+
+//chr<--->start<->end<--->description<--->#raw_read_1<--->#raw_read_2<--->M_value_rescaled<------>A_value_rescaled<------>-log10(p-value)
+//chr1<-->860184<>860719<>unique_peak1<-->18<---->11<---->0.645644203583194<----->3.90778460251275<------>0.769930178837768
+
+    if (($handle = fopen("/data/DATA/MANORM/".$TNAME."/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
+
+        execSQL($con,
+            "create table " . $db_name_experiments . "." . $TNAME .
+            "`chrom` VARCHAR(45) NOT NULL," .
+            "`start` INT NULL ," .
+            "`end` INT NULL ," .
+            "`description` VARCHAR(100) NOT NULL," .
+            "`raw_read1` INT NULL ," .
+            "`raw_read2` INT NULL ," .
+            "`M_value_rescaled` float NULL ," .
+            "`A_value_rescaled` float NULL ," .
+            "`log10_p_value` float NULL ," .
+            "INDEX chr_idx (chrom) using btree," .
+            "INDEX txStart_idx (start) using btree," .
+            "INDEX txEnd_idx (end) using btree" .
+            ")" .
+            "ENGINE = MyISAM " .
+            "COMMENT = 'created by manorm';",
+            array(), true);
+        fgetcsv($handle, 2000, "\t");//header
+
+        while (($data = fgetcsv($handle, 2000, "\t")) !== FALSE) {
+            execSQL($con,
+                "insert into " . $db_name_experiments . " . ".$TNAME.
+                "(chrom,start,end,description,raw_read1,raw_read2,M_value_rescaled,A_value_rescaled,log10_p_value)".
+                 "values(?,?,?,?,?,?,?,?,?)",
+                array("siisiiddd", $data[0],$data[1],$data[2],$data[3],$data[4],$data[5],$data[6],$data[7],$data[8]), true);
+        }
+        fclose($handle);
+    } else {
+        $res->print_error("Cant find MANorm output. "); #.print_r($output,true)
+    }
 
     execSQL($con,
-        "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id,atype_id) values(?,?,?,1,?,3,?,?,?,?,?)",
-        array("sssssssii", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $rtypeid, $atypeid), true);
+        "insert into " . $db_name_ems . " . genelist(id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, rtype_id, atype_id) values(?,?,?,1,?,103,?,?,?,?,?)",
+        array("sssssssi", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $atypeid), true);
 
     if (!$con->commit()) {
         $res->print_error("Cant commit");
     }
-
-}
-
-for ($i = 0; $i < count($TNAMES); $i++) {
-    execSQL($con,
-        "ALTER TABLE `" . $db_name_experiments . "`.`" . $TNAMES[$i] . "` " .
-        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(1000) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(500) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `txStart` `txStart` INT(11) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `txEnd` `txEnd` INT(11) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `strand` `strand` VARCHAR(1) NULL DEFAULT NULL" .
-        ", ADD INDEX `''index1` USING HASH (`refseq_id`(150) ASC)" .
-        ", ADD INDEX `index2` USING HASH (`gene_id`(150) ASC)" .
-        ", ADD INDEX `index3` USING HASH (`chrom` ASC)" .
-        ", ADD INDEX `index4` USING HASH (`strand` ASC)" .
-        ", ADD INDEX `index5` USING BTREE (`txStart` ASC)" .
-        ", ADD INDEX `index6` USING BTREE (`txEnd` ASC);", array(), true);
 
 }
 
@@ -198,26 +245,13 @@ if (!$con->commit()) {
 }
 
 
-/*
-//$data->id;//] => 0
-//$data->name; //] => PCA1_result
-//$data->description;//] => PCA1_result
-//$data->rtype_id;//] => 0
-//$data->atype_id;//] => 2
-//$data->ahead_id;//] => 1
-//$data->labdata_id;//] => 0
-//$data->project_id;//] => 1
-
-*/
-
-
-//$con->close();
+$con->close();
 
 
 $res->success = true;
 $res->message = "Data loaded";
-$res->total = 0;//$tbpairlen;
-$res->data = array();//$query_array;
+$res->total = 0; //$tbpairlen;
+$res->data = array(); //$query_array;
 print_r($res->to_json());
 
 ?>

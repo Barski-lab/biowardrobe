@@ -218,7 +218,8 @@ Ext.define('EMS.controller.Project2', {
             centralPan = Ext.create('EMS.view.Project2.ATDP', {
                 labDataStore: labStore,
                 resultStore: resStore,
-                projectid: data.projectid
+                projectid: data.projectid,
+                atypeid: data.atypeid
             });
             mainPanel.replaceCenter(centralPan);
         } else if (data.atypeid == 5) {//MANorm
@@ -230,7 +231,8 @@ Ext.define('EMS.controller.Project2', {
             centralPan = Ext.create('EMS.view.Project2.MANorm', {
                 labDataStore: labStore,
                 resultStore: resStore,
-                projectid: data.projectid
+                projectid: data.projectid,
+                atypeid: data.atypeid
             });
             mainPanel.replaceCenter(centralPan);
         }
