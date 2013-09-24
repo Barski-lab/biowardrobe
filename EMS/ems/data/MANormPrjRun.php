@@ -109,6 +109,7 @@ if ($malength == 2 || $timeseries == 1) {
     }
     $prefix = "t";
 } else {
+    $res->print_error("More then two and other then timeseries not supported yet.");
 }
 
 
