@@ -277,7 +277,8 @@ create table if not exists project2_share (
 	REFERENCES worker(id)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-update ems.atype set description='To compare two sets of islands you can use MANorm.',
+update ems.atype set description='MANorm is a simple and effective method, for quantitative comparison of 
+ChIP-Seq data sets describing transcription factor binding sites and epigenetic modifications.',
 imgsrc='/ems/images/documents_preferences_b.png', sort=999,implemented=1 where id=5;
 
 ALTER TABLE `ems`.`genelist` 
