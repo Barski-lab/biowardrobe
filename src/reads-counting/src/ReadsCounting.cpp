@@ -180,7 +180,7 @@ void FSTM::FillUpData()
             {
                 if(isoforms[0][0][key][i]->intersects_count.isNull()) {
                     if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
-                            bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform)) {
+                       bicl::intersects(isoforms[0][0][key][i]->isoform,isoforms[0][0][key][j]->isoform)) {
                         /*repeat this part for multithread*/
                         for(int t=0;t<m_ThreadNum;t++) {
                             isoforms[t][0][key][i]->intersects=true;
@@ -215,7 +215,7 @@ void FSTM::FillUpData()
                 }
                 else { //if intersects_count is null
                     if(( !dUTP || isoforms[0][0][key][i]->strand == isoforms[0][0][key][j]->strand) &&
-                            bicl::intersects(isoforms[0][0][key][i]->intersects_count.data()[0],isoforms[0][0][key][j]->isoform)) {
+                       bicl::intersects(isoforms[0][0][key][i]->intersects_count.data()[0],isoforms[0][0][key][j]->isoform)) {
                         /*repeat this part for multithread*/
                         for(int t=0;t<m_ThreadNum;t++) {
                             isoforms[t][0][key][j]->intersects=true;
@@ -270,7 +270,7 @@ void FSTM::WriteResult()
     this->CreateTablesViews();
 
     QString SQL_QUERY_BASE=QString("insert into %1 values ").
-            arg(gArgs().getArgs("sql_table").toString());
+                           arg(gArgs().getArgs("sql_table").toString());
 
     foreach(const QString &chr,isoforms[0][0].keys())
     {
@@ -299,14 +299,14 @@ void FSTM::WriteResult()
                                        arg(current.data()->RPKM)).toAscii());
                     if(!gArgs().getArgs("no-sql-upload").toBool())
                         SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7,%8").
-                                arg(current.data()->name).
-                                arg(current.data()->name2).
-                                arg(current.data()->chrom).
-                                arg(current.data()->txStart).
-                                arg(current.data()->txEnd).
-                                arg(current.data()->strand).
-                                arg(current.data()->totReads).
-                                arg(current.data()->RPKM);
+                                   arg(current.data()->name).
+                                   arg(current.data()->name2).
+                                   arg(current.data()->chrom).
+                                   arg(current.data()->txStart).
+                                   arg(current.data()->txEnd).
+                                   arg(current.data()->strand).
+                                   arg(current.data()->totReads).
+                                   arg(current.data()->RPKM);
                 } else {
                     if(wrtFile)
                         outFile.write(QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM).toAscii());
@@ -381,7 +381,7 @@ void FSTM::WriteResult()
 
 
 
-       /*
+        /*
         *   Reporting GENES Expression
         */
         outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
@@ -483,9 +483,9 @@ void FSTM::CreateTablesViews(void)
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by readscounting';").
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(RPKM_FIELDS);
+                             arg(gArgs().getArgs("sql_table").toString()).
+                             arg(gArgs().getArgs("sql_table").toString()).
+                             arg(RPKM_FIELDS);
 
         if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
         {
@@ -501,62 +501,62 @@ void FSTM::CreateTablesViews(void)
 
 
         CREATE_TABLE=QString(
-                    "CREATE VIEW %1_common_tss AS "
-                    "select "
-                    "group_concat(refseq_id  separator ',') AS refseq_id,"
-                    "group_concat(gene_id    separator ',') AS gene_id,"
-                    "chrom AS chrom,"
-                    "txStart AS txStart,"
-                    "txEnd AS txEnd,"
-                    "strand AS strand,"
-                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                    "%2 "
-                    "from %3 "
-                    "where strand = '+' "
-                    "group by chrom,txStart,strand ").
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(RPKM_FIELDS).
-                arg(gArgs().getArgs("sql_table").toString())+
-                QString(
-                    " union "
-                    "select "
-                    "group_concat(refseq_id  separator ',') AS refseq_id,"
-                    "group_concat(gene_id    separator ',') AS gene_id,"
-                    "chrom AS chrom,"
-                    "txStart AS txStart,"
-                    "txEnd AS txEnd,"
-                    "strand AS strand,"
-                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                    "%1 "
-                    "from %2 "
-                    "where strand = '-' "
-                    "group by chrom,txEnd,strand ").
-                arg(RPKM_FIELDS).
-                arg(gArgs().getArgs("sql_table").toString());
+                         "CREATE VIEW %1_common_tss AS "
+                         "select "
+                         "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
+                         "group_concat(distinct gene_id   order by gene_id   separator ',') AS gene_id,"
+                         "chrom AS chrom,"
+                         "txStart AS txStart,"
+                         "max(txEnd) AS txEnd,"
+                         "strand AS strand,"
+                         "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
+                         "coalesce(sum(RPKM_0),0) AS RPKM_0 "
+                         "%2 "
+                         "from %3 "
+                         "where strand = '+' "
+                         "group by chrom,txStart,strand ").
+                     arg(gArgs().getArgs("sql_table").toString()).
+                     arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_table").toString())+
+                     QString(
+                         " union "
+                         "select "
+                         "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
+                         "group_concat(distinct gene_id   order by gene_id   separator ',') AS gene_id,"
+                         "chrom AS chrom,"
+                         "min(txStart) AS txStart,"
+                         "txEnd AS txEnd,"
+                         "strand AS strand,"
+                         "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
+                         "coalesce(sum(RPKM_0),0) AS RPKM_0 "
+                         "%1 "
+                         "from %2 "
+                         "where strand = '-' "
+                         "group by chrom,txEnd,strand ").
+                     arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(CREATE_TABLE))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
 
         CREATE_TABLE=QString(
-                    "CREATE VIEW %1_genes AS "
-                    "select "
-                    "group_concat(refseq_id  separator ',') AS refseq_id,"
-                    "gene_id,"
-                    "chrom AS chrom,"
-                    "txStart AS txStart,"
-                    "txEnd AS txEnd,"
-                    "strand AS strand,"
-                    "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
-                    "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                    "%2 "
-                    "from %3 "
-                    "group by gene_id ").
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(RPKM_FIELDS).
-                arg(gArgs().getArgs("sql_table").toString());
+                         "CREATE VIEW %1_genes AS "
+                         "select "
+                         "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
+                         "gene_id,"
+                         "chrom AS chrom,"
+                         "txStart AS txStart,"
+                         "txEnd AS txEnd,"
+                         "strand AS strand,"
+                         "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
+                         "coalesce(sum(RPKM_0),0) AS RPKM_0 "
+                         "%2 "
+                         "from %3 "
+                         "group by gene_id ").
+                     arg(gArgs().getArgs("sql_table").toString()).
+                     arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_table").toString());
 
         if(!q.exec(CREATE_TABLE))
         {
