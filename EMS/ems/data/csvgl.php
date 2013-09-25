@@ -76,7 +76,13 @@ if (intVal($qr[0]['type']) == 101) {
     if (!($stmt = $con->prepare("SELECT * FROM `$tablename` order by chrom, start, end "))) {
         $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }
-} else {
+}
+else if ( intVal($qr[0]['type']) == 103 ) {
+    if (!($stmt = $con->prepare("SELECT distinct * FROM `$tablename` order by chrom, start, end "))) {
+        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+    }
+} 
+else {
     if (!($stmt = $con->prepare("SELECT * FROM `$tablename` order by refseq_id,txStart,txEnd"))) {
         $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }

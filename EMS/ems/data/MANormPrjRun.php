@@ -158,7 +158,7 @@ $READABLE = "";
 
 for ($i = 0; $i < $tbpairlen; $i++) {
     $output = "";
-    set_time_limit(300);
+    set_time_limit(900);
     sleep(5);
     $UUID = guid();
     $TNAME = str_replace("-", "", $UUID);
@@ -171,9 +171,9 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         $tablenames[$T1]['fragmentsize'] . " " .
         $tablenames[$T2]['fragmentsize'] . " " .
         $tablenames[$T1]['flanked'] . " " .
-        $tablenames[$T2]['flanked'] . " " . $TNAME;
-    //$db_name_experiments;
+        $tablenames[$T2]['flanked'] . " " . $TNAME. " " .$db_name_experiments;
 
+logmsg(print_r($CMD, true));
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
@@ -200,7 +200,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     if (($handle = fopen("/data/DATA/MANORM/".$TNAME."/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
 
         execSQL($con,
-            "create table " . $db_name_experiments . "." . $TNAME .
+            "create table " . $db_name_experiments . ".`" . $TNAME ."` (" .
             "`chrom` VARCHAR(45) NOT NULL," .
             "`start` INT NULL ," .
             "`end` INT NULL ," .
@@ -211,12 +211,13 @@ for ($i = 0; $i < $tbpairlen; $i++) {
             "`A_value_rescaled` float NULL ," .
             "`log10_p_value` float NULL ," .
             "INDEX chr_idx (chrom) using btree," .
-            "INDEX txStart_idx (start) using btree," .
-            "INDEX txEnd_idx (end) using btree" .
+            "INDEX start_idx (start) using btree," .
+            "INDEX end_idx (end) using btree" .
             ")" .
             "ENGINE = MyISAM " .
             "COMMENT = 'created by manorm';",
             array(), true);
+            
         fgetcsv($handle, 2000, "\t");//header
 
         while (($data = fgetcsv($handle, 2000, "\t")) !== FALSE) {
@@ -232,7 +233,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     }
 
     execSQL($con,
-        "insert into " . $db_name_ems . " . genelist(id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, rtype_id, atype_id) values(?,?,?,1,?,103,?,?,?,?,?)",
+        "insert into " . $db_name_ems . " . genelist(id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
         array("sssssssi", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $atypeid), true);
 
     if (!$con->commit()) {
