@@ -44,9 +44,9 @@ Ext.define('EMS.view.Project2.MANormRun', {
 
         for (i = 0; i < me.initialConfig.tables.getChildAt(0).childNodes.length; i++) {
             tablesN.push({
-                id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
-                name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
-            });
+                             id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
+                             name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
+                         });
         }
         me.tables = Ext.create('Ext.data.Store', {
             fields: [ 'id', 'name'],
@@ -73,14 +73,14 @@ Ext.define('EMS.view.Project2.MANormRun', {
                             for (i = 0; i < me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
                                 if (name.getValue().trim().toUpperCase() === me.initialConfig.tables.getChildAt(1).childNodes[i].data.name.trim().toUpperCase()) {
                                     Ext.MessageBox.show({
-                                        title: 'For you information',
-                                        msg: 'MANorm name "' + name.getValue() + '" already exists please provide the other one.',
-                                        icon: Ext.MessageBox.ERROR,
-                                        fn: function () {
-                                            name.focus(false, 200);
-                                        },
-                                        buttons: Ext.Msg.OK
-                                    });
+                                                            title: 'For you information',
+                                                            msg: 'MANorm name "' + name.getValue() + '" already exists please provide the other one.',
+                                                            icon: Ext.MessageBox.ERROR,
+                                                            fn: function () {
+                                                                name.focus(false, 200);
+                                                            },
+                                                            buttons: Ext.Msg.OK
+                                                        });
                                     return;
                                 }
                             }
@@ -94,14 +94,14 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                     }
                                 } else {
                                     Ext.MessageBox.show({
-                                        title: 'For you information',
-                                        msg: 'You cant run MANorm on the same data.',
-                                        icon: Ext.MessageBox.ERROR,
-                                        fn: function () {
-                                            name.focus(false, 200);
-                                        },
-                                        buttons: Ext.Msg.OK
-                                    });
+                                                            title: 'For you information',
+                                                            msg: 'You cant run MANorm on the same data.',
+                                                            icon: Ext.MessageBox.ERROR,
+                                                            fn: function () {
+                                                                name.focus(false, 200);
+                                                            },
+                                                            buttons: Ext.Msg.OK
+                                                        });
                                 }
                             }
                         }
@@ -149,7 +149,6 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                               '<img src=images/about_big.png width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
                                               'To run MANorm at first you have to type name which will be assigned to the result.' +
                                               ' After that in "MANorm input" fieldset you should choose data to compare.' +
-                                              ' In combobox choose ChIP-seq data (islands) then in numberfield put island flanked region (bp).' +
                                               ' It has to be at least two records, to add more press "+", to delete press "x".' +
                                               ' If you added more then two records time series will be made and index will be added to the name.' + '</div>'
                                     }
@@ -328,21 +327,12 @@ Ext.define('EMS.view.Project2.MANormRun', {
                     displayField: 'name',
                     store: me.tables,
                     valueField: 'id',
-                    value: pf.subfilterc === 1 ? me.initialConfig.item_id: undefined,
-                            //pf.subfilterc === 1 ? me.initialConfig.item_id : me.checkVal(params, 'table', me.initialConfig.item_id),
+                    value: pf.subfilterc === 1 ? me.initialConfig.item_id : undefined,
+                    //pf.subfilterc === 1 ? me.initialConfig.item_id : me.checkVal(params, 'table', me.initialConfig.item_id),
                     minWidth: 120,
                     flex: 3,
                     editable: false,
                     margin: '0 5 0 5'
-                } ,                        {
-                    xtype: 'numberfield',
-                    name: pf.filterc + '_' + subfilter + '_flanked',
-                    flex: 1,
-                    margins: '0 0 0 6',
-                    width: 70,
-                    value: me.checkVal(params, 'flanked', 300),
-                    step: 10,
-                    allowBlank: false
                 },
                 {
                     xtype: 'button',
@@ -381,7 +371,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
     setFormJson: function (data) {
         var me = this, form = Ext.getCmp('ProjectMANormForm'), filter;
         Ext.getCmp('manorm-name').setValue(data.name);
-        if(typeof data.seriestype != 'undefined' )
+        if (typeof data.seriestype != 'undefined')
             Ext.getCmp('manorm-an-type').setValue(data.seriestype);
         filter = me.addFilter(data.name, data.manorm[j]);
         form.add(filter);
@@ -407,8 +397,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
             if (si.getXType() === 'fieldcontainer') {
                 var struct = {
                     order: parseInt(si.getComponent(0).getValue()),
-                    table: si.getComponent(1).getValue(),
-                    flanked: si.getComponent(2).getValue()
+                    table: si.getComponent(1).getValue()
                 };
                 i.manorm.push(struct);
             }

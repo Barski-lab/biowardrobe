@@ -23,8 +23,8 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP'],
-    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP'],
+    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP'],
     init: function () {
         var me = this;
@@ -182,60 +182,41 @@ Ext.define('EMS.controller.Project2', {
         var me = this;
         var mainPanel = Ext.getCmp('ProjectDesigner');
         var resStore = me.getGeneListStore();
-        //var RTypeStore=me.getRTypeStore();
         var labStore = me.getProjectLabDataStore();
         var centralPan;
+
+        resStore.getProxy().setExtraParam('projectid', data.projectid);
+        resStore.getProxy().setExtraParam('atypeid', data.atypeid);
+        resStore.load();
+
+        var viewName;
 
         if (data.atypeid == 1 || data.atypeid == 6 || data.atypeid == 3) { //deseq, filter, deseq2
             labStore.getProxy().setExtraParam('isrna', 1);
             labStore.load();
-            resStore.getProxy().setExtraParam('projectid', data.projectid);
-            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-            resStore.load();
-            if (data.atypeid === 1 || data.atypeid === 3) {
-                centralPan = Ext.create('EMS.view.Project2.DESeq', {
-                    labDataStore: labStore,
-                    resultStore: resStore,
-                    projectid: data.projectid,
-                    atypeid: data.atypeid
-                });
-            } else {
-                centralPan = Ext.create('EMS.view.Project2.GenesLists', {
-                    labDataStore: labStore,
-                    resultStore: resStore,
-                    projectid: data.projectid,
-                    atypeid: data.atypeid
-                });
-            }
-            mainPanel.replaceCenter(centralPan);
-        } else if (data.atypeid == 2) {
-        } else if (data.atypeid == 4) {
+        } else {
             labStore.getProxy().setExtraParam('isrna', 0);
             labStore.load();
-            resStore.getProxy().setExtraParam('projectid', data.projectid);
-            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-            resStore.load();
-            centralPan = Ext.create('EMS.view.Project2.ATDP', {
-                labDataStore: labStore,
-                resultStore: resStore,
-                projectid: data.projectid,
-                atypeid: data.atypeid
-            });
-            mainPanel.replaceCenter(centralPan);
-        } else if (data.atypeid == 5) {//MANorm
-            labStore.getProxy().setExtraParam('isrna', 0);
-            labStore.load();
-            resStore.getProxy().setExtraParam('projectid', data.projectid);
-            resStore.getProxy().setExtraParam('atypeid', data.atypeid);
-            resStore.load();
-            centralPan = Ext.create('EMS.view.Project2.MANorm', {
-                labDataStore: labStore,
-                resultStore: resStore,
-                projectid: data.projectid,
-                atypeid: data.atypeid
-            });
-            mainPanel.replaceCenter(centralPan);
         }
+
+        if (data.atypeid === 1 || data.atypeid === 3) {
+            viewName='EMS.view.Project2.DESeq';
+        } else if (data.atypeid == 6) {
+            viewName='EMS.view.Project2.GenesLists';
+        } else if (data.atypeid == 2) {
+            return;
+        } else if (data.atypeid == 4) {
+            viewName='EMS.view.Project2.ATDP';
+        } else if (data.atypeid == 5) {//MANorm
+            viewName='EMS.view.Project2.MANorm';
+        }
+
+        mainPanel.replaceCenter(Ext.create(viewName, {
+            labDataStore: labStore,
+            resultStore: resStore,
+            projectid: data.projectid,
+            atypeid: data.atypeid
+        }));
     },
     /*************************************************************
      *************************************************************/
@@ -243,12 +224,6 @@ Ext.define('EMS.controller.Project2', {
         this.getProjectLabDataStore().getProxy().setExtraParam('workerid', Ext.getCmp('project-worker-changed').getValue());
         //console.log(combo.up('panel').up('panel'));
         combo.up('panel').up('panel').m_PagingToolbar.moveFirst();
-        //        if (Ext.getCmp('Project2DESeq'))
-        //            Ext.getCmp('Project2DESeq').m_PagingToolbar.moveFirst();
-        //        if (Ext.getCmp('Project2GenesLists'))
-        //            Ext.getCmp('Project2GenesLists').m_PagingToolbar.moveFirst()
-        //        if (Ext.getCmp('Project2ATDP'))
-        //            Ext.getCmp('Project2ATDP').m_PagingToolbar.moveFirst()
     },
     /*************************************************************
      *************************************************************/
@@ -257,7 +232,7 @@ Ext.define('EMS.controller.Project2', {
         var me = this;
         dropHandlers.wait = true;
 
-        if ((dropPosition !== 'append' && overModel.data.leaf === false) || ( overModel.data.id !== 'gd' && overModel.data.parentId!=='gd') || overModel.data.root === true) {
+        if ((dropPosition !== 'append' && overModel.data.leaf === false) || ( overModel.data.id !== 'gd' && overModel.data.parentId !== 'gd') || overModel.data.root === true) {
             dropHandlers.cancelDrop();
             return false;
         }

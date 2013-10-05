@@ -52,6 +52,8 @@ var Rights = (function () {
     return {
         check: function (user, place) {
             worker = USER_LNAME;
+            if(place==='MenuProject' && ( worker === 'admin' || worker==='yrina' || worker === 'satoshi' ))
+                return 1;
             if (worker === 'admin')
                 return 1;
             return 0;

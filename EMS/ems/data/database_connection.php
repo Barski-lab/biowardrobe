@@ -203,13 +203,15 @@ function make_a_gl_group_view($id, $parentid, $add = true)
         if (!$qr) return;
         $tbname = $qr[0]['tableName'];
 
+        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_genes`", array(), true);
+        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_common_tss`", array(), true);
+        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname."`", array(), true);
+
         $qr = execSQL($con, "select * from " . $db_name_ems . ".genelist where parent_id like ?", array("s", $parentid), false);
         if (!$qr) {
-            execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname . "_genes", array(), true);
-            execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname . "_common_tss", array(), true);
-            execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname, array(), true);
             return;
         }
+
         $c = 0;
         $AV_R = "a0.TOT_R_0";
         $AV_RP = "a0.RPKM_0";
@@ -224,7 +226,7 @@ function make_a_gl_group_view($id, $parentid, $add = true)
             if ($c != 0) {
                 $AV_R = $AV_R . "+a" . $c . ".TOT_R_0";
                 $AV_RP = $AV_RP . "+a" . $c . ".RPKM_0";
-                $TABLES = $TABLES . "," . $db_name_experiments . "." . $val['tableName'] . " a" . $c;
+                $TABLES = $TABLES . "," . $db_name_experiments . ".`" . $val['tableName'] . "` a" . $c;
                 $gblink = $gblink . "&" . $val['tableName'] . "=full";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".refseq_id=a" . $c . ".refseq_id";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".chrom=a" . $c . ".chrom";
@@ -232,18 +234,15 @@ function make_a_gl_group_view($id, $parentid, $add = true)
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
             } else {
-                $TABLES = $db_name_experiments . "." . $val['tableName'] . " a0";
+                $TABLES = $db_name_experiments . ".`" . $val['tableName'] . "` a0";
                 $gblink = $val['tableName'] . "=full";
             }
             $c++;
         }
         $AV_R = "(" . $AV_R . ")/" . $c;
         $AV_RP = "(" . $AV_RP . ")/" . $c;
-        execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname . "_genes", array(), true);
-        execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname . "_common_tss", array(), true);
-        execSQL($con, "drop view if exists " . $db_name_experiments . "." . $tbname, array(), true);
 
-        $SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . " AS " .
+        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "` AS " .
             "select a0.refseq_id as refseq_id," .
             "a0.gene_id AS gene_id," .
             "a0.chrom AS chrom," .
@@ -257,46 +256,43 @@ function make_a_gl_group_view($id, $parentid, $add = true)
         //logmsg(print_r($SQL,true));
         execSQL($con, $SQL, array(), true);
 
-        $SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . "_common_tss AS " .
+        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "_common_tss` AS " .
             "select " .
-            "group_concat(refseq_id  separator ',') AS refseq_id," .
-            "group_concat(gene_id    separator ',') AS gene_id," .
+            "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id," .
+            "group_concat(distinct gene_id order by gene_id separator ',') AS gene_id," .
             "chrom AS chrom," .
             "txStart AS txStart," .
-            "txEnd AS txEnd," .
+            "max(txEnd) AS txEnd," .
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . "." . $tbname .
-            " where strand = '+' " .
+            "from " . $db_name_experiments . ".`" . $tbname ."` where strand = '+' " .
             "group by chrom,txStart,strand " .
             " union " .
             "select " .
-            "group_concat(refseq_id  separator ',') AS refseq_id," .
-            "group_concat(gene_id    separator ',') AS gene_id," .
+            "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id," .
+            "group_concat(distinct gene_id order by gene_id separator ',') AS gene_id," .
             "chrom AS chrom," .
-            "txStart AS txStart," .
+            "min(txStart) AS txStart," .
             "txEnd AS txEnd," .
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . "." . $tbname .
-            " where strand = '-' " .
+            "from " . $db_name_experiments . ".`" . $tbname ."` where strand = '-' " .
             "group by chrom,txEnd,strand ";
         execSQL($con, $SQL, array(), true);
 
-        $SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . "_genes AS " .
+        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "_genes` AS " .
             "select " .
-            "group_concat(refseq_id  separator ',') AS refseq_id," .
+            "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id," .
             "gene_id," .
-            "chrom AS chrom," .
-            "txStart AS txStart," .
-            "txEnd AS txEnd," .
-            "strand AS strand," .
+            "max(chrom) AS chrom," .
+            "max(txStart) AS txStart," .
+            "max(txEnd) AS txEnd," .
+            "max(strand) AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . "." . $tbname .
-            " group by gene_id ";
+            "from " . $db_name_experiments . ".`" . $tbname ."` group by gene_id ";
         execSQL($con, $SQL, array(), true);
 
         execSQL($con, "update " . $db_name_ems . ".genelist set gblink=? where id like ?",

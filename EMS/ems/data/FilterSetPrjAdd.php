@@ -95,11 +95,11 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txStart=a" . $c . ".txStart";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
-            $FROM = $FROM . "," . $db_name_experiments . "." . $tablenames[$val->table]['table'] . $EXT['ext'] . " " . $tablenames[$val->table]['alias'];
+            $FROM = $FROM . "," . $db_name_experiments . ".`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
             $RPKMS = $RPKMS . "," . $tablenames[$val->table]['alias'] . "." . "RPKM_0 as `RPKM " . $tablenames[$val->table]['name'] . "`";
             $gblink = $gblink . "&" . $tn[0]['gblink'];
         } else {
-            $FROM = $db_name_experiments . "." . $tablenames[$val->table]['table'] . $EXT['ext'] . " " . $tablenames[$val->table]['alias'];
+            $FROM = $db_name_experiments . ".`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
             $RPKMS = $tablenames[$val->table]['alias'] . "." . "RPKM_0 as `RPKM " . $tablenames[$val->table]['name'] . "`";
             $gblink = $tn[0]['gblink'];
         }
@@ -118,7 +118,7 @@ foreach ($V->conditions as $k2 => $val) {
     $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . floatval($val->value) . "$val->bracketr<br>\n";
 }
 
-$SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . " AS " .
+$SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "` AS " .
     "select a0.refseq_id as refseq_id," .
     "a0.gene_id AS gene_id," .
     "a0.chrom AS chrom," .

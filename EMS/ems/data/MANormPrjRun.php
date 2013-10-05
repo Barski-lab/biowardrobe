@@ -80,7 +80,7 @@ $tablenames[$manorm[0]->table] = array(
     "name" => $tn[0]['name'],
     "worker" => $tn[0]['worker'],
     "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
-    "flanked" => intval($manorm[0]->flanked));
+    "flanked" => 0);
 
 if (intval($manorm[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
@@ -100,7 +100,7 @@ if ($malength == 2 || $timeseries == 1) {
             "name" => $tn[0]['name'],
             "worker" => $tn[0]['worker'],
             "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
-            "flanked" => intval($manorm[$i]->flanked));
+            "flanked" => 0);
 
         $tablepairs[] = array("id" => $i, "t1" => $manorm[$i - 1]->table, "t2" => $manorm[$i]->table);
 
@@ -173,7 +173,6 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         $tablenames[$T1]['flanked'] . " " .
         $tablenames[$T2]['flanked'] . " " . $TNAME. " " .$db_name_experiments;
 
-logmsg(print_r($CMD, true));
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
@@ -233,7 +232,7 @@ logmsg(print_r($CMD, true));
     }
 
     execSQL($con,
-        "insert into " . $db_name_ems . " . genelist(id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
+        "insert into " . $db_name_ems . ".genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
         array("sssssssi", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $atypeid), true);
 
     if (!$con->commit()) {

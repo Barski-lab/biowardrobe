@@ -287,4 +287,15 @@ update `ems`.`genelist` set `status`= 0;
 ALTER TABLE `ems`.`genelist` 
 CHANGE COLUMN `status` `status` INT(3) NOT NULL DEFAULT 0 ;
 
+ALTER TABLE `ems`.`labdata` 
+ADD COLUMN `fragmentsizeest` INT(5) NULL DEFAULT NULL COMMENT 'Estimated fragment size by MACS' AFTER `fragmentsize`,
+ADD COLUMN `fragmentsizeexp` INT(5) NULL DEFAULT NULL COMMENT 'Expected fragment size from wet lab' AFTER `fragmentsizeest`,
+ADD COLUMN `fragmentsizeforceuse` INT(1) NULL DEFAULT 0 AFTER `fragmentsizeexp`,
+ADD COLUMN `islandcount` INT(7) NULL AFTER `fragmentsizeforceuse`,
+ADD COLUMN `browsershare` INT(1) NULL DEFAULT 1 AFTER `browsergrp`,
+ADD COLUMN `forcerun` INT(1) NULL DEFAULT 0 AFTER `browsershare`;
+
+update `ems`.`labdata` set fragmentsizeexp=150, fragmentsizeest=fragmentsize, browsershare=1 where experimenttype_id in (1,2)
+
+
 set foreign_key_checks = 1 ;
