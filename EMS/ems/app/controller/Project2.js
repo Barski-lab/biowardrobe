@@ -23,8 +23,8 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP'],
-    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
+    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP'],
     init: function () {
         var me = this;
@@ -53,7 +53,8 @@ Ext.define('EMS.controller.Project2', {
                        },
                        '#Project2MANorm': {
                            Back: me.onBack,
-                           manorm: me.runMANORM
+                           manorm: me.runMANORM,
+                           tableview: me.TableView
                        },
                        '#project2-project-list': {
                            select: me.onProjectSelect,
@@ -200,15 +201,15 @@ Ext.define('EMS.controller.Project2', {
         }
 
         if (data.atypeid === 1 || data.atypeid === 3) {
-            viewName='EMS.view.Project2.DESeq';
+            viewName = 'EMS.view.Project2.DESeq';
         } else if (data.atypeid == 6) {
-            viewName='EMS.view.Project2.GenesLists';
+            viewName = 'EMS.view.Project2.GenesLists';
         } else if (data.atypeid == 2) {
             return;
         } else if (data.atypeid == 4) {
-            viewName='EMS.view.Project2.ATDP';
+            viewName = 'EMS.view.Project2.ATDP';
         } else if (data.atypeid == 5) {//MANorm
-            viewName='EMS.view.Project2.MANorm';
+            viewName = 'EMS.view.Project2.MANorm';
         }
 
         mainPanel.replaceCenter(Ext.create(viewName, {
@@ -668,6 +669,43 @@ Ext.define('EMS.controller.Project2', {
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
                               var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
                               ATPChart.show();
+                          }
+                      }
+                  });
+    },
+    TableView: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var stor = this.getTableViewStore();
+        stor.getProxy().setExtraParam('id', record.data['item_id']);
+        stor.load({
+                      callback: function (records, operation, success) {
+                          if (success) {
+                              console.log(arguments);
+                              console.log(stor.model.getFields());
+                              var window = Ext.create("EMS.view.Project2.TableViewWindow",{store: stor });
+                              window.show();
+                              //                              var title = [];
+                              //                              for (var c = 0; c < storc.getTotalCount(); c++) {
+                              //                                  title.push(storc.getAt(c).raw['pltname']);
+                              //
+                              //                              }
+                              //                              var cols = 0;
+                              //                              var prop = [];
+                              //                              for (p in records[0].data) {
+                              //                                  if (cols > 0) prop[cols - 1] = p;
+                              //                                  cols++;
+                              //                              }
+                              //                              cols--;
+                              //                              var len = Math.abs(records[0].data.X);
+                              //                              var max = records[0].data[prop[0]];
+                              //                              for (var i = 0; i < records.length; i++) {
+                              //                                  for (var j = 0; j < cols; j++)
+                              //                                      if (records[i].data[prop[j]] > max)
+                              //                                          max = records[i].data[prop[j]];
+                              //                              }
+                              //
+                              //                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
+                              //                              var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
+                              //                              ATPChart.show();
                           }
                       }
                   });

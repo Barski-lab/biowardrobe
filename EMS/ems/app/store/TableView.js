@@ -21,22 +21,16 @@
  ****************************************************************************/
 
 
-Ext.define('EMS.store.Islands', {
+Ext.define('EMS.store.TableView', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Islands'],
-    model: 'EMS.model.Islands',
-    storeId: 'Islands',
+    requires: ['EMS.model.TableView'],
+    model: 'EMS.model.TableView',
+    storeId: 'TableView',
     autoLoad: false,
     singleton: true,
     remoteSort: true,
     remoteFilter: true,
-    sorters: [
-        {
-            property: 'log10q',
-            direction: 'DESC'
-        }
-    ],
     pageSize: 100,
     listeners: {
         load: function (store, records, successful, eOpts) {
@@ -45,14 +39,12 @@ Ext.define('EMS.store.Islands', {
     },
     proxy: Ext.apply(STORE_DEFS.proxy(''), {
         api: {
-            read: 'data/RPKM.php',
+            read: 'data/TableById.php',
             update: '',
             create: '',
             destroy: ''
         }
     })
 });
-
-//direction: 'ASC'
 
 

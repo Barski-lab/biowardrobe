@@ -209,14 +209,23 @@ Ext.define('EMS.view.Project2.MANorm', {
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             meta.css = 'x-hide-display';
-                                        if (rec.data.parentId !== 'gd')
+                                        if (rec.data.parentId !== 'gd' && rec.data.parentId !== 'ma')
                                             return;
+
                                         this.items[0].text = 'MAnorm';
                                         this.items[0].tooltip = 'MAnorm';
                                         this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            me.fireEvent('manorm', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
+                                            if (record.data.parentId === 'gd') {
+                                                me.fireEvent('manorm', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
+                                            } else {
+                                                me.fireEvent('tableview', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
+                                            }
                                         };
-                                        return 'manorm';
+                                        if (rec.data.parentId === 'gd')// && rec.data.parentId !== 'ma')
+                                            return 'manorm';
+                                        else
+                                            return 'view';
+
                                     }
                                 } ,
                                 {
