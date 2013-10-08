@@ -1,107 +1,90 @@
 <?php
-   require("common.php");
+require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-if(isset($_REQUEST['tablename']))
+if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
     $res->print_error('Not enough required parameters. t');
 
-$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
-$SpecialTable=array("labdata","grp_local","project","fhead");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info", "rtype", "atype", "result",
+    "labdata", "grp_local", "project", "fhead");
 
-if(!in_array($tablename,$AllowedTable)) {
-    if(!in_array($tablename,$SpecialTable)) {
-        $res->print_error('Table not in the list');
-    } else {
-        switch($tablename) {
+if (!in_array($tablename, $AllowedTable)) {
+    $res->print_error('Table not in the list');
+} else {
+    switch ($tablename) {
         case "project":
         case "labdata":
-            if(isset($_REQUEST['workerid'])) {
+            if (isset($_REQUEST['workerid'])) //select different users
                 $workerid = intVal($_REQUEST['workerid']);
-            }
             else
-                if(!check_rights())
-                    $workerid=$_SESSION["user_id"];
-                    //$res->print_error('Not enough required parameters. w');
-            if(isset($_REQUEST['typeid'])) {
-                $typeid = intVal($_REQUEST['typeid']);
-                $cond="";
-                if($typeid>=1 && $typeid<=3)
-                    $cond=" and libstatus > 20 and experimenttype_id between 3 and 6 ";
-                if($typeid==4)
-                    $cond=" and libstatus > 11 and experimenttype_id between 1 and 2 ";
+                $workerid = $_SESSION["user_id"];
 
-                if($cond != "") {
-                    $where=$where.$cond;
-                } else {
+            if (isset($_REQUEST['typeid'])) {
+                $typeid = intVal($_REQUEST['typeid']);
+
+                if ($typeid >= 1 && $typeid <= 3)
+                    $where = $where ." and libstatus > 20 and experimenttype_id between 3 and 6 ";
+                elseif ($typeid == 4)
+                    $where = $where ." and libstatus > 11 and experimenttype_id between 1 and 2 ";
+                else
                     $res->print_error('Not yet supported.');
-                }
             }
-            if(isset($workerid) && $workerid != 0) {
-                    $where=$where." and worker_id=$workerid ";
-            }
-            $con=def_connect();
+
+            if ($workerid != 0)
+                $where = $where . " and worker_id=$workerid ";
+
+            $con = def_connect();
             $con->select_db($db_name_ems);
             break;
         case "fhead":
-            if(isset($_REQUEST['ahead_id']))
+            if (isset($_REQUEST['ahead_id']))
                 $ahead_id = intVal($_REQUEST['ahead_id']);
             else
                 $res->print_error('Not enough required parameters.');
-            $cond=" and ahead_id=$ahead_id and analysis_id is NULL ";
-            $con=def_connect();
-            $con->select_db($db_name_ems);
-            //$order=" order by name ";
 
-            if($cond != "") {
-                $where=$where.$cond;
-            } else {
-                $res->print_error('Not yet supported.');
-            }
+            $where = $where . " and ahead_id=$ahead_id and analysis_id is NULL ";
+            $con = def_connect();
+            $con->select_db($db_name_ems);
 
             break;
         case "grp_local":
-            if(isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
+            if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
                 check_val($_REQUEST['genomedb']);
-                if($_REQUEST['genomenm']!="") check_val($_REQUEST['genomenm']);
-                $gdb=$_REQUEST['genomedb'];
-                $gnm=$_REQUEST['genomenm'];
+                if ($_REQUEST['genomenm'] != "") check_val($_REQUEST['genomenm']);
+                $gdb = $_REQUEST['genomedb'];
+                $gnm = $_REQUEST['genomenm'];
             } else {
                 $res->print_error('Not enough required parameters.');
             }
-            if($where!="")
-                $where=$where." and name like '$gnm%'";
-            else
-                $where=$where." where name like '$gnm%'";
-            $con = new mysqli($db_host_gb,$db_user_gb,$db_pass_gb);
+            $where = $where . " and name like '$gnm%'";
+
+            $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
             if ($con->connect_errno)
                 $res->print_error('Could not connect: ' . $con->connect_error);
-            if(!$con->select_db($gdb)) {
+            if (!$con->select_db($gdb)) {
                 $res->print_error('Could not select db: ' . $con->connect_error);
             }
             break;
-        }
+        default:
+            $con = def_connect();
+            $con->select_db($db_name_ems);
+            break;
     }
-} else {
-    $con=def_connect();
-    $con->select_db($db_name_ems);
 }
 
-
-if(execSQL($con,"describe `$tablename`",array(),true)==0) {
-    $res->print_error("Cant describe");
-}
-
-if(! ($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where")) ) {
+if (!($totalquery = $con->query("SELECT COUNT(*) FROM `$tablename` $where"))) {
     $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
 }
-$row=$totalquery->fetch_row();
-$total=$row[0];
+$row = $totalquery->fetch_row();
+$total = $row[0];
 $totalquery->close();
-$query_array=execSQL($con,"SELECT * FROM `$tablename` $where $order $limit",array(),false);
+
+$query_array = execSQL($con, "SELECT * FROM `$tablename` $where $order $limit", array(), false);
+
 $con->close();
 
 $res->success = true;

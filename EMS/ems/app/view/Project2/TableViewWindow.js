@@ -24,7 +24,6 @@
 Ext.define('EMS.view.Project2.TableViewWindow', {
     extend: 'Ext.window.Window',
     alias: 'widget.TableViewWindow',
-
     title: 'View table data',
     layout: 'fit',
     iconCls: 'table2',
@@ -69,7 +68,7 @@ Ext.define('EMS.view.Project2.TableViewWindow', {
 
         me.buttons = [
             {
-                text: 'Cancel',
+                text: 'Close',
                 handler: function () {
                     me.close();
                 }

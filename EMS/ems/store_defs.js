@@ -66,7 +66,7 @@ STORE_DEFS = {
                 read : 'data/GeneralList.php',
                 update: 'data/GeneralListUp.php',
                 create: 'data/GeneralListAdd.php',
-                destroy: '/cgi-bin/barski/recordsDel.json'
+                destroy: 'data/GeneralListDel.php'
             },
             extraParams: {
                 tablename:  TBL

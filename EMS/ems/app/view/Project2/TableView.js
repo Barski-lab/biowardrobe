@@ -23,6 +23,7 @@
 
 Ext.define('EMS.view.Project2.TableView', {
     extend: 'Ext.Panel',
+    alias: 'widget.TableView',
     header: false,
     frame: false,
     border: false,
@@ -43,7 +44,7 @@ Ext.define('EMS.view.Project2.TableView', {
             if (fields[i].type.type === 'int') {
                 align = 'right';
             }
-            me.columns.push({   header: fields[i].name, sortable: true, filterable: true, width: width, align: align, dataIndex: fields[i].name, hidden: false });
+            me.columns.push({header: fields[i].name, sortable: true, filterable: true, width: width, align: align, dataIndex: fields[i].name, hidden: false });
         }
 
         var filters = {
@@ -58,65 +59,57 @@ Ext.define('EMS.view.Project2.TableView', {
             displayInfo: true
         });
 
+        me.tbar = [
+            me.m_PagingToolbar,
+            '-',
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+
+                items: [
+                    {
+                        xtype: 'button',
+                        text: 'jump',
+                        width: 80,
+                        submitValue: false,
+                        iconCls: 'genome-browser',
+                        iconAlign: 'left',
+                        margin: '5 10 5 10',
+                        handler: function () {
+                            me.fireEvent('gbjump', this, me);
+                        }
+                    }/* ,
+                     {
+                     xtype: 'button',
+                     store: me.initialConfig.store,
+                     text: 'save',
+                     href: '',
+                     id: 'tbl-table-save',
+                     width: 80,
+                     submitValue: false,
+                     iconCls: 'disk',
+                     margin: '5 10 5 10'
+                     }*/
+                ]
+            }
+        ];//tbar
+
         me.items = [
             {
-                xtype: 'panel',
-                layout: 'fit',
-                region: 'center',
+                viewConfig: {
+                    stripeRows: true,
+                    enableTextSelection: true
+                },
+                xtype: 'grid',
+                hight: 60,
                 frame: false,
                 border: false,
                 plain: true,
-                items: [
-                    {
-                        viewConfig: {
-                            stripeRows: true,
-                            enableTextSelection: true
-                        },
-                        xtype: 'grid',
-                        hight: 60,
-                        frame: false,
-                        border: false,
-                        plain: true,
-                        columnLines: true,
-                        store: me.initialConfig.store,
-                        remoteSort: true,
-                        features: [filters],
-                        columns: me.columns
-                    }
-                ],
-
-                tbar: [
-                    me.m_PagingToolbar,
-                    '-',
-                    {
-                        xtype: 'fieldcontainer',
-                        layout: 'hbox',
-
-                        items: [
-                            {
-                                xtype: 'button',
-                                text: 'jump',
-                                id: 'tbl-browser-jump',
-                                width: 80,
-                                submitValue: false,
-                                iconCls: 'genome-browser',
-                                iconAlign: 'left',
-                                margin: '5 10 5 10'
-                            }/* ,
-                            {
-                                xtype: 'button',
-                                store: me.initialConfig.store,
-                                text: 'save',
-                                href: '',
-                                id: 'tbl-table-save',
-                                width: 80,
-                                submitValue: false,
-                                iconCls: 'disk',
-                                margin: '5 10 5 10'
-                            }*/
-                        ]
-                    }
-                ]//tbar
+                columnLines: true,
+                store: me.initialConfig.store,
+                remoteSort: true,
+                features: [filters],
+                columns: me.columns
             }
         ];//me.items
         me.callParent(arguments);

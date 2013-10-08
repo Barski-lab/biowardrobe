@@ -1,5 +1,5 @@
 <?php
-   require("common.php");
+require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
@@ -9,148 +9,121 @@ require_once('database_connection.php');
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
-if(isset($_REQUEST['tablename']))
+if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
     $res->print_error('Not enough required parameters. t');
 
-$data=json_decode($_REQUEST['data']);
+$data = json_decode($_REQUEST['data']);
 
-if(!isset($data))
+if (!isset($data))
     $res->print_error("no data");
 
-$AllowedTable=array("spikeins","spikeinslist","antibody","crosslink","experimenttype","fragmentation","genome","info","rtype","atype","result");
-$SpecialTable=array("labdata","grp_local","project");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info", "rtype", "atype", "result",
+    "labdata", "grp_local", "project");
 
-$IDFIELD="id";
-$IDFIELDTYPE="i";
+$IDFIELD = "id";
+$IDFIELDTYPE = "i";
 
-if(!in_array($tablename,$AllowedTable)) {
-    if(!in_array($tablename,$SpecialTable)) {
-        $res->print_error('Table not in the list');
-    } else {
-        switch($tablename) {
-        case "project":
-        case "labdata":
-            if(isset($_REQUEST['workerid']))
-                $workerid = intVal($_REQUEST['workerid']);
-            else
-                $res->print_error('Not enough required parameters. w');
-            if(isset($_REQUEST['typeid'])) {
-                $typeid = intVal($_REQUEST['typeid']);
-                $cond="";
-                if($typeid>=1 && $typeid<=3)
-                    $cond=" libstatus > 20 and experimenttype_id between 3 and 6 ";
-                if($typeid==4)
-                    $cond=" libstatus > 11 and experimenttype_id between 1 and 2 ";
-                if($cond != "") {
-                    $where=$where." and ".$cond;
-                } else {
-                    $res->print_error('Not yet supported.');
-                }
-            }
-            if($workerid != 0) {
-                $where=$where." and worker_id=$workerid ";
-            }
-            $con=def_connect();
-            $con->select_db($db_name_ems);
-            break;
+if (!in_array($tablename, $AllowedTable)) {
+    $res->print_error('Table not in the list');
+} else {
+    switch ($tablename) {
         case "grp_local":
 
-            $IDFIELD="name";
-            $IDFIELDTYPE="s";
-
-            if(isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
+            if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
                 check_val($_REQUEST['genomedb']);
-                if($_REQUEST['genomenm']!="") check_val($_REQUEST['genomenm']);
-                $gdb=$_REQUEST['genomedb'];
-                $gnm=$_REQUEST['genomenm'];
+                $gdb = $_REQUEST['genomedb'];
             } else {
                 $res->print_error('Not enough required parameters.');
             }
 
-            $where=$where." and name like '$gnm%'";
-
-            $con = new mysqli($db_host_gb,$db_user_gb,$db_pass_gb);
+            $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
             if ($con->connect_errno)
                 $res->print_error('Could not connect: ' . $con->connect_error);
-            if(!$con->select_db($gdb)) {
+            if (!$con->select_db($gdb))
                 $res->print_error('Could not select db: ' . $con->connect_error);
 
-
-            }
             break;
-        }
+        default:
+            $con = def_connect();
+            $con->select_db($db_name_ems);
+            break;
     }
-} else {
-    $con=def_connect();
-    $con->select_db($db_name_ems);
 }
-$total=1;
+$total = 1;
 
 $con->autocommit(FALSE);
 
-if(($table=execSQL($con,"describe `$tablename`",array(),false))==0) {
+if (($table = execSQL($con, "describe `$tablename`", array(), false)) == 0) {
     $res->print_error("Cant describe");
 }
-$types=array();
-foreach($table as $xxx => $val) {
-    $t="s";
-    if(strrpos($val["Type"],"int")!==false)
-        $t="i";
-    if(strrpos($val["Type"],"float")!==false)
-        $t="d";
-    if(strrpos($val["Type"],"double")!==false)
-        $t="d";
-    if(strrpos($val["Type"],"date")!==false)
-        $t="dd";
+$types = array();
+foreach ($table as $dummy => $val) {
+    $t = "s";
+    if (strrpos($val["Type"], "int") !== false)
+        $t = "i";
+    elseif (strrpos($val["Type"], "float") !== false)
+        $t = "d";
+    elseif (strrpos($val["Type"], "double") !== false)
+        $t = "d";
+    elseif (strrpos($val["Type"], "date") !== false)
+        $t = "dd";
 
-    $types[$val["Field"]]=$t;
+    $types[$val["Field"]] = $t;
 }
 
-function insert_data ($val) {
-    $PARAMS[]="";
-    $VARIABLES="";
+function insert_data($val)
+{
+    $PARAMS[] = "";
+    $VARIABLES = "";
 
-    $SQL_STR="";
-    global $IDFIELD,$IDFIELDTYPE,$con,$tablename,$types;
-    foreach($val as $f => $d) {
-        if(strrpos($f,"_id")!==false && intVal($d)==0) {
-            $SQL_STR=$SQL_STR." $f,";
-            $VARIABLES=$VARIABLES."null,";
+    $SQL_STR = "";
+    global $con, $tablename, $types,$res;
+
+    foreach ($val as $f => $d) {
+        if(!array_key_exists($f,$types))
+            $res->print_error("Table field does not exist $f");
+
+        if ($f=="worker_id" && intVal($d)!=$_SESSION["user_id"] && !check_rights())
+            $res->print_error("Insufficient credentials");
+
+        if (strrpos($f, "_id") !== false && intVal($d) == 0) {
+            $SQL_STR = $SQL_STR . " $f,";
+            $VARIABLES = $VARIABLES . "null,";
             continue;
         }
-        $SQL_STR=$SQL_STR." $f,";
-        $VARIABLES=$VARIABLES."?,";
 
-        if($types[$f]=="dd") {
+        $SQL_STR = $SQL_STR . " $f,";
+        $VARIABLES = $VARIABLES . "?,";
+
+        if ($types[$f] == "dd") {
             $date = DateTime::createFromFormat('m/d/Y', $d);
             $PARAMS[] = $date->format('Y-m-d');
-            $PARAMS[0]=$PARAMS[0]."s";
+            $PARAMS[0] = $PARAMS[0] . "s";
         } else {
             $PARAMS[] = $d;
-            $PARAMS[0]=$PARAMS[0].$types[$f];
+            $PARAMS[0] = $PARAMS[0] . $types[$f];
         }
     }
 
-    $SQL_STR = substr_replace($SQL_STR ,"",-1);
-    $VARIABLES = substr_replace($VARIABLES ,"",-1);
+    $SQL_STR = substr_replace($SQL_STR, "", -1);
+    $VARIABLES = substr_replace($VARIABLES, "", -1);
 
     $SQL_STR = "insert into `$tablename`($SQL_STR) VALUES($VARIABLES)";
-
-    execSQL($con,$SQL_STR,$PARAMS,true);
+    execSQL($con, $SQL_STR, $PARAMS, true);
 }
 
-if(gettype($data)=="array") {
-    foreach($data as $key => $val ) {
+if (gettype($data) == "array") {
+    foreach ($data as $key => $val) {
         insert_data($val);
     }
-    $count=count($data);
+    $count = count($data);
 } else {
     insert_data($data);
 }
 
-if(!$con->commit()) {
+if (!$con->commit()) {
     $res->print_error("Cant insert");
 }
 

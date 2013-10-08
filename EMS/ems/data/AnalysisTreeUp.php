@@ -1,13 +1,13 @@
 <?php
 
-   require("common.php");
+require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-$data=json_decode(stripslashes($_REQUEST['data']));
+$data = json_decode(stripslashes($_REQUEST['data']));
 
-if(!isset($data))
+if (!isset($data))
     $res->print_error("no data");
 
 //logmsg(__FILE__);
@@ -15,54 +15,55 @@ if(!isset($data))
 //logmsg(print_r($data,true));
 
 
-function check_data($val) {
-    global $data,$con;
+function check_data($val)
+{
+    global $data, $con;
     return (execSQL($con,
             "select id from analysis where ahead_id=? and rhead_id=?",
-            array("ii",$val->parentId,$val->item_id),false)==0);
+            array("ii", $val->parentId, $val->item_id), false) == 0);
 }
 
 
-$con=def_connect();
+$con = def_connect();
 $con->select_db($db_name_ems);
 
 
-$count=1;
+$count = 1;
 $con->autocommit(FALSE);
 
-if(gettype($data)=="array") {
-    foreach($data as $key => $val ) {
-        if($val->parentId=="root") {
-        execSQL($con,
+if (gettype($data) == "array") {
+    foreach ($data as $key => $val) {
+        if ($val->parentId == "root") {
+            execSQL($con,
                 "update ahead set status=? where id=?",
-                array("ii",$val->status,$val->item_id),true);
+                array("ii", $val->status, $val->item_id), true);
             continue;
         }
-        if(check_data($val)) {
-        execSQL($con,
+        if (check_data($val)) {
+            execSQL($con,
                 "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
-                array("iis",$val->parentId,$val->item_id,$val->type),true);
-            $data[$key]->id=$val->parentId.$con->insert_id;
+                array("iis", $val->parentId, $val->item_id, $val->type), true);
+            $data[$key]->id = $val->parentId . $con->insert_id;
         }
     }
-    $count=count($data);
+    $count = count($data);
 } else {
-    $val=$data;
-    if($val->parentId=="root") {
-    execSQL($con,
+    $val = $data;
+    if ($val->parentId == "root") {
+        execSQL($con,
             "update ahead set status=? where id=?",
-            array("ii",$val->status,$val->item_id),true);
+            array("ii", $val->status, $val->item_id), true);
     } else {
-    if(check_data($val)) {
-    execSQL($con,
-            "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
-            array("iis",$val->parentId,$val->item_id,$val->type),true);
-        $data->id=$val->parentId.$con->insert_id;
-    }
+        if (check_data($val)) {
+            execSQL($con,
+                "insert into analysis(ahead_id,rhead_id,type) values(?,?,?)",
+                array("iis", $val->parentId, $val->item_id, $val->type), true);
+            $data->id = $val->parentId . $con->insert_id;
+        }
     }
 }
 
-if(!$con->commit()) {
+if (!$con->commit()) {
     $res->print_error("Cant insert");
 }
 

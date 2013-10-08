@@ -35,8 +35,8 @@ Ext.define( 'EMS.model.AnalysisGroup', {
                proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {
                                     api: {
                                         read : 'data/AnalysisTree.php',
-                                        update: 'data/AnalysisTreeUp.php',
-                                        create: 'data/AnalysisTreeAdd.php',
+                                        //update: 'data/AnalysisTreeUp.php',
+                                        //create: 'data/AnalysisTreeAdd.php',
                                         destroy: 'data/AnalysisTreeDel.php'
 
                                     }

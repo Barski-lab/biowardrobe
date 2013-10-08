@@ -29,14 +29,14 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
 } catch (Exception $e) {
     $res->print_error("Cant read input" . $e);
 }
-logmsg(print_r($data, true));
+//logmsg(print_r($data, true));
 $count = 0;
 
 if (gettype($data->deseq) == "array") {
@@ -70,7 +70,7 @@ $con->autocommit(FALSE);
 $tablepairs = array();
 
 check_val($deseq[0]->table);
-$tn = get_table_name($deseq[0]->table);
+$tn = get_table_info($deseq[0]->table);
 if (!$tn)
     $res->print_error("no tablename data");
 $tablenames[$deseq[0]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
@@ -82,7 +82,7 @@ $prefix = "";
 if ($delength == 2 || $timeseries == 1) {
     for ($i = 1; $i < $delength; $i++) {
         check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+        $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
@@ -96,7 +96,7 @@ if ($delength == 2 || $timeseries == 1) {
 } elseif ($timeseries == 2) { // kinetics
     for ($i = 1; $i < $delength; $i++) {
         check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+        $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
@@ -113,13 +113,13 @@ if ($delength == 2 || $timeseries == 1) {
         if (intval($deseq[$i]->order) != $i + 1)
             $res->print_error("Incorrect ordering.");
         check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+        $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
         for ($j = $i + 1; $j < $delength; $j++) {
             check_val($deseq[$j]->table);
-            $tn1 = get_table_name($deseq[$j]->table);
+            $tn1 = get_table_info($deseq[$j]->table);
             if (!$tn1)
                 $res->print_error("no tablename data");
             $tablenames[$deseq[$j]->table] = array("table" => $tn1[0]['tableName'], "gblink" => $tn1[0]['gblink'], "name" => $tn1[0]['name']);
@@ -160,7 +160,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     }
 
     $gblink = $tablenames[$tablepairs[$i]['t1']]['gblink'] . "&" . $tablenames[$tablepairs[$i]['t2']]['gblink'];
-    $EXT = get_extention($rtypeid);
+    $EXT = get_extension($rtypeid);
     $READABLE = "Annotation grouping (" . $EXT['name'] . ") were used for $DESEQN analysis.<br> Data from " .
         "'" . $tablenames[$tablepairs[$i]['t1']]['name'] . "' and '" . $tablenames[$tablepairs[$i]['t2']]['name'] . "' has been chosen.";
 

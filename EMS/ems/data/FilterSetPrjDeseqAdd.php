@@ -82,7 +82,7 @@ if (intval($V->nr) == 1) {
 }
 $WHEREC = "";
 
-$EXT = get_extention(intval($V->annottype));
+$EXT = get_extension(intval($V->annottype));
 $UUID = $data->uuid;
 $tbname = str_replace('-', '', $UUID);
 check_val($data->project_id);
@@ -100,7 +100,7 @@ foreach ($V->conditions as $k2 => $val) {
         $res->print_error("Paranthesis error");
 
     if (!isset($tablenames[$val->table])) {
-        $tn = get_table_name($val->table);
+        $tn = get_table_info($val->table);
         if (!$tn)
             $res->print_error("no tablename data");
         if ($tn[0]['rtype_id'] != $EXT['id'])

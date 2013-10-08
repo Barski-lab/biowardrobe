@@ -69,7 +69,7 @@ check_val($data->uuid);
 $WHERE = "0=0 ";
 $WHEREC = "";
 $FNAME = $V->name;
-$EXT = get_extention(intval($V->annottype));
+$EXT = get_extension(intval($V->annottype));
 $UUID = $data->uuid;
 $tbname = str_replace('-', '', $UUID);
 check_val($data->project_id);
@@ -85,7 +85,7 @@ foreach ($V->conditions as $k2 => $val) {
     check_val($val->table);
 
     if (!isset($tablenames[$val->table])) {
-        $tn = get_table_name($val->table);
+        $tn = get_table_info($val->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$val->table] = array("table" => $tn[0]['tableName'], "alias" => "a$c", "name" => $tn[0]['name']);

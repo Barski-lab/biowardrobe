@@ -18,7 +18,7 @@ check_val($id);
 $con = def_connect();
 $con->select_db($db_name_experiments);
 
-$record = get_table_name($id);
+$record = get_table_info($id);
 if (!$record)
     $res->print_error("no tablename data");
 

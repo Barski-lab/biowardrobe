@@ -25,7 +25,7 @@ Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
     models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
     stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
-    views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP'],
+    views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP','Project2.TableViewWindow','Project2.TableView'],
     init: function () {
         var me = this;
         me.atype = undefined;
@@ -34,6 +34,9 @@ Ext.define('EMS.controller.Project2', {
                            render: me.onProjectDesignerWindowRendered,
                            startAnalysis: me.startAnalysis,
                            projectAdd: me.onProjectAdd
+                       },
+                       'TableView': {
+                           gbjump: me.ongbjump
                        },
                        '#Project2GenesLists': {
                            Back: me.onBack,
@@ -679,36 +682,30 @@ Ext.define('EMS.controller.Project2', {
         stor.load({
                       callback: function (records, operation, success) {
                           if (success) {
-                              console.log(arguments);
-                              console.log(stor.model.getFields());
-                              var window = Ext.create("EMS.view.Project2.TableViewWindow",{store: stor });
+                              var window = Ext.create("EMS.view.Project2.TableViewWindow", {store: stor });
                               window.show();
-                              //                              var title = [];
-                              //                              for (var c = 0; c < storc.getTotalCount(); c++) {
-                              //                                  title.push(storc.getAt(c).raw['pltname']);
-                              //
-                              //                              }
-                              //                              var cols = 0;
-                              //                              var prop = [];
-                              //                              for (p in records[0].data) {
-                              //                                  if (cols > 0) prop[cols - 1] = p;
-                              //                                  cols++;
-                              //                              }
-                              //                              cols--;
-                              //                              var len = Math.abs(records[0].data.X);
-                              //                              var max = records[0].data[prop[0]];
-                              //                              for (var i = 0; i < records.length; i++) {
-                              //                                  for (var j = 0; j < cols; j++)
-                              //                                      if (records[i].data[prop[j]] > max)
-                              //                                          max = records[i].data[prop[j]];
-                              //                              }
-                              //
-                              //                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              //                              var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
-                              //                              ATPChart.show();
                           }
                       }
                   });
+    },
+    ongbjump: function(button,panel) {
+        console.log('gbjump',button,panel);
+        var grid = button.up('panel').down('grid');
+        var model = grid.getSelectionModel().getSelection();
+        if (model.length < 1) {
+            return;
+        }
+        var start = 0;
+        var end = 0;
+        if (typeof(model[0].data['start']) !== 'undefined') {
+            start = model[0].data['start'];
+            end = model[0].data['end'];
+        }
+        if (typeof(model[0].data['txStart']) !== 'undefined') {
+            start = model[0].data['txStart'];
+            end = model[0].data['txEnd'];
+        }
+        console.log('start=',start,' end=',end);
     }
 });
 

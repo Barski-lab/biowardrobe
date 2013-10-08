@@ -70,7 +70,7 @@ $con->autocommit(FALSE);
 $tablepairs = array();
 
 check_val($manorm[0]->table);
-$tn = get_table_name($manorm[0]->table);
+$tn = get_table_info($manorm[0]->table);
 if (!$tn)
     $res->print_error("no tablename data");
 
@@ -90,7 +90,7 @@ $prefix = "";
 if ($malength == 2 || $timeseries == 1) {
     for ($i = 1; $i < $malength; $i++) {
         check_val($manorm[$i]->table);
-        $tn = get_table_name($manorm[$i]->table);
+        $tn = get_table_info($manorm[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
 
@@ -116,7 +116,7 @@ if ($malength == 2 || $timeseries == 1) {
 /*elseif ($timeseries == 2) { // kinetics
     for ($i = 1; $i < $delength; $i++) {
         check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+        $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
@@ -133,13 +133,13 @@ if ($malength == 2 || $timeseries == 1) {
         if (intval($deseq[$i]->order) != $i + 1)
             $res->print_error("Incorrect ordering.");
         check_val($deseq[$i]->table);
-        $tn = get_table_name($deseq[$i]->table);
+        $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
             $res->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
         for ($j = $i + 1; $j < $delength; $j++) {
             check_val($deseq[$j]->table);
-            $tn1 = get_table_name($deseq[$j]->table);
+            $tn1 = get_table_info($deseq[$j]->table);
             if (!$tn1)
                 $res->print_error("no tablename data");
             $tablenames[$deseq[$j]->table] = array("table" => $tn1[0]['tableName'], "gblink" => $tn1[0]['gblink'], "name" => $tn1[0]['name']);

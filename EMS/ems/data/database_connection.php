@@ -55,7 +55,7 @@ execSQL("SELECT * FROM table", array(), false);
 execSQL("INSERT INTO table(id, name) VALUES (?,?)", array('ss', $id, $name), true);
 */
 
-function execSQL($mysqli, $sql, $params, $close, $round = 3)
+function execSQL($mysqli, $sql, $params, $affectedrows, $round = 3)
 {
     global $res;
 
@@ -72,7 +72,7 @@ function execSQL($mysqli, $sql, $params, $close, $round = 3)
         $res->print_error("Exec failed: (" . $mysqli->errno . ") " . $mysqli->error);
     }
 
-    if ($close) {
+    if ($affectedrows) {
         $result = $mysqli->affected_rows;
     } else {
         $meta = $stmt->result_metadata();
@@ -138,7 +138,7 @@ function refValues($arr)
 /**************************************************************
  ***************************************************************/
 
-function get_extention($f)
+function get_extension($f)
 {
     switch ($f) {
         case 2:
@@ -184,17 +184,18 @@ function get_operand($o)
     return " AND ";
 }
 
-function get_table_name($val)
+function get_table_info($val)
 {
     global $con, $db_name_ems;
-    //$qr = execSQL($con, "select tableName,name,gblink,rtype_id from " . $db_name_ems . ".genelist where id like ?", array("s", $val), false);
-    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize from " . $db_name_ems .".genelist g
-     left join (" . $db_name_ems .".labdata l," . $db_name_ems .".worker w) on (labdata_id=l.id and worker_id=w.id)
+    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,ge.db from " . $db_name_ems . ".genelist g
+     left join (" . $db_name_ems . ".labdata l," . $db_name_ems . ".worker w," . $db_name_ems . ".experimenttype e, " . $db_name_ems . ".genome ge)
+     on (labdata_id=l.id and worker_id=w.id and l.genome_id=ge.id and l.experimenttype_id=e.id)
      where g.id like ?", array("s", $val), false);
+
     return $qr;
 }
 
-function make_a_gl_group_view($id, $parentid, $add = true)
+function recreate_rna_views($id, $parentid, $add = true)
 {
     global $con, $db_name_ems, $db_name_experiments;
 
@@ -205,7 +206,7 @@ function make_a_gl_group_view($id, $parentid, $add = true)
 
         execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_genes`", array(), true);
         execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_common_tss`", array(), true);
-        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname."`", array(), true);
+        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "`", array(), true);
 
         $qr = execSQL($con, "select * from " . $db_name_ems . ".genelist where parent_id like ?", array("s", $parentid), false);
         if (!$qr) {
@@ -217,6 +218,7 @@ function make_a_gl_group_view($id, $parentid, $add = true)
         $AV_RP = "a0.RPKM_0";
         $TABLES = "";
         $gblink = "";
+        $db = "";
         $WHERE = "0=0";
         //logmsg(print_r($qr,true));
 
@@ -234,6 +236,9 @@ function make_a_gl_group_view($id, $parentid, $add = true)
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
             } else {
+                $db = execSQL($con, "select g.db as db from " . $db_name_ems . ".genome g," .
+                    $db_name_ems . ".labdata l where l.genome_id=g.id and l.id = ?", array("i", $val['labdata_id']), false);
+
                 $TABLES = $db_name_experiments . ".`" . $val['tableName'] . "` a0";
                 $gblink = $val['tableName'] . "=full";
             }
@@ -266,7 +271,7 @@ function make_a_gl_group_view($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname ."` where strand = '+' " .
+            "from " . $db_name_experiments . ".`" . $tbname . "` where strand = '+' " .
             "group by chrom,txStart,strand " .
             " union " .
             "select " .
@@ -278,7 +283,7 @@ function make_a_gl_group_view($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname ."` where strand = '-' " .
+            "from " . $db_name_experiments . ".`" . $tbname . "` where strand = '-' " .
             "group by chrom,txEnd,strand ";
         execSQL($con, $SQL, array(), true);
 
@@ -292,11 +297,11 @@ function make_a_gl_group_view($id, $parentid, $add = true)
             "max(strand) AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname ."` group by gene_id ";
+            "from " . $db_name_experiments . ".`" . $tbname . "` group by gene_id ";
         execSQL($con, $SQL, array(), true);
 
-        execSQL($con, "update " . $db_name_ems . ".genelist set gblink=? where id like ?",
-            array("ss", $gblink, $parentid), true);
+        execSQL($con, "update " . $db_name_ems . ".genelist set gblink=?,db=? where id like ?",
+            array("sss", $gblink, $db, $parentid), true);
 
     }
     //if add
