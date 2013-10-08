@@ -86,8 +86,22 @@ def file_exist(basedir,fname,extension):
     LIST=glob.glob(basedir+'/'+fname+'.'+extension)
     return LIST
 
+def macs_data(infile):
+    FRAGMENT=0
+    ISLANDS=0
+    for line in open(infile+'_macs_peaks.xls'):
+        if re.match('^# d = ',line):
+            FRAGMENT=int(line.split('d = ')[1])
+            continue
+        if re.match('^#',line):
+            continue
+        if line.strip() != "":
+            ISLANDS=ISLANDS+1
+    ISLANDS=ISLANDS-1 #header
+    return [FRAGMENT,ISLANDS]
 
-def upload_macsdata(conn,infile,dbexp,db,NAME,grp):
+
+def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     FNAME=infile
     if ";" in infile:
 	FNAME=infile.split(";")[0]
@@ -109,7 +123,7 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp):
     start int(10) unsigned NOT NULL,
     end int(10) unsigned NOT NULL,
     length int(10) unsigned NOT NULL,
-    abssummit int(10) NOT NULL,
+    abssummit int(10),
     pileup float, 
     log10p float,
     foldenrich float,
@@ -130,6 +144,10 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp):
 
 
     cursor.execute ("""
+    delete from """+db+""".trackDb_local where tablename like '"""+FNAME+"""_grp'; """)
+    conn.commit()
+
+    cursor.execute ("""
     insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
     colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
     values('"""+FNAME+"""_grp','"""+NAME+"""','bed 4 +','"""+NAME+"""',
@@ -138,35 +156,72 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp):
     conn.commit()
     
     cursor.execute ("""
+    delete from """+db+""".trackDb_local where tablename like '"""+FNAME+"""_islands'; """)
+    conn.commit()
+
+    cursor.execute ("""
     insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
     colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
     values('"""+FNAME+"""_islands','"""+NAME+""" islands','bed 4 +','"""+NAME+""" islands',
     0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
-    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility full'); """)    
+    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """)
     conn.commit()
 
-    SQL="INSERT INTO "+table_name+" (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
+    cursor.execute ("""
+    delete from """+db+""".trackDb_external where tablename like '"""+FNAME+"""_islands'; """)
+    conn.commit()
+    cursor.execute ("""
+    delete from """+db+""".trackDb_external where tablename like '"""+FNAME+"""_grp'; """)
+    conn.commit()
+    
+    if share:
+	cursor.execute ("""
+        insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
+        colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
+        values('"""+FNAME+"""_grp','"""+NAME+"""','bed 4 +','"""+NAME+"""',
+        0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
+        'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""")
+        conn.commit()
+	cursor.execute ("""
+	insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
+	colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
+	values('"""+FNAME+"""_islands','"""+NAME+""" islands','bed 4 +','"""+NAME+""" islands',
+	0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
+	'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """)
+	conn.commit()
+    
 
-    skip=True    
+    SQL="INSERT INTO "+table_name+" (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
+    SQLB="INSERT INTO "+table_name+" (chrom,start,end,length,pileup,log10p,foldenrich,log10q) VALUES"
+
+    skip=True
+    broad=False
+    islands=0
     for line in open(FNAME+'_macs_peaks.xls','r'):
 	if re.match('^#',line) or line.strip()=="":
 	    continue
 	if skip:
+	    a=line.strip().split('\t')
+	    broad=("pileup" in a[4])
 	    skip=False
 	    continue
 	a=line.strip().split('\t')
+	islands=islands+1
 	try:
-	    cursor.execute(SQL+" (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]))
+	    if broad:
+		cursor.execute(SQLB+" (%s,%s,%s,%s,%s,%s,%s,%s)",(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]))
+	    else:
+		cursor.execute(SQL+" (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]))
     	    conn.commit()
 	except Exception, e: 
-	    error[1]=a[9]+':'+str(e) 
+	    error[1]=line+":"+str(e) 
 	    return error
 	    	    
-    success[1]=" MACS data uploaded"
+    success[1]=islands
     return success
 
 
-def run_macs(infile,db):
+def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
     format="BAM"
     FN=infile
     if ";" in infile:
@@ -177,6 +232,11 @@ def run_macs(infile,db):
 	error[1]='Bam file does not exist'
 	return error
 
+    if force:
+	FL=file_exist('.',FN+'_macs_peaks','xls')
+	if len(FL) == 1:
+	    os.unlink(FL[0])
+
     if len(file_exist('.',FN+'_macs_peaks','xls')) == 1:
 	success[1]=' Macs analyzes done '
 	return success
@@ -184,8 +244,17 @@ def run_macs(infile,db):
     G='hs'
     if 'mm' in db:
 	G='mm'
-		
-    PAR='macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' --call-summits --verbose 0 --shiftsize=150  >./'+FN+'_macs.log 2>&1'
+
+    ADPAR=""
+    if fragforce:
+	ADPAR=ADPAR+" --nomodel "
+    if broad:
+    	ADPAR=ADPAR+" --broad "
+    else:
+	ADPAR=ADPAR+" --call-summits "
+
+    
+    PAR='macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(fragsize)+' -q 0.2 '+ADPAR+' >./'+FN+'_macs.log 2>&1'
     RET=''
     #print PAR
     try:
