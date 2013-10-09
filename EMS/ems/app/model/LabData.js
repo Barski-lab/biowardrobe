@@ -47,6 +47,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'fragmentsizeexp', type: 'int'  },
                    { name: 'fragmentsizeest', type: 'int', persist: false  },
                    { name: 'fragmentsizeforceuse', type: 'bool' },
+                   { name: 'islandcount', type: 'int'},
                    { name: 'notes', type: 'string' },
                    { name: 'protocol', type: 'string' },
                    { name: 'filename', type: 'string', persist: false  },

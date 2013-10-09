@@ -30,6 +30,7 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
     frame: false,
     remoteSort: true,
     id: 'ExperimentsWindowGrid',
+
     initComponent: function () {
         var me = this;
 
@@ -38,6 +39,7 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
             encode: true, // json encode the filter query
             local: false   // defaults to false (remote filtering)
         };
+
         me.m_PagingToolbar = Ext.create('Ext.PagingToolbar', {
             store: EMS.store.LabData,
             margin: '0 5 0 5',
@@ -65,8 +67,7 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                         return rec ? rec.data.genome : '';
                     }
                 },
-                {   header: "Type", sortable: true, width: 90, dataIndex: 'experimenttype_id',
-                    filterable: true,
+                {   header: "Type", sortable: true, width: 90, dataIndex: 'experimenttype_id', filterable: true,
                     renderer: function (value, meta, record) {
                         var rec = EMS.store.ExperimentType.findRecord('id', value, 0, false, false, true);
                         return rec ? rec.data.etype : '';
@@ -84,9 +85,10 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                         type: 'string'
                     }
                 },
-                {   header: "Name for browser", sortable: true, width: 160, dataIndex: 'name4browser'},
-                {   header: "Lib. Code", sortable: true, width: 60, dataIndex: 'libcode'},
-                {   header: "Mapped", sortable: false, width: 50, dataIndex: 'tagspercent' },
+                {   header: "Name for browser", sortable: true, width: 160, dataIndex: 'name4browser',filterable: true},
+                {   header: "Lib. Code", sortable: true, width: 60, dataIndex: 'libcode', hidden: true,},
+                {   header: "Mapped", sortable: false, width: 50, dataIndex: 'tagspercent',align: 'right'},
+                {   header: "Islands count", sortable: true, width: 90, dataIndex: 'islandcount',align: 'right'},
                 {
                     header: "status", sortable: false, width: 60,
                     xtype: 'actioncolumn',
