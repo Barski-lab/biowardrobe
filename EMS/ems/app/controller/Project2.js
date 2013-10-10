@@ -681,6 +681,7 @@ Ext.define('EMS.controller.Project2', {
         stor.getProxy().setExtraParam('id', record.data['item_id']);
         stor.load({
                       callback: function (records, operation, success) {
+                          //console.log(arguments,stor);
                           if (success) {
                               var window = Ext.create("EMS.view.Project2.TableViewWindow", {store: stor });
                               window.show();
@@ -689,7 +690,7 @@ Ext.define('EMS.controller.Project2', {
                   });
     },
     ongbjump: function(button,panel) {
-        console.log('gbjump',button,panel);
+        //console.log('gbjump',button,panel);
         var grid = button.up('panel').down('grid');
         var model = grid.getSelectionModel().getSelection();
         if (model.length < 1) {
@@ -705,7 +706,16 @@ Ext.define('EMS.controller.Project2', {
             start = model[0].data['txStart'];
             end = model[0].data['txEnd'];
         }
+        var stor = this.getTableViewStore();
+        var gblink=stor.getProxy().getReader().jsonData.gblink;
+
+        console.log();
         console.log('start=',start,' end=',end);
+
+        var url = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
+        url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
+        window.open(url,gblink);
+
     }
 });
 

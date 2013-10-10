@@ -84,7 +84,7 @@ STORE_DEFS = {
             },
             listeners: {
                 exception: function(proxy, response, operation) {
-                    //Logger.log(proxy, response, operation);
+//                    Logger.log(proxy, response, operation);
                     try {
                         var json = Ext.decode(response.responseText);
                         if (json) {

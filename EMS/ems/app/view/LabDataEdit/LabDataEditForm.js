@@ -449,12 +449,12 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                             } ,
                                             {
                                                 xtype: 'checkboxfield',
-                                                name: 'forcerun',
+                                                name: 'fragmentsizeforceuse',
                                                 labelAlign: 'left',
                                                 boxLabelAlign: 'before',
                                                 inputValue: true,
                                                 labelWidth: 180,
-                                                fieldLabel: 'Force to analyze experiment?',
+                                                fieldLabel: 'Force to use this fragment size?',
                                                 margin: '18 0 0 10',
                                                 flex: 2
                                             } ,
@@ -464,6 +464,22 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                             }
 
                                         ]
+                                    },
+                                    {
+                                        xtype: 'fieldcontainer',
+                                        layout: 'hbox',
+                                        items: [
+                                            {
+                                                xtype: 'checkboxfield',
+                                                name: 'forcerun',
+                                                labelAlign: 'left',
+                                                boxLabelAlign: 'before',
+                                                inputValue: true,
+                                                labelWidth: 200,
+                                                fieldLabel: 'Force to repeat experiment analysis?',
+                                                //margin: '18 0 0 10',
+                                                flex: 2
+                                            }                                        ]
                                     }
                                 ]
                             }

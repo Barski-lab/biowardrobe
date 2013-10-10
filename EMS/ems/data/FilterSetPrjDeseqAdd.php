@@ -27,7 +27,7 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
@@ -35,7 +35,7 @@ try {
     $res->print_error("Cant read input" . $e);
 }
 //logmsg(print_r($_REQUEST,true));
-logmsg(print_r($data, true));
+//logmsg(print_r($data, true));
 
 
 $V = $data->filters[0];
@@ -93,6 +93,7 @@ $FROM = "";
 $FIELDS = "";
 $gblink = "";
 $retdata = array();
+$DB="";
 
 foreach ($V->conditions as $k2 => $val) {
     check_val($val->table);
@@ -119,8 +120,8 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
             $FROM = $FROM . "," . $db_name_experiments . "." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
 
-            $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . " as " . $c . $tablenames[$val->table]['RPKM1'] .
-                "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . " as " . $c . $tablenames[$val->table]['RPKM2'] .
+            $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . " as `" . $c . $tablenames[$val->table]['RPKM1'] ."`".
+                "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . " as `" . $c . $tablenames[$val->table]['RPKM2'] ."`".
                 "," . $tablenames[$val->table]['alias'] . "." . "LOGR as `LOG2R " . $tablenames[$val->table]['name'] . "`" .
                 "," . $tablenames[$val->table]['alias'] . "." . "pvalue as `pvalue " . $tablenames[$val->table]['name'] . "`" .
                 "," . $tablenames[$val->table]['alias'] . "." . "padj as `padj " . $tablenames[$val->table]['name'] . "`";
@@ -135,6 +136,7 @@ foreach ($V->conditions as $k2 => $val) {
                 $tablenames[$val->table]['alias'] . "." . "pvalue as `pvalue " . $tablenames[$val->table]['name'] . "`," .
                 $tablenames[$val->table]['alias'] . "." . "padj as `padj " . $tablenames[$val->table]['name'] . "`";
             $gblink = $tn[0]['gblink'];
+            $DB=$tn[0]['db'];
         }
         $c++;
     }
@@ -168,7 +170,7 @@ $SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . " AS " .
 execSQL($con, $SQL, array(), true);
 //logmsg(print_r($SQL,true));
 execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
-    array("sssssssi", $UUID, $V->name, $project_id, $db_name_experiments, $tbname, $gblink, $READABLE, $EXT['id']), true);
+    array("sssssssi", $UUID, $V->name, $project_id, $DB, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
 if (!$con->commit()) {
     $res->print_error("Cant commit");

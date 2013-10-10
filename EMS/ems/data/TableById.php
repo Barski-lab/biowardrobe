@@ -5,8 +5,8 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
 
 if (isset($_REQUEST['id']))
     $id = $_REQUEST['id'];
@@ -24,6 +24,8 @@ if (!$record)
 
 $tablename = $record[0]['tableName'];
 $gblink = $record[0]['gblink'];
+$db=$record[0]['db'];
+logmsg(print_r($record,true));
 
 
 if (!($totalquery = execSQL($con, "SELECT COUNT(*) as count FROM `$tablename` $where", array(), false, 0))) {
@@ -45,7 +47,7 @@ $fields = array();
 foreach ($descr as $key => $val) {
     $type = "float";
     if (strpos($val['Type'], "int") !== false) $type = "int";
-    elseif (strpos($val['Type'], "float") !== false) $type = "int";
+    elseif (strpos($val['Type'], "float") !== false) $type = "float";
     elseif (strpos($val['Type'], "varchar") !== false) $type = "string";
     else $type = "string";
 
@@ -65,7 +67,7 @@ $con->close();
 
 $res->success = true;
 $res->message = "Data loaded";
-$res->extra = array("gblink"=>$gblink);
+$res->extra = array("gblink"=>"db=$db&$gblink");
 $res->total = $total;
 $res->meta = array("fields" => $fields);
 $res->data = $query_array;

@@ -249,7 +249,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             if (!isRNA) {
                 gtbl = tblname + '_grp';
             }
-            this.LabDataEdit.targetFrame.src = 'http://'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
+            this.LabDataEdit.targetFrame.src = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
 
             if (record.data['tagsribo'] > 0) {
                 this.addPieChart(record, 'exp-chart', isRNA);
@@ -374,6 +374,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
         var record = form.getRecord();
         var values = form.getValues();
         var check = form.down("checkboxfield[name=browsershare]");
+        var forcerun = form.down("checkboxfield[name=forcerun]");
+        var fragmentsizeforceuse = form.down("checkboxfield[name=fragmentsizeforceuse]");
         var form = form.getForm();
 
         if (this.getGenomeGroupStore().findRecord('name', values['browsergrp'], 0, false, false, true) === null) {
@@ -401,7 +403,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             }
         } else {
             if (form.isDirty() && form.isValid()) {
-                Ext.apply(values, {browsershare: check.getValue()});
+                Ext.apply(values, {browsershare: check.getValue(),forcerun: forcerun.getValue(),fragmentsizeforceuse: fragmentsizeforceuse.getValue()});
                 record.set(values);
                 this.refresh = true;
             } else if (!form.isValid()) {
@@ -453,7 +455,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             tblname = tblname + '_grp';
         }
         maintabpanel.setActiveTab(2);
-        var url = 'http://'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
+        var url = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
         this.LabDataEdit.targetFrame.load(url);
     },

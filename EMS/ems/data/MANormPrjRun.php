@@ -82,6 +82,8 @@ $tablenames[$manorm[0]->table] = array(
     "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
     "flanked" => 0);
 
+$DB=$tn[0]['db'];
+
 if (intval($manorm[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
 
@@ -233,7 +235,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
     execSQL($con,
         "insert into " . $db_name_ems . ".genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
-        array("sssssssi", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $atypeid), true);
+        array("sssssssi", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $atypeid), true);
 
     if (!$con->commit()) {
         $res->print_error("Cant commit");

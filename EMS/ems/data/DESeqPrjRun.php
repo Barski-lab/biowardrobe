@@ -74,6 +74,7 @@ $tn = get_table_info($deseq[0]->table);
 if (!$tn)
     $res->print_error("no tablename data");
 $tablenames[$deseq[0]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
+$DB=$tn[0]['db'];
 if (intval($deseq[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
 
@@ -166,7 +167,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
     execSQL($con,
         "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id,atype_id) values(?,?,?,1,?,3,?,?,?,?,?)",
-        array("sssssssii", $UUID, $RNAME, $projectid, $db_name_experiments, $TNAME, $gblink, $READABLE, $rtypeid, $atypeid), true);
+        array("sssssssii", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $rtypeid, $atypeid), true);
 
     if (!$con->commit()) {
         $res->print_error("Cant commit");
