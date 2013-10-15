@@ -36,7 +36,7 @@ require("data/common.php");
     var USER_LNAME = "<?php echo $_SESSION["username"] ?>";
     var USER_GNAME = "<?php echo $_SESSION["usergroup"] ?>";
     var CHPASS = "<?php echo $_SESSION["changepass"] ?>"
-    var GENOME_BROWSER_IP="http://10.1.97.111";
+    var GENOME_BROWSER_IP="<?php echo $GENOME_BROWSER_IP ?>";
 </script>
 <script type="text/javascript" src="store_defs.js"></script>
 <script type="text/javascript" src="app.js"></script>
