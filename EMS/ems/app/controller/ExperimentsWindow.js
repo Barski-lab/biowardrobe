@@ -126,24 +126,32 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     //
     //-----------------------------------------------------------------------
     setDisableUDownloadType: function (sender, before) {
-        if (sender.value.length > 0)
-            Ext.ComponentQuery.query('textfield[name=url]')[0].disable(); else
+        if (sender.value.length > 0) {
+            Ext.ComponentQuery.query('textfield[name=url]')[0].disable();
+            Ext.ComponentQuery.query('textfield[name=url]')[0].setValue("");
+            Ext.ComponentQuery.query('textfield[name=url]')[0].setReadOnly();
+        } else {
             Ext.ComponentQuery.query('textfield[name=url]')[0].enable();
+        }
     },
     setDisableLDownloadType: function (sender, before) {
-        if (sender.value.length > 0)
-            Ext.ComponentQuery.query('textfield[name=libcode]')[0].disable(); else
+        if (sender.value.length > 0) {
+            Ext.ComponentQuery.query('textfield[name=libcode]')[0].disable();
+            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setValue("");
+            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setReadOnly();
+        } else {
             Ext.ComponentQuery.query('textfield[name=libcode]')[0].enable();
-    },
-    setDisabledDownloadType: function (obj) {
-        var form = obj.down('form').getForm();
-        if (form.findField('libcode').value.length > 0) {
-            form.findField('url').disable();
-        }
-        if (form.findField('url').value.length > 0) {
-            form.findField('libcode').disable();
         }
     },
+//    setDisabledDownloadType: function (obj) {
+//        var form = obj.down('form').getForm();
+//        if (form.findField('libcode').value.length > 0) {
+//            form.findField('url').disable();
+//        } else
+//        if (form.findField('url').value.length > 0) {
+//            form.findField('libcode').disable();
+//        }
+//    },
     //-----------------------------------------------------------------------
     // Disabling/enabling antibody and fragmentation comboboxes
     //
@@ -197,7 +205,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     onEditShow: function (obj) {
         this.setVisibleSpike(obj);
         this.setDisabledCombo(obj);
-        this.setDisabledDownloadType(obj);
+        //this.setDisabledDownloadType(obj);
 
         var maintabpanel = Ext.getCmp('labdataedit-main-tab-panel');
         var form = obj.down('form').getForm();
@@ -371,12 +379,15 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     onSave: function (button) {
         var win = button.up('window');
         var form = win.down('form');
+        form.down("textfield[name=url]").enable();
+        form.down("textfield[name=libcode]").enable();
         var record = form.getRecord();
         var values = form.getValues();
         var check = form.down("checkboxfield[name=browsershare]");
         var forcerun = form.down("checkboxfield[name=forcerun]");
         var fragmentsizeforceuse = form.down("checkboxfield[name=fragmentsizeforceuse]");
         var form = form.getForm();
+
 
         if (this.getGenomeGroupStore().findRecord('name', values['browsergrp'], 0, false, false, true) === null) {
             Ext.Msg.show({

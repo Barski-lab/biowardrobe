@@ -4,8 +4,8 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST, true));
 //logmsg(print_r($data,true));
 
 //*****************************************************************
@@ -13,10 +13,11 @@ function update_data($val)
 {
     $PARAMS[] = "";
     $SQL_STR = "";
-    global $IDFIELD, $IDFIELDTYPE, $con, $tablename, $types,$res,$_SESSION;
+    $libcode = false;
+    global $IDFIELD, $IDFIELDTYPE, $con, $tablename, $types, $res, $_SESSION;
     foreach ($val as $f => $d) {
 
-        if(!array_key_exists($f,$types))
+        if (!array_key_exists($f, $types))
             $res->print_error("Table field does not exist $f");
 
         if ($f == $IDFIELD) {
@@ -24,12 +25,40 @@ function update_data($val)
             continue;
         }
 
-        if ($f=="worker_id" && intVal($d)!=$_SESSION["user_id"] && !check_rights())
+        if ($f == "worker_id" && intVal($d) != $_SESSION["user_id"] && !check_rights())
             $res->print_error("Insufficient credentials");
 
         if (strrpos($f, "_id") !== false && intVal($d) == 0) {
             $SQL_STR = $SQL_STR . " $f=null,";
             continue;
+        }
+
+        switch ($tablename) {
+            case "labdata":
+
+                if (strrpos($f, "libcode") !== false && strlen($d) != 0 && !$libcode) {
+                    $libcode = true;
+                    $SQL_STR = $SQL_STR . " url=?,";
+                    $PARAMS[] = "";
+                    $PARAMS[0] = $PARAMS[0] . "s";
+                }
+
+                if (strrpos($f, "url") !== false && strlen($d) != 0 && $libcode) {
+                    continue;
+                }
+                if (strrpos($f, "url") !== false && strlen($d) != 0 && !$libcode) {
+                    $libcode = true;
+                    $SQL_STR = $SQL_STR . " libcode=?,";
+                    $PARAMS[] = "";
+                    $PARAMS[0] = $PARAMS[0] . "s";
+                }
+                break;
+        }
+
+        if (!$libcode) {
+            $SQL_STR = $SQL_STR . " url=?,";
+            $PARAMS[] = "";
+            $PARAMS[0] = $PARAMS[0] . "s";
         }
         $SQL_STR = $SQL_STR . " $f=?,";
 
@@ -51,6 +80,7 @@ function update_data($val)
 
     execSQL($con, $SQL_STR, $PARAMS, true);
 }
+
 //*****************************************************************
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -77,7 +107,7 @@ if (!in_array($tablename, $AllowedTable)) {
             $IDFIELD = "name";
             $IDFIELDTYPE = "s";
 
-            if (isset($_REQUEST['genomedb'])){
+            if (isset($_REQUEST['genomedb'])) {
                 check_val($_REQUEST['genomedb']);
                 $gdb = $_REQUEST['genomedb'];
             } else {
@@ -110,10 +140,8 @@ foreach ($table as $dummy => $val) {
     if (strrpos($val["Type"], "int") !== false)
         $t = "i";
     elseif (strrpos($val["Type"], "float") !== false)
-        $t = "d";
-    elseif (strrpos($val["Type"], "double") !== false)
-        $t = "d";
-    elseif (strrpos($val["Type"], "date") !== false)
+        $t = "d"; elseif (strrpos($val["Type"], "double") !== false)
+        $t = "d"; elseif (strrpos($val["Type"], "date") !== false)
         $t = "dd";
 
     $types[$val["Field"]] = $t;
