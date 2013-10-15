@@ -249,7 +249,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             if (!isRNA) {
                 gtbl = tblname + '_grp';
             }
-            this.LabDataEdit.targetFrame.src = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
+            this.LabDataEdit.targetFrame.src = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
 
             if (record.data['tagsribo'] > 0) {
                 this.addPieChart(record, 'exp-chart', isRNA);
@@ -455,7 +455,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             tblname = tblname + '_grp';
         }
         maintabpanel.setActiveTab(2);
-        var url = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
+        var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
         this.LabDataEdit.targetFrame.load(url);
     },

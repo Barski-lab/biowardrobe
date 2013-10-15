@@ -712,7 +712,7 @@ Ext.define('EMS.controller.Project2', {
         console.log();
         console.log('start=',start,' end=',end);
 
-        var url = '//'+GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
+        var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
         window.open(url,gblink);
 
