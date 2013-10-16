@@ -4,8 +4,8 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST, true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST, true));
 //logmsg(print_r($data,true));
 
 //*****************************************************************
@@ -55,11 +55,6 @@ function update_data($val)
                 break;
         }
 
-        if (!$libcode) {
-            $SQL_STR = $SQL_STR . " url=?,";
-            $PARAMS[] = "";
-            $PARAMS[0] = $PARAMS[0] . "s";
-        }
         $SQL_STR = $SQL_STR . " $f=?,";
 
         if ($types[$f] == "dd") {
@@ -70,6 +65,12 @@ function update_data($val)
             $PARAMS[] = $d;
             $PARAMS[0] = $PARAMS[0] . $types[$f];
         }
+    }
+
+    if (!$libcode && strrpos($tablename, "labdata") !== false) {
+        $SQL_STR = $SQL_STR . " url=?,";
+        $PARAMS[] = "";
+        $PARAMS[0] = $PARAMS[0] . "s";
     }
 
     $PARAMS[] = $id;
