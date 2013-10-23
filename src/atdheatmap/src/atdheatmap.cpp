@@ -20,488 +20,41 @@
 **
 ****************************************************************************/
 
-#include "averagedensity.hpp"
+#include "atdheatmap.hpp"
 
-
-/*
- *  Help function iterates over genome::cover_map::iterator& i,
- *  puts reads from current gene current segment to corresponding visual mapping
- *
- *  fills result of type T by selected data (from start till end)
- */
-template<class T>
-void AverageDensity::getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator e,
-                                         quint64 const& start,quint64 const& end,bool reverse, int shift,T& result,bool pair) {
-
-    qint64 length=end-start+1;
-    qint64 position=0;
-
-    if(!pair) {
-        if(!reverse) {
-            /*if iterator points not to the begining of the segment shift to the start position*/
-            while(i!=e && (qint64)(i.value()[0].getStart()-start+shift)<0) i++;
-            while(i!=e && (position=i.value()[0].getStart()-start+shift) < length) {
-                genome::Cover::countReads<double>(i.value(),result[position]);
-                ++i;
-            }
-        } else {
-            while(i!=e && (qint64)(i.value()[0].getStart()-start+shift)<0) i++;
-            while(i!=e && (position=i.value()[0].getStart()-start+shift) < length) {
-                genome::Cover::countReads<double>(i.value(),result[length-position-1]);
-                ++i;
-            }
-        }
-    } else {
-        int sign=1;
-        if(shift<0) sign=-1;
-        if(!reverse) {
-            while(i!=e ) {
-                int position=0;
-                for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
-                    if(position<0) continue;
-                    if(position<length)
-                        result[position]+=i.value()[c].getLevel();
-                }
-                if(position>=length)
-                    break;
-                ++i;
-            }
-        } else {
-            while(i!=e ) {
-                int position=0;
-                for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
-                    if(position<0) continue;
-                    if(position<length)
-                        result[length-position-1]+=i.value()[c].getLevel();
-                }
-                if(position>=length)
-                    break;
-                ++i;
-            }
-        }
-    }
-}
-
-/*
- * mapping - is a transformation or proportion of the original data into a shorter or a longer segment
- */
-template<class T>
-void AverageDensity::getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e,
-                                        quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result)
-{
-    /*if iterator points not to the begining of the segment shift to the start position*/
-    while(i!=e && (qint64)(i.key()-start)<0) i++;
-    /*checking border conditions*/
-    if(i==e || (quint64)i.key()>end) return;
-
-    qint64 length=end-start+1;
-    double coef=(double)(mapping)/(double)length;
-    mapping--;
-    /*current and old position*/
-    qint64 old_position,position=(old_position=i.key()-start);
-    double sum_val=0;
-
-    if(!reverse)
-    {
-        /* if coefficient less then one then data is compressed
-         * coefficient less then one when length of mapping is less then length of original segment
-         */
-        if(coef<1.0)
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                /*
-                 * to make a density, need to calculate sum within length/mapp
-                 */
-                if((quint64)(old_position*coef) == (quint64)(position*coef))
-                {
-                    genome::Cover::countReads<double>(i.value(),sum_val);
-                    ++i;
-                    continue;
-                }
-                result[shift+(quint64)(coef*old_position)]+=sum_val*coef;
-                genome::Cover::countReads<double>(i.value(),sum_val=0);
-                //sum_val=i.value().getLevel();
-                old_position=position;
-                ++i;
-            }
-            result[shift+(quint64)(coef*old_position)]+=sum_val*coef;
-        }
-        /*if coefficient bigger then one data should be multiplied, when mapping is applied*/
-        else if(coef>1.0)
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                double value=0;//i.value().getLevel();
-                genome::Cover::countReads<double>(i.value(),value);
-                quint64 map_end=(quint64)(coef*(position+1));
-                if(map_end>mapping)
-                    map_end=mapping;
-                for(quint64 c=(quint64)(coef*position);c<=map_end;c++)
-                    result[shift+c]+=value;
-                ++i;
-            }
-        }
-        /*if coefficient equal to one*/
-        else
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                genome::Cover::countReads<double>(i.value(),result[shift+position]);
-                ++i;
-            }
-        }
-
-    }
-    else
-    {
-        if(coef<1.0)
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                /*to make a density, need to calculate sum within length/mapp*/
-                if((quint64)(old_position*coef) == (quint64)(position*coef))
-                {
-                    //sum_val+=i.value().getLevel();
-                    genome::Cover::countReads<double>(i.value(),sum_val);
-                    ++i;
-                    continue;
-                }
-                result[shift+mapping-(quint64)(coef*old_position)]+=sum_val*coef;
-                //sum_val=i.value().getLevel();
-                genome::Cover::countReads<double>(i.value(),sum_val=0);
-                old_position=position;
-                ++i;
-            }
-            result[shift+mapping-(quint64)(coef*old_position)]+=sum_val*coef;
-        }
-        /*if coefficient bigger then one data should be multiplied, when mapping is applied*/
-        else if (coef>1.0)
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                double value=0;//i.value().getLevel();
-                genome::Cover::countReads<double>(i.value(),value);
-                quint64 map_end=(quint64)(coef*(position+1));
-                if(map_end>mapping)
-                    map_end=mapping;
-                for(quint64 c=(quint64)(coef*position);c<=map_end;c++)
-                    result[shift+mapping-c]+=value;
-                ++i;
-            }
-        }
-        else
-        {
-            while(i!=e && (position=i.key()-start) < length)
-            {
-                genome::Cover::countReads<double>(i.value(),result[shift+mapping-position]);
-                ++i;
-            }
-        }
-    }
-}
-//-------------------------------------------------------------
-//-------------------------------------------------------------
-template <class T>
-void AverageDensity::AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result)
-{
-
-    if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
-        getReadsAtPoint<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start)
-                           ,input->getLineCover(chrome+QChar('+')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result);
-    }
-    if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
-        getReadsAtPoint<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start)
-                           ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                           ,start,end,reverse,shift,mapping,result);
-    }
-}
-//-------------------------------------------------------------
-//-------------------------------------------------------------
-template <class T>
-void AverageDensity::AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_lines* input,T& result,bool pair)
-{
-
-    if(!input->getLineCover(chrome+QChar('+')).isEmpty()){
-        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('+')).getLowerBound(start-shift)
-                            ,input->getLineCover(chrome+QChar('+')).getEndIterator()
-                            ,start,end,reverse,shift,result,pair);
-    }
-    if(!input->getLineCover(chrome+QChar('-')).isEmpty()){
-        getReadsAtPointS<T>(input->getLineCover(chrome+QChar('-')).getLowerBound(start-shift)
-                            ,input->getLineCover(chrome+QChar('-')).getEndIterator()
-                            ,start,end,reverse,-shift,result,pair);
-    }
-}
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-AverageDensity::AverageDensity(QObject* parent):
-    QObject(parent)
+ATDHeatmap::ATDHeatmap(QObject* parent):
+    AverageDensity(parent)
 {
 }
 
-/*
- * calculating mean between end and begin in a QList of type T
- */
-template<typename T>
-T AverageDensity::mean(const QList<T>& list,const int& begin,const int& end)
-{
-    assert(end<list.size());
-    assert((end-begin)>0);
-    T tmp=0;
-    for(int i=begin;i<=end;i++)
-        tmp+=list.at(i);
 
-    return (tmp/(end-begin+1));
-}
-
-/*
- * Smooth data in a QList with span
- */
-template<typename T>
-QList<T> AverageDensity::smooth(const QList<T>& list,const int& span)
-{
-    QList<T> result;
-    int win=span;
-    if(win<3 || list.size()<win) return list;
-    if(win%2!=1) --win;
-    int half_w=win/2;
-    int size=list.size();
-    int mid=size-half_w;
-    int x;
-    int start=0,end=0;
-    result<<list.first();
-    try{
-        for(x=1;x<size-1;x++)
-        {
-            if(x>=half_w && x<mid) //middle
-            {
-                start=x-half_w;
-                end=x+half_w;
-            }
-            else if(x<half_w) //beginning
-            {
-                start=0;
-                end=x+x;
-            }
-            else if(x>=mid) //end
-            {
-                start=x - (size-x);
-                end=size-1;
-            }
-            result<<mean(list,start,end);
-        }
-        result<<list.last();
-
-    }
-    catch(...)
-    {
-        qDebug()<<"List.size:"<<list.size()<<" result.size:"<<result.size()<<" x="<<x;
-    }
-
-    return result;
-}
-
-void AverageDensity::start() {
-    try{
-        batchsql();
-        emit finished();
-    }
-    catch(char*str)
-    {
-        cerr<<"Catch an error:"<<str<<endl;
-    }
-    catch(...)
-    {
-    }
-}
-
-/*
-QString get_expression(int f){
-    switch (f) {
-        case 1:
-        return QString("=");
-        case 2:
-        return QString("<");
-        case 3:
-        return QString(">");
-        case 4:
-        return QString("<=");
-        case 5:
-        return QString(">=");
-    }
-    return QString("<>");
-}
-QString get_operand(int o){
-    if(o==2)
-        return QString(" OR ");
-    return QString(" AND ");
-}
-QString get_condition(int id,QString rpkm) {
-
-    QSqlQuery q;
-    q.prepare("select operand,tbl,field,filter,value from `filter` where fhead_id=?;");
-    q.bindValue(0, id);
-    if(!q.exec()) {
-        qDebug()<<"Query error info: "<<q.lastError().text();
-        return "";
-    }
-
-    QString filter=" ";
-
-    while(q.next()) {
-        switch(q.value(2).toInt()) {//field
-            case 1: //RPKM
-                filter+=" "+get_operand(q.value(0).toInt())+" "+rpkm+get_expression(q.value(3).toInt())+q.value(4).toString()+" ";
-            break;
-            case 2: //Chrom
-                //TODO: potential SQL injection
-                filter+=" "+get_operand(q.value(0).toInt())+" a0.chrom like '"+q.value(4).toString()+"' ";
-            break;
-        }
-    }
-    return filter;
-}
-*/
-
-void AverageDensity::batchsql() {
+void ATDHeatmap::batchsql() {
     int avd_lid=gArgs().getArgs("avd_lid").toInt();
     QString avd_id=gArgs().getArgs("avd_id").toString();
     int avd_window=gArgs().getArgs("avd_window").toInt();
 
-    QString avd_table_name=gArgs().getArgs("sql_table").toString();
+    //QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-    if(avd_id.length()>0) {
-        avd_table_name=avd_id;
-        avd_table_name=avd_table_name.replace("-","");
-    }
+//    if(avd_id.length()>0) {
+//        avd_table_name=avd_id;
+//        avd_table_name=avd_table_name.replace("-","");
+//    }
 
     if(avd_lid>0 && avd_id.length()>0) {
-        qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
+        qDebug()<<"Either _pid or _lid can be greater then 0.";
         return;
     }
 
     QThreadPool *t_pool=QThreadPool::globalInstance();
 
+    /*
+     * Average Tag Density by genelist ID (future result id)
+     *
+     */
 
-    if(avd_lid>0) {
-
-        q.prepare("select e.etype,l.name4browser,g.db,filename,g.annottable,l.fragmentsize "
-                  "from ems.labdata l,ems.experimenttype e,ems.genome g "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.id=?");
-        q.bindValue(0, avd_lid);
-        if(!q.exec()) {
-            qDebug()<<"Query error info: "<<q.lastError().text();
-            return;
-        }
-
-        int fieldDb = q.record().indexOf("db");
-        int fieldFilename = q.record().indexOf("filename");
-        int fieldEtype = q.record().indexOf("etype");
-        int fieldGBname = q.record().indexOf("name4browser");
-        int fieldAtable = q.record().indexOf("annottable");
-        int fieldFsize = q.record().indexOf("fragmentsize");
-
-        if(!q.next()) {
-            qDebug()<<"No records";
-            return;
-        }
-
-        QString DB =q.value(fieldDb).toString();
-        QString filename=q.value(fieldFilename).toString();
-        if(filename.contains(';'))
-            filename=filename.split(';').at(0);
-        QString EType =q.value(fieldEtype).toString();
-        QString GBName =q.value(fieldGBname).toString();
-        QString annottable =q.value(fieldAtable).toString();
-        int fragmentsize =q.value(fieldFsize).toInt();
-        bool pair=(EType.indexOf("pair")!=-1);
-
-        sam_data.append(new gen_lines());
-        t_queue.append(new sam_reader_thread(sam_data.last(),filename+".bam"));
-        t_pool->start(t_queue.last());
-
-        if(t_pool->activeThreadCount()!=0) {
-            qDebug()<<"waiting threads";
-            t_pool->waitForDone();
-        }
-
-        QString avd_window_str=QString("%1").arg(avd_window);
-        if(!q.exec("select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '+' and chrom not like '%\\_%' and chrom like 'chr%' union "
-                   "select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                   ""+DB+"."+annottable+" where strand = '-' and chrom not like '%\\_%' and chrom like 'chr%'"
-                   )) {
-            qDebug()<<"Query error annot: "<<q.lastError().text();
-            return;
-        }
-
-        int fieldChrom = q.record().indexOf("chrom");
-        int fieldStrand = q.record().indexOf("strand");
-        int fieldStart= q.record().indexOf("start");
-        int fieldEnd= q.record().indexOf("end");
-        int length=avd_window*2+1;
-
-        QVector<double> avd_raw_data(length+1,0);
-
-        while(q.next()) {
-            bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
-            int Start=q.value(fieldStart).toInt();
-            int End=q.value(fieldEnd).toInt();
-            QString Chrom=q.value(fieldChrom).toString();
-
-            if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
-                continue;
-            }
-            AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
-                                   strand/*bool strand*/,fragmentsize/2/*shift*/,sam_data.at(0),avd_raw_data,pair);
-        }
-
-        QList<double>  storage;
-        int total=sam_data.at(0)->total-sam_data.at(0)->notAligned;
-        for(int w=0; w< length; w++)
-            storage<<(avd_raw_data[w]/total)/q.size();
-        storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
-
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1_atp;"
-                                     "CREATE TABLE experiments.%2_atp ( "
-                                     "`X` INT NULL ,"
-                                     "`Y` FLOAT NULL ,"
-                                     "INDEX X_idx (X) using btree"
-                                     ")"
-                                     "ENGINE = MyISAM "
-                                     "COMMENT = 'created by averagedensity';").
-                             arg(filename).
-                             arg(filename);
-
-        if(!q.exec(CREATE_TABLE)) {
-            qDebug()<<"Query error T: "<<q.lastError().text();
-        }
-
-        QString SQL_QUERY_BASE=QString("insert into experiments.%1_atp values ").
-                               arg(filename);
-        QString SQL_QUERY="";
-
-        int rows=storage.size();
-        for(int i=0; i<rows;i++) {
-
-            SQL_QUERY+=QString(" (%1,%2),").
-                       arg((int)(i-rows/2)).
-                       arg(storage.at(i));
-        }
-
-        SQL_QUERY.chop(1);
-        if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
-            qDebug()<<"Query error batch up: "<<q.lastError().text();
-        }
-
-    }
-    //************************************************************************************
-    //************************************************************************************
     if(avd_id.length()>0) {
         QMap<QString,DNA_SEQ_DATA> table_to_data;
         QString BASE_DIR="/data/DATA/FASTQ-DATA";
@@ -557,7 +110,11 @@ void AverageDensity::batchsql() {
         }
 
         QString avd_window_str=QString("%1").arg(avd_window);
-        QList<QList<double> > storages;
+
+        /* differencese start here
+         */
+
+        //QList<QList<double> > storages;
 
         QSqlQuery qq;
         qq.prepare("select tbl1_id,tableName,name from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
@@ -567,19 +124,21 @@ void AverageDensity::batchsql() {
             return;
         }
         int nplot=0;
-        while(qq.next()) {
+        QMap<QString,QMap<int,QVector<double> > > storage_heatmap;
+
+        while(qq.next()) {//loop trough all plots and corresponding gene lists
             QString cur_tbl = qq.value(0).toString();
+            QString plt_name = qq.value(2).toString();
             QString sel_table = "experiments."+qq.value(1).toString();
-            //QString plt_name=qq.value(2).toString();
 
             QString sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                               ""+sel_table+" where strand = '+' ";
+                    ""+sel_table+" where strand = '+' ";
             QString sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                               ""+sel_table+" where strand = '-' ";
+                    ""+sel_table+" where strand = '-' ";
 
             QString sql_query=sql_queryp+" union "+sql_querym;
 
-            if(!q.exec(sql_query)) {
+            if(!q.exec(sql_query)) {//takes gene lists coordinates into q
                 qDebug()<<"Query error "<<sel_table<<": "<<q.lastError().text();
                 qDebug()<<"SQL "<<sql_query;
                 return;
@@ -590,10 +149,14 @@ void AverageDensity::batchsql() {
             int fieldStart= q.record().indexOf("start");
             int fieldEnd= q.record().indexOf("end");
             int length=avd_window*2+1;
+            int WIN_SIZE=200;
+            int heatmap_length=length/WIN_SIZE +1;
+            //int records = q.size();
 
-            QVector<double> avd_raw_data(length+1,0);
+            int gcount=0;
+            while(q.next()) { //loop trough all genes for the current plot
+                QVector<double> avd_raw_data(length+1,0);
 
-            while(q.next()) {
                 bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
                 int Start=q.value(fieldStart).toInt();
                 int End=q.value(fieldEnd).toInt();
@@ -605,18 +168,55 @@ void AverageDensity::batchsql() {
                 AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
                                        strand/*bool strand*/,table_to_data[cur_tbl].fragmentsize/2/*shift*/,
                                        table_to_data[cur_tbl].sam_data,avd_raw_data,table_to_data[cur_tbl].pair);
+
+                storage_heatmap[plt_name][gcount].fill(0.0,heatmap_length+1);
+                int sum=0;
+                for(int j=0; j< length;j++) {
+                    sum+=avd_raw_data[j];
+
+                    if((j%WIN_SIZE)==0 && j>0) {
+                        storage_heatmap[plt_name][gcount][j/WIN_SIZE -1]=sum;
+                        sum=0;
+                    }
+                }
+                gcount++;
             }
 
-            QList<double>  storage;
-            int total=table_to_data[cur_tbl].sam_data->total-table_to_data[cur_tbl].sam_data->notAligned;
-            for(int w=0; w< length; w++)
-                storage<<(avd_raw_data[w]/total)/q.size();
-            storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
-            storages.append(storage);
+            //            QList<double>  storage;
+            //            int total=table_to_data[cur_tbl].sam_data->total-table_to_data[cur_tbl].sam_data->notAligned;
+            //            for(int w=0; w< length; w++)//normalization step
+            //                storage<<(avd_raw_data[w]/total)/records;
+            //            storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
+            //storages.append(storage);
             nplot++;
         }//qq.next
 
-        QString Y="`Y0` FLOAT NULL ,";
+
+            QFile outFile;
+            QList<QString> keys=storage_heatmap.keys();
+            int files=keys.size();
+
+            for(int i=0; i<files;i++) {
+                QString filename=keys[i];
+
+                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_")+".raw_data");
+                outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+
+                for(int j=0; j<storage_heatmap[keys[i]].size();j++) {
+                    QString line="";
+                    for(int r=0;r<storage_heatmap[keys[i]][j].size();r++) {
+                        line.append(QString("%1 ").arg(storage_heatmap[keys[i]][j].at(r)));
+                    }
+                    line.chop(1);
+                    line+="\n";
+                    outFile.write(line.toAscii());
+                }
+                outFile.close();
+            }
+
+
+        /*
+         QString Y="`Y0` FLOAT NULL ,";
         for(int i=1; i<nplot;i++) {
             Y+=QString("`Y%1` FLOAT NULL ,").arg(i);
         }
@@ -657,10 +257,11 @@ void AverageDensity::batchsql() {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
             qDebug()<<"Query error batch up: "<<SQL_QUERY_BASE;
         }
+        */
     }//aid>0
 }
 
-void AverageDensity::batchfile() {
+void ATDHeatmap::batchfile() {
     int total_plots=0;
 
 
@@ -880,12 +481,12 @@ void AverageDensity::batchfile() {
                                 +ls+
                                 "plot for [x=2:%5] \"%6\" u 1:x with lines ls x-1\n").
 
-                        arg(gArgs().fileInfo("out").baseName()).
-                        arg(gArgs().getArgs("plot_ext").toString()).
-                        arg(gArgs().getArgs("plot_ext").toString()).
-                        arg(gArgs().fileInfo("out").baseName().replace('_',' ')).
-                        arg(total_plots+1).
-                        arg(gArgs().getArgs("out").toString());
+                    arg(gArgs().fileInfo("out").baseName()).
+                    arg(gArgs().getArgs("plot_ext").toString()).
+                    arg(gArgs().getArgs("plot_ext").toString()).
+                    arg(gArgs().fileInfo("out").baseName().replace('_',' ')).
+                    arg(total_plots+1).
+                    arg(gArgs().getArgs("out").toString());
 
             outFile.setFileName(gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
@@ -942,8 +543,22 @@ void AverageDensity::batchfile() {
     }
 }
 
-AverageDensity::~AverageDensity()
+ATDHeatmap::~ATDHeatmap()
 {
+}
+
+void ATDHeatmap::start() {
+    try{
+        batchsql();
+        emit finished();
+    }
+    catch(char*str)
+    {
+        cerr<<"Catch an error:"<<str<<endl;
+    }
+    catch(...)
+    {
+    }
 }
 
 

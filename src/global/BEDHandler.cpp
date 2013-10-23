@@ -72,7 +72,7 @@ void BEDHandler::init(Storage& sam)
         qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
         throw "Error connect to DB";
     }
-    QString trackDb="CREATE TABLE IF NOT EXISTS "+trackDb_table+" ("
+    QString trackDb="CREATE TABLE IF NOT EXISTS %1 ("
                     "tableName varchar(255) not null,"
                     "shortLabel varchar(255) not null,"
                     "type varchar(255) not null,"
@@ -97,7 +97,7 @@ void BEDHandler::init(Storage& sam)
                     "PRIMARY KEY(tableName)"
                     ") ENGINE=MyISAM DEFAULT CHARSET=utf8;";
 
-    if(!q.exec(trackDb)) {
+    if(!q.exec(trackDb.arg(trackDb_table))) {
         qWarning()<<qPrintable("Create table query error. "+q.lastError().text());
     }
 

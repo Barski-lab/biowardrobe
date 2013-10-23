@@ -29,7 +29,9 @@
 #include <SamReader.hpp>
 
 
+#ifndef FSTM
 #define FSTM AverageDensity
+#endif
 
 typedef genome::GenomeDescription gen_lines;
 
@@ -62,6 +64,17 @@ signals:
     void finished(void);
 
 public:
+    template<typename T>
+    void getReadsAtPointS(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, int shift,T& result,bool pair);
+    template<class T>
+    void getReadsAtPoint(genome::cover_map::iterator i,genome::cover_map::iterator e, quint64 const& start,quint64 const& end,bool reverse, quint64 shift,quint64 mapping, T& result);
+
+    template <class T>
+    void AVD(quint64 start,quint64 end,QString chrome,bool reverse,quint64 shift,quint64 mapping,gen_lines* input,T& result);
+    template <class T>
+    void AVDS(quint64 start,quint64 end,QString chrome,bool reverse,int shift, gen_lines* input,T& result,bool pair);
+
+
     template<typename T>
     static QList<T> smooth(const QList<T>&,const int &);
 
