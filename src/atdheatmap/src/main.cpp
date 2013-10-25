@@ -21,6 +21,6 @@
 ****************************************************************************/
 
 
-#include <averagedensity.hpp>
+#include <atdheatmap.hpp>
 
 #include <Main.hpp>

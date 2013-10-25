@@ -89,7 +89,10 @@ def file_exist(basedir,fname,extension):
 def macs_data(infile):
     FRAGMENT=0
     ISLANDS=0
-    for line in open(infile+'_macs_peaks.xls'):
+    FNAME=infile
+    if ";" in infile:
+	FNAME=infile.split(";")[0]
+    for line in open(FNAME+'_macs_peaks.xls'):
         if re.match('^# d = ',line):
             FRAGMENT=int(line.split('d = ')[1])
             continue
