@@ -265,6 +265,7 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_wilc_region","avd_wilc_region","AVD/WILCREG",QVariant::String,"Which region dump with raw data -avd_wilc_region=\"-100:-5\"",QString(""));
     Arguments::addArg("avd_lid","avd_lid","AVD/LID",QVariant::Int,"Labdata id",0);
     Arguments::addArg("avd_id","avd_id","AVD/ID",QVariant::String,"Genelist id",QString(""));
+    Arguments::addArg("avd_sort_name","avd_sort_name","AVD/SORTNAME",QVariant::String,"Name of the column to sort",QString(""));
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));

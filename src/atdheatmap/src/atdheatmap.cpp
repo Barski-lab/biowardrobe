@@ -179,6 +179,7 @@ void ATDHeatmap::batchsql() {
                         sum=0;
                     }
                 }
+                storage_heatmap[plt_name][gcount][length/WIN_SIZE -1]=sum;
                 gcount++;
             }
 
@@ -196,6 +197,29 @@ void ATDHeatmap::batchsql() {
             QList<QString> keys=storage_heatmap.keys();
             int files=keys.size();
 
+            QList<QPair<int,int> > sort;
+            QString sort_name=gArgs().getArgs("avd_sort_name").toString();
+            bool do_sort=!sort_name.isEmpty();
+
+            for(int i=0; do_sort && i<files-1;i++) {
+                if(storage_heatmap[keys[i]].size() != storage_heatmap[keys[i+1]].size()) {
+                    do_sort=false;
+                }
+            }
+            if(do_sort && !keys.contains(sort_name)) {
+                do_sort=false;
+            } else {
+                for(int j=0; j<storage_heatmap[sort_name].size();j++) {
+                    int sum_line=0;
+                    for(int r=0;r<storage_heatmap[sort_name][j].size();r++) {
+                        sum_line+=storage_heatmap[sort_name][j].at(r);
+                    }
+                    sort.append(qMakePair(sum_line,j));
+                }
+                qSort(sort.begin(), sort.end());
+            }
+
+
             for(int i=0; i<files;i++) {
                 QString filename=keys[i];
 
@@ -205,7 +229,11 @@ void ATDHeatmap::batchsql() {
                 for(int j=0; j<storage_heatmap[keys[i]].size();j++) {
                     QString line="";
                     for(int r=0;r<storage_heatmap[keys[i]][j].size();r++) {
-                        line.append(QString("%1 ").arg(storage_heatmap[keys[i]][j].at(r)));
+                        if(do_sort) {
+                            line.append(QString("%1 ").arg(storage_heatmap[keys[i]][sort.at(j).second].at(r)));
+                        } else {
+                            line.append(QString("%1 ").arg(storage_heatmap[keys[i]][j].at(r)));
+                        }
                     }
                     line.chop(1);
                     line+="\n";
