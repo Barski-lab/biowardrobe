@@ -150,7 +150,7 @@ void ATDHeatmap::batchsql() {
             int fieldEnd= q.record().indexOf("end");
             int length=avd_window*2+1;
             int WIN_SIZE=200;
-            int heatmap_length=length/WIN_SIZE+(length%WIN_SIZE == 0)?0:1;
+            int heatmap_length=length/WIN_SIZE;
             //int records = q.size();
 
             int gcount=0;
@@ -179,8 +179,8 @@ void ATDHeatmap::batchsql() {
                         sum=0;
                     }
                 }
-                if((length-1)%WIN_SIZE!=0)
-                    storage_heatmap[plt_name][gcount][length/WIN_SIZE]=sum;
+                if((length)%WIN_SIZE > WIN_SIZE/2 )
+                    storage_heatmap[plt_name][gcount].append(sum);
                 gcount++;
             }
 

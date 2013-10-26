@@ -58,7 +58,7 @@ void AverageDensity::getReadsAtPointS(genome::cover_map::iterator i,genome::cove
             while(i!=e ) {
                 int position=0;
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
+                    position=i.value()[c].getStart()+i.value()[c].getLength()/(sign*2)-start;
                     if(position<0) continue;
                     if(position<length)
                         result[position]+=i.value()[c].getLevel();
@@ -71,7 +71,7 @@ void AverageDensity::getReadsAtPointS(genome::cover_map::iterator i,genome::cove
             while(i!=e ) {
                 int position=0;
                 for(int c=0;c<i.value().size();c++) {//thru different reads at the same position
-                    position=i.value()[c].getStart()+i.value()[c].getLength()/sign*2-start;
+                    position=i.value()[c].getStart()+i.value()[c].getLength()/(sign*2)-start;
                     if(position<0) continue;
                     if(position<length)
                         result[length-position-1]+=i.value()[c].getLevel();
