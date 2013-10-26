@@ -150,7 +150,7 @@ void ATDHeatmap::batchsql() {
             int fieldEnd= q.record().indexOf("end");
             int length=avd_window*2+1;
             int WIN_SIZE=200;
-            int heatmap_length=length/WIN_SIZE +1;
+            int heatmap_length=length/WIN_SIZE+(length%WIN_SIZE == 0)?0:1;
             //int records = q.size();
 
             int gcount=0;
@@ -169,7 +169,7 @@ void ATDHeatmap::batchsql() {
                                        strand/*bool strand*/,table_to_data[cur_tbl].fragmentsize/2/*shift*/,
                                        table_to_data[cur_tbl].sam_data,avd_raw_data,table_to_data[cur_tbl].pair);
 
-                storage_heatmap[plt_name][gcount].fill(0.0,heatmap_length+1);
+                storage_heatmap[plt_name][gcount].fill(0.0,heatmap_length);
                 int sum=0;
                 for(int j=0; j< length;j++) {
                     sum+=avd_raw_data[j];
@@ -179,7 +179,8 @@ void ATDHeatmap::batchsql() {
                         sum=0;
                     }
                 }
-                storage_heatmap[plt_name][gcount][length/WIN_SIZE -1]=sum;
+                if((length-1)%WIN_SIZE!=0)
+                    storage_heatmap[plt_name][gcount][length/WIN_SIZE]=sum;
                 gcount++;
             }
 
