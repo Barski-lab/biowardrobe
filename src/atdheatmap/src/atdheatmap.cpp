@@ -38,10 +38,10 @@ void ATDHeatmap::batchsql() {
 
     //QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-//    if(avd_id.length()>0) {
-//        avd_table_name=avd_id;
-//        avd_table_name=avd_table_name.replace("-","");
-//    }
+    //    if(avd_id.length()>0) {
+    //        avd_table_name=avd_id;
+    //        avd_table_name=avd_table_name.replace("-","");
+    //    }
 
     if(avd_lid>0 && avd_id.length()>0) {
         qDebug()<<"Either _pid or _lid can be greater then 0.";
@@ -117,7 +117,7 @@ void ATDHeatmap::batchsql() {
         //QList<QList<double> > storages;
 
         QSqlQuery qq;
-        qq.prepare("select tbl1_id,tableName,pltname from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
+        qq.prepare("select tbl1_id,tableName,pltname,gl.type from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
         qq.bindValue(0, avd_id);
         if(!qq.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
@@ -130,13 +130,18 @@ void ATDHeatmap::batchsql() {
             QString cur_tbl = qq.value(0).toString();
             QString plt_name = qq.value(2).toString();
             QString sel_table = "experiments."+qq.value(1).toString();
+            QString sql_queryp,sql_querym,sql_query;
 
-            QString sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                    ""+sel_table+" where strand = '+' ";
-            QString sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                    ""+sel_table+" where strand = '-' ";
-
-            QString sql_query=sql_queryp+" union "+sql_querym;
+            if(qq.value(3).toInt()<100) {
+                sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
+                        ""+sel_table+" where strand = '+' ";
+                sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
+                        ""+sel_table+" where strand = '-' ";
+                sql_query=sql_queryp+" union "+sql_querym;
+            } else if(qq.value(3).toInt()==101){
+                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from "
+                        ""+sel_table+" ";
+            }
 
             if(!q.exec(sql_query)) {//takes gene lists coordinates into q
                 qDebug()<<"Query error "<<sel_table<<": "<<q.lastError().text();
@@ -194,54 +199,54 @@ void ATDHeatmap::batchsql() {
         }//qq.next
 
 
-            QFile outFile;
-            QList<QString> keys=storage_heatmap.keys();
-            int files=keys.size();
+        QFile outFile;
+        QList<QString> keys=storage_heatmap.keys();
+        int files=keys.size();
 
-            QList<QPair<int,int> > sort;
-            QString sort_name=gArgs().getArgs("avd_sort_name").toString();
-            bool do_sort=!sort_name.isEmpty();
+        QList<QPair<int,int> > sort;
+        QString sort_name=gArgs().getArgs("avd_sort_name").toString();
+        bool do_sort=!sort_name.isEmpty();
 
-            for(int i=0; do_sort && i<files-1;i++) {
-                if(storage_heatmap[keys[i]].size() != storage_heatmap[keys[i+1]].size()) {
-                    do_sort=false;
-                }
-            }
-            if(do_sort && !keys.contains(sort_name)) {
+        for(int i=0; do_sort && i<files-1;i++) {
+            if(storage_heatmap[keys[i]].size() != storage_heatmap[keys[i+1]].size()) {
                 do_sort=false;
-            } else {
-                for(int j=0; j<storage_heatmap[sort_name].size();j++) {
-                    int sum_line=0;
-                    for(int r=0;r<storage_heatmap[sort_name][j].size();r++) {
-                        sum_line+=storage_heatmap[sort_name][j].at(r);
-                    }
-                    sort.append(qMakePair(sum_line,j));
-                }
-                qSort(sort.begin(), sort.end());
             }
-
-
-            for(int i=0; i<files;i++) {
-                QString filename=keys[i];
-
-                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_")+".raw_data");
-                outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-
-                for(int j=0; j<storage_heatmap[keys[i]].size();j++) {
-                    QString line="";
-                    for(int r=0;r<storage_heatmap[keys[i]][j].size();r++) {
-                        if(do_sort) {
-                            line.append(QString("%1 ").arg(storage_heatmap[keys[i]][sort.at(j).second].at(r)));
-                        } else {
-                            line.append(QString("%1 ").arg(storage_heatmap[keys[i]][j].at(r)));
-                        }
-                    }
-                    line.chop(1);
-                    line+="\n";
-                    outFile.write(line.toAscii());
+        }
+        if(do_sort && !keys.contains(sort_name)) {
+            do_sort=false;
+        } else {
+            for(int j=0; j<storage_heatmap[sort_name].size();j++) {
+                int sum_line=0;
+                for(int r=0;r<storage_heatmap[sort_name][j].size();r++) {
+                    sum_line+=storage_heatmap[sort_name][j].at(r);
                 }
-                outFile.close();
+                sort.append(qMakePair(sum_line,j));
             }
+            qSort(sort.begin(), sort.end());
+        }
+
+
+        for(int i=0; i<files;i++) {
+            QString filename=keys[i];
+
+            outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_")+".raw_data");
+            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+
+            for(int j=0; j<storage_heatmap[keys[i]].size();j++) {
+                QString line="";
+                for(int r=0;r<storage_heatmap[keys[i]][j].size();r++) {
+                    if(do_sort) {
+                        line.append(QString("%1 ").arg(storage_heatmap[keys[i]][sort.at(j).second].at(r)));
+                    } else {
+                        line.append(QString("%1 ").arg(storage_heatmap[keys[i]][j].at(r)));
+                    }
+                }
+                line.chop(1);
+                line+="\n";
+                outFile.write(line.toAscii());
+            }
+            outFile.close();
+        }
 
 
         /*
