@@ -139,8 +139,8 @@ void ATDHeatmap::batchsql() {
                         ""+sel_table+" where strand = '-' ";
                 sql_query=sql_queryp+" union "+sql_querym;
             } else if(qq.value(3).toInt()==101){
-                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from "
-                        ""+sel_table+" ";
+                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from experiments."
+                        ""+sel_table+"_macs ";
             }
 
             if(!q.exec(sql_query)) {//takes gene lists coordinates into q
