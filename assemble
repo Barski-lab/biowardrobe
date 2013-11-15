@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export CFLAGS=-I/usr/include/boost
-export CPLUS_INCLUDE_PATH=-I/usr/include/boost
 #check Qt
 qmake -v >/dev/null 2>&1
 [ $? -ne 0 ] && echo "Qt developer tool is not installed" && exit
