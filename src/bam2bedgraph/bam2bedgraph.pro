@@ -22,10 +22,10 @@ DEFINES     += _SQL_    \
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
 LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-QMAKE_CXXFLAGS += -Werror 
+#QMAKE_CXXFLAGS += -Werror 
 #-std=c++0x
 
-lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
+lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE)
 QMAKE_EXTRA_TARGETS   = lib_bamtools
 PRE_TARGETDEPS        = lib_bamtools
 
@@ -43,19 +43,19 @@ macx{
 QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
 QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
 
+INCLUDEPATH += /usr/include/boost
+               
 }
 
 
 DEPENDPATH +=  . \
                src \
 	       ../../thirdparty/bamtools \
-               ../global \
-               ../../thirdparty/boost
+               ../global 
 
 INCLUDEPATH += . \
                ./src \
                ../global \
-               ../../thirdparty/boost \
                ../../thirdparty/bamtools
 
 
