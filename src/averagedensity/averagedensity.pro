@@ -31,7 +31,6 @@ SOURCES     += ../global/Reads.cpp \
 INCLUDEPATH += . \
                ./src \
                ../global \
-               ../../thirdparty/boost \
                ../../thirdparty/bamtools
 
 DEPENDPATH  += .
@@ -59,7 +58,7 @@ macx{
 
 QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
 QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
-
+INCLUDEPATH += /usr/include/boost
 }
 
 win32{

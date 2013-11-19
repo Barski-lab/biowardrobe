@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#check Qt
+qmake -v >/dev/null 2>&1
+[ $? -ne 0 ] && echo "Qt developer tool is not installed" && exit
+
+#check mysql
+mysql --version >/dev/null 2>&1
+[ $? -ne 0 ] && echo "No mysql client tools installed" && exit
+
+>./output.log
+echo "Compile bamtools lib"
+cd ./thirdparty/bamtools
+qmake >>../../output.log 2>&1
+make >>../../output.log 2>&1
+[ $? -ne 0 ] && echo "Cant compile bam tools" && exit
+
+cd ../../
+echo "Compile averagetagdensity"
+cd src/averagedensity
+qmake >>../../output.log 2>&1
+make >>../../output.log 2>&1
+[ $? -ne 0 ] && echo "Cant compile averagedensity" && exit
+
+cd ../../
+echo "Compile bam2bedgraph"
+cd src/bam2bedgraph
+qmake >>../../output.log 2>&1
+make >>../../output.log 2>&1
+[ $? -ne 0 ] && echo "Cant compile bam2bedgraph" && exit
+
+
+cd ../../
+echo "Compile reads-counting"
+cd src/reads-counting
+qmake >>../../output.log 2>&1
+make >>../../output.log 2>&1
+[ $? -ne 0 ] && echo "Cant compile reads-counting" && exit
+
+echo "Assemble complete"
+

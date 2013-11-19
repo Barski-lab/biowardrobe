@@ -1,2 +1,0 @@
-TSS
-select chrom,txStart,txStart,strand from expirements.RNASEQ_CD4_CUFFLINKS
