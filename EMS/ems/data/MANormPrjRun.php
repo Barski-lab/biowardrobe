@@ -179,7 +179,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
     if ($retval != 0) {
         logmsg(print_r($output, true));
-        $res->print_error("Cant execute MANorm . "); #.print_r($output,true)
+        $res->print_error("Cant execute MANorm . "); //.print_r($output,true)
     }
 
 

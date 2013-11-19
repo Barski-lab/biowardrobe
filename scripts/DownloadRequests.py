@@ -210,7 +210,7 @@ def get_file(urlin,basedir,pair):
 	if len(fname)==0:
 	    fname="default_fastq"
 
-	if 'fastq' not in fname:
+	if 'fastq' not in fname and 'sra' not in fname:
 	    warning[1]='File has to contain fastq string'
 	    return warning
 	#r.close();
@@ -233,6 +233,9 @@ def get_file(urlin,basedir,pair):
 	elif re.search("\.zip$",fname):
 	    PAR='unzip -p '+ofname+'.zip >>'+ofname+'; rm -f '+ofname+'.zip'
 	    ofname=ofname+'.zip'
+	elif re.search("\.sra$",fname):
+	    PAR='fastq-dump -Z -B '+ofname+'.sra >>'+ofname+'; rm -f '+ofname+'.sra'
+	    ofname=ofname+'.sra'
 	else:
 	    PAR='cat '+ofname+'.part >>'+ofname+'; rm -f '+ofname+'.part'
 	    ofname=ofname+'.part'

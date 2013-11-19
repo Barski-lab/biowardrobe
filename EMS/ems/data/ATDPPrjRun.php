@@ -77,7 +77,7 @@ if (!$con->commit()) {
     $res->print_error("Cant commit");
 }
 
-$command="/usr/local/bin/averagedensity -avd_id=$UUID -sql_host=localhost -sql_user=\"$db_user\" -sql_pass=\"$db_pass\" -sql_dbname=\"$db_name_ems\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
+$command="/usr/local/bin/averagedensity -avd_id=$UUID -sql_host=localhost -sql_user=\"$db_user\" -sql_pass=\"$db_pass\" -sql_dbname=\"$db_name_ems\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=200 -log=\"/tmp/AverageTagDensity.log\"";
 //-plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot"
 exec("$command",$output,$retval);
 if($retval!=0)
