@@ -282,7 +282,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         "group_concat(distinct name order by name separator ',') as name " .
         "from " . $DB . "." . $ANNOT . " where strand='-' and txEnd>" . $PROMOTER_LEN . " group by name2 " .
         "order by chrom,start " .
-        ") t" .
+        ") t " .
         "where e.chrom=t.chrom and  (e.start between t.start and t.end or e.end between t.start and t.end) " .
         "group by t.name, t.name2,e.description ",
         array(), true);
