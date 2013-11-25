@@ -244,7 +244,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
     $UUID1 = guid();
     $TNAME1 = str_replace("-", "", $UUID1);
-    $PROMOTER_LEN = 1000;
+    $PROMOTER_LEN = "1000";
 
     execSQL($con,
         "create table " . $db_name_experiments . ".`" . $TNAME1 . "` (" .
@@ -271,20 +271,20 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     execSQL($con,
         "insert into " . $db_name_experiments . " .`" . $TNAME1 . "`" .
         "select distinct t.name as refseq_id, t.name2 as gene_id, t.chrom, t.start+" . $PROMOTER_LEN . " as start,t.end-" . $PROMOTER_LEN . " as end,t.strand,e.description," .
-        "max(e.`raw_read1`),max(e.`raw_read2`),max(e.`M_value_rescaled`), max(e.`A_value_rescaled`), max(e.`log10_p_value`)" .
+        "max(e.`raw_read1`),max(e.`raw_read2`),max(e.`M_value_rescaled`), max(e.`A_value_rescaled`), max(e.`log10_p_value`) " .
         "from " . $db_name_experiments . " .`" . $TNAME . "`" . " e," .
         "(" .
         "select chrom,txStart-" . $PROMOTER_LEN . " as start,txStart+" . $PROMOTER_LEN . " as end,'+' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
-        "group_concat(distinct name order by name separator ',') as name" .
-        "from " . $DB . "." . $ANNOT . " where strand='+' and txStart>" . $PROMOTER_LEN . " group by name2" .
-        "union" .
+        "group_concat(distinct name order by name separator ',') as name " .
+        "from " . $DB . "." . $ANNOT . " where strand='+' and txStart>" . $PROMOTER_LEN . " group by name2 " .
+        " union " .
         "select chrom,txEnd-" . $PROMOTER_LEN . " as start,txEnd+" . $PROMOTER_LEN . " as end,'-' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
-        "group_concat(distinct name order by name separator ',') as name" .
-        "from " . $DB . "." . $ANNOT . " where strand='-' and txEnd>" . $PROMOTER_LEN . " group by name2" .
-        "order by chrom,start" .
+        "group_concat(distinct name order by name separator ',') as name " .
+        "from " . $DB . "." . $ANNOT . " where strand='-' and txEnd>" . $PROMOTER_LEN . " group by name2 " .
+        "order by chrom,start " .
         ") t" .
-        "where e.chrom=t.chrom and  (e.start between t.start and t.end or e.end between t.start and t.end)" .
-        "group by t.name, t.name2,e.description",
+        "where e.chrom=t.chrom and  (e.start between t.start and t.end or e.end between t.start and t.end) " .
+        "group by t.name, t.name2,e.description ",
         array(), true);
 
     execSQL($con,
