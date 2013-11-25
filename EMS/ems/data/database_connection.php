@@ -187,7 +187,8 @@ function get_operand($o)
 function get_table_info($val)
 {
     global $con, $db_name_ems;
-    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db from " . $db_name_ems . ".genelist g
+    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db,g.annottable as annotation from " .
+        $db_name_ems . ".genelist g
      left join (" . $db_name_ems . ".labdata l," . $db_name_ems . ".worker w," . $db_name_ems . ".experimenttype e, " . $db_name_ems . ".genome ge)
      on (labdata_id=l.id and worker_id=w.id and l.genome_id=ge.id and l.experimenttype_id=e.id)
      where g.id like ?", array("s", $val), false);

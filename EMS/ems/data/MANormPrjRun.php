@@ -29,7 +29,7 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-logmsg(__FILE__);
+//logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
@@ -82,7 +82,8 @@ $tablenames[$manorm[0]->table] = array(
     "fragmentsize" => intval($tn[0]['fragmentsize'] / 2),
     "flanked" => 0);
 
-$DB=$tn[0]['db'];
+$DB = $tn[0]['db'];
+$ANNOT = $tn[0]['annotation'];
 
 if (intval($manorm[0]->order) != 1)
     $res->print_error("Incorrect ordering.");
@@ -164,7 +165,6 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     sleep(5);
     $UUID = guid();
     $TNAME = str_replace("-", "", $UUID);
-    $TNAMES[] = $TNAME;
     $T1 = $tablepairs[$i]['t1'];
     $T2 = $tablepairs[$i]['t2'];
     $CMD = "./MAnormSQLMacs.sh " . $tablenames[$T1]['table'] . "_macs " . $tablenames[$T2]['table'] . "_macs " .
@@ -173,7 +173,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         $tablenames[$T1]['fragmentsize'] . " " .
         $tablenames[$T2]['fragmentsize'] . " " .
         $tablenames[$T1]['flanked'] . " " .
-        $tablenames[$T2]['flanked'] . " " . $TNAME. " " .$db_name_experiments;
+        $tablenames[$T2]['flanked'] . " " . $TNAME . " " . $db_name_experiments;
 
     exec($CMD, $output, $retval);
 
@@ -198,10 +198,10 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 //chr<--->start<->end<--->description<--->#raw_read_1<--->#raw_read_2<--->M_value_rescaled<------>A_value_rescaled<------>-log10(p-value)
 //chr1<-->860184<>860719<>unique_peak1<-->18<---->11<---->0.645644203583194<----->3.90778460251275<------>0.769930178837768
 
-    if (($handle = fopen("/data/DATA/MANORM/".$TNAME."/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
+    if (($handle = fopen("/data/DATA/MANORM/" . $TNAME . "/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
 
         execSQL($con,
-            "create table " . $db_name_experiments . ".`" . $TNAME ."` (" .
+            "create table " . $db_name_experiments . ".`" . $TNAME . "` (" .
             "`chrom` VARCHAR(45) NOT NULL," .
             "`start` INT NULL ," .
             "`end` INT NULL ," .
@@ -218,15 +218,15 @@ for ($i = 0; $i < $tbpairlen; $i++) {
             "ENGINE = MyISAM " .
             "COMMENT = 'created by manorm';",
             array(), true);
-            
-        fgetcsv($handle, 2000, "\t");//header
+
+        fgetcsv($handle, 2000, "\t"); //header
 
         while (($data = fgetcsv($handle, 2000, "\t")) !== FALSE) {
             execSQL($con,
-                "insert into " . $db_name_experiments . " . ".$TNAME.
-                "(chrom,start,end,description,raw_read1,raw_read2,M_value_rescaled,A_value_rescaled,log10_p_value)".
-                 "values(?,?,?,?,?,?,?,?,?)",
-                array("siisiiddd", $data[0],$data[1],$data[2],$data[3],$data[4],$data[5],$data[6],$data[7],$data[8]), true);
+                "insert into " . $db_name_experiments . " .`" . $TNAME . "`" .
+                "(chrom,start,end,description,raw_read1,raw_read2,M_value_rescaled,A_value_rescaled,log10_p_value)" .
+                "values(?,?,?,?,?,?,?,?,?)",
+                array("siisiiddd", $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8]), true);
         }
         fclose($handle);
     } else {
@@ -240,8 +240,63 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     if (!$con->commit()) {
         $res->print_error("Cant commit");
     }
+    //promoter intersection
+
+    $UUID1 = guid();
+    $TNAME1 = str_replace("-", "", $UUID1);
+    $PROMOTER_LEN = 1000;
+
+    execSQL($con,
+        "create table " . $db_name_experiments . ".`" . $TNAME1 . "` (" .
+        "`refseq_id` VARCHAR(300) NOT NULL," .
+        "`gene_id` VARCHAR(300) NOT NULL," .
+        "`chrom` VARCHAR(45) NOT NULL," .
+        "`start` INT NULL ," .
+        "`end` INT NULL ," .
+        "`strand` varchar(2) NOT NULL default '+'," .
+        "`description` varchar(100)," .
+        "`raw_read1` INT," .
+        "`raw_read2` INT," .
+        "`M_value_rescaled` float," .
+        "`A_value_rescaled` float," .
+        "`log10_p_value` float," .
+        "INDEX chr_idx (chrom) using btree," .
+        "INDEX start_idx (start) using btree," .
+        "INDEX end_idx (end) using btree" .
+        ")" .
+        "ENGINE = MyISAM " .
+        "COMMENT = 'created by manorm';",
+        array(), true);
+
+    execSQL($con,
+        "insert into " . $db_name_experiments . " .`" . $TNAME1 . "`" .
+        "select distinct t.name as refseq_id, t.name2 as gene_id, t.chrom, t.start+" . $PROMOTER_LEN . " as start,t.end-" . $PROMOTER_LEN . " as end,t.strand,e.description," .
+        "max(e.`raw_read1`),max(e.`raw_read2`),max(e.`M_value_rescaled`), max(e.`A_value_rescaled`), max(e.`log10_p_value`)" .
+        "from " . $db_name_experiments . " .`" . $TNAME . "`" . " e," .
+        "(" .
+        "select chrom,txStart-" . $PROMOTER_LEN . " as start,txStart+" . $PROMOTER_LEN . " as end,'+' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
+        "group_concat(distinct name order by name separator ',') as name" .
+        "from " . $DB . "." . $ANNOT . " where strand='+' and txStart>" . $PROMOTER_LEN . " group by name2" .
+        "union" .
+        "select chrom,txEnd-" . $PROMOTER_LEN . " as start,txEnd+" . $PROMOTER_LEN . " as end,'-' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
+        "group_concat(distinct name order by name separator ',') as name" .
+        "from " . $DB . "." . $ANNOT . " where strand='-' and txEnd>" . $PROMOTER_LEN . " group by name2" .
+        "order by chrom,start" .
+        ") t" .
+        "where e.chrom=t.chrom and  (e.start between t.start and t.end or e.end between t.start and t.end)" .
+        "group by t.name, t.name2,e.description",
+        array(), true);
+
+    execSQL($con,
+        "insert into " . $db_name_ems . ".genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
+        array("sssssssi", $UUID1, $RNAME . " vs promoters", $projectid, $DB, $TNAME1, $gblink, $READABLE . "<br>Intersected with list of promoters (TSS +/- 1000)", $atypeid), true);
+
+    if (!$con->commit()) {
+        $res->print_error("Cant commit");
+    }
 
 }
+//for?
 
 if (!$con->commit()) {
     $res->print_error("Cant commit");
