@@ -19,6 +19,7 @@ import datetime
 import urlparse
 import urllib2
 import shutil
+import base64
 
 print str(datetime.datetime.now())
 
@@ -197,8 +198,34 @@ def get_file(urlin,basedir,pair):
 	if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
 	    warning[1]='ftp and http methods are supported'
     	    return warning
-    
-	r=urllib2.urlopen(url)
+
+	if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
+	    lp=urlparsed[1].split('@')[0]
+	    username=lp.split(':')[0]
+	    password=lp.split(':')[1]
+	    url=url.replace(lp+'@','')
+	    req = urllib2.Request(url)
+	    try:
+		r = urllib2.urlopen(req)
+	    except IOError, e:
+		pass
+	    if hasattr(e, 'code') and e.code==401 and 'basic' in e.headers.get('www-authenticate', '').lower():
+		base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
+		authheader =  "Basic %s" % base64string
+		req.add_header("Authorization", authheader)
+		try:
+		    r = urllib2.urlopen(req)
+		except IOError, e:
+		    warning[1]='Wrong authorization '+url
+		    return warning
+		    pass
+	    else:
+		warning[1]='Unsupported authorization '+ e.headers.get('www-authenticate', '').lower()
+		return warning
+		pass
+	else:
+	    r = urllib2.urlopen(url)
+	    
 	if r.info().has_key('Content-Disposition'):
 	# If the response has Content-Disposition, we take file name from it
 	    fname = r.info()['Content-Disposition'].split('filename=')[1]
@@ -241,7 +268,34 @@ def get_file(urlin,basedir,pair):
 	    ofname=ofname+'.part'
 	
 	for url in urls:
-	    r=urllib2.urlopen(url)
+	    urlparsed=urlparse.urlparse(url)
+	    if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
+		lp=urlparsed[1].split('@')[0]
+		www=urlparsed[1].split('@')[1]
+		username=lp.split(':')[0]
+		password=lp.split(':')[1]
+		url=url.replace(lp+'@','')
+		req = urllib2.Request(url)
+		try:
+		    r = urllib2.urlopen(req)
+		except IOError, e:
+		    pass
+		if hasattr(e, 'code') and e.code==401 and 'basic' in e.headers.get('www-authenticate', '').lower():
+		    base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
+		    authheader =  "Basic %s" % base64string
+		    req.add_header("Authorization", authheader)
+		    try:
+			r = urllib2.urlopen(req)
+		    except IOError, e:
+    			warning[1]='Cant download from '+url
+			return warning
+			pass
+		else:
+		    warning[1]='Unsupported authorization '+ e.headers.get('www-authenticate', '').lower()
+		    return warning
+		    pass
+	    else:
+		r = urllib2.urlopen(url)
 	    try:
         	with open(ofname, 'wb') as f:
             	    shutil.copyfileobj(r,f)
