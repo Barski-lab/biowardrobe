@@ -35,13 +35,21 @@ void ATDHeatmap::batchsql() {
     int avd_lid=gArgs().getArgs("avd_lid").toInt();
     QString avd_id=gArgs().getArgs("avd_id").toString();
     int avd_window=gArgs().getArgs("avd_window").toInt();
+    QString sort_name=gArgs().getArgs("avd_sort_name").toString();
+    QFile outFile;
+    QString columns="";
+    QString orderby="";
+    QStringList columns_names;
 
-    //QString avd_table_name=gArgs().getArgs("sql_table").toString();
+    if(!gArgs().getArgs("avd_expresssion_columns").toString().isEmpty()) {
+        columns=gArgs().getArgs("avd_expresssion_columns").toString();
+        columns_names=columns.split(',');
+        if(columns.contains(sort_name)) {
+            orderby=" order by "+sort_name;
+        }
+        columns=","+columns;
+    }
 
-    //    if(avd_id.length()>0) {
-    //        avd_table_name=avd_id;
-    //        avd_table_name=avd_table_name.replace("-","");
-    //    }
 
     if(avd_lid>0 && avd_id.length()>0) {
         qDebug()<<"Either _pid or _lid can be greater then 0.";
@@ -129,18 +137,18 @@ void ATDHeatmap::batchsql() {
         while(qq.next()) {//loop trough all plots and corresponding gene lists
             QString cur_tbl = qq.value(0).toString();
             QString plt_name = qq.value(2).toString();
-            QString sel_table = "experiments."+qq.value(1).toString();
+            QString sel_table = "experiments.`"+qq.value(1).toString()+"`";
             QString sql_queryp,sql_querym,sql_query;
 
             if(qq.value(3).toInt()<100) {
-                sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
-                        ""+sel_table+" where strand = '+' ";
-                sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end from "
-                        ""+sel_table+" where strand = '-' ";
-                sql_query=sql_queryp+" union "+sql_querym;
+                sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end "+columns+" from "
+                        +sel_table+" where strand = '+' ";
+                sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end "+columns+"  from "
+                        +sel_table+" where strand = '-' ";
+                sql_query=sql_queryp+" union "+sql_querym+" "+orderby;
             } else if(qq.value(3).toInt()==101){
-                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from experiments."
-                        ""+sel_table+"_macs ";
+                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from "
+                        +sel_table+"_macs ";
             }
 
             if(!q.exec(sql_query)) {//takes gene lists coordinates into q
@@ -159,9 +167,28 @@ void ATDHeatmap::batchsql() {
             //int records = q.size();
 
             int gcount=0;
+            if(!columns.isEmpty() && nplot==0) {
+                outFile.setFileName(gArgs().fileInfo("out").path()+"/"+"EXPRESSION"+".raw_data");
+                outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+                QString line="";
+                for(int j=0; j<columns_names.size();j++) {
+                            line.append(QString("%1\t").arg(columns_names.at(j)));
+                    }
+                    line.chop(1);
+                    line+="\n";
+                    outFile.write(line.toAscii());
+            }
             while(q.next()) { //loop trough all genes for the current plot
                 QVector<double> avd_raw_data(length+1,0);
-
+                if(!columns.isEmpty() && nplot==0) {
+                    QString line="";
+                    for(int j=0; j<columns_names.size();j++) {
+                        line.append(QString("%1\t").arg(q.value(q.record().indexOf(columns_names.at(j))).toFloat()));
+                        }
+                        line.chop(1);
+                        line+="\n";
+                        outFile.write(line.toAscii());
+                }
                 bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
                 int Start=q.value(fieldStart).toInt();
                 int End=q.value(fieldEnd).toInt();
@@ -188,24 +215,18 @@ void ATDHeatmap::batchsql() {
                     storage_heatmap[plt_name][gcount].append(sum);
                 gcount++;
             }
-
-            //            QList<double>  storage;
-            //            int total=table_to_data[cur_tbl].sam_data->total-table_to_data[cur_tbl].sam_data->notAligned;
-            //            for(int w=0; w< length; w++)//normalization step
-            //                storage<<(avd_raw_data[w]/total)/records;
-            //            storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
-            //storages.append(storage);
+            if(!columns.isEmpty() && nplot==0) {
+                outFile.close();
+            }
             nplot++;
         }//qq.next
 
 
-        QFile outFile;
         QList<QString> keys=storage_heatmap.keys();
         int files=keys.size();
 
         QList<QPair<int,int> > sort;
-        QString sort_name=gArgs().getArgs("avd_sort_name").toString();
-        bool do_sort=!sort_name.isEmpty();
+        bool do_sort=!sort_name.isEmpty() && orderby.isEmpty();
 
         for(int i=0; do_sort && i<files-1;i++) {
             if(storage_heatmap[keys[i]].size() != storage_heatmap[keys[i+1]].size()) {
