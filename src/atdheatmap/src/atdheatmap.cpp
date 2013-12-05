@@ -147,7 +147,7 @@ void ATDHeatmap::batchsql() {
                         +sel_table+" where strand = '-' ";
                 sql_query=sql_queryp+" union "+sql_querym+" "+orderby;
             } else if(qq.value(3).toInt()==101){
-                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from experiments."
+                sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from "
                         +sel_table+"_macs ";
             }
 
