@@ -172,22 +172,22 @@ void ATDHeatmap::batchsql() {
                 outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
                 QString line="";
                 for(int j=0; j<columns_names.size();j++) {
-                            line.append(QString("%1\t").arg(columns_names.at(j)));
-                    }
-                    line.chop(1);
-                    line+="\n";
-                    outFile.write(line.toAscii());
+                    line.append(QString("%1 ").arg(columns_names.at(j)));
+                }
+                line.chop(1);
+                line+="\n";
+                outFile.write(line.toAscii());
             }
             while(q.next()) { //loop trough all genes for the current plot
                 QVector<double> avd_raw_data(length+1,0);
                 if(!columns.isEmpty() && nplot==0) {
                     QString line="";
                     for(int j=0; j<columns_names.size();j++) {
-                        line.append(QString("%1\t").arg(q.value(q.record().indexOf(columns_names.at(j))).toFloat()));
-                        }
-                        line.chop(1);
-                        line+="\n";
-                        outFile.write(line.toAscii());
+                        line.append(QString("%1 ").arg(q.value(q.record().indexOf(columns_names.at(j))).toFloat()));
+                    }
+                    line.chop(1);
+                    line+="\n";
+                    outFile.write(line.toAscii());
                 }
                 bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
                 int Start=q.value(fieldStart).toInt();
