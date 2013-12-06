@@ -170,13 +170,13 @@ void ATDHeatmap::batchsql() {
             if(!columns.isEmpty() && nplot==0) {
                 outFile.setFileName(gArgs().fileInfo("out").path()+"/"+"EXPRESSION"+".raw_data");
                 outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-                QString line="";
-                for(int j=0; j<columns_names.size();j++) {
-                    line.append(QString("%1 ").arg(columns_names.at(j)));
-                }
-                line.chop(1);
-                line+="\n";
-                outFile.write(line.toAscii());
+//                QString line="";
+//                for(int j=0; j<columns_names.size();j++) {
+//                    line.append(QString("%1 ").arg(columns_names.at(j)));
+//                }
+//                line.chop(1);
+//                line+="\n";
+//                outFile.write(line.toAscii());
             }
             while(q.next()) { //loop trough all genes for the current plot
                 QVector<double> avd_raw_data(length+1,0);
