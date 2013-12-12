@@ -91,6 +91,7 @@ if infile2 != "":
 
 
 FIN=str()
+STH=str()
 
 for i in alfa_pos.keys():
  STRING=str(i).rjust(align)

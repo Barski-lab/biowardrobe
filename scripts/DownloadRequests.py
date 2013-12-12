@@ -72,6 +72,7 @@ def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
     #
     flist=list()
     fl=file_exist(basedir,libcode)
+    libcode=libcode.strip()
 
     if len(fl) > 0 and len(fl)!=2 and pair: 
 	error[1]='incorrect number of files for pair end reads'
