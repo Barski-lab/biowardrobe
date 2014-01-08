@@ -36,6 +36,7 @@ void ATDHeatmap::batchsql() {
     QString avd_id=gArgs().getArgs("avd_id").toString();
     int avd_window=gArgs().getArgs("avd_window").toInt();
     QString sort_name=gArgs().getArgs("avd_sort_name").toString();
+    QString special_sort_name=gArgs().getArgs("avd_sort_column").toString();
     QFile outFile;
     QString columns="";
     QString orderby="";
@@ -44,12 +45,14 @@ void ATDHeatmap::batchsql() {
     if(!gArgs().getArgs("avd_expresssion_columns").toString().isEmpty()) {
         columns=gArgs().getArgs("avd_expresssion_columns").toString();
         columns_names=columns.split(',');
-        if(columns.contains(sort_name)) {
-            orderby=" order by "+sort_name;
-        }
         columns=","+columns;
     }
 
+    if(!special_sort_name.isEmpty()) {
+        orderby=" order by "+special_sort_name;
+    } else if(columns_names.count()>0 && columns_names.contains(sort_name)) {
+        orderby=" order by "+sort_name;
+    }
 
     if(avd_lid>0 && avd_id.length()>0) {
         qDebug()<<"Either _pid or _lid can be greater then 0.";
