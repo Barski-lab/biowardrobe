@@ -266,7 +266,9 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_lid","avd_lid","AVD/LID",QVariant::Int,"Labdata id",0);
     Arguments::addArg("avd_id","avd_id","AVD/ID",QVariant::String,"Genelist id",QString(""));
     Arguments::addArg("avd_sort_name","avd_sort_name","AVD/SORTNAME",QVariant::String,"Name of the column to sort",QString(""));
+    Arguments::addArg("avd_sort_column","avd_sort_column","AVD/SSORTNAME",QVariant::String,"Name of the column to sort",QString(""));
     Arguments::addArg("avd_expresssion_columns","avd_expresssion_columns","AVD/EXPRESSIONCOL",QVariant::String,"Names of the columns to select",QString(""));
+
 
     Arguments::addArg("plot_ext","plot_ext","",QVariant::String,"","");
     Arguments::addArg("gnuplot","gnuplot","",QVariant::String,"Path to gnuplot",QString("gnuplot.exe"));
