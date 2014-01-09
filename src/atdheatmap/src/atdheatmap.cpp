@@ -50,6 +50,7 @@ void ATDHeatmap::batchsql() {
 
     if(!special_sort_name.isEmpty()) {
         orderby=" order by "+special_sort_name;
+        special_sort_name=","+special_sort_name;
     } else if(columns_names.count()>0 && columns_names.contains(sort_name)) {
         orderby=" order by "+sort_name;
     }
@@ -144,9 +145,9 @@ void ATDHeatmap::batchsql() {
             QString sql_queryp,sql_querym,sql_query;
 
             if(qq.value(3).toInt()<100) {
-                sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end "+columns+" from "
+                sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end "+columns+special_sort_name+" from "
                         +sel_table+" where strand = '+' ";
-                sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end "+columns+"  from "
+                sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end "+columns+special_sort_name+"  from "
                         +sel_table+" where strand = '-' ";
                 sql_query=sql_queryp+" union "+sql_querym+" "+orderby;
             } else if(qq.value(3).toInt()==101){
