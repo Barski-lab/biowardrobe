@@ -187,10 +187,10 @@ void BEDHandler::Load()
         if(chrom.endsWith("-")) continue;
         chrom.chop(1);
         QMap <int,int> bed;
-        QVector<int> cover;
+        QList<int> cover;
 
-        if(bed_type==2 || bed_type==3) //covers
-            cover.fill(0,sam_input->getLength('+',chrom)+1);
+//        if(bed_type==2 || bed_type==3) //covers
+//            cover.fill(0,sam_input->getLength('+',chrom)+1);
 
         //+ strand
         fill_bed_cover(bed,cover,chrom,'+',shift);
@@ -201,7 +201,7 @@ void BEDHandler::Load()
             }
             if(bed_type==2 || bed_type==3) {
                 cover_save(cover,sql_prep,chrom, '+');
-                cover.fill(0,sam_input->getLength('+',chrom)+1);
+//                cover.fill(0,sam_input->getLength('+',chrom)+1);
             }
         }
 
@@ -225,7 +225,7 @@ void BEDHandler::Load()
 #define MAX_GRP 3000
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-void BEDHandler::cover_save(QVector<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand) {
+void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand) {
     QString appe;
     quint64 begin=0;
     int sql_groupping=0;
@@ -378,7 +378,7 @@ void BEDHandler::bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& c
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
-void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString const& chrom,QChar const& strand,int shift) {
+void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QList<int>& cover,QString const& chrom,QChar const& strand,int shift) {
 
     genome::cover_map::iterator i=sam_input->getLineCover(chrom+strand).getBeginIterator();
     genome::cover_map::iterator e=sam_input->getLineCover(chrom+strand).getEndIterator();

@@ -59,8 +59,8 @@ public:
     void Load(void);
 protected:
     void init(Storage &sam);
-    void fill_bed_cover(QMap <int,int>& bed,QVector<int>& cover,QString const& chrom,QChar const& strand,int shift=0);
-    void cover_save(QVector<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand);
+    void fill_bed_cover(QMap <int,int>& bed,QList<int>& cover,QString const& chrom,QChar const& strand,int shift=0);
+    void cover_save(QList<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand);
     void bed_save(QMap <int,int>& bed,QString& sql_prep,QString const& chrom, QChar const& strand);
 
 
