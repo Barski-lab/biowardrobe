@@ -189,11 +189,15 @@ void BEDHandler::Load()
         QMap <int,int> bed;
         QList<int> cover;
 
-//        if(bed_type==2 || bed_type==3) //covers
-//            cover.fill(0,sam_input->getLength('+',chrom)+1);
+        if(bed_type==2 || bed_type==3) {//covers
+            cover.reserve(sam_input->getLength('+',chrom)+1);
+            for(unsigned int cc=0;cc<sam_input->getLength('+',chrom)+1;cc++)
+                cover.append(0);
+        }
 
         //+ strand
         fill_bed_cover(bed,cover,chrom,'+',shift);
+
         if(gArgs().getArgs("bed_format").toInt() == 8) {
             if(bed_type==0) {
                 bed_save(bed,sql_prep,chrom,'+');
@@ -201,7 +205,8 @@ void BEDHandler::Load()
             }
             if(bed_type==2 || bed_type==3) {
                 cover_save(cover,sql_prep,chrom, '+');
-//                cover.fill(0,sam_input->getLength('+',chrom)+1);
+                for(unsigned int cc=0;cc<sam_input->getLength('+',chrom)+1;cc++)
+                    cover[cc]=0;
             }
         }
 
@@ -382,7 +387,7 @@ void BEDHandler::fill_bed_cover(QMap <int,int>& bed,QList<int>& cover,QString co
 
     genome::cover_map::iterator i=sam_input->getLineCover(chrom+strand).getBeginIterator();
     genome::cover_map::iterator e=sam_input->getLineCover(chrom+strand).getEndIterator();
-    int max_len=sam_input->getLength(strand,chrom)+1;
+    int max_len=sam_input->getLength(strand,chrom);
     bool direction=(strand==QChar('+'));
 
     quint32 w_h=window;
