@@ -20,7 +20,7 @@ PROMOTER<-2000
 con <- dbConnect(MySQL(), user="readonly", password="readonly", dbname="ems", host="localhost")   #connection to database.
 
 FN_AND_DB<- dbGetQuery(con,paste("select filename,db from ems.labdata l,ems.genome g where l.genome_id=g.id and l.id=", ID, ";", sep=""))   #get filename of ID
-FILENAME<-FN_AND_DB[1]
+FILENAME<-paste(FN_AND_DB[1]$filename,sep="")
 DBN<-FN_AND_DB[2]
 
 mainQuery<-dbGetQuery(con,paste("select * from ",DBN,".refGene where chrom not like '%\\_%' order by chrom,txStart;",sep="")) #データベースへのアクセスができているのでそれをdbGetQuery関数でデータベースのknown geneというテーブルを取得。*は全ての列を示していると思う。
@@ -85,7 +85,8 @@ overlaps = as.matrix(findOverlaps(Upstream_overlap, c(TSS_GRanges, Exon_Granges.
 Upstream_Granges.2 = Upstream_overlap[-overlaps[ ,1]]   #exclude upstream region which overlap other regions
                       
 #######load island data
-island<-dbGetQuery(con,paste("select * from experiments.", FILENAME, "_macs;", sep=""))
+FILENAME<-unlist(strsplit(FILENAME, "[;]")[[1]])[1]
+island<-dbGetQuery(con,paste("select * from experiments.`", FILENAME, "_macs`;", sep=""))
                       
 #find midpoint of island
 #island.midpoint = ceiling((island$start + island$end)/2)
@@ -94,17 +95,36 @@ island<-dbGetQuery(con,paste("select * from experiments.", FILENAME, "_macs;", s
 Island_GRanges = GRanges(seqnames = island[ ,"chrom"], ranges = IRanges(start = island$start, end = island$end))   #GRanges for island data
 
 #examine each island overlapping domains below
+#overlaps.island_TSS = as.matrix(findOverlaps(Island_GRanges, TSS_GRanges, ignore.strand = T))
+#num.TSS = nrow(overlaps.island_TSS)
+#overlaps.island_Exon = as.matrix(findOverlaps(Island_GRanges, Exon_Granges.2, ignore.strand = T))
+#num.Exon = nrow(overlaps.island_Exon)
+#overlaps.island_Intron = as.matrix(findOverlaps(Island_GRanges, Intron_Granges.2, ignore.strand = T))
+#num.Intron = nrow(overlaps.island_Intron)
+#overlaps.island_Upstream = as.matrix(findOverlaps(Island_GRanges, Upstream_Granges.2, ignore.strand = T))
+#num.Upstream = nrow(overlaps.island_Upstream)
+                      
+#island overlapping intergenic region is region which doesn't overlap above domains.
+#num.Intergenic = length(Island_GRanges) - num.TSS - num.Exon - num.Intron - num.Upstream
+
+#examine each island overlapping domains below
 overlaps.island_TSS = as.matrix(findOverlaps(Island_GRanges, TSS_GRanges, ignore.strand = T))
+Island_GRanges<-Island_GRanges[-overlaps.island_TSS[,1]]
 num.TSS = nrow(overlaps.island_TSS)
 overlaps.island_Exon = as.matrix(findOverlaps(Island_GRanges, Exon_Granges.2, ignore.strand = T))
+Island_GRanges<-Island_GRanges[-overlaps.island_Exon[,1]]
 num.Exon = nrow(overlaps.island_Exon)
 overlaps.island_Intron = as.matrix(findOverlaps(Island_GRanges, Intron_Granges.2, ignore.strand = T))
+Island_GRanges<-Island_GRanges[-overlaps.island_Intron[,1]]
 num.Intron = nrow(overlaps.island_Intron)
 overlaps.island_Upstream = as.matrix(findOverlaps(Island_GRanges, Upstream_Granges.2, ignore.strand = T))
+Island_GRanges<-Island_GRanges[-overlaps.island_Upstream[,1]]
 num.Upstream = nrow(overlaps.island_Upstream)
                       
 #island overlapping intergenic region is region which doesn't overlap above domains.
-num.Intergenic = length(Island_GRanges) - num.TSS - num.Exon - num.Intron - num.Upstream
+num.Intergenic = length(Island_GRanges) # - num.TSS - num.Exon - num.Intron - num.Upstream
+
+
                       
 #calculate percent of each island and make vector for column graph
 #column.vector = c(num.Upstream, num.TSS, num.Exon, num.Intron, num.Intergenic)

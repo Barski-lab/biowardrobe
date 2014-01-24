@@ -25,7 +25,7 @@ if ($filename == "")
 
 $query_array = array();
 
-exec("Rscript islands_distribution.R $labdata_id", $output);
+exec("Rscript islands_distribution.R $labdata_id 2>/dev/null", $output);
 
 $DATA = array(
     'name' => $filename,
