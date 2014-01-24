@@ -5,8 +5,8 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST, true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST, true));
 
 if (isset($_REQUEST['labdata_id']))
     $labdata_id = $_REQUEST['labdata_id'];
