@@ -28,9 +28,11 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
     extend: 'Ext.app.Controller',
 
-    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart'],
-    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart'],
-    views: ['EMS.view.ExperimentsWindow.Main', 'EMS.view.ExperimentsWindow.Grid', 'EMS.view.LabDataEdit.LabDataEditForm', 'EMS.view.LabDataEdit.LabDataEdit', 'EMS.view.charts.Fence', 'EMS.view.LabDataEdit.LabDataDescription', 'EMS.view.GenomeGroup.GenomeGroup', 'EMS.view.GenomeGroup.List', 'EMS.view.charts.ATP'],
+    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution'],
+    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution'],
+    views: ['EMS.view.ExperimentsWindow.Main', 'EMS.view.ExperimentsWindow.Grid', 'EMS.view.LabDataEdit.LabDataEditForm',
+            'EMS.view.LabDataEdit.LabDataEdit', 'EMS.view.charts.Fence', 'EMS.view.LabDataEdit.LabDataDescription',
+            'EMS.view.GenomeGroup.GenomeGroup', 'EMS.view.GenomeGroup.List', 'EMS.view.charts.ATP','EMS.view.charts.IslandsDistribution'],
 
     refresh: false,
 
@@ -269,6 +271,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             var anti = this.getAntibodiesStore().findRecord('id', record.data.antibody_id, 0, false, false, true).data.antibody;
             if (record.data.antibody_id === 1) anti = "";
             this.addATPChart(maintabpanel, tblname, record.data.name4browser + " " + anti);
+            this.addIslandsDistributionChart(maintabpanel,record.raw['id']);
         }//>11 and not RNA
 
         if (sts > 20 && isRNA) {
@@ -632,6 +635,18 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                               }
                           ];
                           tab.add(SpikeinsChart);
+                      }
+                  });
+    },
+    /***********************************************************************
+     ***********************************************************************/
+    addIslandsDistributionChart: function (tab, lid) {
+        var stor = this.getIslandsDistributionStore();
+        stor.getProxy().setExtraParam('labdata_id', lid);
+        stor.load({
+                      callback: function (records, operation, success) {
+                          var IslandsDistributionChart = Ext.create("EMS.view.LabDataEdit.IslandsDistribution");
+                          tab.add(IslandsDistributionChart);
                       }
                   });
     }
