@@ -54,14 +54,14 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                                     },
                                     tips: {
                                         trackMouse: true,
-                                        width: 200,
-                                        height: 56,
+                                        width: 140,
+                                        height: 30,
                                         renderer: function (storeItem, item) {
                                             this.setTitle(String(item.value[1]));
                                         }
                                     },
                                     label: {
-                                        display: 'outside',
+                                        display: 'insideEnd',
                                         field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
                                         renderer: Ext.util.Format.numberRenderer('0'),
                                         //orientation: 'horizontal',
