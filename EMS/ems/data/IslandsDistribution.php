@@ -33,7 +33,8 @@ $DATA = array(
     'Promoter' => intval($output[1]),
     'Exon' => intval($output[2]),
     'Intron' => intval($output[3]),
-    'Intergenic' => intval($output[4])
+    'Intergenic' => intval($output[4]),
+    'Total' => intval($output[5])
 );
 
 $con->close();
@@ -64,6 +65,10 @@ $fields = array(
         "name" => "Intergenic",
         "type" => "int"
     ),
+    array(
+        "name" => "Total",
+        "type" => "int"
+    )
 );
 
 

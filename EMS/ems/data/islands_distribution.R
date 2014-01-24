@@ -93,6 +93,7 @@ island<-dbGetQuery(con,paste("select * from experiments.`", FILENAME, "_macs`;",
                       
 #Island_GRanges = GRanges(seqnames = island[ ,"chrom"], ranges = IRanges(start = island.midpoint, end = island.midpoint))   #GRanges for island data
 Island_GRanges = GRanges(seqnames = island[ ,"chrom"], ranges = IRanges(start = island$start, end = island$end))   #GRanges for island data
+num.Total<-length(Island_GRanges)
 
 #examine each island overlapping domains below
 #overlaps.island_TSS = as.matrix(findOverlaps(Island_GRanges, TSS_GRanges, ignore.strand = T))
@@ -128,7 +129,7 @@ num.Intergenic = length(Island_GRanges) # - num.TSS - num.Exon - num.Intron - nu
                       
 #calculate percent of each island and make vector for column graph
 #column.vector = c(num.Upstream, num.TSS, num.Exon, num.Intron, num.Intergenic)
-cat(num.Upstream,"\n",num.TSS,"\n",num.Exon,"\n",num.Intron,"\n",num.Intergenic,sep="")
+cat(num.Upstream,"\n",num.TSS,"\n",num.Exon,"\n",num.Intron,"\n",num.Intergenic,"\n",num.Total,"\n",sep="")
 
 #names(column.vector) = c("Upstream", "Promoter", "Exon", "Intron", "Intergenic")
 #column.vector_percent = 100*column.vector/sum(column.vector)
