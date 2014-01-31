@@ -227,6 +227,8 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
 def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
     format="BAM"
     FN=infile
+    shiftsize=int(fragsize/2)
+    
     if ";" in infile:
 	FN=infile.split(";")[0]
 	format="BAMPE"
@@ -257,7 +259,7 @@ def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
 	ADPAR=ADPAR+" --call-summits "
 
     
-    PAR='macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(fragsize)+' -q 0.2 '+ADPAR+' >./'+FN+'_macs.log 2>&1'
+    PAR='macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(shiftsize)+' -q 0.2 '+ADPAR+' >./'+FN+'_macs.log 2>&1'
     RET=''
     #print PAR
     try:
