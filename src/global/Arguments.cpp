@@ -220,6 +220,7 @@ void Arguments::argsList(void)
     Arguments::addArg("batch","batch","batchFileName",QVariant::String,"Input Batchfile name, different structure for each programm","");
     Arguments::addArg("out","out","outFileName",QVariant::String,"Base output file name",QString(""));
     Arguments::addArg("log","log","logFileName",QVariant::String,"log file name (default is ./logfile_def.log)",QString("./logfile_def.log"));
+    Arguments::addArg("in_mutation","in_mutation","in_mutation",QVariant::String,"Mutations filename.",QString(""));
 
     Arguments::addArg("sql_driver","sql_driver","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));
     Arguments::addArg("sql_dbname","sql_dbname","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));

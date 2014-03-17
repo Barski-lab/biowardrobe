@@ -4,8 +4,8 @@ require_once('response.php');
 require_once('def_vars.php');
 require_once('database_connection.php');
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST, true));
+//logmsg(__FILE__);
+//logmsg(print_r($_REQUEST, true));
 //logmsg(print_r($data,true));
 
 //*****************************************************************
@@ -15,6 +15,7 @@ function update_data($val)
     $SQL_STR = "";
     $libcode = false;
     global $IDFIELD, $IDFIELDTYPE, $con, $tablename, $types, $res, $_SESSION;
+
     foreach ($val as $f => $d) {
 
         if (!array_key_exists($f, $types))
@@ -22,13 +23,14 @@ function update_data($val)
 
         if ($f == $IDFIELD) {
             $id = $d;
+            $IDFIELDTYPE=$types[$f];
             continue;
         }
 
         if ($f == "worker_id" && intVal($d) != $_SESSION["user_id"] && !check_rights())
             $res->print_error("Insufficient credentials");
 
-        if (strrpos($f, "_id") !== false && intVal($d) == 0) {
+        if (strrpos($f, "_id") !== false && ($types[$f] != "s" && intVal($d) == 0) ) {
             $SQL_STR = $SQL_STR . " $f=null,";
             continue;
         }
@@ -79,6 +81,7 @@ function update_data($val)
     $SQL_STR = substr_replace($SQL_STR, "", -1);
     $SQL_STR = "update `$tablename` set $SQL_STR where $IDFIELD=?";
 
+
     execSQL($con, $SQL_STR, $PARAMS, true);
 }
 
@@ -93,7 +96,7 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("no data");
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info", "rtype", "atype", "result",
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info",
     "labdata", "grp_local", "project");
 
 $IDFIELD = "id";
@@ -141,8 +144,10 @@ foreach ($table as $dummy => $val) {
     if (strrpos($val["Type"], "int") !== false)
         $t = "i";
     elseif (strrpos($val["Type"], "float") !== false)
-        $t = "d"; elseif (strrpos($val["Type"], "double") !== false)
-        $t = "d"; elseif (strrpos($val["Type"], "date") !== false)
+        $t = "d";
+    elseif (strrpos($val["Type"], "double") !== false)
+        $t = "d";
+    elseif (strrpos($val["Type"], "date") !== false)
         $t = "dd";
 
     $types[$val["Field"]] = $t;

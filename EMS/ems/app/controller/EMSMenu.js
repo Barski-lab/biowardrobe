@@ -50,6 +50,7 @@ Ext.define('EMS.controller.EMSMenu', {
     onPanelRendered: function () {
         Ext.getCmp('MenuWorkers').setVisible(Rights.check(USER_ID,'MenuWorkers'));
         Ext.getCmp('MenuProject').setVisible(Rights.check(USER_ID,'MenuProject'));
+        Ext.getCmp('MenuAntibodies').setVisible(Rights.check(USER_ID,'MenuAntibodies'));
     },
 
     createWindow: function (WinVar, Widget, Params) {
@@ -135,7 +136,7 @@ Ext.define('EMS.controller.EMSMenu', {
                 items: [
                     {
                         xtype: 'uxiframe',
-                        src: 'http://gbinternal/'
+                        src: 'http://'
                     }
                 ]
             });

@@ -19,11 +19,11 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
-Ext.define( 'EMS.model.Antibodies', {
+Ext.define( 'EMS.model.Download', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'id', type: 'string', persist: true  },
-                   { name: 'antibody', type: 'string' }
+                   { name: 'id', type: 'int', persist: true  },
+                   { name: 'download', type: 'string' }
                ]
            });

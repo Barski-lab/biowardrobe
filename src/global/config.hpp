@@ -73,6 +73,7 @@ using namespace BamTools;
 using namespace std;
 
 #ifndef Q_MOC_RUN
+#ifndef NOBOOST
  #include <boost/icl/interval.hpp>
  #include <boost/icl/closed_interval.hpp>
  #include <boost/icl/interval_map.hpp>
@@ -82,6 +83,7 @@ using namespace std;
  #include <boost/icl/concept/map_value.hpp>
  //#include <boost/shared_ptr.hpp>
 namespace bicl = boost::icl;
+#endif
 #endif
 
 #ifndef _WIN32

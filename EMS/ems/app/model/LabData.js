@@ -31,7 +31,8 @@ Ext.define( 'EMS.model.LabData', {
                    'EMS.model.Worker',
                    'EMS.model.Crosslinking',
                    'EMS.model.Fragmentation',
-                   'EMS.model.Antibodies'
+                   'EMS.model.Antibodies',
+                   'EMS.model.Download'
                ],
 
                fields: [
@@ -51,7 +52,6 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'notes', type: 'string' },
                    { name: 'protocol', type: 'string' },
                    { name: 'filename', type: 'string', persist: false  },
-                   { name: 'libcode', type: 'string' },
                    { name: 'url', type: 'string' },
                    { name: 'name4browser', type: 'string' },
                    { name: 'browsergrp', type: 'string' },
@@ -64,7 +64,9 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'crosslink_id', type: 'int' },
                    { name: 'fragmentation_id', type: 'int' },
                    { name: 'worker_id', type: 'int' },
-                   { name: 'antibody_id', type: 'int' },
+                   { name: 'antibody_id', type: 'string' },
+                   { name: 'antibodycode', type: 'string' },
+                   { name: 'download_id', type: 'int' },
                    { name: 'experimenttype_id', type: 'int' },
                    { name: 'tagspercent', mapping: null, type: 'double', persist: false,
                        convert: function(value, record) {

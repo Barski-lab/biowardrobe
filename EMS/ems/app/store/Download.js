@@ -19,12 +19,12 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.store.Antibodies', {
+Ext.define('EMS.store.Download', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Antibodies'],
-    storeId: 'Antibodies',
-    model: 'EMS.model.Antibodies',
+    requires: ['EMS.model.Download'],
+    storeId: 'Download',
+    model: 'EMS.model.Download',
     autoLoad: false,
     singleton: true,
     remoteSort: true,
@@ -33,12 +33,6 @@ Ext.define('EMS.store.Antibodies', {
             Timer.set();
         }
     },
-    sorters: [
-        {
-            property: 'antibody',
-            direction: 'ASC'
-        }
-    ],
-    proxy: STORE_DEFS.proxy('antibody', true)
+    proxy: STORE_DEFS.proxy('download', true)
 });
 

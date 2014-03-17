@@ -10,7 +10,7 @@ else
     $res->print_error('Not enough required parameters. t');
 
 $AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info", "rtype", "atype", "result",
-    "labdata", "grp_local", "project", "fhead");
+    "labdata", "grp_local", "project", "fhead", "download");
 
 if (!in_array($tablename, $AllowedTable)) {
     $res->print_error('Table not in the list');

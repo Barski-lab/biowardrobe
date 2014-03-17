@@ -272,16 +272,16 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                         valueField: 'id',
                                                         triggerAction: 'all',
                                                         queryMode: 'local',
-                                                        flex: 2
+                                                        flex: 1
                                                     },
                                                     {
-                                                        xtype: 'button',
-                                                        text: '',
-                                                        //id: 'browser-grp-edit',
-                                                        submitValue: false,
-                                                        disabled: true,
-                                                        iconCls: 'element-edit',
-                                                        margin: '18 0 0 8'
+                                                        xtype: 'splitter'
+                                                    } ,
+                                                    {
+                                                        xtype: 'textfield',
+                                                        name: 'antibodycode',
+                                                        fieldLabel: 'Manufacture code',
+                                                        flex: 1
                                                     }
                                                 ]
                                             }
@@ -309,9 +309,9 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                 xtype: 'textfield',
                                                 name: 'name4browser',
                                                 fieldLabel: 'Name for browser',
-                                                afterLabelTextTpl: required,
+                                                //afterLabelTextTpl: required,
                                                 flex: 2,
-                                                allowBlank: false
+                                                //allowBlank: false
                                             } ,
                                             {
                                                 xtype: 'splitter'
@@ -333,8 +333,8 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                         triggerAction: 'all',
                                                         queryMode: 'local',
                                                         flex: 4,
-                                                        afterLabelTextTpl: required,
-                                                        allowBlank: false
+                                                        //afterLabelTextTpl: required,
+                                                        //allowBlank: false
                                                     } ,
                                                     {
                                                         xtype: 'button',
@@ -376,25 +376,30 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                         items: [
                                             {
                                                 xtype: 'textfield',
-                                                name: 'libcode',
-                                                fieldLabel: 'Template for file from Core',
-                                                flex: 3,
+                                                name: 'url',
+                                                fieldLabel: 'Download template',
+                                                flex: 4,
                                                 allowBlank: true
                                             } ,
                                             {
                                                 xtype: 'splitter'
                                             } ,
                                             {
-                                                xtype: 'textfield',
-                                                name: 'url',
-                                                fieldLabel: 'Direct link to the file',
-                                                flex: 3,
-                                                allowBlank: true
+                                                xtype: 'combobox',
+                                                name: 'download_id',
+                                                displayField: 'download',
+                                                fieldLabel: 'Download type',
+                                                store: EMS.store.Download,
+                                                editable: false,
+                                                valueField: 'id',
+                                                triggerAction: 'all',
+                                                queryMode: 'local',
+                                                flex: 1
                                             }
                                         ]
                                     }
                                 ]
-                            }
+                            }//download
                         ]
                     } ,
                     {

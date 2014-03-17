@@ -34,7 +34,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEdit', {
 
                plain: true,
                height: 700,
-               width: 800,
+               width: 900,
                border: false,
 
                initComponent: function() {

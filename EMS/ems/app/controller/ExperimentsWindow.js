@@ -28,11 +28,13 @@ Ext.require([
 Ext.define('EMS.controller.ExperimentsWindow', {
     extend: 'Ext.app.Controller',
 
-    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution'],
-    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence', 'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution'],
+    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
+             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution', 'Download'],
+    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
+             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution', 'Download'],
     views: ['EMS.view.ExperimentsWindow.Main', 'EMS.view.ExperimentsWindow.Grid', 'EMS.view.LabDataEdit.LabDataEditForm',
             'EMS.view.LabDataEdit.LabDataEdit', 'EMS.view.charts.Fence', 'EMS.view.LabDataEdit.LabDataDescription',
-            'EMS.view.GenomeGroup.GenomeGroup', 'EMS.view.GenomeGroup.List', 'EMS.view.charts.ATP','EMS.view.charts.IslandsDistribution'],
+            'EMS.view.GenomeGroup.GenomeGroup', 'EMS.view.GenomeGroup.List', 'EMS.view.charts.ATP', 'EMS.view.charts.IslandsDistribution'],
 
     refresh: false,
 
@@ -128,32 +130,32 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     //
     //-----------------------------------------------------------------------
     setDisableUDownloadType: function (sender, before) {
-        if (sender.value.length > 0) {
-            Ext.ComponentQuery.query('textfield[name=url]')[0].disable();
-            Ext.ComponentQuery.query('textfield[name=url]')[0].setValue("");
-            Ext.ComponentQuery.query('textfield[name=url]')[0].setReadOnly();
-        } else {
-            Ext.ComponentQuery.query('textfield[name=url]')[0].enable();
-        }
+        //        if (sender.value.length > 0) {
+        //            Ext.ComponentQuery.query('textfield[name=url]')[0].disable();
+        //            Ext.ComponentQuery.query('textfield[name=url]')[0].setValue("");
+        //            Ext.ComponentQuery.query('textfield[name=url]')[0].setReadOnly();
+        //        } else {
+        //            Ext.ComponentQuery.query('textfield[name=url]')[0].enable();
+        //        }
     },
     setDisableLDownloadType: function (sender, before) {
-        if (sender.value.length > 0) {
-            Ext.ComponentQuery.query('textfield[name=libcode]')[0].disable();
-            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setValue("");
-            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setReadOnly();
-        } else {
-            Ext.ComponentQuery.query('textfield[name=libcode]')[0].enable();
-        }
+        //        if (sender.value.length > 0) {
+        //            Ext.ComponentQuery.query('textfield[name=libcode]')[0].disable();
+        //            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setValue("");
+        //            Ext.ComponentQuery.query('textfield[name=libcode]')[0].setReadOnly();
+        //        } else {
+        //            Ext.ComponentQuery.query('textfield[name=libcode]')[0].enable();
+        //        }
     },
-//    setDisabledDownloadType: function (obj) {
-//        var form = obj.down('form').getForm();
-//        if (form.findField('libcode').value.length > 0) {
-//            form.findField('url').disable();
-//        } else
-//        if (form.findField('url').value.length > 0) {
-//            form.findField('libcode').disable();
-//        }
-//    },
+    //    setDisabledDownloadType: function (obj) {
+    //        var form = obj.down('form').getForm();
+    //        if (form.findField('libcode').value.length > 0) {
+    //            form.findField('url').disable();
+    //        } else
+    //        if (form.findField('url').value.length > 0) {
+    //            form.findField('libcode').disable();
+    //        }
+    //    },
     //-----------------------------------------------------------------------
     // Disabling/enabling antibody and fragmentation comboboxes
     //
@@ -161,7 +163,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     setDisabledByStatus: function (obj, sts) {
         var form = obj.down('form').getForm();
         if (sts >= 1) {
-            form.findField('libcode').setReadOnly(true);
+            //form.findField('libcode').setReadOnly(true);
             form.findField('url').setReadOnly(true);
         }
         if (sts >= 11) {
@@ -259,7 +261,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             if (!isRNA) {
                 gtbl = tblname + '_grp';
             }
-            this.LabDataEdit.targetFrame.src = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
+            this.LabDataEdit.targetFrame.src = GENOME_BROWSER_IP + '/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + gtbl + '=full';
 
             if (record.data['tagsribo'] > 0) {
                 this.addPieChart(record, 'exp-chart', isRNA);
@@ -271,7 +273,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             var anti = this.getAntibodiesStore().findRecord('id', record.data.antibody_id, 0, false, false, true).data.antibody;
             if (record.data.antibody_id === 1) anti = "";
             this.addATPChart(maintabpanel, tblname, record.data.name4browser + " " + anti);
-            this.addIslandsDistributionChart(maintabpanel,record.raw['id']);
+            this.addIslandsDistributionChart(maintabpanel, record.raw['id']);
         }//>11 and not RNA
 
         if (sts > 20 && isRNA) {
@@ -302,6 +304,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     onPanelRendered: function () {
         this.getLabDataStore().getProxy().setExtraParam('workerid', Ext.getCmp('labdata-grid-user-filter').getValue());
         Ext.getCmp('ExperimentsWindowGrid').m_PagingToolbar.moveFirst()
+        this.getDownloadStore().load();
     },
 
     //-----------------------------------------------------------------------
@@ -312,41 +315,45 @@ Ext.define('EMS.controller.ExperimentsWindow', {
         var edit = Ext.create('EMS.view.LabDataEdit.LabDataEdit', {addnew: true, modal: true});
         var r = Ext.create('EMS.model.LabData', {
             worker_id: USER_ID,
-            fragmentsizeexp:150,
+            fragmentsizeexp: 150,
             browsershare: false,
             genome_id: 1,
             crosslink_id: 1,
             fragmentation_id: 1,
-            antibody_id: 1,
+            antibody_id: 'antibody-0000-0000-0000-000000000001',
+            download_id: 1,
             spikeins_id: 1,
             experimenttype_id: 1,
             libstatustxt: 'new',
             dateadd: new Date()
         });
         edit.labDataForm.loadRecord(r);
-        var panel = Ext.getCmp('labdataedit-main-tab-panel');
-        for (var i = 1; i < panel.items.length; i++) {
-            panel.items.getAt(i).setDisabled(true);
-        }
-        panel.setActiveTab(0);
+        edit.labDataForm.on('render', function () {
+            var panel = Ext.getCmp('labdataedit-main-tab-panel');
+            for (var i = 1; i < panel.items.length; i++) {
+                panel.items.getAt(i).setDisabled(true);
+            }
+            panel.setActiveTab(0);
+
+            Ext.getCmp('big-bu-bum').on('render', function (form) {
+                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
+                    name: 'protocol',
+                    hideLabel: true
+                });
+                form.add(protocolHTML);
+            }, this, {single: true});
+
+            Ext.getCmp('big-bu-bum2').on('render', function (form) {
+                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
+                    name: 'notes',
+                    hideLabel: true
+                });
+                form.add(protocolHTML);
+            }, this, {single: true});
+        }, this, {single: true});
         edit.show();
         edit.down('form').getForm().findField('cells').focus(false, 100);
 
-        Ext.getCmp('big-bu-bum').on('render', function (form) {
-            var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-                name: 'protocol',
-                hideLabel: true
-            });
-            form.add(protocolHTML);
-        }, this, {single: true});
-
-        Ext.getCmp('big-bu-bum2').on('render', function (form) {
-            var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-                name: 'notes',
-                hideLabel: true
-            });
-            form.add(protocolHTML);
-        }, this, {single: true});
     },
 
     /***********************************************************************
@@ -383,7 +390,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
         var win = button.up('window');
         var form = win.down('form');
         form.down("textfield[name=url]").enable();
-        form.down("textfield[name=libcode]").enable();
+        //form.down("textfield[name=libcode]").enable();
         var record = form.getRecord();
         var values = form.getValues();
         var check = form.down("checkboxfield[name=browsershare]");
@@ -392,7 +399,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
         var form = form.getForm();
 
 
-        if (this.getGenomeGroupStore().findRecord('name', values['browsergrp'], 0, false, false, true) === null) {
+        if (values['browsergrp'].length>0 && this.getGenomeGroupStore().findRecord('name', values['browsergrp'], 0, false, false, true) === null) {
             Ext.Msg.show({
                              title: 'Save failed',
                              msg: 'Field "Browser group name" should be saved separately<br> press button at the right to edit',
@@ -417,7 +424,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             }
         } else {
             if (form.isDirty() && form.isValid()) {
-                Ext.apply(values, {browsershare: check.getValue(),forcerun: forcerun.getValue(),fragmentsizeforceuse: fragmentsizeforceuse.getValue()});
+                Ext.apply(values, {browsershare: check.getValue(), forcerun: forcerun.getValue(), fragmentsizeforceuse: fragmentsizeforceuse.getValue()});
                 record.set(values);
                 this.refresh = true;
             } else if (!form.isValid()) {
@@ -469,7 +476,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             tblname = tblname + '_grp';
         }
         maintabpanel.setActiveTab(2);
-        var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
+        var url = GENOME_BROWSER_IP + '/cgi-bin/hgTracks?db=' + db + '&pix=1050&refGene=full&' + tblname + '=full';
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
         this.LabDataEdit.targetFrame.load(url);
     },

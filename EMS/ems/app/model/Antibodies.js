@@ -23,7 +23,7 @@ Ext.define( 'EMS.model.Antibodies', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'id', type: 'int', persist: true  },
+                   { name: 'id', type: 'string', persist: true  },
                    { name: 'antibody', type: 'string' }
                ]
            });

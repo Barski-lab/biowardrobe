@@ -58,7 +58,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        text:'Catalogues',
                        tooltip:'',
                        menu: [
-                           { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green' },
+                           { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies',iconCls: 'battery-green',id: "MenuAntibodies" },
                            { text: 'Crosslink type', action: 'CrossType', tooltip: 'List of crosslink types',iconCls: 'atom' },
                            { text: 'Experiment type', action: 'ExpType', tooltip: 'List of experiment types',iconCls: 'bottle-pills' },
                            { text: 'Fragmentation type', action: 'FragmentType', tooltip: 'List of fragmentation types',iconCls: 'army-knife' },

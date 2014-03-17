@@ -70,7 +70,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataDescription', {
                                                        },
                                                        filename: function(str,rnadna,worker) {
                                                            var basename=str.split(';')[0];
-                                                           return '<a href="https://10.1.97.82/FASTQ-DATA/'+worker+'/'+rnadna+'/'+basename+'.bam">'+basename+".bam</a>";
+                                                           return '<a href="/FASTQ-DATA/'+worker+'/'+rnadna+'/'+basename+'.bam">'+basename+".bam</a>";
                                                        },
                                                        numformat: function(num) {
                                                            var c=1;
