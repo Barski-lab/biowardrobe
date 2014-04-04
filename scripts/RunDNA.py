@@ -98,8 +98,9 @@ except Exception, e:
     Error_str=str(e)
     d.error_msg("Error database connection"+Error_str)
 
-
-cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'DNA%')")
+#FIXME genomebrowser info
+cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'DNA%') " 
+" and COALESCE(browsergrp,'') <> '' and COALESCE(name4browser,'') <> '' ")
 
 
 
@@ -136,7 +137,12 @@ while True:
 	
     cursor.execute("update labdata set libstatustxt='processing',libstatus=11 where id=%s",LID)
     conn.commit()
-
+    
+    if len(NAME) < 1:
+	cursor.execute("update labdata set libstatustxt='processing',libstatus=1010 where id=%s",LID)
+	conn.commit()
+	continue
+	
     basedir=BASE_DIR+'/'+row[6].upper()+SUBDIR
     os.chdir(basedir)
     

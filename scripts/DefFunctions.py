@@ -251,15 +251,19 @@ def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
 	G='mm'
 
     ADPAR=""
+
     if fragforce:
 	ADPAR=ADPAR+" --nomodel "
+    else:
+	ADPAR=ADPAR+" --bw "+str(fragsize)
     if broad:
     	ADPAR=ADPAR+" --broad "
     else:
 	ADPAR=ADPAR+" --call-summits "
 
-    
-    PAR='macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(shiftsize)+' -q 0.2 '+ADPAR+' >./'+FN+'_macs.log 2>&1'
+    #FIXME    
+    PAR='/usr/local/MACS2L/bin/macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(shiftsize)+' -q 0.01 --nolambda '+ADPAR+' >./'+FN+'_macs.log 2>&1'
+
     RET=''
     #print PAR
     try:

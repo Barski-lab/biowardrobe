@@ -51,7 +51,11 @@ def error_msg(msg):
 
 
 def file_exist(basedir,libcode):
-    LIST=glob.glob(basedir+'/*'+libcode+'*.fastq')
+    LIST=glob.glob(basedir+'/'+libcode)
+    if len(LIST) == 0:
+	LIST=glob.glob(basedir+'/*'+libcode+'*.fastq')
+    if len(LIST) == 0:
+	LIST=glob.glob(basedir+'/*'+libcode+'*.fastq.bz2')
     return LIST
 
 
@@ -70,9 +74,9 @@ def make_fname(fname):
 
 def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
     #
+    libcode=libcode.strip()
     flist=list()
     fl=file_exist(basedir,libcode)
-    libcode=libcode.strip()
 
     if len(fl) > 0 and len(fl)!=2 and pair: 
 	error[1]='incorrect number of files for pair end reads'
@@ -90,7 +94,6 @@ def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
 
     if len(flist)>0:
 	return flist
-
 
     session = requests.session()
     session.get(main_page)
@@ -342,17 +345,16 @@ conn.commit()
 
 while True:
     row=[]
-    cursor.execute ("select dnalogin,dnapass,a.libcode,worker,a.id, etype e,w.email,w.notify,a.url from labdata a, worker w,experimenttype e "
+    cursor.execute ("select dnalogin,dnapass,a.url,worker,a.id, etype e,w.email,w.notify,a.download_id from labdata a, worker w,experimenttype e "
 	" where a.worker_id =w.id and e.id=experimenttype_id "
-	" and (( dnalogin is not null and dnalogin <> '' and dnapass is not null and dnapass <> '' and a.libcode <> '') or (url is not null and url <> '' )) and libstatus in (0) limit 1")
+	" and (( dnalogin is not null and dnalogin <> '' and dnapass is not null and dnapass <> '' and a.download_id = 1) or a.download_id > 1 ) and url is not null and url <> '' and libstatus in (0) limit 1")
     row = cursor.fetchone()
-
     if not row:
 	break
     
     notify=(int(row[7])==1)
-    url=row[8]
-    libcode=row[2]
+    url=row[2]
+    downloadid=int(row[8])
     email=row[6]
     
     PAIR=('pair' in row[5])
@@ -368,16 +370,16 @@ while True:
 	pass
     #print row[0]
     a=list()
-    if len(libcode)>0 and len(url) == 0:
+    if downloadid == 1:
 	cursor.execute("update labdata set libstatustxt='downloading',libstatus=1 where id=%s",row[4])
 	conn.commit()
-	a=get_file_core(row[0],row[1],row[2],basedir,PAIR)
-    if len(libcode)==0 and len(url) > 0:
+	a=get_file_core(row[0],row[1],url,basedir,PAIR)
+    if downloadid == 2:
 	cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where id=%s",("URL downloading in proccess",row[4]))
 	conn.commit()
 	a=get_file(url,basedir,PAIR)
-    if len(libcode)>0 and len(url) > 0:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("Libcode and url are set together!",row[4]))
+    if downloadid == 3:
+	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("Not supproted yet!",row[4]))
 	conn.commit()
 	continue		
 
