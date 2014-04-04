@@ -38,22 +38,22 @@ function update_data($val)
         switch ($tablename) {
             case "labdata":
 
-                if (strrpos($f, "libcode") !== false && strlen($d) != 0 && !$libcode) {
-                    $libcode = true;
-                    $SQL_STR = $SQL_STR . " url=?,";
-                    $PARAMS[] = "";
-                    $PARAMS[0] = $PARAMS[0] . "s";
-                }
+//                if (strrpos($f, "libcode") !== false && strlen($d) != 0 && !$libcode) {
+//                    $libcode = true;
+//                    $SQL_STR = $SQL_STR . " url=?,";
+//                    $PARAMS[] = "";
+//                    $PARAMS[0] = $PARAMS[0] . "s";
+//                }
 
-                if (strrpos($f, "url") !== false && strlen($d) != 0 && $libcode) {
-                    continue;
-                }
-                if (strrpos($f, "url") !== false && strlen($d) != 0 && !$libcode) {
-                    $libcode = true;
-                    $SQL_STR = $SQL_STR . " libcode=?,";
-                    $PARAMS[] = "";
-                    $PARAMS[0] = $PARAMS[0] . "s";
-                }
+//                if (strrpos($f, "url") !== false && strlen($d) != 0 && $libcode) {
+//                    continue;
+//                }
+//                if (strrpos($f, "url") !== false && strlen($d) != 0) {
+//                    $libcode = true;
+//                    $SQL_STR = $SQL_STR . " libcode=?,";
+//                    $PARAMS[] = "";
+//                    $PARAMS[0] = $PARAMS[0] . "s";
+//                }
                 break;
         }
 

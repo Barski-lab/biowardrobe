@@ -280,7 +280,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                     {
                                                         xtype: 'textfield',
                                                         name: 'antibodycode',
-                                                        fieldLabel: 'Manufacture code',
+                                                        fieldLabel: 'Article #',
                                                         flex: 1
                                                     }
                                                 ]

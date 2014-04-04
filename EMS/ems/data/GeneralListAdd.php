@@ -5,9 +5,9 @@ require_once('def_vars.php');
 require_once('database_connection.php');
 
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
-//logmsg(print_r($data,true));
+logmsg(__FILE__);
+logmsg(print_r($_REQUEST,true));
+logmsg(print_r($data,true));
 
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -19,8 +19,8 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("no data");
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info", "rtype", "atype", "result",
-    "labdata", "grp_local", "project");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info",
+    "labdata", "grp_local",);
 
 $IDFIELD = "id";
 $IDFIELDTYPE = "i";
@@ -97,7 +97,11 @@ function insert_data($val)
         $SQL_STR = $SQL_STR . " $f,";
         $VARIABLES = $VARIABLES . "?,";
 
-        if ($types[$f] == "dd") {
+        if ($f == "id" && $types[$f] == "s" && strlen($d)!=36) {
+            $PARAMS[] = guid();
+            $PARAMS[0] = $PARAMS[0] . $types[$f];
+        }
+        elseif ($types[$f] == "dd") {
             $date = DateTime::createFromFormat('m/d/Y', $d);
             $PARAMS[] = $date->format('Y-m-d');
             $PARAMS[0] = $PARAMS[0] . "s";
@@ -110,7 +114,8 @@ function insert_data($val)
     $SQL_STR = substr_replace($SQL_STR, "", -1);
     $VARIABLES = substr_replace($VARIABLES, "", -1);
 
-    $SQL_STR = "insert into `$tablename`($SQL_STR) VALUES($VARIABLES)";
+    $SQL_STR = "insert into `$tablename` ($SQL_STR) VALUES($VARIABLES)";
+
     execSQL($con, $SQL_STR, $PARAMS, true);
 }
 
