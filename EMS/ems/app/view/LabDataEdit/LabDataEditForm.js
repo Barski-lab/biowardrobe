@@ -42,13 +42,13 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                 xtype: 'combobox',
                 name: 'worker_id',
                 displayField: 'fullname',
-                fieldLabel: 'Belongs to',
+                fieldLabel: 'Author',
                 store: EMS.store.Worker,
                 editable: false,
                 valueField: 'id',
                 region: 'north',
                 margin: '5 5 5 5',
-                readOnly: !Rights.check(USER_ID, 'ExperimentsWindow'),
+                readOnly: true,
                 readOnlyCls: ''
             } ,
             {
@@ -280,7 +280,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                     {
                                                         xtype: 'textfield',
                                                         name: 'antibodycode',
-                                                        fieldLabel: 'Article #',
+                                                        fieldLabel: 'Catalouge #',
                                                         flex: 1
                                                     }
                                                 ]
@@ -292,7 +292,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                             } ,
                             {
                                 xtype: 'fieldset',
-                                title: 'Genome browser',
+                                title: 'Experiment arrangement',
                                 margin: '5 5 5 5',
                                 collapsible: true,
                                 items: [
@@ -308,10 +308,11 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'name4browser',
-                                                fieldLabel: 'Name for browser',
-                                                //afterLabelTextTpl: required,
+                                                fieldLabel: 'Experiment short name',
+                                                emptyText: 'Experiment short name/UCSC genome browser track name',
+                                                afterLabelTextTpl: required,
                                                 flex: 2,
-                                                //allowBlank: false
+                                                allowBlank: false
                                             } ,
                                             {
                                                 xtype: 'splitter'
@@ -332,7 +333,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                                         valueField: 'name',
                                                         triggerAction: 'all',
                                                         queryMode: 'local',
-                                                        flex: 4,
+                                                        flex: 4
                                                         //afterLabelTextTpl: required,
                                                         //allowBlank: false
                                                     } ,
@@ -365,7 +366,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                             } ,
                             {
                                 xtype: 'fieldset',
-                                title: 'Downloading',
+                                title: 'Experiment data downloading',
                                 margin: '5 5 5 5',
                                 collapsible: true,
                                 items: [
@@ -377,7 +378,7 @@ Ext.define('EMS.view.LabDataEdit.LabDataEditForm', {
                                             {
                                                 xtype: 'textfield',
                                                 name: 'url',
-                                                fieldLabel: 'Download template',
+                                                fieldLabel: 'Download URL',
                                                 flex: 4,
                                                 allowBlank: true
                                             } ,

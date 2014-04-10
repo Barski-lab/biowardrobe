@@ -177,12 +177,17 @@ var LocalStorage = (function () {
 /******************************************************************
  ******************************************************************/
 
+//http://stackoverflow.com/questions/15834689/extjs-4-2-tooltips-not-wide-enough-to-see-contents
+delete Ext.tip.Tip.prototype.minWidth;
+
 Ext.application({
     name: 'EMS',
 
     appFolder: 'app',
     controllers: [
-        'EMS.controller.ExperimentTypeEdit', 'EMS.controller.ExperimentsWindow', 'EMS.controller.WorkersEdit', 'EMS.controller.GenomeEdit', 'EMS.controller.AntibodiesEdit', 'EMS.controller.CrosslinkEdit', 'EMS.controller.FragmentationEdit', 'EMS.controller.Spikeins', 'EMS.controller.SequenceCutter', 'EMS.controller.Patients', 'EMS.controller.Project', 'EMS.controller.Project2', 'EMS.controller.Info',
+        'EMS.controller.ExperimentTypeEdit', 'EMS.controller.ExperimentsWindow', 'EMS.controller.WorkersEdit', 'EMS.controller.GenomeEdit',
+        'EMS.controller.AntibodiesEdit', 'EMS.controller.CrosslinkEdit', 'EMS.controller.FragmentationEdit', 'EMS.controller.Spikeins',
+        'EMS.controller.SequenceCutter', 'EMS.controller.Project2', 'EMS.controller.Info',
         'EMS.controller.EMSMenu'
     ],
 
@@ -203,7 +208,7 @@ Ext.application({
             items: [
                 {
                     region: 'north',
-                    title: '<div style="float: left; text-align: left;">Allergy department experiments management software</div><div style="float: right; text-align: right;">Wellcome: ' + USER_NAME + "<a href=login.php>&nbsp;logout</a></div>",
+                    title: '<div style="float: left; text-align: left;">WARDROBE: experiments management software</div><div style="float: right; text-align: right;">Wellcome: ' + USER_NAME + "<a href=login.php>&nbsp;logout</a></div>",
                     autoHeight: true
                 } ,
                 {

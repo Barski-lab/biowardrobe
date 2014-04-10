@@ -332,6 +332,13 @@
     height: 16px;
 }
 
+.chart-column {
+    background-image: url(images/chart_column.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+
 .check {
     background-image: url(images/check.png) !important;
     width: 16px;
@@ -654,4 +661,10 @@
     background-image: url(images/documents_preferences_s.png) !important;
     width: 16px;
     height: 16px;
+}
+
+.svg-logo {
+    background-image: url(images/svg_logo.png) !important;
+    max-width: 16px;
+    max-height: 16px;
 }

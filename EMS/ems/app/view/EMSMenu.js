@@ -31,7 +31,7 @@ Ext.define( 'EMS.view.EMSMenu' ,{
                        tooltip:'Laboratory data edit',
                        menu: [
                            { text: 'Laboratory data', action: 'LabData', tooltip: 'List of experiments',iconCls: 'form-blue-edit' },
-                           { text: 'Project designer OLD', action: 'ProjectDesigner', tooltip: 'Project designer',iconCls: '', id: 'MenuProject' },
+                           //{ text: 'Project designer OLD', action: 'ProjectDesigner', tooltip: 'Project designer',iconCls: '', id: 'MenuProject' },
                            { text: 'Project designer', action: 'ProjectDesigner2', tooltip: 'Project designer',iconCls: '' },
                            '-',
                            { text: 'Settings', action: 'Worker', tooltip: 'User settings',iconCls: 'user-preferences', id: "MenuWorker" },

@@ -6,7 +6,6 @@ require_once('database_connection.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST, true));
-//logmsg(print_r($data,true));
 
 //*****************************************************************
 function update_data($val)
@@ -27,6 +26,7 @@ function update_data($val)
             continue;
         }
 
+//Incorrect Rights Checking
         if ($f == "worker_id" && intVal($d) != $_SESSION["user_id"] && !check_rights())
             $res->print_error("Insufficient credentials");
 
@@ -38,22 +38,6 @@ function update_data($val)
         switch ($tablename) {
             case "labdata":
 
-//                if (strrpos($f, "libcode") !== false && strlen($d) != 0 && !$libcode) {
-//                    $libcode = true;
-//                    $SQL_STR = $SQL_STR . " url=?,";
-//                    $PARAMS[] = "";
-//                    $PARAMS[0] = $PARAMS[0] . "s";
-//                }
-
-//                if (strrpos($f, "url") !== false && strlen($d) != 0 && $libcode) {
-//                    continue;
-//                }
-//                if (strrpos($f, "url") !== false && strlen($d) != 0) {
-//                    $libcode = true;
-//                    $SQL_STR = $SQL_STR . " libcode=?,";
-//                    $PARAMS[] = "";
-//                    $PARAMS[0] = $PARAMS[0] . "s";
-//                }
                 break;
         }
 
@@ -67,12 +51,6 @@ function update_data($val)
             $PARAMS[] = $d;
             $PARAMS[0] = $PARAMS[0] . $types[$f];
         }
-    }
-
-    if (!$libcode && strrpos($tablename, "labdata") !== false) {
-        $SQL_STR = $SQL_STR . " url=?,";
-        $PARAMS[] = "";
-        $PARAMS[0] = $PARAMS[0] . "s";
     }
 
     $PARAMS[] = $id;

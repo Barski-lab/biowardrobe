@@ -21,8 +21,6 @@
  ****************************************************************************/
 
 Ext.require('Ext.chart.*');
-//Ext.require(['Ext.Window', 'Ext.fx.target.Sprite', 'Ext.layout.container.Fit', 'Ext.window.MessageBox']);
-
 
 Ext.define('EMS.view.charts.IslandsDistribution',
            {
@@ -31,7 +29,7 @@ Ext.define('EMS.view.charts.IslandsDistribution',
 
                border: 0,
 
-               animate: true,
+               animate: false,
                shadow: true,
 
                initComponent: function () {
@@ -49,8 +47,8 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                                fill: 'green',
                                width: 100,
                                height: 20,
-                               x: 10, //the sprite x position
-                               y: 20  //the sprite y position
+                               x: 40,
+                               y: 20
                            },
                            {
                                type: 'text',
@@ -59,8 +57,8 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                                fill: 'blue',
                                width: 100,
                                height: 20,
-                               x: 10, //the sprite x position
-                               y: 39  //the sprite y position
+                               x: 40,
+                               y: 39
                            }
                        ], series: [
                            {
@@ -74,26 +72,23 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                                    top: 200,
                                    bottom: 100
                                },
-                               tips: {
-                                   trackMouse: true,
-                                   width: 100,
-                                   height: 40,
-                                   renderer: function (storeItem, item) {
-                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
-                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
-                                   }
-                               },
+//                               tips: {
+//                                   trackMouse: true,
+//                                   width: 100,
+//                                   height: 40,
+//                                   renderer: function (storeItem, item) {
+//                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
+//                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
+//                                   }
+//                               },
                                label: {
                                    display: 'insideEnd',
                                    field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                                   //renderer: Ext.util.Format.numberRenderer('0'),
-                                   //orientation: 'horizontal',
                                    renderer: function (val, item, storeItem) {
                                        var percent = ((val / storeItem.data.Total) * 100);
                                        return String(val) + ', ' + String(percent.toFixed(2)) + '%';
                                    },
-                                   color: '#333'
-                                   //'text-anchor': 'middle'
+                                   contrast: true
                                }
                            }
                        ],
@@ -108,8 +103,16 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                            {
                                type: 'Category',
                                position: 'left',
-                               fields: ['name']
-                               //title: 'Genome regions',
+                               fields: ['name'],
+                               //padding: "10 10 10 10",
+                               label: {
+                                   display: 'outside',
+                                   'text-anchor': 'middle',
+                                   rotate: {
+                                       degrees: 270
+                                   },
+                                   font: 'bold 12px Helvetica'
+                               }
                            }
                        ]
                    });

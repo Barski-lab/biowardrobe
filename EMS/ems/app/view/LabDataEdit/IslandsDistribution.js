@@ -22,39 +22,44 @@
 
 Ext.define('EMS.view.LabDataEdit.IslandsDistribution', {
                extend: 'Ext.Panel',
-               bodyPadding: 5,
+               bodyPadding: 0,
                border: false,
                frame: false,
                layout: 'border',
                plain: true,
                title: 'Islands Distribution',
-               iconCls: '',
+               iconCls: 'chart-column',
 
                initComponent: function() {
                    var me=this;
                    me.chart= Ext.create('EMS.view.charts.IslandsDistribution');
-                   me.tbar= [{
-                              text: 'Save Chart',
-                              handler: function() {
-                                  Ext.MessageBox.confirm('Confirm Download', 'Would you like to download the chart as an image?', function(choice){
-                                      if(choice == 'yes'){
-                                          chart.save({
-                                                         type: 'image/png'
-                                                     });
-                                      }
-                                  });
-                              }
-                          }],
-                   me.items= [{
-                                  xtype: 'panel',
-                                  frame: false,
-                                  border: true,
-                                  region: 'center',
-                                  collapsible: false,
-                                  title: 'Islands Distribution',
-                                  layout: 'fit',
-                                  items: [ me.chart ]
-                              }];
+                   me.tbar = [
+                       {
+                           xtype: 'fieldcontainer',
+                           layout: 'hbox',
+                           items: [
+                               {
+
+                                   xtype: 'button',
+                                   text: 'Save Chart',
+                                   iconCls: 'svg-logo',
+                                   handler: function () {
+                                       Ext.create('Ext.form.Panel', {
+                                           standardSubmit: true,
+                                           url: 'data/svg.php',
+                                           hidden: true,
+                                           items: [
+                                               {xtype: 'hiddenfield', name: 'id', value: me.id},
+                                               {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
+                                               {xtype: 'hiddenfield', name: 'svg', value: me.chart.save({type: 'image/svg+xml'})}
+                                           ]
+                                       }).getForm().submit();
+                                   }
+                               }
+                           ]
+                       }
+                   ];
+                   me.items=me.chart;
                    me.callParent(arguments);
                }
            });

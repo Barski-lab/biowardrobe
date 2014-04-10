@@ -79,14 +79,14 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                         type: 'string'
                     }
                 },
-                {   header: "Condition", sortable: true, width: 380, dataIndex: 'conditions',
+                {   header: "Condition", sortable: true, width: 300, dataIndex: 'conditions',
                     filterable: true,
                     filter: {
                         type: 'string'
                     }
                 },
-                {   header: "Name for browser", sortable: true, width: 160, dataIndex: 'name4browser',filterable: true},
-                {   header: "File template", sortable: true, width: 60, dataIndex: 'url', hidden: true,},
+                {   header: "Short name", sortable: true, width: 160, dataIndex: 'name4browser',filterable: true},
+                {   header: "URL", sortable: true, width: 60, dataIndex: 'url', hidden: true,},
                 {   header: "Mapped", sortable: false, width: 50, dataIndex: 'tagspercent',align: 'right'},
                 {   header: "Islands count", sortable: true, width: 90, dataIndex: 'islandcount',align: 'right'},
                 {
@@ -149,9 +149,9 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                         {
                             getClass: function (v, meta, rec) {
                                 this.items[0].tooltip = 'Duplicate record';
-                                if (parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
+                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
                                     this.items[0].handler = function (grid, rowIndex, colIndex) {
-                                        var data = EMS.store.LabData.getAt(rowIndex).raw;
+                                        var data = EMS.store.LabData.getAt(rowIndex).data;
 
                                         var r = Ext.create('EMS.model.LabData', {
                                             worker_id: USER_ID,
@@ -188,7 +188,7 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                         {
                             getClass: function (v, meta, rec) {
                                 this.items[2].tooltip = 'Delete record';
-                                if (parseInt(rec.raw['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
+                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
                                     this.items[2].handler = function (grid, rowIndex, colIndex) {
                                         var sts = EMS.store.LabData.getAt(rowIndex).raw['libstatus'];
                                         sts = sts % 1000;

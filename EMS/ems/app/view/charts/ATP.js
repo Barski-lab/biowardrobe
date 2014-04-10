@@ -74,15 +74,6 @@ Ext.define('EMS.view.charts.ATP',
                                    store: EMS.store.ATPChart,
                                    shadow: false,
                                    theme: 'Category1',
-                                   //                                   items:[{
-                                   //                                           type  : 'text',
-                                   //                                           text  : me.initialConfig.BNAME,
-                                   //                                           font  : 'italic bold 14px Arial',
-                                   //                                           width : 100,
-                                   //                                           height: 30,
-                                   //                                           x : 180,
-                                   //                                           y : 23
-                                   //                                       }],
                                    axes: [{
                                            type: 'Numeric',
                                            minimum: 0,

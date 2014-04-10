@@ -40,7 +40,34 @@ Ext.define('EMS.view.Project2.ATDPChart', {
                initComponent: function() {
                    var me=this;
                    me.chart= Ext.create('EMS.view.charts.ATDP',me.initialConfig);
-                   me.items= [ me.chart ];
+                   me.tbar = [
+                       {
+                           xtype: 'fieldcontainer',
+                           layout: 'hbox',
+                           items: [
+                               {
+
+                                   xtype: 'button',
+                                   text: 'Save Chart',
+                                   iconCls: 'svg-logo',
+                                   handler: function () {
+                                       Ext.create('Ext.form.Panel', {
+                                           standardSubmit: true,
+                                           url: 'data/svg.php',
+                                           hidden: true,
+                                           items: [
+                                               {xtype: 'hiddenfield', name: 'id', value: me.initialConfig.BNAME},
+                                               {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
+                                               {xtype: 'hiddenfield', name: 'svg', value: me.chart.save({type: 'image/svg+xml'})}
+                                           ]
+                                       }).getForm().submit();
+                                   }
+                               }
+                           ]
+                       }
+                   ];
+
+                   me.items= me.chart;
                    me.callParent(arguments);
                }
            });
