@@ -42,18 +42,18 @@ Ext.define('EMS.controller.WorkersEdit', {
         var me = this;
         //                   var store=me.getWorkerStore();
         //                   store.on('load',function() {
-        if (CHPASS == 1) {
-            Ext.Msg.show({
-                title: 'Change password',
-                msg: 'Your password was not crypted please change it!',
-                icon: Ext.Msg.WARNING,
-                buttons: Ext.Msg.OK,
-                fn: function (btn, text) {
-                    //me.WorkerEditWindow=getController('WorkersEdit').edit();
-                    Ext.getCmp('EMSMenu').add(me.edit());
-                }
-            });
-        }
+//        if (CHPASS == 1) {
+//            Ext.Msg.show({
+//                title: 'Change password',
+//                msg: 'Your password was not crypted please change it!',
+//                icon: Ext.Msg.WARNING,
+//                buttons: Ext.Msg.OK,
+//                fn: function (btn, text) {
+//                    //me.WorkerEditWindow=getController('WorkersEdit').edit();
+//                    Ext.getCmp('EMSMenu').add(me.edit());
+//                }
+//            });
+//        }
         //                   },this,{ single: true });
         //                   store.load();
     },

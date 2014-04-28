@@ -19,31 +19,11 @@
 ** conditions contained in a signed written agreement between you and Andrey Kartashov.
 **
 ****************************************************************************/
+Ext.define( 'EMS.model.Antibodies', {
+               extend: 'Ext.data.Model',
 
-
-Ext.define( 'EMS.store.ATPChart', {
-               extend: 'Ext.data.Store',
-
-               requires: ['EMS.model.ATPChart'],
-               model:  'EMS.model.ATPChart',
-               storeId: 'ATPChart',
-               autoLoad: false,
-               singleton: true,
-               remoteSort: true,
-               remoteFilter: true,
-               listeners: {
-                   load: function(store,records,successful,eOpts) {
-                       Timer.set();
-                   }
-               },
-               proxy: Ext.apply(STORE_DEFS.proxy(''), {
-                                    api: {
-                                        read : 'data/ATPChart.php',
-                                        update: '',
-                                        create: '',
-                                        destroy: ''
-                                    }
-                                })
+               fields: [
+                   { name: 'id', type: 'string', persist: true  },
+                   { name: 'antibody', type: 'string' }
+               ]
            });
-
-

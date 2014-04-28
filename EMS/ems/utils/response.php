@@ -5,7 +5,7 @@
  */
 class Response
 {
-    public $success, $data, $total, $message, $R;
+    public $success, $data, $total, $message,$meta,$extra;
 
     public function __construct($params = array())
     {
