@@ -28,7 +28,7 @@ Ext.define( 'EMS.model.LabData', {
                requires : [
                    'EMS.model.ExperimentType',
                    'EMS.model.Genome',
-                   'EMS.model.Worker',
+                   'EMS.model.EGroup',
                    'EMS.model.Crosslinking',
                    'EMS.model.Fragmentation',
                    'EMS.model.Antibodies',
@@ -37,6 +37,11 @@ Ext.define( 'EMS.model.LabData', {
 
                fields: [
                    { name: 'id', type: 'int' },
+                   { name: 'uid', type: 'string' },
+                   { name: 'deleted', type: 'int' },
+                   { name: 'groupping', type: 'string' },
+                   { name: 'author', type: 'string' },
+
                    { name: 'cells', type: 'string' },
                    { name: 'conditions', type: 'string' },
                    { name: 'spikeinspool', type: 'string' },
@@ -63,11 +68,13 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'genome_id', type: 'int' },
                    { name: 'crosslink_id', type: 'int' },
                    { name: 'fragmentation_id', type: 'int' },
-                   { name: 'worker_id', type: 'int' },
+//                   { name: 'worker_id', type: 'int' },
                    { name: 'antibody_id', type: 'string' },
                    { name: 'antibodycode', type: 'string' },
                    { name: 'download_id', type: 'int' },
                    { name: 'experimenttype_id', type: 'int' },
+                   { name: 'laboratory_id', type: 'string' },
+                   { name: 'egroup_id', type: 'string' },
                    { name: 'tagspercent', mapping: null, type: 'double', persist: false,
                        convert: function(value, record) {
                            var mapped = record.get('tagsmapped');

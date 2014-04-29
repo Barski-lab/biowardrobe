@@ -33,7 +33,6 @@ Ext.define( 'EMS.store.Info', {
                remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: STORE_DEFS.proxy('info',false)

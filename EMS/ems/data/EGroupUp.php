@@ -29,12 +29,9 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("Data is not set");
 
-if ($worker->isAdmin()) {
-    $SQL_STR = "update laboratory set name=?,description=?,rlogin=?,rpass=? where id=?";
-    $PARAMS = array("sssss", $data->name, $data->description, $data->rlogin, $data->rpass, $data->id);
-} elseif ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id)) {
-    $SQL_STR = "update laboratory set description=?,rlogin=?,rpass=? where id=?";
-    $PARAMS = array("ssss", $data->description, $data->rlogin, $data->rpass, $data->id);
+if ($worker->isAdmin() || ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id))) {
+    $SQL_STR = "update egroup set name=?,description=?,priority=? where id=?";
+    $PARAMS = array("ssss", $data->name, $data->description, $data->priority, $data->id);
 } else {
     $response->print_error("Insufficient privileges");
 }

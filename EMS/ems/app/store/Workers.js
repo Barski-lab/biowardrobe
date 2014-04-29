@@ -20,17 +20,20 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.store.Worker', {
+Ext.define('EMS.store.Workers', {
     extend: 'Ext.data.Store',
-    storeId: 'Worker',
+    storeId: 'Workers',
     autoLoad: false,
-    singleton: true,
+    //singleton: true,
     requires: ['EMS.model.Worker',
                'EMS.proxy.StandardProxy'
     ],
     model: 'EMS.model.Worker',
     proxy: {
         type: 'standardproxy',
+        extraParams: {
+            workers:  true
+        },
         api: {
             read: 'data/Worker.php',
             update: 'data/WorkerUp.php',

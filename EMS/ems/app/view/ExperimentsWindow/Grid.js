@@ -23,13 +23,13 @@ Ext.require('EMS.model.Worker');
 
 Ext.define('EMS.view.ExperimentsWindow.Grid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.ExperimentsWindowGrid',
+    alias: 'widget.experimentslist',
 
     border: false,
     columnLines: true,
     frame: false,
     remoteSort: true,
-    id: 'ExperimentsWindowGrid',
+    //id: 'ExperimentsWindowGrid',
 
     initComponent: function () {
         var me = this;
@@ -55,11 +55,11 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
             },
             columns: [
                 {   header: "Record ID", sortable: true, width: 60, dataIndex: 'id'                                     },
-                {   header: "Belongs to", sortable: true, width: 85, dataIndex: 'worker_id', hidden: true,
-                    renderer: function (value, meta, record) {
-                        var rec = EMS.store.Worker.findRecord('id', value, 0, false, false, true);
-                        return rec ? rec.data.fullname : '';
-                    }
+                {   header: "Author", sortable: true, width: 85, dataIndex: 'author', hidden: true,
+//                    renderer: function (value, meta, record) {
+//                        var rec = EMS.store.Worker.findRecord('id', value, 0, false, false, true);
+//                        return rec ? rec.data.fullname : '';
+//                    }
                 },
                 {   header: "Genome", sortable: true, width: 80, dataIndex: 'genome_id',
                     renderer: function (value, meta, record) {
@@ -147,37 +147,37 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                     menuDisabled: true,
                     items: [
                         {
-                            getClass: function (v, meta, rec) {
-                                this.items[0].tooltip = 'Duplicate record';
-                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
-                                    this.items[0].handler = function (grid, rowIndex, colIndex) {
-                                        var data = EMS.store.LabData.getAt(rowIndex).data;
-
-                                        var r = Ext.create('EMS.model.LabData', {
-                                            worker_id: USER_ID,
-                                            fragmentsizeexp: 150,
-                                            browsershare: false,
-                                            genome_id: data['genome_id'],
-                                            crosslink_id: data['crosslink_id'],
-                                            fragmentation_id: data['fragmentation_id'],
-                                            antibody_id: data['antibody_id'],
-                                            experimenttype_id: data['experimenttype_id'],
-                                            cells: data['cells'],
-                                            conditions: data['conditions'],
-                                            spikeinspool: data['spikeinspool'],
-                                            spikeins: data['spikeins'],
-                                            notes: data['notes'],
-                                            protocol: data['protocol'],
-                                            browsergrp: data['browsergrp'],
-                                            libstatus: 0,
-                                            libstatustxt: 'new',
-                                            dateadd: data['dateadd']
-                                        });
-                                        EMS.store.LabData.insert(rowIndex + 1, r);
-                                    }
-                                    return 'table-row-add';
-                                }
-                            }
+//                            getClass: function (v, meta, rec) {
+//                                this.items[0].tooltip = 'Duplicate record';
+//                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
+//                                    this.items[0].handler = function (grid, rowIndex, colIndex) {
+//                                        var data = EMS.store.LabData.getAt(rowIndex).data;
+//
+//                                        var r = Ext.create('EMS.model.LabData', {
+//                                            worker_id: USER_ID,
+//                                            fragmentsizeexp: 150,
+//                                            browsershare: false,
+//                                            genome_id: data['genome_id'],
+//                                            crosslink_id: data['crosslink_id'],
+//                                            fragmentation_id: data['fragmentation_id'],
+//                                            antibody_id: data['antibody_id'],
+//                                            experimenttype_id: data['experimenttype_id'],
+//                                            cells: data['cells'],
+//                                            conditions: data['conditions'],
+//                                            spikeinspool: data['spikeinspool'],
+//                                            spikeins: data['spikeins'],
+//                                            notes: data['notes'],
+//                                            protocol: data['protocol'],
+//                                            browsergrp: data['browsergrp'],
+//                                            libstatus: 0,
+//                                            libstatustxt: 'new',
+//                                            dateadd: data['dateadd']
+//                                        });
+//                                        EMS.store.LabData.insert(rowIndex + 1, r);
+//                                    }
+//                                    return 'table-row-add';
+//                                }
+//                            }
                         } ,
                         {
                             getClass: function (v, meta, rec) {
@@ -186,27 +186,27 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                             }
                         } ,
                         {
-                            getClass: function (v, meta, rec) {
-                                this.items[2].tooltip = 'Delete record';
-                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
-                                    this.items[2].handler = function (grid, rowIndex, colIndex) {
-                                        var sts = EMS.store.LabData.getAt(rowIndex).raw['libstatus'];
-                                        sts = sts % 1000;
-                                        if (sts > 1) {
-                                            Ext.Msg.show({
-                                                             title: 'Can\'t delete',
-                                                             msg: 'Deletion of processed data is not implemented yet.',
-                                                             icon: Ext.Msg.INFO,
-                                                             buttons: Ext.Msg.OK
-                                                         });
-                                        } else {
-                                            EMS.store.LabData.removeAt(rowIndex);
-                                        }
-
-                                    }
-                                    return 'table-row-delete';
-                                }
-                            }
+//                            getClass: function (v, meta, rec) {
+//                                this.items[2].tooltip = 'Delete record';
+//                                if (parseInt(rec.data['worker_id']) === parseInt(USER_ID) || Rights.check(USER_ID, 'ExperimentsWindow')) {
+//                                    this.items[2].handler = function (grid, rowIndex, colIndex) {
+//                                        var sts = EMS.store.LabData.getAt(rowIndex).raw['libstatus'];
+//                                        sts = sts % 1000;
+//                                        if (sts > 1) {
+//                                            Ext.Msg.show({
+//                                                             title: 'Can\'t delete',
+//                                                             msg: 'Deletion of processed data is not implemented yet.',
+//                                                             icon: Ext.Msg.INFO,
+//                                                             buttons: Ext.Msg.OK
+//                                                         });
+//                                        } else {
+//                                            EMS.store.LabData.removeAt(rowIndex);
+//                                        }
+//
+//                                    }
+//                                    return 'table-row-delete';
+//                                }
+//                            }
                         }
                     ]
                 }
@@ -247,7 +247,7 @@ Ext.define('EMS.view.ExperimentsWindow.Grid', {
                     editable: false,
                     width: 200,
                     valueField: 'id',
-                    value: USER_ID,
+//                    value: USER_ID,
                     store: EMS.store.Worker
                 } ,
                 {

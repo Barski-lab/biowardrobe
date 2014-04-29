@@ -33,7 +33,6 @@ Ext.define( 'EMS.store.SequenceCutter', {
                remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: Ext.apply(STORE_DEFS.proxy(''), {

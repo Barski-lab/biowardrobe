@@ -25,26 +25,25 @@ require_once('../settings.php');
 
 //logmsg($_REQUEST);
 
-if(!$worker->isAdmin()) {
+$data = json_decode($_REQUEST['data']);
+if (!isset($data))
+    $res->print_error("Data is not set");
+
+if ($worker->isAdmin()) {
+    $SQL_STR = "update laboratory set name=?,description=?,rlogin=?,rpass=? where id=?";
+    $PARAMS = array("sssss", $data->name, $data->description, $data->rlogin, $data->rpass, $data->id);
+} elseif ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id)) {
+    $SQL_STR = "update laboratory set description=?,rlogin=?,rpass=? where id=?";
+    $PARAMS = array("ssss", $data->description, $data->rlogin, $data->rpass, $data->id);
+} else {
     $response->print_error("Insufficient privileges");
 }
 
-$data=json_decode($_REQUEST['data']);
-if(!isset($data))
-    $res->print_error("Data is not set");
-
-$data->id=guid();
-
-$SQL_STR="INSERT INTO laboratory (id,name,description,rlogin,rpass) VALUES(?,?,?,?,?)";
-
-$PARAMS=array("sssss",$data->id,$data->name,$data->description,$data->rlogin,$data->rpass);
-
-
-if(execSQL($settings->connection,$SQL_STR,$PARAMS,true)==0)
-    $response->print_error("Cant insert");
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
+    $response->print_error("Cant update");
 
 $response->success = true;
-$response->message = "Data saved";
+$response->message = "Data updated";
 $response->total = 1;
 $response->data = $data;
 print_r($response->to_json());

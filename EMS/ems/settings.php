@@ -23,11 +23,11 @@
 
 $DATABSE_CONNECTION_FILE = "/etc/wardrobe/wardrobe";
 
-require_once('data/response.php');
-require_once('data/def_vars.php');
+require_once('utils/response.php');
+require_once('utils/def_vars.php');
 
-require_once('data/common.php');
-require_once('data/Users.php');
+require_once('utils/common.php');
+require_once('utils/Users.php');
 
 $response = new Response();
 
@@ -117,6 +117,8 @@ Class Settings
     }
 
 }
+session_start();
+require_once('utils/attempt.php');
 
 $settings = new Settings();
 
@@ -127,9 +129,9 @@ function def_connect()
     return $settings->connection;
 }
 
-if (!isset($_SESSION["authorizing"]) && $_SESSION["authorizing"] != 1) {
-    session_start();
-    require_authentication();
+if (isset($_SESSION["authorizing"]) && $_SESSION["authorizing"] != 1) {
+    $worker = new Worker();
+    $_SESSION["attempt"] = 1;
     session_write_close();
 }
 //logmsg("settings", $settings);

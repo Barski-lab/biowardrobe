@@ -19,14 +19,14 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.view.user.Users', {
+Ext.define('EMS.view.Preferences.GlobalSettings', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.usersedit',
+    alias: 'widget.globalsettings',
 
     requires: ['EMS.util.Util'],
     layout: {
-        type: 'fit',
-        //        align: 'stretch'
+        type: 'hbox',
+        align: 'stretch'
     },
     fieldDefaults: {
         labelWidth: 120,
@@ -35,11 +35,11 @@ Ext.define('EMS.view.user.Users', {
     items: [
         {
             xtype: 'fieldset',
-            title: 'User information',
+            title: 'Global Wardrobe Settings',
             padding: {top: 0, right: 1, left: 1, bottom: 0},
             margin: 0,
             collapsible: false,
-            //            flex: 1,
+            flex: 1,
             layout: {
                 type: 'hbox',
                 align: 'stretch'
@@ -50,46 +50,24 @@ Ext.define('EMS.view.user.Users', {
                     flex: 1,
                     margin: {top: 0, right: 5, left: 0, bottom: 0},
                     height: '100%',
-                    store: 'Workers',
+                    store: 'Preferences',
                     padding: 0,
                     columns: [
-                        {header: 'Users', dataIndex: 'worker', flex: 1,
-                            renderer: function (value, s, record) {
-                                return Ext.String.format('<div class="userstopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('fullname') || "Unknown");
+                        {header: 'Key', dataIndex: 'key', flex: 2,
+                            renderer: function (value, metaData, record) {
+                                metaData.css = 'multilineColumn';
+                                return Ext.String.format('<div class="grptopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "Unknown");
                             }
                         },
-                        {header: 'fulname', dataIndex: 'fullname', hidden: true, flex: 1},
-                        {
-                            xtype: 'actioncolumn',
-                            width: 30,
-                            sortable: false,
-                            menuDisabled: true,
-                            align: 'center',
-                            items: [
-                                {
-                                    isDisabled: function (view, rowIndex, colIndex, item, record) {
-                                        if (record.data.laboratory_id == "laborato-ry00-0000-0000-000000000001" && record.data.worker == "admin")
-                                            return true;
-                                        return false;
-                                    },
-                                    handler: function (view, rowIndex, colIndex, item, e) {
-                                        this.fireEvent('itemclick', this, 'delete', view, rowIndex, colIndex, item, e);
-                                    },
-                                    iconCls: 'user-delete',
-                                    tooltip: 'Delete'
-                                }
-                            ]
-                        }
-
+                        {header: 'Description', dataIndex: 'description', hidden: true, flex: 1},
+                        {header: 'Value', dataIndex: 'value', hidden: false, flex: 1}
                     ]
                 } , //grid
                 {
                     xtype: 'panel',
                     flex: 1,
-                    //maxHeight: '200',
-                    //autoScroll: true,
-                    overflowY: 'scroll',
-                    //                    height: '100%',
+                    height: '50%',
+                    //                    overflowY: 'scroll',
                     margin: {top: 0, right: 0, left: 5, bottom: 0},
                     padding: 0,
                     layout: {
@@ -98,180 +76,40 @@ Ext.define('EMS.view.user.Users', {
                     },
                     items: [
                         {
-                            xtype: 'fieldcontainer',
-                            layout: 'hbox',
-                            flex: 1,
-                            defaultType: 'textfield',
-                            margin: 0,
+                            xtype: 'textfield',
+                            name: 'key',
+                            fieldLabel: 'Key',
                             padding: 0,
-                            items: [
-
-
-                                {
-                                    xtype: 'combobox',
-                                    name: 'laboratory_id',
-                                    displayField: 'name',
-                                    fieldLabel: 'Laboratory',
-                                    store: 'Laboratories',
-                                    queryMode: 'local',
-                                    editable: false,
-                                    allowBlank: false,
-                                    valueField: 'id',
-                                    afterLabelTextTpl: EMS.util.Util.required,
-                                    flex: 1
-                                } ,
-                                {
-                                    xtype: 'checkbox',
-                                    name: 'admin',
-                                    inputValue: 1,
-                                    boxLabel: 'Laboratory admin?',
-                                    margin: '17 0 0 6',
-                                    flex: 1
-                                }
-
-                            ]
+                            margin: 0,
+                            maxHeight:50,
+                            readOnly: true,
+//                            flex: 1
                         },
-
-
                         {
-                            xtype: 'fieldcontainer',
-                            layout: 'hbox',
-                            flex: 1,
-                            defaultType: 'textfield',
+                            xtype: 'textareafield',
+                            name: 'description',
                             margin: 0,
                             padding: 0,
-                            items: [
-                                {
-                                    name: 'worker',
-                                    fieldLabel: 'Username',
-                                    flex: 1,
-                                    afterLabelTextTpl: EMS.util.Util.required,
-                                    emptyText: 'Username',
-                                    minLength: 3,
-                                    vtype: 'alphanum',
-                                    allowBlank: false
-                                },
-                                {
-                                    name: 'passwd',
-                                    fieldLabel: 'Password',
-                                    minLength: 3,
-                                    margins: '0 0 0 6',
-                                    flex: 1,
-                                    afterLabelTextTpl: EMS.util.Util.required,
-                                    emptyText: 'Password',
-                                    inputType: 'password'
-                                }
-                            ]
+//                            maxHeight:50,
+                            fieldLabel: 'Description',
+                            readOnly: true,
+//                            flex: 1
+                        },
+                        {
+                            xtype: 'textfield',
+                            name: 'value',
+                            fieldLabel: 'Value',
+                            maxHeight:50,
+                            padding: 0,
+                            margin: 0,
+//                            flex: 1
                         },
                         {
                             xtype: 'fieldcontainer',
-                            fieldLabel: 'Name',
-                            afterLabelTextTpl: EMS.util.Util.required,
-                            layout: 'hbox',
-                            flex: 1,
-                            combineErrors: true,
-                            defaults: {
-                                xtype: 'textfield',
-                                hideLabel: 'true'
-                            },
+//                            flex: 1,
                             margin: 0,
                             padding: 0,
-                            items: [
-                                {
-                                    name: 'fname',
-                                    flex: 1,
-                                    emptyText: 'First Name',
-                                    allowBlank: false
-                                },
-                                {
-                                    name: 'lname',
-                                    flex: 1,
-                                    margins: '0 0 0 6',
-                                    emptyText: 'Last Name',
-                                    allowBlank: false
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: 'hbox',
-                            flex: 1,
-                            defaultType: 'textfield',
-                            margin: 0,
-                            padding: 0,
-                            items: [
-                                {
-                                    fieldLabel: 'Email Address',
-                                    name: 'email',
-                                    vtype: 'email',
-                                    flex: 1
-                                } ,
-                                {
-                                    xtype: 'checkbox',
-                                    name: 'notify',
-                                    boxLabel: 'Notify with changes.',
-                                    inputValue: 1,
-                                    margin: '17 0 0 6',
-                                    flex: 1
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: 'hbox',
-                            flex: 1,
-                            defaultType: 'textfield',
-                            margin: 0,
-                            padding: 0,
-                            items: [
-                                {
-                                    name: 'dnalogin',
-                                    fieldLabel: 'Remote login',
-                                    flex: 1,
-                                    emptyText: 'Remote login',
-                                    minLength: 3,
-                                    vtype: 'alphanum'
-                                },
-                                {
-                                    name: 'dnapass',
-                                    fieldLabel: 'Remote password',
-                                    minLength: 3,
-                                    margins: '0 0 0 6',
-                                    flex: 1,
-                                    emptyText: 'Remote password',
-                                    inputType: 'password'
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            layout: 'hbox',
-                            flex: 1,
-                            defaultType: 'checkbox',
-                            margin: 0,
-                            padding: 0,
-                            items: [
-                                {
-                                    name: 'changepass',
-                                    boxLabel: 'Has to change password!',
-                                    inputValue: 1,
-                                    flex: 1
-                                } ,
-                                {
-                                    name: 'relogin',
-                                    boxLabel: 'Has to relogin!',
-                                    margin: '0 0 0 6',
-                                    inputValue: 1,
-                                    flex: 1
-                                }
-                            ]
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            flex: 1,
-                            margin: 0,
-                            padding: 0,
-                            //                            hight: 10,
+//                                                        hight: 10,
                             layout: {
                                 type: 'hbox'
                             },
@@ -280,7 +118,8 @@ Ext.define('EMS.view.user.Users', {
                                     xtype: 'button',
                                     text: 'Add',
                                     itemId: 'add',
-                                    iconCls: 'user-add',
+                                    iconCls: 'form-blue-add',
+                                    disabled: true,
                                     margin: 8,
                                     flex: 1
                                 },
@@ -288,7 +127,8 @@ Ext.define('EMS.view.user.Users', {
                                     xtype: 'button',
                                     text: 'Change',
                                     itemId: 'change',
-                                    iconCls: 'user-edit',
+                                    iconCls: 'form-blue-edit',
+                                    disabled: true,
                                     margin: 8,
                                     flex: 1
                                 }

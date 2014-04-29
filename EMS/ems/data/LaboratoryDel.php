@@ -33,16 +33,14 @@ $data=json_decode($_REQUEST['data']);
 if(!isset($data))
     $res->print_error("Data is not set");
 
-$SQL_STR="update laboratory set name=?,description=?,rlogin=?,rpass=? where id=?";
-
-$PARAMS=array("sssss",$data->name,$data->description,$data->rlogin,$data->rpass,$data->id);
-
+$SQL_STR="delete from laboratory where id=?";
+$PARAMS=array("s",$data->id);
 
 if(execSQL($settings->connection,$SQL_STR,$PARAMS,true)==0)
-    $response->print_error("Cant update");
+    $response->print_error("Cant delete");
 
 $response->success = true;
-$response->message = "Data updated";
+$response->message = "Data deleted";
 $response->total = 1;
 $response->data = $data;
 print_r($response->to_json());

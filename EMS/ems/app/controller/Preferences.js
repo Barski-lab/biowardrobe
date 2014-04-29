@@ -19,3 +19,53 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
+
+Ext.define('EMS.controller.Preferences', {
+    extend: 'Ext.app.Controller',
+
+    models: ['Preferences'],
+    stores: ['Preferences'],
+    views: ['Preferences.Preferences'],
+
+    localForm: {},
+
+    init: function () {
+        this.control
+        ({
+             'globalsettings': {
+                 render: this.onPanelRendered
+             },
+             'globalsettings grid': {
+                 selectionchange: this.onSelectionChange
+             },
+             'globalsettings button[itemId=change]': {
+                 click: this.onChangeClick
+             },
+             'globalsettings textfield': {
+                 change: this.onFieldsChange
+             }
+         });
+    },
+    onPanelRendered: function (form) {
+        this.localForm = form;
+        this.getPreferencesStore().load();
+    },
+    onSelectionChange: function(model, records) {
+        var rec = records[0];
+        this.localForm.getForm().loadRecord(rec);
+        this.localForm.down('button#change').disable();
+    },
+    onChangeClick: function () {
+        if (this.localForm.isValid()) {
+            var record = this.egroupForm.getRecord();
+            record.set(this.localForm.getValues());
+            this.getPreferencesStore().sync();
+            this.egroupForm.down('button#change').disable();
+        } else {
+            EMS.util.Util.showErrorMsg('Please fill up required fields!');
+        }
+    },
+    onFieldsChange: function (field, newValue, oldValue, eOpts) {
+        this.localForm.down('button#change').enable();
+    }
+});//Ext.define

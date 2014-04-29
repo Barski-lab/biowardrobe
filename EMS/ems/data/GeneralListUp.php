@@ -1,43 +1,62 @@
 <?php
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+/****************************************************************************
+ **
+ ** Copyright (C) 2011 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST, true));
+require_once('../settings.php');
+
+//logmsg($_REQUEST);
+
+if (!$worker->isAdmin() && !$worker->isLocalAdmin())
+    $response->print_error("Insufficient credentials");
 
 //*****************************************************************
 function update_data($val)
 {
     $PARAMS[] = "";
     $SQL_STR = "";
-    $libcode = false;
-    global $IDFIELD, $IDFIELDTYPE, $con, $tablename, $types, $res, $_SESSION;
+    global $IDFIELD, $IDFIELDTYPE, $settings, $tablename, $types, $response;
 
     foreach ($val as $f => $d) {
 
         if (!array_key_exists($f, $types))
-            $res->print_error("Table field does not exist $f");
+            $response->print_error("Table field does not exist $f");
 
         if ($f == $IDFIELD) {
             $id = $d;
-            $IDFIELDTYPE=$types[$f];
+            $IDFIELDTYPE = $types[$f];
             continue;
         }
 
-//Incorrect Rights Checking
-        if ($f == "worker_id" && intVal($d) != $_SESSION["user_id"] && !check_rights())
-            $res->print_error("Insufficient credentials");
 
-        if (strrpos($f, "_id") !== false && ($types[$f] != "s" && intVal($d) == 0) ) {
+        //FIXME: end of field eq _id
+        if (strrpos($f, "_id") !== false && ($types[$f] != "s" && intVal($d) == 0)) {
             $SQL_STR = $SQL_STR . " $f=null,";
             continue;
         }
 
         switch ($tablename) {
-            case "labdata":
-
+            case "settings":
+                if (in_array($f, array("key", "description","status"))
+                continue;
                 break;
         }
 
@@ -60,62 +79,59 @@ function update_data($val)
     $SQL_STR = "update `$tablename` set $SQL_STR where $IDFIELD=?";
 
 
-    execSQL($con, $SQL_STR, $PARAMS, true);
+    execSQL($settings->connection, $SQL_STR, $PARAMS, true);
 }
 
 //*****************************************************************
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
-    $res->print_error('Not enough required parameters. t');
+    $response->print_error('Not enough required parameters. t');
 
 $data = json_decode($_REQUEST['data']);
 
 if (!isset($data))
-    $res->print_error("no data");
+    $response->print_error("no data");
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info",
-    "labdata", "grp_local", "project");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "info", "settings");
 
 $IDFIELD = "id";
 $IDFIELDTYPE = "i";
 
 if (!in_array($tablename, $AllowedTable)) {
-    $res->print_error('Table not in the list');
+    $response->print_error('Table not in the list');
 } else {
     switch ($tablename) {
-        case "grp_local":
-
-            $IDFIELD = "name";
-            $IDFIELDTYPE = "s";
-
-            if (isset($_REQUEST['genomedb'])) {
-                check_val($_REQUEST['genomedb']);
-                $gdb = $_REQUEST['genomedb'];
-            } else {
-                $res->print_error('Not enough required parameters.');
-            }
-
-            $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
-            if ($con->connect_errno)
-                $res->print_error('Could not connect: ' . $con->connect_error);
-            if (!$con->select_db($gdb))
-                $res->print_error('Could not select db: ' . $con->connect_error);
-
-            break;
+//        case "grp_local":
+//
+//            $IDFIELD = "name";
+//            $IDFIELDTYPE = "s";
+//
+//            if (isset($_REQUEST['genomedb'])) {
+//                check_val($_REQUEST['genomedb']);
+//                $gdb = $_REQUEST['genomedb'];
+//            } else {
+//                $response->print_error('Not enough required parameters.');
+//            }
+//
+//            $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
+//            if ($con->connect_errno)
+//                $response->print_error('Could not connect: ' . $con->connect_error);
+//            if (!$con->select_db($gdb))
+//                $response->print_error('Could not select db: ' . $con->connect_error);
+//
+//            break;
         default:
-            $con = def_connect();
-            $con->select_db($db_name_ems);
             break;
     }
 }
 $total = 1;
 
-$con->autocommit(FALSE);
+$settings->connection->autocommit(FALSE);
 
-if (($table = execSQL($con, "describe `$tablename`", array(), false)) == 0) {
-    $res->print_error("Cant describe");
-}
+if (($table = selectSQL("describe `$tablename`", array())) == 0)
+    $resposne->print_error("Cant describe");
+
 $types = array();
 foreach ($table as $dummy => $val) {
     $t = "s";
@@ -140,15 +156,14 @@ if (gettype($data) == "array") {
     update_data($data);
 }
 
-if (!$con->commit()) {
-    $res->print_error("Cant update");
+if (!$settings->connection->commit()) {
+    $response->print_error("Cant update");
 }
 
-$con->close();
 
-$res->success = true;
-$res->message = "Data updated";
-$res->total = $total;
-$res->data = $query_array;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data updated";
+$response->total = $total;
+$response->data = $query_array;
+print_r($response->to_json());
 ?>

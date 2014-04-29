@@ -38,7 +38,6 @@ Ext.define( 'EMS.store.PCAChart', {
                pageSize: 200,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: Ext.apply(STORE_DEFS.proxy(''), {

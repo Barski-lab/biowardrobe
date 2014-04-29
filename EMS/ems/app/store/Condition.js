@@ -37,7 +37,6 @@ Ext.define( 'EMS.store.Condition', {
                    }],
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: STORE_DEFS.proxy('fhead',true)

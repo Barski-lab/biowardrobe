@@ -19,10 +19,11 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
+
+Ext.define('EMS.view.Experiment.EGgroup.EGroupRights', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.egrouplist',
-    requires: ['EMS.util.Util'],
+    alias: 'widget.egrouprights',
+    requires: ['EMS.util.Util', 'Ext.selection.CheckboxModel'],
     layout: {
         type: 'hbox',
         align: 'stretch'
@@ -30,10 +31,10 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
     items: [
         {
             xtype: 'fieldset',
-            title: 'Laboratory information',
+            title: 'Projects rights',
             padding: {top: 0, right: 1, left: 1, bottom: 0},
+            margin: {top: 10, right: 1, left: 1, bottom: 1},
 
-            margin: 0,
             collapsible: false,
 
             flex: 1,
@@ -44,110 +45,39 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
             items: [
                 {
                     xtype: 'grid',
-                    flex: 3,
+                    flex: 1,
                     height: '100%',
                     hideHeaders: true,
-                    margin: {top: 0, right: 5, left: 0, bottom: 0},
-                    store: 'EGroups',
+                    margin: {top: 0, right: 1, left: 1, bottom: 1},
+                    store: 'EGroupRights',
                     padding: 0,
+                    selModel: Ext.create('Ext.selection.CheckboxModel', {
+                        checkOnly: true,
+                        renderer: function (val, meta, record, rowIndex, colIndex, store, view) {
+                            var worker = Ext.getStore('Worker').getAt(0);
+                            if(!worker.data.isla && !worker.data.isa)
+                                return null;
+                            if(worker.data.isla && worker.data['laboratory_id']==record.data['id']) {
+                                view.getSelectionModel().select(record, true);
+                                return null
+                            }
+                            if(worker.data.isla && record.data['egroup_id']) {
+                                view.getSelectionModel().select(record, true);
+                            }
+                            meta.tdCls = Ext.baseCSSPrefix + 'grid-cell-special';
+                            return '<div class="' + Ext.baseCSSPrefix + 'grid-row-checker">&#160;</div>';
+                        }
+                    }),
                     columns: [
-                        {header: 'Projects', dataIndex: 'name', flex: 1,
-                            renderer: function(value,metaData,record) {
+                        {header: 'Allowed Laboratories', dataIndex: 'name', flex: 1,
+                            renderer: function (value, metaData, record) {
                                 metaData.css = 'multilineColumn';
-                                return Ext.String.format('<div class="grptopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "");
+                                return Ext.String.format('<div class="groupstopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "");
                             }
                         },
-                        {header: 'description', dataIndex: 'description',hidden: true, flex: 1},
-                        {
-                            xtype: 'actioncolumn',
-                            width: 30,
-                            sortable: false,
-                            menuDisabled: true,
-                            align: 'center',
-                            items: [
-                                {
-                                    isDisabled: function(view,rowIndex,colIndex,item,record) {
-                                        return false;
-                                    },
-                                    handler: function(view, rowIndex, colIndex, item, e) {
-                                        this.fireEvent('itemclick', this, 'delete', view, rowIndex, colIndex, item, e);
-                                    },
-                                    iconCls: 'form-blue-delete',
-                                    tooltip: 'Delete'
-                                }
-                            ]
-                        }
+                        {header: 'description', dataIndex: 'description', hidden: true, flex: 1}
 
                     ]
-                } ,
-                {
-                    xtype: 'panel',
-                    flex: 2,
-                    margin: {top: 0, right: 0, left: 5, bottom: 0},
-                    padding: 0,
-                    defaults: {
-                        labelWidth: 120,
-                        labelAlign: 'top'
-                    },
-                    layout: {
-                        type: 'vbox',
-                        align: 'stretch'
-                    },
-                    items: [
-                        {
-                            xtype: 'textfield',
-                            name: 'name',
-                            fieldLabel: 'Project name',
-//                            padding: 0,
-                            margin: 0,
-                            afterLabelTextTpl: EMS.util.Util.required,
-                            allowBlank: false
-                        },
-                        {
-                            xtype: 'textareafield',
-                            name: 'description',
-                            margin: 0,
-//                            padding: 0,
-                            fieldLabel: 'Project description',
-                            afterLabelTextTpl: EMS.util.Util.required,
-                            allowBlank: false,
-                        },
-                        {
-                            xtype: 'numberfield',
-                            name: 'priority',
-                            fieldLabel: 'Ordering',
-                            //                            padding: 0,
-                            margin: 0
-                        },
-                        {
-                            xtype: 'fieldcontainer',
-                            margin: 0,
-                            padding: 0,
-                            hight: 10,
-                            layout: {
-                                type: 'hbox'
-                            },
-                            items: [
-                                {
-                                    xtype: 'button',
-                                    text: 'Add',
-                                    itemId: 'add',
-                                    iconCls: 'form-blue-add',
-                                    margin: 8,
-                                    flex: 1
-                                } ,
-                                {
-                                    xtype: 'button',
-                                    text: 'Change',
-                                    itemId: 'change',
-                                    iconCls: 'form-blue-edit',
-                                    disabled: true,
-                                    margin: 8,
-                                    flex: 1
-                                }
-                            ]
-                        }
-                    ]//
                 }
 
             ]

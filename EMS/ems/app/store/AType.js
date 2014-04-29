@@ -33,7 +33,6 @@ Ext.define( 'EMS.store.AType', {
                remoteFilter: false,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                sorters: [{

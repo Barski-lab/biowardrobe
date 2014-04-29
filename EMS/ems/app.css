@@ -32,7 +32,7 @@
     background-color:#eee;*/
 }
 
-.loading{
+.loading {
     background: url(ext/resources/themes/images/default/grid/loading.gif);
     color: #555;
     /*font: bold 13px tahoma, arial, helvetica;*/
@@ -45,6 +45,52 @@
     /*background-color:#eee;*/
 }
 
+.x-mask.splashscreen {
+    background-color: white;
+    opacity: 1;
+}
+
+.x-mask-msg.splashscreen,
+.x-mask-msg.splashscreen div {
+    font-size: 17px;
+    font-weight: bold;
+    color: #555;
+    text-align: left;
+    /*padding: 30px 5px 5px 5px;*/
+    border: none;
+    background-color: transparent;
+    background-position: right; /*top center;*/
+}
+
+.x-message-box .x-window-body .x-box-inner {
+    min-height: 110px !important;
+}
+
+.x-splash-icon {
+    background-image: url('images/ems_logo.png') !important;
+    background-repeat: no-repeat;
+    /*margin: 0;*/
+    /*margin-top: -30px;*/
+    /*margin-bottom: 15px;*/
+    height: 144px;
+    width: 256px;
+}
+
+.key {
+    background-image: url('images/key.png') !important;
+}
+
+.key-go {
+    background-image: url('images/key_go.png') !important;
+}
+
+.cancel {
+    background-image: url('images/cancel.png') !important;
+}
+
+.logout {
+    background-image: url('images/door_in.png') !important;
+}
 
 #project2-details-panel .details-info {
     margin: 15px;
@@ -206,6 +252,12 @@
     height: 16px;
 }
 
+.preferences-edit {
+    background-image: url(images/preferences_edit.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .users3 {
     background-image: url(images/users3.png) !important;
     width: 16px;
@@ -254,6 +306,18 @@
     height: 16px;
 }
 
+.user-edit {
+    background-image: url(images/user_edit.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.user-delete {
+    background-image: url(images/user_delete.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .user-information {
     background-image: url(images/user_information.png) !important;
     width: 16px;
@@ -280,6 +344,12 @@
 
 .table2-check {
     background-image: url(images/table2_check.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.table2-view {
+    background-image: url(images/table2_view.png) !important;
     width: 16px;
     height: 16px;
 }
@@ -338,7 +408,6 @@
     height: 16px;
 }
 
-
 .check {
     background-image: url(images/check.png) !important;
     width: 16px;
@@ -383,6 +452,12 @@
 
 .form-blue-edit {
     background-image: url(images/form_blue_edit.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.form-blue-delete {
+    background-image: url(images/form_blue_delete.png) !important;
     width: 16px;
     height: 16px;
 }
@@ -537,6 +612,12 @@
     height: 16px;
 }
 
+.gears-preferences {
+    background-image: url(images/gears_preferences.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .gear {
     background-image: url(images/gear.png) !important;
     width: 16px;
@@ -668,3 +749,85 @@
     max-width: 16px;
     max-height: 16px;
 }
+
+.groupstopic {
+    padding: 2px 0 0 20px;
+    background: transparent url(images/users_family.png) no-repeat;
+}
+
+.x-rtl .groupstopic {
+    padding: 2px 20px 0 0;
+    background: transparent url(images/users_family.png) no-repeat top right;
+}
+
+.groupstopic b {
+    font-family: tahoma, verdana;
+    display: block;
+    color: #333;
+}
+
+.userstopic {
+    padding: 2px 0 0 20px;
+    background: transparent url(images/user_information.png) no-repeat;
+}
+
+.x-rtl .userstopic {
+    padding: 2px 20px 0 0;
+    background: transparent url(images/user_information.png) no-repeat top right;
+}
+
+.userstopic b {
+    font-family: tahoma, verdana;
+    display: block;
+    color: #333;
+}
+
+.grptopic {
+    padding: 2px 0 0 20px;
+    background: transparent url(images/form_blue_edit.png) no-repeat;
+}
+
+.x-rtl .grptopic {
+    padding: 2px 20px 0 0;
+    background: transparent url(images/form_blue_edit.png) no-repeat top right;
+}
+
+.grptopic b {
+    font-family: tahoma, verdana;
+    display: block;
+    color: #333;
+}
+
+.analysis {
+    background-image: url(images/cube_molecule_view.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.multilineColumn .x-grid-cell-inner {
+    white-space: normal !important;
+}
+
+.multilineColumnR .x-grid-cell-inner {
+    white-space: normal !important;
+    text-align: right;
+}
+
+.x-grid-hd-inner {
+    white-space: normal;
+}
+
+.x-column-header-inner .x-column-header-text {
+    white-space: normal;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: middle;
+    horizontal-align: middle;
+}
+
+/*.x-grid-row-table TD {line-height: 16px;}*/
+/*.x-grid-row .x-grid-cell-inner {*/
+    /*white-space: normal;*/
+    /*display: table-cell;*/
+    /*vertical-align: middle;*/
+/*}*/

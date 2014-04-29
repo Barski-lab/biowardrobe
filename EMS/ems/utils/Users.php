@@ -24,7 +24,7 @@
 class Worker
 {
     private $response;
-    public $worker, $group, $groups;
+    public $worker, $group, $groups, $fields;
 
     function __construct($worker = "", $pass = "")
     {
@@ -32,22 +32,33 @@ class Worker
         global $settings;
 
         $this->response = & $response;
-
+        if (!isset($_SESSION["userinfo"]) && ($worker === "" || $pass === "")) {
+            $this->response->print_error("Authorization required!");
+        }
         if (!isset($_SESSION["userinfo"])) {
             $query = selectSQL("SELECT * from worker where worker=? and passwd is not NULL", array("s", $worker));
             if (count($query) != 1)
                 $this->response->print_error("Cant select worker!");
 
             $this->worker = $query[0];
-
+            foreach ($query[0] as $k => $v) {
+                $this->fields[] = $k;
+            }
+            $this->fields[] = "fullname";
+            $this->fields[] = "isa";
+            $this->fields[] = "isla";
             $this->check_pass($pass);
             $this->journal_login();
 
-            $_SESSION["userinfo"]=$query[0];
+            $_SESSION["userinfo"] = $query[0];
+            $_SESSION["userinfo"]['fields'] = $this->fields;
         }
         $this->worker = $_SESSION["userinfo"];
-        $this->worker['fullname']=$this->worker['lname'] . ", " . $this->worker['fname'];
+        $this->fields = $this->worker['fields'];
         $this->primary_group();
+        $this->worker['fullname'] = $this->worker['lname'] . ", " . $this->worker['fname'];
+        $this->worker['isa'] = $this->isAdmin();
+        $this->worker['isla'] = $this->isLocalAdmin();
     }
 
     public function primary_group()
@@ -81,7 +92,7 @@ class Worker
 
     public function check_pass($passwd)
     {
-        $salt=$this->salt_pass(substr($this->worker['passwd'], 0, 64), $passwd);
+        $salt = $this->salt_pass(substr($this->worker['passwd'], 0, 64), $passwd);
         if ($salt != $this->worker['passwd']) {
             $this->response->print_error("Incorrect user name or password");
             exit();
@@ -105,6 +116,27 @@ class Worker
         return $this->salt_pass($salt, $P);
     }
 
+    public function tojson()
+    {
+        $line = array();
+        for ($i = 0; $i < count($this->fields); $i++) {
+//            switch($this->fields[$i]) {
+//                case "passwd":
+//                case "dnapass":
+//                    break;
+//            }
+            if ($this->fields[$i] === "passwd" || $this->fields[$i] === "dnapass")
+                $line[$this->fields[$i]] = "*";
+            else
+                $line[$this->fields[$i]] = $this->worker[$this->fields[$i]];
+        }
+        $data[] = $line;
+        $this->response->success = true;
+        $this->response->message = "userinfo";
+        $this->response->total = count($data);
+        $this->response->data = $data;
+        return $this->response->to_json();
+    }
 
 }
 

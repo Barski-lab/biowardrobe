@@ -31,7 +31,7 @@ if (isset($sort)) {
     foreach ($sort as $val) {
         check_val($val->property);
         if ($val->direction == "ASC" || $val->direction == "DESC")
-            $order = $order . "$val->property $val->direction,";
+            $order = $order . "`$val->property` $val->direction,";
     }
     $order = substr($order, 0, -1);
 }

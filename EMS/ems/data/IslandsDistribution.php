@@ -1,9 +1,6 @@
 <?php
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST, true));
@@ -13,11 +10,9 @@ if (isset($_REQUEST['labdata_id']))
 else
     $res->print_error('Not enough required parameters.');
 
-$con = def_connect();
-$con->select_db($db_name_ems);
 
 
-$query_array = execSQL($con, "SELECT name4browser from labdata where id=?", array("i", $labdata_id), false);
+$query_array = selectSQL("SELECT name4browser from labdata where id=?", array("i", $labdata_id));
 $filename = $query_array[0]['name4browser'];
 
 if ($filename == "")
@@ -36,9 +31,6 @@ $DATA = array(
     'Intergenic' => intval($output[4]),
     'Total' => intval($output[5])
 );
-
-$con->close();
-
 
 $fields = array(
     array(

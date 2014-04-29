@@ -20,214 +20,119 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.controller.EGroup', {
+Ext.define('EMS.controller.LabData', {
     extend: 'Ext.app.Controller',
 
-    models: ['EGroup', 'Laboratory', 'Worker', 'EGroupRights'],
-    stores: ['EGroups', 'Laboratories', 'Worker', 'EGroupRights'],
+//    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
+//             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
+//    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
+//             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
+
+    models: ['EGroup', 'Laboratory', 'Worker', 'EGroupRights','LabData','ExperimentType','Genome', 'Antibodies', 'Crosslinking', 'Fragmentation'],
+
+    stores: ['EGroups', 'Laboratories', 'Worker', 'EGroupRights','LabData','ExperimentType','Genome', 'Antibodies', 'Crosslinking', 'Fragmentation'],
+
     views: ['Experiment.EGroup.EGroup'],
 
     requires: [
-        'EMS.util.MessageBox'
+//        'EMS.util.MessageBox'
     ],
 
 
-    egroupForm: {},
     worker: {},
 
     init: function () {
         this.control
         ({
-             'egrouplist': {
-                 render: this.onEGroupPanelRendered,
+             'experimentlistwindow': {
+                 render: this.onPanelRendered,
                  destroy: this.onDestroy
              },
-             'egrouplist grid': {
-                 selectionchange: this.onEGroupSelectionChange
+             'experimentlistwindow grid': {
+//                 selectionchange: this.onEGroupSelectionChange
              },
-             'egrouplist button[itemId=change]': {
-                 click: this.onEGroupChangeClick
+             'experimentlistwindow button[itemId=add]': {
+                 click: this.onExperimentAddClick
              },
-             'egrouplist button[itemId=add]': {
-                 click: this.onEGroupAddClick
-             },
-             'egrouplist textfield': {
-                 change: this.onEGroupFieldsChange
-             },
-             'egrouplist combobox': {
+             'experimentlistwindow combobox': {
                  select: this.onLabSelectFieldsChange
              },
-             "egrouplist actioncolumn": {
-                 itemclick: this.handleGrouplistActionColumn
+             "experimentlistwindow actioncolumn": {
+                 itemclick: this.handleLabDataActionColumn
              },
 
          });
     },//init
     onDestroy: function () {
     },
-    onEGroupPanelRendered: function (form) {
-        this.egroupForm = form;
+    onPanelRendered: function (form) {
+        var me=this;
         this.worker = this.getWorkerStore().getAt(0);
-
+        this.getExperimentTypeStore().load();
+        this.getGenomeStore().load();
         this.getEGroupsStore().load();
+        this.getLaboratoriesStore().load(function() {
+            Ext.ComponentQuery.query('experimentlistwindow combobox')[0].setValue(me.worker.data['laboratory_id']);
+        });
+        this.getLabDataStore().load();
 
-        if (this.worker.data.isa) {
-            Ext.ComponentQuery.query('egrouplist')[0].addDocked
-            ({
-                 xtype: 'toolbar',
-                 ui: 'footer',
-                 items: [
-                     {
-                         xtype: 'combobox',
-                         tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
-                         labelWidth: 70,
-                         minWidth: 400,
-                         displayField: 'name',
-                         fieldLabel: 'Laboratory',
-                         valueField: 'id',
-                         store: this.getLaboratoriesStore(),
-                         queryMode: 'local',
-                         forceSelection: true,
-                         editable: false
-                     }
-                 ]
-             }, 'top');
-        }
-
-        if (!this.worker.data.isa && !this.worker.data.isla) {
-            this.egroupForm.down('button#change').disable();
-            this.egroupForm.down('button#add').disable();
-        }
     },
+//    /****************************
+//     *
+//     ****************************/
+//    onEGroupSelectionChange: function (model, records) {
+//        if (!this.worker.data.isa && !this.worker.data.isla)
+//            return;
+//
+//        if (!records[0])
+//            return;
+//
+//        Ext.ComponentQuery.query('egrouprights grid')[0].getSelectionModel().deselectAll(true);
+//
+//        if (this.worker.data.isa)
+//            this.makeAdminSelection();
+//        else
+//            this.getEGroupRightsStore().load({
+//                                                 params: {
+//                                                     egroup_id: records[0].data['id']
+//                                                 }
+//                                             });
+//
+//        this.egroupForm.getForm().reset();
+//        if (records[0]) { // --- bug does not work appropriatly affects combobox
+//            this.egroupForm.getForm().loadRecord(records[0]);
+//        }
+//        this.egroupForm.down('button#change').disable();
+//    },
+
     /****************************
      *
      ****************************/
-    onEGroupSelectionChange: function (model, records) {
-        if (!this.worker.data.isa && !this.worker.data.isla)
-            return;
+    onExperimentAddClick: function () {
 
-        if (!records[0])
-            return;
-
-        Ext.ComponentQuery.query('egrouprights grid')[0].getSelectionModel().deselectAll(true);
-
-        if (this.worker.data.isa)
-            this.makeAdminSelection();
-        else
-            this.getEGroupRightsStore().load({
-                                                 params: {
-                                                     egroup_id: records[0].data['id']
-                                                 }
-                                             });
-
-        this.egroupForm.getForm().reset();
-        if (records[0]) { // --- bug does not work appropriatly affects combobox
-            this.egroupForm.getForm().loadRecord(records[0]);
-        }
-        this.egroupForm.down('button#change').disable();
-    },
-
-    makeAdminSelection: function () {
-        var id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
-        var lab_id = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0].data['id'];
-        console.log(lab_id);
-        console.log(id);
-        if (id && lab_id)
-            this.getEGroupRightsStore().load({
-                                                 params: {
-                                                     egroup_id: id,
-                                                     laboratory_id: lab_id
-                                                 }
-                                             });
-    },
-    /****************************
-     *
-     ****************************/
-    onEGroupChangeClick: function () {
-        if (this.egroupForm.isValid()) {
-            var record = this.egroupForm.getRecord();
-            record.set(this.egroupForm.getValues());
-            this.getEGroupsStore().sync();
-            this.egroupForm.down('button#change').disable();
-        } else {
-            EMS.util.Util.showErrorMsg('Please fill up required fields!');
-        }
-    },
-    /****************************
-     *
-     ****************************/
-    onEGroupAddClick: function () {
-
-    },
-    /****************************
-     *
-     ****************************/
-    onEGroupFieldsChange: function (field, newValue, oldValue, eOpts) {
-        if (this.worker.data.isa || this.worker.data.isla) {
-            this.egroupForm.down('button#change').enable();
-        }
     },
     /****************************
      *
      ****************************/
     onLabSelectFieldsChange: function (combo, records) {
-        //        this.egroupForm.down('grid').getSelectionModel().deselectAll();
-        this.egroupForm.getForm().reset();
-        this.getEGroupsStore().load
-        ({
-             params: {
-                 laboratory: records[0].data['id']
-             }
-         });
+//        //        this.egroupForm.down('grid').getSelectionModel().deselectAll();
+//        this.egroupForm.getForm().reset();
+//        this.getEGroupsStore().load
+//        ({
+//             params: {
+//                 laboratory: records[0].data['id']
+//             }
+//         });
     },
 
     /****************************
      *
      ****************************/
-    handleGrouplistActionColumn: function (column, action, view, rowIndex, colIndex, item, e) {
+    handleLabDataActionColumn: function (column, action, view, rowIndex, colIndex, item, e) {
         var me = this;
         if (action == 'delete') {
-            var store = me.egroupForm.down('grid').getStore(),
-                    rec = store.getAt(rowIndex);
-            Ext.create('EMS.util.MessageBox',
-                       {
-                           title: 'DELETE',
-                           msg: 'Do you want to delete laboratory name "' + rec.data['name'] + '"?<br>You have to choose new group for the experiments!.',
-                           fn: function (buttonId, combo) {
-                               //console.log("fn", combo.getValue());
-                               if(combo.getValue()===rec.data['id']) {
-                                   return false;
-                               }
-                               var mvid = combo.getValue();
-                               if (buttonId === "yes") {
-                                   me.egroupForm.getForm().reset();
-                                   me.getEGroupRightsStore().load();
-                                   store.remove(rec);
-                                   store.getProxy().setExtraParam('moveto', mvid);
-                                   store.sync({
-                                                  callback: function () {
-                                                      store.load();
-                                                  }
-                                              });
-
-                               }
-                           },
-                           combobox: {
-                               xtype: 'combobox',
-                               tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
-                               labelWidth: 70,
-                               minWidth: 200,
-                               padding: 5,
-                               displayField: 'name',
-                               fieldLabel: '',
-                               valueField: 'id',
-                               queryMode: 'local',
-                               forceSelection: true,
-                               editable: false,
-                               allowBlank: false,
-                               store: this.getEGroupsStore()
-                           }
-                       }).show();
+//            var store = me.egroupForm.down('grid').getStore(),
+//                    rec = store.getAt(rowIndex);
         }
     }
 });//Ext.define

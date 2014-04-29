@@ -29,7 +29,6 @@ Ext.define('EMS.store.ProjectTree', {
     singleton: false,
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     }
 });

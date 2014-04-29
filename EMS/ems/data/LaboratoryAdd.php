@@ -23,33 +23,30 @@
 
 require_once('../settings.php');
 
-//logmsg(print_r($_REQUEST,true));
+//logmsg($_REQUEST);
 
-
-$array_prepend = array();
-$array_prepend[] = array('id' => '00000000-0000-0000-0000-000000000000', 'name' => 'All', 'description' => 'All laboratories');
-
-$PARAMS = array();
-
-if($worker->isAdmin()) {
-    $SQL_STR = "SELECT * FROM laboratory order by name";
-}
-elseif($worker->isLocalAdmin()) {
-}
-else {
-    //FIXME: have to always choose my own labaratory (maybe $worker->groups will work)
-    $SQL_STR = "SELECT distinct l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
-    $PARAMS=array("s",$worker->worker['laboratory_id']);
+if(!$worker->isAdmin()) {
+    $response->print_error("Insufficient privileges");
 }
 
-$query_array = selectSQL($SQL_STR, $PARAMS);
+$data=json_decode($_REQUEST['data']);
+if(!isset($data))
+    $res->print_error("Data is not set");
 
-$result = array_merge($array_prepend, $query_array);
+$data->id=guid();
+
+$SQL_STR="INSERT INTO laboratory (id,name,description,rlogin,rpass) VALUES(?,?,?,?,?)";
+
+$PARAMS=array("sssss",$data->id,$data->name,$data->description,$data->rlogin,$data->rpass);
+
+
+if(execSQL($settings->connection,$SQL_STR,$PARAMS,true)==0)
+    $response->print_error("Cant insert");
 
 $response->success = true;
-$response->message = "Data loaded";
-$response->total = count($result);
-$response->data = $result;
+$response->message = "Data saved";
+$response->total = 1;
+$response->data = $data;
 print_r($response->to_json());
 
 ?>

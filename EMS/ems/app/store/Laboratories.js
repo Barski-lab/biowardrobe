@@ -19,25 +19,23 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.store.Antibodies', {
-    extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Antibodies'],
-    storeId: 'Antibodies',
-    model: 'EMS.model.Antibodies',
+Ext.define('EMS.store.Laboratories', {
+    extend: 'Ext.data.Store',
+    storeId: 'Laboratories',
     autoLoad: false,
     singleton: true,
-    remoteSort: true,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    },
-    sorters: [
-        {
-            property: 'antibody',
-            direction: 'ASC'
-        }
+    requires: ['EMS.model.Laboratory',
+               'EMS.proxy.StandardProxy'
     ],
-    proxy: STORE_DEFS.proxy('antibody', true)
+    model: 'EMS.model.Laboratory',
+    proxy: {
+        type: 'standardproxy',
+        api: {
+            read: 'data/Laboratory.php',
+            update: 'data/LaboratoryUp.php',
+            create: 'data/LaboratoryAdd.php',
+            destroy: 'data/LaboratoryDel.php'
+        }
+    }
 });
-

@@ -1,9 +1,6 @@
 <?php
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
@@ -15,8 +12,8 @@ else
 
 check_val($tablename);
 
-$con=def_connect();
-$con->select_db($db_name_experiments);
+$con=$settings->connection;
+$con->select_db($settings->settings['experimentsdb']['value']);
 
 if(execSQL($con,"describe `$tablename`",array(),true)==0) {
        $res->print_error("Cant describe");
@@ -30,7 +27,7 @@ $total=$row[0];
 $totalquery->close();
 
 
-$query_array=execSQL($con,"SELECT * FROM `$tablename`",array(),false,0);
+$query_array=selectSQL("SELECT * FROM `$tablename`",array());
 $con->close();
 
 //logmsg(print_r($query_array,true));

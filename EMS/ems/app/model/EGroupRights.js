@@ -19,7 +19,7 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.model.Laboratory', {
+Ext.define('EMS.model.EGroupRights', {
     extend: 'Ext.data.Model',
     idProperty: 'id',
 
@@ -27,8 +27,7 @@ Ext.define('EMS.model.Laboratory', {
         { name: 'id', type: 'string'},
         { name: 'name', type: 'string' },
         { name: 'description', type: 'string' },
-        { name: 'rlogin', type: 'string' },
-        { name: 'rpass', type: 'string' }
+        { name: 'egroup_id', type: 'string' }
     ]
 
 });

@@ -19,3 +19,108 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
+
+Ext.define('EMS.util.MessageBox', {
+    extend: 'Ext.Window',
+    alias: 'widget.emsmessagebox',
+
+    closable: true,
+    maximizable: false,
+    constrain: true,
+    modal: true,
+    minWidth: 200,
+    minHeight: 100,
+//    defaults: {
+//        padding: 5,
+//    },
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    requires: [
+        'EMS.util.Util'
+    ],
+
+    config: {
+        combobox: {},
+        msg: "",
+        fn: function(){}
+    },
+
+    constructor: function (config) {
+        this.initConfig(config);
+
+        this.superclass.constructor.call(this, config);
+
+        this.field = {};
+        if (this.getCombobox()) {
+            this.field = Ext.create('Ext.form.ComboBox', this.getCombobox());
+        }
+        var me=this;
+
+        this.add(
+                    [
+                        {
+                            xtype: 'displayfield',
+                            cls: Ext.baseCSSPrefix + 'message-box-text',
+                            value: this.getMsg(),
+                            flex: 1
+                        },
+                        this.field
+                        ,
+                        {
+                            xtype: 'fieldcontainer',
+                            minHeight: 15,
+                            margin: 5,
+                            padding: 5,
+                            layout: {
+                                type: 'hbox',
+                                pack: 'center'
+                            },
+                            items: [
+                                {
+                                    xtype: 'button',
+                                    text: 'Yes',
+                                    itemId: 'yes',
+                                    minWidth: 75,
+                                    scope: me,
+                                    handler: me.callBack
+                                } ,
+                                {
+                                    xtype: 'tbfill',
+                                    width: 10,
+                                    maxWidth: 20
+                                }
+                                ,
+                                {
+                                    xtype: 'button',
+                                    text: 'Cancel',
+                                    itemId: 'cancel',
+                                    minWidth: 75,
+                                    scope: me,
+                                    handler: me.callBack
+                                }
+                            ]
+                        }
+                    ]
+        );
+
+        return this;
+    },
+    onDestroy: function () {
+        this.field.destroy();
+        this.callParent(arguments);
+    },
+    callBack: function(btn) {
+        if(btn.itemId!='cancel') {
+            var userCallback = Ext.Function.bind(this.getFn());
+            if(userCallback(btn.itemId,this.field)!=false) {
+                this.close();
+            }
+        } else {
+            this.close();
+        }
+        return;
+    }
+
+});

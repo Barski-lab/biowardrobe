@@ -21,30 +21,43 @@
  **
  ****************************************************************************/
 
-function logmsg($log_string, $obj = "")
+function logmsg()
 {
-    if ($obj != "") {
-        error_log("\n" . $log_string . "\n" . print_r($obj, true), 3, '/tmp/php.log');
-    } else {
-        error_log("\n" . $log_string, 3, '/tmp/php.log');
+    $numargs = func_num_args();
+    $arg_list = func_get_args();
+    $final = "";
+    $backtrace = debug_backtrace();
+    $last = $backtrace[0];
+
+    for ($i = 0; $i < $numargs; $i++) {
+        if (gettype($arg_list[$i]) == "string") {
+            $final = $final . $arg_list[$i];
+        } else {
+            $final = $final . print_r($arg_list[$i], true);
+        }
     }
+    error_log("\n" . $last['file'] . "\n" . $final, 3, '/tmp/php.log');
 }
 
-function require_authentication()
-{
-    global $settings,$worker;
-
-    if (!isset($_SESSION["timeout"]) || $_SESSION["timeout"] == "") {
-        header("Location:" . $settings->settings['wardroberoot']['value'] . "/login.php");
-        exit();
-    }
-    if ($_SESSION["timeout"] + 4000 < time()) {
-        header("Location:" . $settings->settings['wardroberoot']['value'] . "/login.php?timeout=true");
-        exit();
-    }
-    $_SESSION["timeout"] = time();
-    $worker = new Worker();
-}
+//function require_authentication()
+//{
+//    global $settings,$worker,$authorize;
+//
+//    if (!isset($_SESSION["timeout"]) || $_SESSION["timeout"] == "") {
+////        header("Location:" . $settings->settings['wardroberoot']['value'] . "/login.php");
+////        exit();
+//        $authorize=1;
+//    }else
+//    if ($_SESSION["timeout"] + 4000 < time()) {
+////        header("Location:" . $settings->settings['wardroberoot']['value'] . "/login.php?timeout=true");
+//        $authorize=2;
+////        exit();
+//    } else {
+//        $_SESSION["timeout"] = time();
+//        $worker = new Worker();
+//        $authorize=0;
+//    }
+//}
 
 function guid()
 {

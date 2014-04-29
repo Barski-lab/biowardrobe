@@ -1,15 +1,12 @@
 <?php
-include('/etc/settings/config.php');
 
 session_start();
-
-if (isset($_SESSION["timeout"])) {
-    unset($_SESSION["timeout"]);
-    $_SESSION = array();
-    //session_destroy();
-    //session_unset();
+$attempt=0;
+if(isset($_SESSION["attempt"])) {
+    $attempt=$_SESSION["attempt"];
 }
-
+$_SESSION=array();
+$_SESSION["attempt"]=$attempt;
 
 $TITLE = "EMS login";
 $TIMEOUT = "";
@@ -18,7 +15,6 @@ if (isset($_REQUEST["timeout"]) && $_REQUEST["timeout"] == "true") {
     $TITLE = "session expired";
     $TIMEOUT = "true";
 }
-
 ?>
 <html>
 <head>
@@ -49,16 +45,6 @@ if (isset($_REQUEST["timeout"]) && $_REQUEST["timeout"] == "true") {
                 Ext.get('loading').remove();
                 Ext.get('loading-mask').fadeOut({remove: true});
             }, 250);
-
-            if (Ext.isIE) {
-                Ext.Msg.show({
-                    title: 'Your browser is not supported',
-                    msg: 'Please use Google Chrome or Safari',
-                    icon: Ext.Msg.ERROR,
-                    buttons: Ext.Msg.OK
-                });
-                return;
-            }
 
             var loginForm = new Ext.form.Panel({
                 bodyPadding: 1,
@@ -163,6 +149,7 @@ if (isset($_REQUEST["timeout"]) && $_REQUEST["timeout"] == "true") {
                         url: 'authenticate.php',
                         method: 'POST',
                         success: function () {
+                            console.log(arguments);
                             window.location = 'index.php';
                         },
                         failure: function (form, action) {

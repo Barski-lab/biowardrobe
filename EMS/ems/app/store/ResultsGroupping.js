@@ -31,7 +31,6 @@ Ext.define( 'EMS.store.ResultsGroupping', {
                //singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
            });

@@ -33,7 +33,6 @@ Ext.define('EMS.store.IslandsDistribution', {
     remoteFilter: true,
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     },
     proxy: Ext.apply(STORE_DEFS.proxy(''), {

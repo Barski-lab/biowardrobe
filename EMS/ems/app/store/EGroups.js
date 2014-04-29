@@ -20,22 +20,22 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.store.Laboratories', {
+Ext.define('EMS.store.EGroups', {
     extend: 'Ext.data.Store',
-    storeId: 'Laboratories',
+    storeId: 'EGroups',
     autoLoad: false,
     singleton: true,
     requires: ['EMS.model.Laboratory',
                'EMS.proxy.StandardProxy'
     ],
-    model: 'EMS.model.Laboratory',
+    model: 'EMS.model.EGroup',
     proxy: {
         type: 'standardproxy',
         api: {
-            read: 'data/Laboratory.php',
-            update: 'data/LaboratoryUp.php',
-            create: 'data/LaboratoryAdd.php',
-            destroy: 'data/LaboratoryDel.php'
+            read: 'data/EGroup.php',
+            update: 'data/EGroupUp.php',
+            create: 'data/EGroupAdd.php',
+            destroy: 'data/EGroupDel.php'
         }
     }
 });

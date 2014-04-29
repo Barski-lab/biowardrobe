@@ -23,15 +23,6 @@
 
 require_once('../settings.php');
 
-if (isset($_REQUEST['tablename']))
-    $tablename = $_REQUEST['tablename'];
-else
-    $response->print_error('Not enough required parameters. t');
-
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "info", "download", "settings");
-
-if (!in_array($tablename, $AllowedTable))
-    $response->print_error('Table not in the list');
 
 /*
 switch ($tablename) {
@@ -77,13 +68,17 @@ switch ($tablename) {
 }
 */
 
-if (!($totalquery = $settings->connection->query("SELECT COUNT(*) FROM `$tablename` $where"))) {
-    $response->print_error("Exec failed: (" . $con->errno . ") " . $settings->connection->error);
-}
-$row = $totalquery->fetch_row();
-$total = $row[0];
+$SQL_QUERY="";
 
-$query_array = selectSQL("SELECT * FROM `$tablename` $where $order $limit", array());
+if($worker->isAdmin()) {
+    $SQL_QUERY="FROM labdata $where and deleted=0";
+    $PARAMS=array();
+} else {
+    $SQL_QUERY="FROM labdata $where and laboratory_id=? and deleted=0";
+    $PARAMS=array("s",$worker->worker['laboratory_id']);
+}
+$total = selectSQL("SELECT COUNT(*) as count ".$SQL_QUERY,$PARAMS)[0]['count'];
+$query_array = selectSQL("SELECT * ".$SQL_QUERY." $order $limit", $PARAMS);
 
 $response->success = true;
 $response->message = "Data loaded";

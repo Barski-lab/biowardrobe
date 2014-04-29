@@ -40,7 +40,6 @@ Ext.define('EMS.store.ProjectLabData', {
                remoteFilter: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                sorters: [{

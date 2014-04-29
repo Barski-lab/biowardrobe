@@ -23,28 +23,38 @@
 
 require_once('../settings.php');
 
-if(isset($_REQUEST['workers']))
-    $workers = $_REQUEST['workers'];
-
-$array_prepend=array();
-if(isset($workers)) {
-    $array_prepend[]=array('id'=>0,'lname'=>'All');
-    $SQL_STR="SELECT id,worker,fname,lname,dnalogin,email,notify FROM worker order by lname,fname";
-    $PARAMS=array();
-    $query_array=selectSQL($SQL_STR,$PARAMS);
+//logmsg(print_r($_REQUEST,true));
 
 
-    $result=array_merge($array_prepend,$query_array);
+$array_prepend = array();
+$array_prepend[] = array('id' => '00000000-0000-0000-0000-000000000000', 'name' => 'All', 'description' => 'All laboratories');
 
-    $resourse->success = true;
-    $resourse->message = "Data loaded";
-    $resourse->total = count($result);
-    $resourse->data = $result;
-    print_r($resourse->to_json());
-} else {
-//    $SQL_STR="SELECT id,worker,fname,lname,dnalogin,dnapass,email,notify FROM `$tablename` where worker_id=?";
-//    $PARAMS=array("i",$worker_id);
-    print_r($worker->tojson());
+$PARAMS = array();
+
+if($worker->isAdmin()) {
+    $SQL_STR = "SELECT * FROM laboratory order by name";
 }
+else {
+//EDIT list and Local admin !
+if($worker->isLocalAdmin()) {
+    $SQL_STR = "SELECT * FROM laboratory where id=? order by name";
+    $PARAMS=array("s",$worker->worker['laboratory_id']);
+}
+else {
+    //FIXME: have to always choose my own labaratory (maybe $worker->groups will work)
+    $SQL_STR = "SELECT distinct l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
+    $PARAMS=array("s",$worker->worker['laboratory_id']);
+}
+
+}
+$query_array = selectSQL($SQL_STR, $PARAMS);
+
+$result = array_merge($array_prepend, $query_array);
+
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = count($result);
+$response->data = $result;
+print_r($response->to_json());
 
 ?>

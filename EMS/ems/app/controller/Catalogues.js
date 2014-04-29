@@ -20,11 +20,15 @@
 **
 ****************************************************************************/
 
-Ext.define('EMS.controller.CrosslinkEdit', {
+Ext.define('EMS.controller.Catalogues', {
                extend: 'Ext.app.Controller',
-               stores: ['Crosslinking'],
-               models: ['Crosslinking'],
+
+               stores: ['Crosslinking','Antibodies','Fragmentation'],
+               models: ['Crosslinking','Antibodies','Fragmentation'],
+
                init: function() {
                    this.getCrosslinkingStore().load();
+                   this.getAntibodiesStore().load();
+                   this.getFragmentationStore().load();
                }
            });

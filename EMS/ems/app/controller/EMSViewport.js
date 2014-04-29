@@ -23,36 +23,68 @@ Ext.define
 ('EMS.controller.EMSViewport',
  {
      extend: 'Ext.app.Controller',
-
-     views: ['EMSViewport','EMSMenu'],
-     init: function() {
+     requires: [
+         'EMS.util.SessionMonitor',
+         'EMS.util.Util'
+     ],
+     stores: ['Worker'],
+     models: ['Worker'],
+     views: ['EMSViewport', 'toolbar.EMSMenu'],
+     worker: {},
+     init: function () {
          this.control({
-                          'viewport > panel': {
-                              render: this.onPanelRendered
+                          'viewport > panel[region=south]': {
+                              render: this.onLogPanelRender
+                          },
+                          'viewport > toolbar#title': {
+                              render: this.onTitleRender
                           }
                       });
      },
 
-     onPanelRendered: function() {
-         this.getController('EMSMenu');
-         this.getController('ExperimentTypeEdit');
-         this.getController('ExperimentsWindow');
-         this.getController('WorkersEdit');
-         this.getController('GenomeEdit');
-         this.getController('AntibodiesEdit');
-         this.getController('CrosslinkEdit');
-         this.getController('FragmentationEdit');
-         this.getController('Spikeins');
-         this.getController('SequenceCutter');
-         this.getController('Project2');
-         this.getController('Info');
+     onLogPanelRender: function (p) {
+         EMS.util.SessionMonitor.start(p);
+         Logger.init(p);
      },
 
-//             listeners: {
-//                 render: function (p) {
-//                     Logger.init(p);
-//                     Timer.init(p);
-//                 }
-//             }
-//         } ,
-});//ext def
+     onTitleRender: function (p) {
+         this.worker = this.getWorkerStore();
+         this.worker.load
+         ({
+              scope: this,
+              callback: function () {
+                  this.getController('EMSMenu');
+
+//                  this.getController('ExperimentTypeEdit');
+                  this.getController('LabData');
+                  this.getController('Project2');
+
+                  this.getController('GenomeEdit');
+                  this.getController('SequenceCutter');
+                  this.getController('Info');
+
+                  this.getController('AntibodiesEdit');
+                  this.getController('CrosslinkEdit');
+                  this.getController('FragmentationEdit');
+                  this.getController('Spikeins');
+
+                  this.worker = this.worker.getAt(0);
+                  p.insert(0,
+                           Ext.create('Ext.form.Label',
+                                      {
+                                          html: '<div style="float: left; text-align: left; color: #4c72a4; font-weight:bold;">WARDROBE: experiment management software welcomes ' + this.worker.data.fullname + "</div>"
+                                      })
+                  );
+
+                  this.getController('EGroup');
+
+                  if(this.worker.data.isa) {
+                      this.getController('Preferences');
+                  }
+                  if(this.worker.data.isa || this.worker.data.isla) {
+                      this.getController('UsersGroups');
+                  }
+              }
+          });
+     }
+ });//ext def

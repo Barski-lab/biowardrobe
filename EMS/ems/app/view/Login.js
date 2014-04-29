@@ -4,12 +4,12 @@ Ext.define('EMS.view.Login', {
 
     autoShow: true,
     height: 150,
-    width: 360,
+    width: 330,
     layout: {
         type: 'fit'
     },
     iconCls: 'key',
-    title: 'login',
+    title: 'Wardrobe login',
     closeAction: 'hide',
     closable: false,
     resizable: false,
@@ -28,14 +28,14 @@ Ext.define('EMS.view.Login', {
                 anchor: '100%',
                 labelWidth: 60,
                 allowBlank: false,
-                vtype: 'alphanum',
                 minLength: 3,
-                msgTarget: 'under'
+                msgTarget: 'side'
             },
             items: [
                 {
                     fieldLabel: 'Username',
                     name: 'username',
+                    vtype: 'alphanum',
                     maxLength: 25
                 },
                 {

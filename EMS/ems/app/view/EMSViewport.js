@@ -19,3 +19,54 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
+Ext.define
+('EMS.view.EMSViewport',
+ {
+     extend: 'Ext.container.Viewport',
+     layout: {
+         type: 'border'
+     },
+     items: [
+         {
+             xtype: 'toolbar',
+             region: 'north',
+             autoHeight: true,
+             height: 30,
+             itemId: 'title',
+             style: 'border-bottom: 2px solid #4c72a4;',
+
+             items: [
+                 '->',
+                 {
+                     text: 'logout',
+                     itemId: 'logout',
+                     iconCls: 'logout'
+                 }
+             ]
+
+         } ,
+         {
+             xtype: 'EMSMenu',
+             region: 'north',
+             border: false,
+         },
+         {
+             region: 'south',
+             itemId: 'logs',
+             collapsible: true,
+             collapsed: true,
+             height: 100,
+             minHeight: 60,
+             overflowY: 'scroll',
+             tplWriteMode: 'append',
+             tpl: '<div class="{cls}">[{now:date("H:i:s")}] - {msg}</div>',
+             bodyPadding: 5,
+         } ,
+         {
+             itemId: 'windows',
+             region: 'center',
+             border: false,
+             layout: 'fit'
+         }
+     ]//items Viewport
+ });//ext create

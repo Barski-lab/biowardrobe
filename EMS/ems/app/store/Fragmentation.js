@@ -30,7 +30,6 @@ Ext.define( 'EMS.store.Fragmentation', {
                singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: STORE_DEFS.proxy('fragmentation',true)

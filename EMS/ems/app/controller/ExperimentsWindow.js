@@ -29,9 +29,9 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     extend: 'Ext.app.Controller',
 
     models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution', 'Download'],
+             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
     stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATPChart', 'IslandsDistribution', 'Download'],
+             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
     views: ['EMS.view.ExperimentsWindow.Main', 'EMS.view.ExperimentsWindow.Grid', 'EMS.view.LabDataEdit.LabDataEditForm',
             'EMS.view.LabDataEdit.LabDataEdit', 'EMS.view.charts.Fence', 'EMS.view.LabDataEdit.LabDataDescription',
             'EMS.view.GenomeGroup.GenomeGroup', 'EMS.view.GenomeGroup.List', 'EMS.view.charts.ATP', 'EMS.view.charts.IslandsDistribution'],
@@ -240,7 +240,7 @@ Ext.define('EMS.controller.ExperimentsWindow', {
             if (record.data.antibody_id > 1)
                 anti=this.getAntibodiesStore().findRecord('id', record.data.antibody_id, 0, false, false, true).data.antibody;
             //anti = "";
-            this.addATPChart(maintabpanel, tblname, record.data.name4browser + " " + anti);
+            this.addATDPChart(maintabpanel, tblname, record.data.name4browser + " " + anti);
             this.addIslandsDistributionChart(maintabpanel, record.raw['id']);
         }//>11 and not RNA
 
@@ -533,8 +533,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
      */
     /***********************************************************************
      ***********************************************************************/
-    addATPChart: function (tab, tblname, bn) {
-        var stor = this.getATPChartStore();
+    addATDPChart: function (tab, tblname, bn) {
+        var stor = this.getATDPChartStore();
         stor.getProxy().setExtraParam('tablename', tblname + '_atp');
         stor.load({
                       callback: function (records, operation, success) {
@@ -546,8 +546,8 @@ Ext.define('EMS.controller.ExperimentsWindow', {
                                       max = records[i].data.Y;
                               }
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              var ATPChart = Ext.create("EMS.view.LabDataEdit.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
-                              tab.add(ATPChart);
+                              var ATDPChart = Ext.create("EMS.view.LabDataEdit.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
+                              tab.add(ATDPChart);
                           }
                       }
                   });

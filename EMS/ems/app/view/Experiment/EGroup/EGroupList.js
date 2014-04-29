@@ -19,9 +19,9 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-Ext.define('EMS.view.user.Groups', {
+Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.groupsedit',
+    alias: 'widget.egrouplist',
     requires: ['EMS.util.Util'],
     layout: {
         type: 'hbox',
@@ -30,7 +30,7 @@ Ext.define('EMS.view.user.Groups', {
     items: [
         {
             xtype: 'fieldset',
-            title: 'Laboratory information',
+            title: 'Laboratory projects',
             padding: {top: 0, right: 1, left: 1, bottom: 0},
 
             margin: 0,
@@ -48,13 +48,13 @@ Ext.define('EMS.view.user.Groups', {
                     height: '100%',
                     hideHeaders: true,
                     margin: {top: 0, right: 5, left: 0, bottom: 0},
-                    store: 'Laboratories',
+                    store: 'EGroups',
                     padding: 0,
                     columns: [
-                        {header: 'Laboratory information', dataIndex: 'name', flex: 1,
+                        {header: 'Projects', dataIndex: 'name', flex: 1,
                             renderer: function(value,metaData,record) {
                                 metaData.css = 'multilineColumn';
-                                return Ext.String.format('<div class="groupstopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "Unknown");
+                                return Ext.String.format('<div class="grptopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "");
                             }
                         },
                         {header: 'description', dataIndex: 'description',hidden: true, flex: 1},
@@ -67,14 +67,12 @@ Ext.define('EMS.view.user.Groups', {
                             items: [
                                 {
                                     isDisabled: function(view,rowIndex,colIndex,item,record) {
-                                        if(record.data.id=="00000000-0000-0000-0000-000000000000" || record.data.id=="laborato-ry00-0000-0000-000000000001")
-                                            return true;
                                         return false;
                                     },
                                     handler: function(view, rowIndex, colIndex, item, e) {
                                         this.fireEvent('itemclick', this, 'delete', view, rowIndex, colIndex, item, e);
                                     },
-                                    iconCls: 'users3-delete',
+                                    iconCls: 'form-blue-delete',
                                     tooltip: 'Delete'
                                 }
                             ]
@@ -99,29 +97,33 @@ Ext.define('EMS.view.user.Groups', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: 'Laboratory name',
-                            padding: 0,
+                            fieldLabel: 'Project name',
+//                            padding: 0,
                             margin: 0,
                             afterLabelTextTpl: EMS.util.Util.required,
-                            allowBlank: false,
-                            flex: 1
+                            allowBlank: false
                         },
                         {
                             xtype: 'textareafield',
                             name: 'description',
                             margin: 0,
-                            padding: 0,
-                            fieldLabel: 'Laboratory description',
+//                            padding: 0,
+                            fieldLabel: 'Project description',
                             afterLabelTextTpl: EMS.util.Util.required,
                             allowBlank: false,
-                            flex: 3
+                        },
+                        {
+                            xtype: 'numberfield',
+                            name: 'priority',
+                            fieldLabel: 'Ordering',
+                            //                            padding: 0,
+                            margin: 0
                         },
                         {
                             xtype: 'fieldcontainer',
-                            //flex: 1,
                             margin: 0,
                             padding: 0,
-                            hight: 10,
+//                            height: 10,
                             layout: {
                                 type: 'hbox'
                             },
@@ -130,7 +132,7 @@ Ext.define('EMS.view.user.Groups', {
                                     xtype: 'button',
                                     text: 'Add',
                                     itemId: 'add',
-                                    iconCls: 'users3-add',
+                                    iconCls: 'form-blue-add',
                                     margin: 8,
                                     flex: 1
                                 } ,
@@ -138,7 +140,8 @@ Ext.define('EMS.view.user.Groups', {
                                     xtype: 'button',
                                     text: 'Change',
                                     itemId: 'change',
-                                    iconCls: 'users3-edit',
+                                    iconCls: 'form-blue-edit',
+                                    disabled: true,
                                     margin: 8,
                                     flex: 1
                                 }

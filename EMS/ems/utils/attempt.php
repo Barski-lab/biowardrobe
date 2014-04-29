@@ -25,7 +25,7 @@ if (!isset($_SESSION["attempt"])) $_SESSION["attempt"] = 0;
 
 $_SESSION["attempt"] = intVal($_SESSION["attempt"]) + 1;
 
-if ($_SESSION["attempt"] > 6) {
+if ($_SESSION["attempt"] > 30) {
     if (!isset($_SESSION["attempttime"])) $_SESSION["attempttime"] = time();
     $diff = time() - $_SESSION["attempttime"];
     if ($diff < 300) {

@@ -20,13 +20,13 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.view.Preferences.Preferences', {
+Ext.define('EMS.view.Experiment.EGroup.EGroup', {
     extend: 'Ext.Window',
-    alias: 'widget.Preferences',
+    alias: 'widget.EGroup',
     width: 900,
     minWidth: 400,
     height: 600,
-    title: 'Wardrobe Preferences',
+    title: 'Project Preferences',
     iconCls: 'table2',
     closable: true,
     maximizable: true,
@@ -37,86 +37,26 @@ Ext.define('EMS.view.Preferences.Preferences', {
     },
     requires: [
         'EMS.util.Util',
-        'EMS.view.Preferences.GlobalSettings'
+        'EMS.view.Experiment.EGroup.EGroupList',
+        'EMS.view.Experiment.EGroup.EGroupRights'
     ],
     items: [
         {
-            xtype: 'tabpanel',
-            frame: true,
+            xtype: 'egrouplist',
+            frame: false,
             border: false,
             plain: true,
-            flex: 1,
-            activeTab: 0,
-            items: [
-                {
-                    xtype: 'globalsettings',
-                    title: 'Global Settings',
-                    iconCls: 'form-blue-edit'
-                }
-            ]
-
+            flex: 1
+        },
+        {
+            xtype: 'egrouprights',
+            margin: {top: 0, right: 1, left: 1, bottom: 1},
+            frame: false,
+            border: true,
+            plain: true,
+            flex: 1
         }
-    ],
+    ]
 //    initComponent: function () {
 //    }
 });
-/*
-Ext.define('EMS.view.Preferences.Preferences', {
-
-extend: 'Ext.window.Window',
-            alias: 'widget.Preferences',
-
-            title: 'Wardrobe Preferences',
-            layout: 'fit',
-            iconCls: 'table2',
-            buttonAlign: 'center',
-            maximizable: true,
-            constrain: true,
-
-            plain: true,
-            height: 700,
-            width: 900,
-            border: false,
-
-            initComponent: function () {
-
-
-                me.items = [
-                    {
-                        xtype: 'tabpanel',
-                        frame: true,
-                        border: false,
-                        plain: true,
-                        activeTab: 0,
-                        items: [
-                            {
-                                xtype: 'panel',
-                                title: 'Global Settings',
-                                layout: 'fit',
-                                iconCls: 'form-blue-edit',
-                                //                        items: me.labDataForm
-                            }
-                        ]
-                    }
-                ];
-
-                me.buttons = [
-                    {
-                        text: 'Save',
-                        action: 'save',
-                        id: 'preferences-edit-save'
-                    } ,
-                    {
-                        text: 'Cancel',
-                        handler: function () {
-                            //                    me.labDataForm.getForm().reset();
-                            me.close();
-                        }
-                    }
-                ];
-
-                me.callParent(arguments);
-            }
-        });
-
-*/
