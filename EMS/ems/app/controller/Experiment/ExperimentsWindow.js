@@ -479,13 +479,14 @@ Ext.define('EMS.controller.ExperimentsWindow', {
     addPieChart: function (record, renderto, isRNA) {
         var others = 100.0 - record.data['tagspercent'] - record.data['tagsribopercent'];
         var store = Ext.create('Ext.data.ArrayStore', {
+            autoDestroy: true,
             fields: [
                 'name', {name: 'percent', type: 'float'}
             ],
             data: [
                 ['Mapped', record.data['tagspercent']],
                 [isRNA ? 'Ribosomal' : 'Suppresed', record.data['tagsribopercent']],
-                ['Others', others.toFixed(2)]
+                ['Mismatch', others.toFixed(2)]
             ]
         });
 

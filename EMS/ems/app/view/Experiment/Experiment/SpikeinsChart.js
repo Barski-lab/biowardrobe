@@ -20,22 +20,31 @@
 **
 ****************************************************************************/
 
-Ext.define( 'EMS.view.ExperimentsWindow.Main' ,{
-               extend: 'Ext.Window',
-               alias : 'widget.ExperimentsWindow',
-               title: 'Laboratory data',
-               closable: true,
-               maximizable: true,
-               maximized: true,
-               closeAction: 'hide',
-               constrain: true,
-               minWidth: 900,
-               minHeight: 500,
-               iconCls: 'table2',
-               layout: 'fit',
+Ext.define('EMS.view.LabDataEdit.SpikeinsChart', {
+               extend: 'Ext.Panel',
+               bodyPadding: 5,
+               border: false,
+               frame: false,
+               layout: 'border',
+               plain: true,
+               title: 'Spikein info',
+               iconCls: 'surveillance-camera',
 
                initComponent: function() {
-                   this.items = Ext.create('EMS.view.ExperimentsWindow.Grid');
-                   this.callParent(arguments);
+                   var me=this;
+                   me.chart= Ext.create('EMS.view.charts.Spikeins');
+                   me.items= [{
+                                  xtype: 'panel',
+                                  frame: false,
+                                  border: true,
+                                  region: 'center',
+                                  collapsible: false,
+                                  title: 'Spikein scatter plot',
+                                  layout: 'fit',
+                                  items: [ me.chart ]
+                              }];
+                   me.callParent(arguments);
                }
            });
+
+

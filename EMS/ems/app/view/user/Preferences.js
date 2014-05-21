@@ -204,7 +204,7 @@ Ext.define('EMS.view.user.Edit', {
             {
                 text: 'Save',
                 //action: 'save',
-                id: 'worker-edit-save'
+                //id: 'worker-edit-save'
             } ,
             {
                 text: 'Cancel',
