@@ -55,7 +55,7 @@ Ext.define('EMS.proxy.StandardProxy', {
                                             icon: Ext.MessageBox.ERROR,
                                             buttons: Ext.Msg.OK
                                         });
-                    Logger.log(operation + ' failedm:' + json.message);
+//                    Logger.log(operation + ' failedm:' + json.message);
                     console.log(operation, ' failedm:', json.message, ' data:', json);
                 } else {
                     Ext.MessageBox.show({

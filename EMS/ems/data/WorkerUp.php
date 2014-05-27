@@ -61,10 +61,18 @@ if ($data->laboratory_id == "laborato-ry00-0000-0000-000000000001" && $data->wor
     }
 }
 
-if (strlen($data->passwd) != 0) {
-    array_push($PARAMS, $worker->crypt_pass($data->worker, $data->passwd));
-    $PARAMS[0] = $PARAMS[0] . "s";
-    $SQL_STR = $SQL_STR . ",passwd=?";
+if (isset($_REQUEST['workers']) && ($worker->isLocalAdmin() || $worker->isAdmin())) {
+    if (strlen($data->passwd) != 0) {
+        array_push($PARAMS, $worker->crypt_pass($data->worker, $data->passwd));
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . ",passwd=?";
+    }
+} else if (!isset($_REQUEST['workers'])) {
+    if (strlen($data->newpass) != 0) {
+        array_push($PARAMS, $worker->crypt_pass($data->worker, $data->newpass));
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . ",passwd=?";
+    }
 }
 
 array_push($PARAMS, $data->id);
@@ -74,7 +82,7 @@ $SQL_STR = $SQL_STR . " where id=?";
 //if others edit someone
 if (isset($_REQUEST['workers'])) {
 
-    if(!$worker->isLocalAdmin() && !$worker->isAdmin())
+    if (!$worker->isLocalAdmin() && !$worker->isAdmin())
         $response->print_error("Insufficient privileges!");
 
     if ($worker->isLocalAdmin()) {
@@ -100,43 +108,4 @@ if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0) {
     print_r($response->to_json());
 }
 
-
-/*
-$SQL_STR="UPDATE `$tablename` set worker=?,fname=?,lname=?,dnalogin=?,dnapass=?,email=?,notify=?";
-$PARAMS=array("ssssssi",$data->worker,$data->fname,$data->lname,$data->dnalogin,$data->dnapass,$data->email,($data->notify=='on'?1:0));
-
-if($data->newpass!='') {
-    $SQL_STR=$SQL_STR.",passwd=? ";
-
-    array_push($PARAMS,crypt_pass($data->worker,$data->newpass));
-    $PARAMS[0]=$PARAMS[0]."s";
-}
-
-$SQL_STR=$SQL_STR." where id=?";
-array_push($PARAMS,$data->id);
-$PARAMS[0]=$PARAMS[0]."i";
-
-$result=execSQL($con,"select passwd from `$tablename` where id=?",array("i",$data->id),false);
-if(sizeof($result) != 1) {
-    $res->print_error("Something wrong");
-}
-
-$salt = substr($result[0]['passwd'], 0, 64);
-$hash = $salt . $data->passwd;
-for ($i = 0; $i < 100000; $i++) {
-    $hash = hash('sha256', $hash);
-}
-$hash = $salt . $hash;
-
-if($hash == $result[0]['passwd'] || check_rights('worker')) {
-    if(execSQL($con,$SQL_STR,$PARAMS,true)==0) {
-        $res->print_error("Can't update");
-    } else {
-        $res->success = true;
-        $res->message = "Data updated";
-        print_r($res->to_json());
-        exit();
-    }
-}
-*/
 ?>

@@ -139,7 +139,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                             shadow: false,
                             border: false,
                             plain: true,
-//                            layout: 'fit',
+                            //                            layout: 'fit',
                             insetPadding: 5,
                             theme: 'Base:gradients',
                             series: [
@@ -236,64 +236,39 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     renderer: Ext.util.Format.dateRenderer('m/d/Y'), filter: true
                 },
                 {
-                    xtype: 'actioncolumn', sortable: false, width: 85, menuDisabled: true, align: 'right',
+                    xtype: 'actioncolumn', sortable: false, width: 75, menuDisabled: true, align: 'right',
                     items: [
                         {
                             tooltip: 'View record',
-                            handler: function (view, rowIndex, colIndex, item, e) {
-                                this.fireEvent('itemclick', this, 'view', view, rowIndex, colIndex, item, e);
+                            handler: function (view, rowIndex, colIndex, item, e, record) {
+                                this.fireEvent('itemclick', this, 'view', view, rowIndex, colIndex, item, e, record);
                             },
                             iconCls: 'table2-view'
                         },
-                        {
-                            iconCls: 'space'
-                        } ,
+                        //                        {
+                        //                            iconCls: 'space'
+                        //                        } ,
 
                         {
                             tooltip: 'Duplicate record',
-                            handler: function (view, rowIndex, colIndex, item, e) {
-                                this.fireEvent('itemclick', this, 'dublicate', view, rowIndex, colIndex, item, e);
-                                var store = view.getStore();
-                                var data = store.getAt(rowIndex).data;
-                                var worker = Ext.getStore('Worker').getAt(0);
-                                var r = Ext.create('EMS.model.LabData', {
-                                    worker_id: worker.data['id'],
-                                    author: worker.data['fullname'],
-                                    fragmentsizeexp: 150,
-                                    browsershare: false,
-                                    genome_id: data['genome_id'],
-                                    crosslink_id: data['crosslink_id'],
-                                    fragmentation_id: data['fragmentation_id'],
-                                    antibody_id: data['antibody_id'],
-                                    antibodycode: data['antibodycode'],
-                                    experimenttype_id: data['experimenttype_id'],
-                                    cells: data['cells'],
-                                    conditions: data['conditions'],
-                                    spikeinspool: data['spikeinspool'],
-                                    spikeins: data['spikeins'],
-                                    notes: data['notes'],
-                                    protocol: data['protocol'],
-                                    browsergrp: data['browsergrp'],
-                                    libstatus: 0,
-                                    libstatustxt: 'new',
-                                    dateadd: data['dateadd']
-                                });
-                                store.insert(rowIndex + 1, r);
+                            handler: function (view, rowIndex, colIndex, item, e, record) {
+                                this.fireEvent('itemclick', this, 'duplicate', view, rowIndex, colIndex, item, e, record);
                             },
-                            iconCls: 'table-row-add'
+                            iconCls: 'tables'
                         } ,
-                        {
-                            iconCls: 'space'
-                        } ,
+                        //                        {
+                        //                            iconCls: 'space'
+                        //                        } ,
                         {
                             tooltip: 'Delete record',
                             isDisabled: function (view, rowIndex, colIndex, item, record) {
                                 if (Ext.getStore('Worker').getAt(0).data['isla']) return false;
+                                if (Ext.getStore('Worker').getAt(0).data['isa']) return false;
                                 if (view.getStore().getAt(rowIndex).data['libstatus'] > 0) return true;
                                 return false;
                             },
-                            handler: function (view, rowIndex, colIndex, item, e) {
-                                this.fireEvent('itemclick', this, 'delete', view, rowIndex, colIndex, item, e);
+                            handler: function (view, rowIndex, colIndex, item, e, record) {
+                                this.fireEvent('itemclick', this, 'delete', view, rowIndex, colIndex, item, e, record);
                             },
                             iconCls: 'table-row-delete'
                         }
@@ -305,8 +280,8 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                 {
                     text: 'New',
                     iconCls: 'table-row-add',
-                    tooltip: 'Describe a new experiment',
-                                        itemId: 'new-experiment'
+                    tooltip: 'Add a new experiment',
+                    itemId: 'newexperiment'
                 } ,
                 //                {
                 //                    text: 'Save',
@@ -335,6 +310,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                 '-' ,
                 {
                     xtype: 'combobox',
+                    itemId: 'laboratories',
                     tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
                     margin: '0 5 0 5',
                     labelWidth: 110,
@@ -349,6 +325,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                 } ,
                 {
                     xtype: 'combobox',
+                    itemId: 'projects',
                     tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
                     margin: '0 5 0 5',
                     labelWidth: 110,

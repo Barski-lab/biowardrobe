@@ -33,50 +33,6 @@ $AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "expe
 if (!in_array($tablename, $AllowedTable))
     $response->print_error('Table not in the list');
 
-/*
-switch ($tablename) {
-    case "labdata":
-        if (isset($_REQUEST['workerid'])) //select different users
-            $workerid = intVal($_REQUEST['workerid']);
-        else
-            $workerid = $_SESSION["user_id"];
-
-        if (isset($_REQUEST['typeid'])) {
-            $typeid = intVal($_REQUEST['typeid']);
-
-            if ($typeid >= 1 && $typeid <= 3)
-                $where = $where . " and libstatus > 20 and experimenttype_id between 3 and 6 ";
-            elseif ($typeid == 4)
-                $where = $where . " and libstatus > 11 and experimenttype_id between 1 and 2 ";
-            else
-                $response->print_error('Not yet supported.');
-        }
-
-        if ($workerid != 0)
-            $where = $where . " and worker_id=$workerid ";
-
-        break;
-    case "grp_local":
-        if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
-            check_val($_REQUEST['genomedb']);
-            if ($_REQUEST['genomenm'] != "") check_val($_REQUEST['genomenm']);
-            $gdb = $_REQUEST['genomedb'];
-            $gnm = $_REQUEST['genomenm'];
-        } else {
-            $response->print_error('Not enough required parameters.');
-        }
-        $where = $where . " and name like '$gnm%'";
-
-        $con = def_connect();
-        if (!$con->select_db($gdb)) {
-            $response->print_error('Could not select db: ' . $con->connect_error);
-        }
-        break;
-    default:
-        break;
-}
-*/
-
 if (!($totalquery = $settings->connection->query("SELECT COUNT(*) FROM `$tablename` $where"))) {
     $response->print_error("Exec failed: (" . $con->errno . ") " . $settings->connection->error);
 }

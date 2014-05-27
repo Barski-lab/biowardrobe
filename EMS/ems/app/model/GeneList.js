@@ -39,12 +39,12 @@ Ext.define('EMS.model.GeneList', {
         {name: 'parent_id', type: 'string'},
         {name: 'status', type: 'int'}
     ],
-    proxy: Ext.apply(STORE_DEFS.proxy('', true), {
-        api: {
-            read: 'data/GeneList.php',
-            //create: 'data/GeneListAdd.php',
-            update: 'data/GeneListUp.php',
-            destroy: 'data/GeneListDel.php'
-        }
-    })
+//    proxy: Ext.apply(STORE_DEFS.proxy('', true), {
+//        api: {
+//            read: 'data/GeneList.php',
+//            //create: 'data/GeneListAdd.php',
+//            update: 'data/GeneListUp.php',
+//            destroy: 'data/GeneListDel.php'
+//        }
+//    })
 });

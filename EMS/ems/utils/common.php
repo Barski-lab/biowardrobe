@@ -162,4 +162,177 @@ function selectSQL($sql, $params = array())
     return execSQL($settings->connection, $sql, $params, false, 0);
 }
 
+abstract class AbstractTableDataProcessing
+{
+    public $response, $types, $PARAMS, $VARIABLES, $tablename, $SQL_STR, $ID, $IDTYPE, $IDNAME, $wheres, $wherep;
+
+    function __construct($_table)
+    {
+        global $response;
+        global $settings;
+
+        $this->response = & $response;
+        $this->tablename = $_table;
+
+        if (($table = selectSQL("describe `$_table`", array())) == 0)
+            $this->response->print_error("Cant describe");
+
+        $this->types = array();
+        foreach ($table as $dummy => $val) {
+            $t = "s";
+            if (strrpos($val["Type"], "int") !== false)
+                $t = "i";
+            elseif (strrpos($val["Type"], "float") !== false)
+                $t = "d";
+            elseif (strrpos($val["Type"], "double") !== false)
+                $t = "d";
+            elseif (strrpos($val["Type"], "date") !== false)
+                $t = "dd";
+
+            $this->types[$val["Field"]] = $t;
+        }
+        $this->PARAMS[] = "";
+        $this->wherep[] = "";
+        $this->VARIABLES = "";
+        $this->SQL_STR = "";
+    }
+
+    abstract protected function fieldrule($field, $value);
+
+    protected function add_sql($field, $value)
+    {
+        $this->SQL_STR .= "{$field},";
+        if ($var == NULL)
+            $this->VARIABLES .= "null,";
+        else {
+            $this->VARIABLES .= "?,";
+            $this->PARAMS[] = $value;
+            $this->PARAMS[0] .= $this->types[$field];
+        }
+    }
+
+    protected function up_sql($field, $value)
+    {
+        if ($value == NULL)
+            $this->SQL_STR .= "{$field}=null,";
+        else {
+            $this->SQL_STR .= "{$field}=?,";
+            $this->PARAMS[] = $value;
+            $this->PARAMS[0] .= $this->types[$field];
+        }
+    }
+
+    public function addData($val)
+    {
+        foreach ($val as $f => $d) {
+
+            if (!array_key_exists($f, $this->types))
+                $this->response->print_error("Table field does not exist $f");
+
+            if ($this->types[$f] == "s")
+                $d = trim($d);
+
+            if ($this->fieldrule($f, $d))
+                continue;
+
+            if (strrpos($f, "_id") !== false && (($this->types[$f] == "i" && intVal($d) == 0) || ($this->types[$f] == "s" && strlen($d) == 0))) {
+                $this->SQL_STR .= " $f,";
+                $this->VARIABLES .= "null,";
+                continue;
+            }
+
+            $this->SQL_STR .= " $f,";
+            $this->VARIABLES .= "?,";
+
+            if ($this->types[$f] == "dd") {
+                $date = DateTime::createFromFormat('m/d/Y', $d);
+                $this->PARAMS[] = $date->format('Y-m-d');
+                $this->PARAMS[0] .= "s";
+            } else {
+                $this->PARAMS[] = $d;
+                $this->PARAMS[0] .= $this->types[$f];
+            }
+        }
+
+        $this->SQL_STR = substr_replace($this->SQL_STR, "", -1);
+        $this->VARIABLES = substr_replace($this->VARIABLES, "", -1);
+
+        $this->SQL_STR = "insert into `{$this->tablename}` ({$this->SQL_STR}) VALUES({$this->VARIABLES})";
+    }
+
+    public function upData($val, $idfield)
+    {
+        $this->IDNAME = $idfield;
+        foreach ($val as $f => $d) {
+
+            if (!array_key_exists($f, $this->types))
+                $this->response->print_error("Table field does not exist $f");
+
+            if ($this->types[$f] == "s")
+                $d = trim($d);
+
+            if ($this->fieldrule($f, $d))
+                continue;
+
+            if ($this->where($f, $d))
+                continue;
+
+            if ($f == $this->IDNAME) {
+                $this->ID = $d;
+                $this->IDTYPE = $this->types[$f];
+                continue;
+            }
+
+            if (strrpos($f, "_id") !== false && (($this->types[$f] == "i" && intVal($d) == 0) || ($this->types[$f] == "s" && strlen($d) == 0))) {
+                $this->SQL_STR .= " $f=null,";
+                continue;
+            }
+
+            $this->SQL_STR .= " $f=?,";
+
+            if ($this->types[$f] == "dd") {
+                $date = DateTime::createFromFormat('m/d/Y', $d);
+                $this->PARAMS[] = $date->format('Y-m-d');
+                $this->PARAMS[0] .= "s";
+            } else {
+                $this->PARAMS[] = $d;
+                $this->PARAMS[0] .= $this->types[$f];
+            }
+        }
+
+
+        $this->SQL_STR = substr_replace($this->SQL_STR, "", -1);
+
+        $this->PARAMS[] = $this->ID;
+        $this->PARAMS[0] .= $this->IDTYPE;
+
+        $this->SQL_STR = "update `{$this->tablename}` set {$this->SQL_STR} where `{$this->IDNAME}`=? ";
+
+        if (count($this->wherep) > 1) {
+            for ($i = 1; $i < count($this->wherep); $i++)
+                $this->PARAMS[] = $this->wherep[$i];
+            $this->PARAMS[0].=$this->wherep[0];
+            $this->SQL_STR.=$this->wheres;
+        }
+    }
+
+    protected function where($field, $value)
+    {
+        return false;
+    }
+
+    protected function setwhere($field, $value, $sql)
+    {
+        $this->wheres .= $sql;
+        $this->wherep[] = $value;
+        $this->wherep[0] .= $this->types[$field];
+    }
+
+    public function exec()
+    {
+        global $settings;
+        return execSQL($settings->connection, $this->SQL_STR, $this->PARAMS, true);
+    }
+}
+
 ?>

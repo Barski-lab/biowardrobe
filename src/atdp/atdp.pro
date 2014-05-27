@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET   = atdp
 
 CONFIG   += console warn_on release
+CONFIG   -= app_bundle
+
 QT       -= gui
 QT       += sql
 
@@ -18,7 +20,8 @@ HEADERS     += ../global/SamReader.hpp \
                ../global/Arguments.hpp \
                ../global/Settings.hpp \
                src/atdp.hpp \
-               ../averagedensity/src/averagedensity.hpp
+               ../averagedensity/src/averagedensity.hpp \
+    src/atdpbasics.h
 
 
 SOURCES     += ../global/Reads.cpp \
@@ -26,7 +29,8 @@ SOURCES     += ../global/Reads.cpp \
                ../global/Settings.cpp \
                src/atdp.cpp \
                src/main.cpp \
-               ../averagedensity/src/averagedensity.cpp
+               ../averagedensity/src/averagedensity.cpp \
+    src/atdpbasics.cpp
 
 INCLUDEPATH += . \
                ./src \

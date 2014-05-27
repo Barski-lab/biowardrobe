@@ -30,6 +30,10 @@
 #include <qfileinfo.h>
 #include <qmutex.h>
 #include <QTextStream>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QtDebug>
 
 #include <cstdio>
 #include <cstdlib>
@@ -55,34 +59,7 @@ using namespace std;
 class Settings
 {
 public:
-    enum en_In { COMMAND, INI, BOTH };
-    struct _ArgDescr{
-        QString _cname;
-        QString _ininame;
-        QVariant::Type _type;
-        QVariant _value;
-        QVariant _defValue;
-        QString _descr;
-        bool _required;
-        bool _stdin;
-
-        _ArgDescr():
-            _type(QVariant::Invalid),
-            _required(false),
-            _stdin(false){};
-
-        _ArgDescr(QString _c, QString _i,QVariant::Type _t,	QVariant _def,QString _d,bool _r=false,bool _s=false):
-            _cname(_c),
-            _ininame(_i),
-            _type(_t),
-            _defValue(_def),
-            _descr(_d),
-            _required(_r),
-            _stdin(_s){};
-    };
     static Settings& Instance();
-    void Init(QStringList /*Settings list*/);
-//	static QStringList
 
 private:
     /*Constructor and variables which allows singleton creation*/
@@ -95,29 +72,13 @@ private:
 
     /*Protected static variables*/
     static QMutex mutex;
-    static QSettings      *setup;
-
+    QMap<QString,QString> settings;
 public:
-    static void addArg(QString key,QString _c/*command line argument*/, QString _i/*name in ini file*/,QVariant::Type _t,
-                       QString _d,QVariant _def,bool _r=false/*is argument required or not*/,bool _s=false/*should we read from stdin or not*/);
-    static void argsList(void);
-    static void usage(void);
-    static QMap<QString,_ArgDescr>& getVarValStorage();
-    QFileInfo fileInfo(const QString&);
-    QStringList split(const QString&,const QChar&);
-    QVariant &getArgs(QString key);
+    bool Init(QString);
+    QString getValue(QString key);
 };
 
 #define gSettings()  (Settings::Instance())
-
-/*
-//#define gArgs_(n) \
-//	BOOST_PP_IF( \
-//	BOOST_PP_EQUAL(n,1),GARGS_INIT_1(), \
-//	BOOST_PP_IF( \
-//	BOOST_PP_GREATER(n,1),(*_gArgs), \
-//	BOOST_PP_EMPTY()))
-*/
 
 
 #endif // Settings_HPP

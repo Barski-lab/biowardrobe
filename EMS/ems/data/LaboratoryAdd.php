@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -33,15 +33,18 @@ $data=json_decode($_REQUEST['data']);
 if(!isset($data))
     $res->print_error("Data is not set");
 
-$data->id=guid();
+class AddLab extends AbstractTableDataProcessing
+{
+    public function fieldrule($field,$value) {
+        return false;
+    }
+}
 
-$SQL_STR="INSERT INTO laboratory (id,name,description,rlogin,rpass) VALUES(?,?,?,?,?)";
+$data->id = guid();
+$addlab = new AddLab('laboratory');
+$addlab->addData($data);
+$addlab->exec();
 
-$PARAMS=array("sssss",$data->id,$data->name,$data->description,$data->rlogin,$data->rpass);
-
-
-if(execSQL($settings->connection,$SQL_STR,$PARAMS,true)==0)
-    $response->print_error("Cant insert");
 
 $response->success = true;
 $response->message = "Data saved";

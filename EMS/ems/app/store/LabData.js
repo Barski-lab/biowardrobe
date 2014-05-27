@@ -31,13 +31,13 @@ Ext.define('EMS.store.LabData', {
         'EMS.model.Fragmentation',
         'EMS.model.Antibodies',
         'EMS.model.LabData',
-        'EMS.proxy.StandardProxy'
+        'EMS.proxy.StandardProxyRemote'
     ],
 
     storeId: 'LabData',
     model: 'EMS.model.LabData',
     autoLoad: false,
-    singleton: true,
+//    singleton: true,
     remoteSort: true,
     remoteFilter: true,
     listeners: {
@@ -56,20 +56,13 @@ Ext.define('EMS.store.LabData', {
     ],
     pageSize: 30,
     proxy: {
-        type: 'standardproxy',
+        type: 'standardproxyremote',
         api: {
             read: 'data/LabData.php',
             update: 'data/LabDataUp.php',
             create: 'data/LabDataAdd.php',
             destroy: 'data/LabDataDel.php'
-        },
-        filterParam: 'filter',
-        groupParam: 'group',
-        pageParam: 'page',
-        startParam: 'start',
-        sortParam: 'sort',
-        limitParam: 'limit'
+        }
     }
-
 });
 

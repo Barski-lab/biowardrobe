@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -23,97 +23,45 @@
 
 require_once('../settings.php');
 
+//logmsg($_REQUEST);
 
-/*
-switch ($tablename) {
-    case "labdata":
-        if (isset($_REQUEST['workerid'])) //select different users
-            $workerid = intVal($_REQUEST['workerid']);
-        else
-            $workerid = $_SESSION["user_id"];
-
-        if (isset($_REQUEST['typeid'])) {
-            $typeid = intVal($_REQUEST['typeid']);
-
-            if ($typeid >= 1 && $typeid <= 3)
-                $where = $where . " and libstatus > 20 and experimenttype_id between 3 and 6 ";
-            elseif ($typeid == 4)
-                $where = $where . " and libstatus > 11 and experimenttype_id between 1 and 2 ";
-            else
-                $response->print_error('Not yet supported.');
-        }
-
-        if ($workerid != 0)
-            $where = $where . " and worker_id=$workerid ";
-
-        break;
-    case "grp_local":
-        if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
-            check_val($_REQUEST['genomedb']);
-            if ($_REQUEST['genomenm'] != "") check_val($_REQUEST['genomenm']);
-            $gdb = $_REQUEST['genomedb'];
-            $gnm = $_REQUEST['genomenm'];
-        } else {
-            $response->print_error('Not enough required parameters.');
-        }
-        $where = $where . " and name like '$gnm%'";
-
-        $con = def_connect();
-        if (!$con->select_db($gdb)) {
-            $response->print_error('Could not select db: ' . $con->connect_error);
-        }
-        break;
-    default:
-        break;
-}
-*/
-
-$SQL_QUERY = "";
-$lab_id = "";
-$egroup_id = "";
-
-if (isset($_REQUEST['laboratory_id']))
-    $lab_id = $_REQUEST['laboratory_id'];
-if (isset($_REQUEST['egroup_id']))
-    $egroup_id = $_REQUEST['egroup_id'];
-
-$SQL_QUERY = "FROM labdata $where and deleted=0 ";
-$PARAMS = array();
 
 if ($worker->isAdmin()) {
-    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000" && $lab_id != "laborato-ry00-0000-0000-000000000001") {
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $lab_id);
-    }
-} else {
-    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000") {
-        //check lab_id
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $lab_id);
-    } else {
-        //all allowed for non admins
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $worker->worker['laboratory_id']);
-    }
-}
-
-if ($egroup_id != "") {
-    $SQL_QUERY .= "and egroup_id=?";
-    if (count($PARAMS) != 0) {
-        $PARAMS[0] .= "s";
-        $PARAMS[] = $egroup_id;
-    } else {
-        $PARAMS = array("s", $egroup_id);
-    }
+    $response->print_error("Insufficient privileges");
 }
 
 
-$total = selectSQL("SELECT COUNT(*) as count " . $SQL_QUERY, $PARAMS)[0]['count'];
-$query_array = selectSQL("SELECT * " . $SQL_QUERY . " $order $limit", $PARAMS);
+$data = json_decode($_REQUEST['data']);
+if (!isset($data))
+    $res->print_error("Data is not set");
+
+
+class AddLabData extends AbstractTableDataProcessing
+{
+
+    public function fieldrule($field,$value) {
+        if (in_array($field, array("id","islandcount","browsergrp")))
+            return true;
+        if($field=="cells" && strlen(trim($value))==0)
+            $this->response->print_error("Cells is empty");
+        if($field=="conditions" && strlen(trim($value))==0)
+            $this->response->print_error("Conditions is empty");
+
+        return false;
+    }
+}
+
+$data->uid = guid();
+$data->laboratory_id=$worker->worker['laboratory_id'];
+$data->author=$worker->worker['fullname'];
+
+$addlabdata = new AddLabData('labdata');
+$addlabdata->addData($data);
+$addlabdata->exec();
 
 $response->success = true;
-$response->message = "Data loaded";
+$response->message = "Data inserted";
 $response->total = $total;
-$response->data = $query_array;
+$response->data = array();
 print_r($response->to_json());
 ?>

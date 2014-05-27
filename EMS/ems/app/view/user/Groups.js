@@ -48,7 +48,7 @@ Ext.define('EMS.view.user.Groups', {
                     height: '100%',
                     hideHeaders: true,
                     margin: {top: 0, right: 5, left: 0, bottom: 0},
-                    store: 'Laboratories',
+                    //store: 'Laboratories',
                     padding: 0,
                     columns: [
                         {header: 'Laboratory information', dataIndex: 'name', flex: 1,

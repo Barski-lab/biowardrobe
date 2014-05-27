@@ -27,20 +27,30 @@ require_once('../settings.php');
 
 $data = json_decode($_REQUEST['data']);
 if (!isset($data))
-    $res->print_error("Data is not set");
+    $response->print_error("Data is not set");
 
-if ($worker->isAdmin()) {
-    $SQL_STR = "update laboratory set name=?,description=?,rlogin=?,rpass=? where id=?";
-    $PARAMS = array("sssss", $data->name, $data->description, $data->rlogin, $data->rpass, $data->id);
-} elseif ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id)) {
-    $SQL_STR = "update laboratory set description=?,rlogin=?,rpass=? where id=?";
-    $PARAMS = array("ssss", $data->description, $data->rlogin, $data->rpass, $data->id);
-} else {
+if (!$worker->isAdmin() && !$worker->isLocalAdmin())
     $response->print_error("Insufficient privileges");
+
+class UpLab extends AbstractTableDataProcessing
+{
+    public function fieldrule($field, $value)
+    {
+        return false;
+    }
+
+    protected function where($field, $value)
+    {
+        global $worker;
+        if ($field == "id" && $worker->isLocalAdmin())
+            $this->setwhere($field, $worker->worker['laboratory_id'], " and {$field}=? ");
+        return false;
+    }
 }
 
-if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
-    $response->print_error("Cant update");
+$uplab = new UpLab('laboratory');
+$uplab->upData($data, 'id');
+$uplab->exec();
 
 $response->success = true;
 $response->message = "Data updated";

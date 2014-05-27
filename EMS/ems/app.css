@@ -32,6 +32,12 @@
     background-color:#eee;*/
 }
 
+.headtext {
+    color: #335;
+    font: bold 13px arial, helvetica;
+    text-align: left;
+}
+
 .loading {
     background: url(ext/resources/themes/images/default/grid/loading.gif);
     color: #555;
@@ -356,6 +362,12 @@
 
 .table2-ok {
     background-image: url(images/table2_ok.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.tables {
+    background-image: url(images/tables.png) !important;
     width: 16px;
     height: 16px;
 }
@@ -831,3 +843,13 @@
     /*display: table-cell;*/
     /*vertical-align: middle;*/
 /*}*/
+
+/*actioncolumn space*/
+/*.x-action-col-icon {*/
+    /*height: 16px;*/
+    /*width: 16px;*/
+    /*margin-right: 8px;*/
+/*}*/
+.x-grid-cell-inner-action-col img {
+    margin-right: 5px;
+}

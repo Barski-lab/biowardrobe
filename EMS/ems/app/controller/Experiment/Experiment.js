@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -20,7 +20,7 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.controller.Experiment.LabData', {
+Ext.define('EMS.controller.Experiment.Experiment', {
     extend: 'Ext.app.Controller',
 
     //    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
@@ -28,161 +28,454 @@ Ext.define('EMS.controller.Experiment.LabData', {
     //    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
     //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
 
-    models: ['EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome'],
+    models: ['Preferences','EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands','Antibodies','IslandsDistribution','RPKM'],
+    stores: ['Preferences','EGroups', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands','Antibodies','IslandsDistribution','RPKM'],
 
-    stores: ['EGroups', 'Laboratories', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome'],
-
-    views: ['Experiment.EGroup.EGroup'],
+    views: ['Experiment.Experiment.MainWindow',
+            'Experiment.Experiment.EditForm',
+            'Experiment.Experiment.QualityControl',
+            'Experiment.Experiment.Islands',
+            'Experiment.Experiment.RPKM',
+    ],
 
     requires: [
-        //        'EMS.util.MessageBox'
+        'EMS.util.Util'
     ],
 
 
     worker: {},
+    save: false,
 
     init: function () {
         this.control
         ({
-             'experimentlistwindow': {
-                 render: this.onPanelRendered,
-                 destroy: this.onDestroy
+             'experimentmainwindow': {
+                 render: this.onWindowRendered,
+                 show: this.onWindowShow,
+                 destroy: this.onDestroy,
+                 beforeclose: this.onClose
              },
-             'experimentlistwindow grid': {
-                 itemdblclick: this.onExperimentShow
+             'experimentmainwindow button[itemId=save]': {
+                 click: this.onExperimentSaveClick
              },
-             'experimentlistwindow button[itemId=add]': {
-                 click: this.onExperimentAddClick
+             'experimentmainwindow button[itemId=cancel]': {
+                 click: this.onExperimentCancelClick
              },
-             'experimentlistwindow combobox#laboratories': {
-                 select: this.onLaboratoriesChange
+             'experimenteditform combobox[name=experimenttype_id]': {
+                 select: this.onExperimentTypeChange
              },
-             'experimentlistwindow combobox#projects': {
-                 select: this.onProjectsChange
+             'experimenteditform combobox[name=genome_id]': {
+                 select: this.onGenomeChange
              },
-             "experimentlistwindow actioncolumn": {
-                 itemclick: this.handleLabDataActionColumn
+             'experimenteditform': {
              }
          });
     },//init
+    /****************************
+     * Init window functions
+     ****************************/
     onDestroy: function () {
+        //        this.ATDPChart.destroy();
     },
-    onPanelRendered: function (form) {
+    onClose: function () {
+        if (!this.getLabDataStore().isLoading())
+            this.getLabDataStore().rejectChanges();
+    },
+    onWindowRendered: function (form) {
         var me = this;
         this.worker = this.getWorkerStore().getAt(0);
-        this.getExperimentTypeStore().load();
-        this.getGenomeStore().load();
-        this.getEGroupsStore().load();
-        this.getLaboratoriesStore().load(function () {
-            Ext.ComponentQuery.query('experimentlistwindow combobox')[0].setValue(me.worker.data['laboratory_id']);
-            me.reloadLabData();
+        this.getDownloadStore().load();
+        this.getController('Experiment.Islands');
+        this.getController('Experiment.RPKM');
+    },
+    /******************************
+     *
+     * Main Logic
+     *
+     *
+     ******************************/
+    onWindowShow: function (form) {
+        var me = this;
+
+        this.showChipSeq();
+        this.showSpike();
+
+        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+        var record = form.getRecord();
+
+        var maintabpanel = Ext.ComponentQuery.query('experimentmainwindow > tabpanel')[0];
+
+        this.UID = record.data['uid'];
+        this.tblname = record.data['filename'].split(';')[0];
+        var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
+        this.spike = (gdata.genome.indexOf('spike') !== -1);
+        this.db = gdata.db;
+
+        this.isRNA = ((Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue().indexOf('RNA') !== -1);
+
+
+        if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa && !this.worker.data.isla)
+            this.readOnlyAll(form);
+
+
+        var sts = parseInt(record.data['libstatus']);
+        var base = sts / 1000 | 0;
+        sts = sts % 1000;
+
+        form.findField('cells').focus(false, 400);
+
+        if ((sts < 11 && base == 0) || sts < 10)
+            form.findField('forcerun').hide();
+
+        if (sts < 11)
+            return;
+
+        if (!this.worker.data.isa && !this.worker.data.isla)
+            this.setDisabledByStatus(sts);
+
+        this.addQC(maintabpanel, record);
+        this.addGB(maintabpanel);
+
+        if (sts > 11 && !this.isRNA) {
+            var anti = "";
+            if (record.data.antibody_id.length > 1)
+                anti = this.getAntibodiesStore().findRecord('id', record.data.antibody_id, 0, false, false, true).data.antibody;
+
+            this.addIslandsList(maintabpanel);
+            this.addATDPChart(maintabpanel, record.data.name4browser + " " + anti);
+        }//>11 and not RNA
+
+        if (sts > 11 && this.isRNA) {
+            this.addRPKMList(maintabpanel);
+            if (this.spike) {
+                //this.addSpikeinChart(maintabpanel);
+            }
+        }//>11 and not RNA
+
+    },
+
+    /****************************
+     *
+     ****************************/
+    onExperimentTypeChange: function () {
+        this.showChipSeq();
+    },
+
+    /****************************
+     *
+     ****************************/
+    onGenomeChange: function () {
+        this.showSpike();
+    },
+
+    /****************************
+     *  Save and Cancel experiment
+     ****************************/
+    onExperimentCancelClick: function () {
+        Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+    },
+
+    onExperimentSaveClick: function (button) {
+        var me = this;
+        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+
+        var record = form.getRecord();
+        var values = form.getValues();
+
+        var checkboxs = Ext.ComponentQuery.query('experimenteditform checkboxfield');
+
+        checkboxs.forEach(function (item) {
+            values[item.name] = item.getValue();
         });
+
+        if (!form.isValid()) {
+            EMS.util.Util.showErrorMsg('Please fill required fields');
+            return;
+        }
+
+        if (form.isDirty()) {
+            record.set(values);
+            this.getLabDataStore().sync
+            ({
+                 callback: function () {
+                     me.getLabDataStore().load();
+                     Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+                 }});
+        } else {
+            Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+        }
     },
 
     /****************************
-     *
+     *  Interface Disable Functions
      ****************************/
-    onExperimentAddClick: function () {
+
+    //-----------------------------------------------------------------------
+    // Makes all elements of the form readOnly
+    //
+    //-----------------------------------------------------------------------
+
+    readOnlyAll: function (form) {
+        form.getFields().each(function (field) {
+            field.setReadOnly(true);
+        });
+        //            Ext.getCmp('browser-grp-edit').disable();
+    },
+
+    //-----------------------------------------------------------------------
+    // Disabling/enabling antibody and fragmentation comboboxes
+    //
+    //-----------------------------------------------------------------------
+    showChipSeq: function () {
+        var combo = Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0];
+        if (combo.getRawValue().indexOf('DNA') !== -1) {
+            Ext.ComponentQuery.query('experimenteditform #dnasupp')[0].show();
+        } else {
+            Ext.ComponentQuery.query('experimenteditform #dnasupp')[0].hide();
+        }
+    },
+    //-----------------------------------------------------------------------
+    // Disabling/enabling antibody and fragmentation comboboxes
+    //
+    //-----------------------------------------------------------------------
+    setDisabledByStatus: function (sts) {
+        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+        if (sts >= 1) {
+            form.findField('url').setReadOnly(true);
+            form.findField('download_id').setReadOnly(true);
+        }
+        if (sts >= 11) {
+            form.findField('experimenttype_id').setReadOnly(true);
+            form.findField('genome_id').setReadOnly(true);
+            form.findField('name4browser').setReadOnly(true);
+            form.findField('egroup_id').setReadOnly(true);
+            form.findField('fragmentation_id').setReadOnly(true);
+            form.findField('crosslink_id').setReadOnly(true);
+            form.findField('antibody_id').setReadOnly(true);
+            form.findField('antibodycode').setReadOnly(true);
+            form.findField('spikeins_id').setReadOnly(true);
+            form.findField('dateadd').setReadOnly(true);
+            form.findField('cells').setReadOnly(true);
+            form.findField('conditions').setReadOnly(true);
+            form.findField('groupping').setReadOnly(true);
+            form.findField('protocol').setReadOnly(true);
+            form.findField('notes').setReadOnly(true);
+            //            Ext.getCmp('browser-grp-edit').disable();
+        }
+    },
+
+    //-----------------------------------------------------------------------
+    // Disabling/enabling spikeins field
+    //
+    //-----------------------------------------------------------------------
+    showSpike: function () {
+        var combo = Ext.ComponentQuery.query('experimenteditform combobox[name=genome_id]')[0];
+
+        if (combo.getRawValue().indexOf('spike') !== -1) {
+            Ext.ComponentQuery.query('experimenteditform #spikeinsupp')[0].show();
+        } else {
+            Ext.ComponentQuery.query('experimenteditform #spikeinsupp')[0].hide();
+        }
+    },
+
+
+    /*
+     * Add Tab functions
+     */
+    /***********************************************************************
+     ***********************************************************************/
+    addQC: function (tab, record) {
+        this.getFenceStore().load({ params: { recordid: record.get('uid') } });
+
+        tab.add({
+                    xtype: 'experimentqualitycontrol',
+                    iconCls: 'chart'
+                });
+        var panelD = Ext.ComponentQuery.query('experimentqualitycontrol panel#experiment-description')[0];
+        panelD.on('afterrender', function () {
+            var basename=EMS.util.Util.Settings('preliminary')+'/'+this.UID;
+            panelD.tpl.overwrite(panelD.body, Ext.apply(record.data, {isRNA: this.isRNA, basename: basename}));
+
+
+            var store = Ext.create('Ext.data.ArrayStore', {
+                autoDestroy: true,
+                fields: [
+                    {name: 'name', },
+                    {name: 'percent', type: 'float'}
+                ],
+                data: [
+                    ['Mapped', record.data['tagspercent']],
+                    [this.isRNA ? 'Ribosomal' : 'Suppresed', record.data['tagsribopercent']],
+                    ['Mismatch', (100.0 - record.data['tagspercent'] - record.data['tagsribopercent']).toFixed(1)]
+                ]
+            });
+            this.piechart = Ext.create('Ext.chart.Chart', {
+                animate: false,
+                renderTo: 'experiment-qc-chart',
+                height: 120,
+                width: 120,
+                padding: 0,
+                margin: 0,
+                store: store,
+                shadow: false,
+                border: false,
+                plain: true,
+                //                            layout: 'fit',
+                insetPadding: 5,
+                theme: 'Base:gradients',
+                series: [
+                    {
+                        type: 'pie',
+                        field: 'percent',
+                        tips: {
+                            trackMouse: true,
+                            width: 120,
+                            height: 28,
+                            font: '9px Arial',
+                            renderer: function (storeItem, item) {
+                                this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');
+                            }
+                        },
+                        label: {
+                            field: 'percent',
+                            display: 'rotate',
+                            contrast: true,
+                            font: '7px Arial'
+                        }
+                    }
+                ]
+            });
+
+
+            tab.setActiveTab(1);
+        }, this);
+
+        panelD.on('ondestroy', function () {
+            this.piechart.destroy();
+        }, this);
 
     },
-    /****************************
-     *
-     ****************************/
-    reloadLabData: function () {
+
+    /***********************************************************************
+     * Add Genome Browser Tab
+     ***********************************************************************/
+    addGB: function (tab) {
+
+        var gtbl = this.UID.replace(/-/g,'_')+'_wtrack';
+        if (!this.isRNA) {
+            gtbl = this.UID.replace(/-/g,'_')+ '_grp';
+        }
+        var url = EMS.util.Util.Settings('genomebrowserroot')+'/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + gtbl + '=full';
+        tab.add({
+                    title: 'Genome browser',
+                    iconCls: 'genome-browser',
+                    itemId: 'genomebrowser',
+                    xtype: 'uxiframe',
+                    src: url,
+                    origUrl: url
+                });
+    },
+    /***********************************************************************
+     * Add average tag density profile tab
+     ***********************************************************************/
+    addATDPChart: function (tab, bn) {
+        var stor = this.getATDPChartStore();
         var me=this;
-        this.getLabDataStore().getProxy().setExtraParam('laboratory_id', Ext.ComponentQuery.query('experimentlistwindow combobox#laboratories')[0].getValue());
-        this.getLabDataStore().getProxy().setExtraParam('egroup_id', Ext.ComponentQuery.query('experimentlistwindow combobox#projects')[0].getValue());
-        var pgbar=Ext.ComponentQuery.query('experimentlistwindow pagingtoolbar')[0];
-        pgbar.moveFirst();
+        stor.getProxy().setExtraParam('tablename', this.UID + '_atdp');
+        stor.load({
+                      callback: function (records, operation, success) {
+                          if (success) {
+                              var len = Math.abs(records[0].data.X);
+                              var max = records[0].data.Y;
+                              for (var i = 0; i < records.length; i++) {
+                                  if (records[i].data.Y > max)
+                                      max = records[i].data.Y;
+                              }
+                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
+                              me.ATDPChart = Ext.create("EMS.view.Experiment.Experiment.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
+                              tab.add(me.ATDPChart);
+                          }
+                      }
+                  }, this);
     },
-    /****************************
-     *
-     ****************************/
-    onLaboratoriesChange: function (combo, records) {
-        this.reloadLabData();
+    /***********************************************************************
+     ***********************************************************************/
+    addIslandsList: function (tab) {
+        var stor = this.getIslandsStore();
+        stor.getProxy().setExtraParam('uid', this.UID);
+        var me=this;
+        stor.load({
+                      callback: function (records, operation, success) {
+                          if (success) {
+                              tab.add({
+                                          xtype: 'experimentislands'
+                                      });
+                              me.addIslandsDistributionChart(tab);
+                          }
+                      }
+                  });
     },
-    /****************************
-     *
-     ****************************/
-    onProjectsChange: function (combo, records) {
-        this.reloadLabData();
+    /***********************************************************************
+     ***********************************************************************/
+    addRPKMList: function (tab) {
+        var stor = this.getRPKMStore();
+        stor.getProxy().setExtraParam('tablename', this.UID + '_genes');
+        stor.load({
+                      callback: function (records, operation, success) {
+                          if (success) {
+                              tab.add({
+                                          xtype: 'experimentrpkm'
+                                      });
+                          }
+                      }
+                  });
     },
+    /***********************************************************************
+     ***********************************************************************/
+    addSpikeinChart: function (tab, lid) {
+        var stor = this.getSpikeinsChartStore();
+        stor.getProxy().setExtraParam('labdata_id', lid);
+        stor.load({
+                      callback: function (records, operation, success) {
+                          var SpikeinsChart = Ext.create("EMS.view.LabDataEdit.SpikeinsChart");
+                          SpikeinsChart.chart.items = [
+                              {
+                                  type: 'text',
+                                  text: 'Y = ' + records[0].data.slope.toFixed(3) + ' * X' + ((records[0].data.inter > 0) ? " +" : ' ') + records[0].data.inter.toFixed(3),
+                                  font: 'italic bold 14px Arial',
+                                  width: 100,
+                                  height: 30,
+                                  x: 180, //the sprite x position
+                                  y: 23  //the sprite y position
+                              } ,
+                              {
+                                  type: 'text',
+                                  text: 'R = ' + records[0].data.R.toFixed(3),
+                                  font: 'italic bold 14px Arial',
+                                  style: 'italic',
+                                  width: 100,
+                                  height: 30,
+                                  x: 180, //the sprite x position
+                                  y: 50  //the sprite y position
+                              }
+                          ];
+                          tab.add(SpikeinsChart);
+                      }
+                  });
+    },
+    /***********************************************************************
+     ***********************************************************************/
+    addIslandsDistributionChart: function (tab) {
+        var stor = this.getIslandsDistributionStore();
+        stor.getProxy().setExtraParam('uid', this.UID);
+        stor.load({
+                      callback: function (records, operation, success) {
+                          var IslandsDistributionChart = Ext.create("EMS.view.Experiment.Experiment.IslandsDistribution");
+                          tab.add(IslandsDistributionChart);
+                      }
+                  });
+    }
 
-    /****************************
-     *
-     ****************************/
-    handleLabDataActionColumn: function (column, action, view, rowIndex, colIndex, item, e, record) {
-        var me = this;
-        if (action == 'delete') {
-            //            var store = me.egroupForm.down('grid').getStore(),
-            //                    rec = store.getAt(rowIndex);
-        }
-        if (action == 'view') {
-            this.onExperimentShow(view, record);
-        }
-        if (action == 'duplicate') {
-            this.duplicateRecord(view, rowIndex, colIndex, item, e, record);
-        }
-    },
-    /****************************
-     *
-     ****************************/
-    duplicateRecord: function (view, rowIndex, colIndex, item, e) {
-        var store = view.getStore();
-        var data = store.getAt(rowIndex).data;
-        var worker = Ext.getStore('Worker').getAt(0);
-        var r = Ext.create('EMS.model.LabData', {
-            worker_id: worker.data['id'],
-            author: worker.data['fullname'],
-            fragmentsizeexp: 150,
-            browsershare: false,
-            genome_id: data['genome_id'],
-            crosslink_id: data['crosslink_id'],
-            fragmentation_id: data['fragmentation_id'],
-            antibody_id: data['antibody_id'],
-            antibodycode: data['antibodycode'],
-            experimenttype_id: data['experimenttype_id'],
-            cells: data['cells'],
-            conditions: data['conditions'],
-            spikeinspool: data['spikeinspool'],
-            spikeins: data['spikeins'],
-            notes: data['notes'],
-            protocol: data['protocol'],
-            browsergrp: data['browsergrp'],
-            libstatus: 0,
-            libstatustxt: 'new',
-            dateadd: data['dateadd']
-        });
-        store.insert(rowIndex + 1, r);
-    },
-    /****************************
-     *
-     ****************************/
-    onExperimentShow: function (grid, record) {
-        var me = this;
-        me.LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {addnew: false, modal: true });
-        me.LabDataEdit.down('experimenteditform').getForm().loadRecord(record);
-        //        this.LabDataEdit.labDataForm.on('render', function () {
-        //
-        //            Ext.ComponentQuery.query('labdatawindow pagingtoolbar')[0].on('render', function (form) {
-        //                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-        //                    name: 'protocol',
-        //                    value: record.data.protocol,
-        //                    hideLabel: true
-        //                });
-        //                form.add(protocolHTML);
-        //            }, this, {single: true});
-        //
-        //            Ext.getCmp('big-bu-bum2').on('render', function (form) {
-        //                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-        //                    name: 'notes',
-        //                    value: record.data.notes,
-        //                    hideLabel: true
-        //                });
-        //                form.add(protocolHTML);
-        //            }, this, {single: true});
-        //        }, this, {single: true});
-        this.LabDataEdit.show();
-    },
+
 
 });//Ext.define

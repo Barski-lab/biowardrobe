@@ -49,13 +49,13 @@ if (isset($filter)) {
             if (!preg_match('/^[0-9\/]+$/', $val->value))
                 $res->print_error('Incorrect required parameters.');
             if ($val->comparison == 'lt') {
-                $where = $where . " and $val->field < str_to_date('$val->value','%m/%d/%Y') ";
+                $where = $where . " and `$val->field` < str_to_date('$val->value','%m/%d/%Y') ";
             }
             if ($val->comparison == 'gt') {
-                $where = $where . " and $val->field > str_to_date('$val->value','%m/%d/%Y') ";
+                $where = $where . " and `$val->field` > str_to_date('$val->value','%m/%d/%Y') ";
             }
             if ($val->comparison == 'eq') {
-                $where = $where . " and $val->field = str_to_date('$val->value','%m/%d/%Y') ";
+                $where = $where . " and `$val->field` = str_to_date('$val->value','%m/%d/%Y') ";
             }
         }
         if ($val->type == 'string') {

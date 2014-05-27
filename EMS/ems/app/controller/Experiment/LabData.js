@@ -20,19 +20,14 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.controller.LabData', {
+Ext.define('EMS.controller.Experiment.LabData', {
     extend: 'Ext.app.Controller',
-
-    //    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-    //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
-    //    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-    //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
 
     models: ['EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome'],
 
     stores: ['EGroups', 'Laboratories', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome'],
 
-    views: ['Experiment.EGroup.EGroup'],
+    views: ['Experiment.LabData.LabDataListWindow'],
 
     requires: [
         //        'EMS.util.MessageBox'
@@ -51,7 +46,7 @@ Ext.define('EMS.controller.LabData', {
              'experimentlistwindow grid': {
                  itemdblclick: this.onExperimentShow
              },
-             'experimentlistwindow button[itemId=add]': {
+             'experimentlistwindow button#newexperiment': {
                  click: this.onExperimentAddClick
              },
              'experimentlistwindow combobox#laboratories': {
@@ -82,17 +77,11 @@ Ext.define('EMS.controller.LabData', {
     /****************************
      *
      ****************************/
-    onExperimentAddClick: function () {
-
-    },
-    /****************************
-     *
-     ****************************/
     reloadLabData: function () {
-        var me=this;
+        var me = this;
         this.getLabDataStore().getProxy().setExtraParam('laboratory_id', Ext.ComponentQuery.query('experimentlistwindow combobox#laboratories')[0].getValue());
         this.getLabDataStore().getProxy().setExtraParam('egroup_id', Ext.ComponentQuery.query('experimentlistwindow combobox#projects')[0].getValue());
-        var pgbar=Ext.ComponentQuery.query('experimentlistwindow pagingtoolbar')[0];
+        var pgbar = Ext.ComponentQuery.query('experimentlistwindow pagingtoolbar')[0];
         pgbar.moveFirst();
     },
     /****************************
@@ -114,8 +103,38 @@ Ext.define('EMS.controller.LabData', {
     handleLabDataActionColumn: function (column, action, view, rowIndex, colIndex, item, e, record) {
         var me = this;
         if (action == 'delete') {
-            //            var store = me.egroupForm.down('grid').getStore(),
-            //                    rec = store.getAt(rowIndex);
+            var store = view.getStore(),
+                    rec = store.getAt(rowIndex);
+            var sts = rec.get('libstatus');
+            sts = sts % 1000;
+            if (sts > 1) {
+                Ext.MessageBox.show
+                ({
+                     title: 'DELETE',
+                     msg: 'Do you want to delete "' + rec.get('name4browser') + '"?<br> All relaited data (plots/analyses/gene lists/etc)<br>will be deleted from the system also! ',
+                     icon: Ext.MessageBox.QUESTION,
+                     fn: function (buttonId) {
+                         if (buttonId === "yes") {
+                             store.remove(rec);
+                             store.sync
+                             ({
+                                  callback: function () {
+                                      store.load();
+                                  }
+                              });
+                         }
+                     },
+                     buttons: Ext.Msg.YESNO
+                 });
+            } else {
+                store.remove(rec);
+                store.sync
+                ({
+                     callback: function () {
+                         store.load();
+                     }
+                 });
+            }
         }
         if (action == 'view') {
             this.onExperimentShow(view, record);
@@ -127,13 +146,36 @@ Ext.define('EMS.controller.LabData', {
     /****************************
      *
      ****************************/
+    onExperimentAddClick: function (button) {
+        var store = this.getLabDataStore();
+        var r = Ext.create('EMS.model.LabData', {
+            worker_id: this.worker.data['id'],
+            author: this.worker.data['fullname'],
+            fragmentsizeexp: 150,
+            browsershare: false,
+            genome_id: 1,
+            crosslink_id: 1,
+            fragmentation_id: 1,
+            antibody_id: 'antibody-0000-0000-0000-000000000001',
+            experimenttype_id: 1,
+            spikeins: 1,
+            libstatus: 0,
+            libstatustxt: 'new',
+            download_id: 1,
+            dateadd: new Date()
+        });
+        store.insert(0, r);
+        this.onExperimentShow(button, r);
+    },
+    /****************************
+     *
+     ****************************/
     duplicateRecord: function (view, rowIndex, colIndex, item, e) {
         var store = view.getStore();
         var data = store.getAt(rowIndex).data;
-        var worker = Ext.getStore('Worker').getAt(0);
         var r = Ext.create('EMS.model.LabData', {
-            worker_id: worker.data['id'],
-            author: worker.data['fullname'],
+            worker_id: this.worker.data['id'],
+            author: this.worker.data['fullname'],
             fragmentsizeexp: 150,
             browsershare: false,
             genome_id: data['genome_id'],
@@ -146,43 +188,26 @@ Ext.define('EMS.controller.LabData', {
             conditions: data['conditions'],
             spikeinspool: data['spikeinspool'],
             spikeins: data['spikeins'],
+            download_id: data['download_id'],
             notes: data['notes'],
             protocol: data['protocol'],
-            browsergrp: data['browsergrp'],
+            egroup_id: data['egroup_id'],
             libstatus: 0,
             libstatustxt: 'new',
             dateadd: data['dateadd']
         });
         store.insert(rowIndex + 1, r);
+        this.onExperimentShow(view, r);
     },
     /****************************
      *
      ****************************/
     onExperimentShow: function (grid, record) {
-        var me = this;
-        me.LabDataEdit = Ext.create('EMS.view.Experiment.LabDataEdit.LabDataWindow', {addnew: false, modal: true });
-        me.LabDataEdit.down('labdataform').getForm().loadRecord(record);
-        //        this.LabDataEdit.labDataForm.on('render', function () {
-        //
-        //            Ext.ComponentQuery.query('labdatawindow pagingtoolbar')[0].on('render', function (form) {
-        //                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-        //                    name: 'protocol',
-        //                    value: record.data.protocol,
-        //                    hideLabel: true
-        //                });
-        //                form.add(protocolHTML);
-        //            }, this, {single: true});
-        //
-        //            Ext.getCmp('big-bu-bum2').on('render', function (form) {
-        //                var protocolHTML = Ext.create('Ext.form.HtmlEditor', {
-        //                    name: 'notes',
-        //                    value: record.data.notes,
-        //                    hideLabel: true
-        //                });
-        //                form.add(protocolHTML);
-        //            }, this, {single: true});
-        //        }, this, {single: true});
-        this.LabDataEdit.show();
+        //var me = this;
+        var LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {modal: true });
+        LabDataEdit.down('experimenteditform').getForm().loadRecord(record);
+        LabDataEdit.show();
+        LabDataEdit.focus(false, 400);
     },
 
 });//Ext.define

@@ -23,62 +23,48 @@
 
 require_once('../settings.php');
 
+$SQL_QUERY = "";
+$lab_id = "";
+$egroup_id = "";
 
-/*
-switch ($tablename) {
-    case "labdata":
-        if (isset($_REQUEST['workerid'])) //select different users
-            $workerid = intVal($_REQUEST['workerid']);
-        else
-            $workerid = $_SESSION["user_id"];
+if (isset($_REQUEST['laboratory_id']))
+    $lab_id = $_REQUEST['laboratory_id'];
+if (isset($_REQUEST['egroup_id']))
+    $egroup_id = $_REQUEST['egroup_id'];
 
-        if (isset($_REQUEST['typeid'])) {
-            $typeid = intVal($_REQUEST['typeid']);
+$SQL_QUERY = "FROM labdata $where and deleted=0 ";
+$PARAMS = array();
 
-            if ($typeid >= 1 && $typeid <= 3)
-                $where = $where . " and libstatus > 20 and experimenttype_id between 3 and 6 ";
-            elseif ($typeid == 4)
-                $where = $where . " and libstatus > 11 and experimenttype_id between 1 and 2 ";
-            else
-                $response->print_error('Not yet supported.');
-        }
-
-        if ($workerid != 0)
-            $where = $where . " and worker_id=$workerid ";
-
-        break;
-    case "grp_local":
-        if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
-            check_val($_REQUEST['genomedb']);
-            if ($_REQUEST['genomenm'] != "") check_val($_REQUEST['genomenm']);
-            $gdb = $_REQUEST['genomedb'];
-            $gnm = $_REQUEST['genomenm'];
-        } else {
-            $response->print_error('Not enough required parameters.');
-        }
-        $where = $where . " and name like '$gnm%'";
-
-        $con = def_connect();
-        if (!$con->select_db($gdb)) {
-            $response->print_error('Could not select db: ' . $con->connect_error);
-        }
-        break;
-    default:
-        break;
-}
-*/
-
-$SQL_QUERY="";
-
-if($worker->isAdmin()) {
-    $SQL_QUERY="FROM labdata $where and deleted=0";
-    $PARAMS=array();
+if ($worker->isAdmin()) {
+    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000" && $lab_id != "laborato-ry00-0000-0000-000000000001") {
+        $SQL_QUERY .= "and laboratory_id=? ";
+        $PARAMS = array("s", $lab_id);
+    }
 } else {
-    $SQL_QUERY="FROM labdata $where and laboratory_id=? and deleted=0";
-    $PARAMS=array("s",$worker->worker['laboratory_id']);
+    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000") {
+        //check lab_id
+        $SQL_QUERY .= "and laboratory_id=? ";
+        $PARAMS = array("s", $lab_id);
+    } else {
+        //all allowed for non admins
+        $SQL_QUERY .= "and laboratory_id=? ";
+        $PARAMS = array("s", $worker->worker['laboratory_id']);
+    }
 }
-$total = selectSQL("SELECT COUNT(*) as count ".$SQL_QUERY,$PARAMS)[0]['count'];
-$query_array = selectSQL("SELECT * ".$SQL_QUERY." $order $limit", $PARAMS);
+
+if ($egroup_id != "") {
+    $SQL_QUERY .= "and egroup_id=?";
+    if (count($PARAMS) != 0) {
+        $PARAMS[0] .= "s";
+        $PARAMS[] = $egroup_id;
+    } else {
+        $PARAMS = array("s", $egroup_id);
+    }
+}
+
+
+$total = selectSQL("SELECT COUNT(*) as count " . $SQL_QUERY, $PARAMS)[0]['count'];
+$query_array = selectSQL("SELECT * " . $SQL_QUERY . " $order $limit", $PARAMS);
 
 $response->success = true;
 $response->message = "Data loaded";

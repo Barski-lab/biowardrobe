@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 if (isset($_REQUEST['workers']))
     $workers = $_REQUEST['workers'];
@@ -43,7 +43,7 @@ if (isset($workers)) {
             $SQL_STR = $SQL_STR . " where laboratory_id=?";
         }
     } elseif ($worker->isLocalAdmin()) {
-        $SQL_STR = "SELECT id,worker,'*****' as passwd,fname,lname,email,notify,admin,changepass,relogin,laboratory_id FROM worker where laboratory_id=? ";
+        $SQL_STR = "SELECT id,worker,'' as passwd,fname,lname,email,notify,admin,changepass,relogin,laboratory_id FROM worker where laboratory_id=? ";
         $PARAMS = array("s", $worker->worker['laboratory_id']);
     } else {
         $response->print_error("Insufficient privileges!");
@@ -52,10 +52,6 @@ if (isset($workers)) {
     print_r($worker->tojson());
     exit();
 }
-
-//array_push($PARAMS, );
-//$PARAMS[0] = $PARAMS[0] . "s";
-//$SQL_STR = $SQL_STR . ",passwd=?";
 
 
 $SQL_STR = $SQL_STR . " order by lname,fname";
@@ -69,9 +65,5 @@ $response->message = "Data loaded";
 $response->total = count($result);
 $response->data = $result;
 print_r($response->to_json());
-
-
-//    $SQL_STR="SELECT id,worker,fname,lname,dnalogin,dnapass,email,notify FROM `$tablename` where worker_id=?";
-//    $PARAMS=array("i",$worker_id);
 
 ?>

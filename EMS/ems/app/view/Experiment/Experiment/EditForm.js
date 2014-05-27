@@ -20,9 +20,9 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
+Ext.define('EMS.view.Experiment.Experiment.EditForm', {
     extend: 'Ext.form.Panel',
-    alias: 'widget.labdataform',
+    alias: 'widget.experimenteditform',
 
     //    bodyPadding: 5,
     //    border: false,
@@ -76,7 +76,10 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                 {
                     xtype: 'panel',
                     title: 'General info',
-                    layout: 'anchor',
+                    layout: {
+                        type: 'vbox',
+                        align: 'stretch'
+                    },
                     frame: true,
                     border: false,
                     //plain: true,
@@ -150,7 +153,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                             fieldLabel: 'Experiment Type',
                                             name: 'experimenttype_id',
                                             displayField: 'etype',
-                                            store: EMS.store.ExperimentType,
+                                            store: 'ExperimentType',
                                             typeAhead: false,
                                             editable: false,
                                             valueField: 'id',
@@ -166,7 +169,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                             fieldLabel: 'Fragmentation',
                                             name: 'fragmentation_id',
                                             displayField: 'fragmentation',
-                                            store: EMS.store.Fragmentation,
+                                            store: 'Fragmentation',
                                             typeAhead: false,
                                             editable: false,
                                             valueField: 'id',
@@ -230,6 +233,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                 {
                                     xtype: 'fieldcontainer',
                                     layout: 'hbox',
+                                    itemId: 'spikeinsupp',
                                     hidden: true,
                                     defaults: {
                                         labelWidth: 120,
@@ -252,7 +256,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                             displayField: 'spikeins',
                                             name: 'spikeins_id',
                                             fieldLabel: 'Spikeins',
-                                            store: EMS.store.Spikeins,
+                                            store: 'Spikeins',
                                             typeAhead: false,
                                             editable: false,
                                             valueField: 'id',
@@ -399,7 +403,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                             name: 'download_id',
                                             displayField: 'download',
                                             fieldLabel: 'Download type',
-                                            store: EMS.store.Download,
+                                            store: 'Download',
                                             editable: false,
                                             valueField: 'id',
                                             triggerAction: 'all',
@@ -413,43 +417,25 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                     ]
                 } ,
                 {
-                    //                    xtype: 'panel',
                     title: 'Protocol',
-                    //                        itemId: 'protocoltab',
-                    //                    frame: false,
-                    //                    border: false,
-                    //                    padding: 0,
-                    //                    margin: 0,
-                    //                    layout: 'fit',
-                    //                    items: [
-                    //                        {
                     xtype: 'htmleditor',
                     name: 'protocol',
+                    plugins: [new Ext.create('Ext.ux.form.HtmlEditor.imageUpload')],
                     hideLabel: true,
                     border: false,
                     frame: false,
                     padding: 0,
                     margin: 0
-                    //                        }
-                    //                    ]
                 } ,
                 {
-                    //xtype: 'panel',
                     title: 'Notes',
-                    //                        itemId: 'notestab',
-                    //                    layout: 'fit',
                     padding: 0,
                     margin: 0,
                     frame: false,
                     border: false,
-                    //                    items: [
-                    //                        {
                     xtype: 'htmleditor',
                     name: 'notes',
                     hideLabel: true
-
-                    //                        }
-                    //                    ]
                 },
                 {
                     xtype: 'panel',
@@ -512,7 +498,7 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataForm', {
                                             labelWidth: 200,
                                             fieldLabel: 'Force to repeat experiment analysis?',
                                             //margin: '18 0 0 10',
-                                            flex: 2
+                                            flex: 1
                                         }
                                     ]
                                 }

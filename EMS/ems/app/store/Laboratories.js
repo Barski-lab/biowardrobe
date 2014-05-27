@@ -24,7 +24,7 @@ Ext.define('EMS.store.Laboratories', {
     extend: 'Ext.data.Store',
     storeId: 'Laboratories',
     autoLoad: false,
-    singleton: true,
+    singleton: false,
     requires: ['EMS.model.Laboratory',
                'EMS.proxy.StandardProxy'
     ],

@@ -46,5 +46,4 @@ class Response
         die();
     }
 }
-
-$res = new Response();
+?>

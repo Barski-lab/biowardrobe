@@ -32,12 +32,12 @@ Ext.define('EMS.model.ProjectTree', {
         { name: 'isnew', type: 'int'},
         { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'}
     ],
-    proxy: Ext.apply(STORE_DEFS.proxy('project', true), {
-        api: {
-            read: 'data/ProjectTree.php',
-            update: 'data/ProjectTreeUp.php'
-            //                                        create: 'data/ResultTreeAdd.php',
-            //                                        destroy: 'data/ResultTreeDel.php'
-        }
-    })
+//    proxy: Ext.apply(STORE_DEFS.proxy('project', true), {
+//        api: {
+//            read: 'data/ProjectTree.php',
+//            update: 'data/ProjectTreeUp.php'
+//            //                                        create: 'data/ResultTreeAdd.php',
+//            //                                        destroy: 'data/ResultTreeDel.php'
+//        }
+//    })
 });

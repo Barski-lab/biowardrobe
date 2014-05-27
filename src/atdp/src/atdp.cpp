@@ -22,20 +22,208 @@
 
 #include "atdp.hpp"
 
+class ATDPThreads: public QRunnable
+{
+
+    public:
+
+        EXPERIMENT_INFO* exp_i;
+        ATDPBasics* atdpb;
+
+        ATDPThreads(EXPERIMENT_INFO* e):
+            exp_i(e) {
+            atdpb = new ATDPBasics(exp_i);
+            this->setAutoDelete(true);
+        };
+
+        void run(void){
+            atdpb->RegionsProcessing();
+        }
+
+};
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 ATDP::ATDP(QObject* parent):
     QObject(parent)
 {
+    avd_window=gArgs().getArgs("avd_window").toInt();
+    avd_whole_region=avd_window*2+1;
+    avd_heat_window=gArgs().getArgs("avd_heat_window").toInt();
+    twicechr=gArgs().getArgs("sam_twicechr").toString();
+    ignorechr=gArgs().getArgs("sam_ignorechr").toString();
+
 }
 
 void ATDP::start() {
-    QString filename=gArgs().getArgs("in").toString();
 
+    EXPERIMENT_INFO* exp_i;
+
+    qDebug()<<"start";
+
+    /*
+     * Prepare experiments to proccess
+     */
+    if(!gArgs().getArgs("avd_luid").toString().isEmpty()) {
+        this->getRecordInfo();
+    } else if(!gArgs().getArgs("avd_guid").toString().isEmpty()) {
+        this->getRecordsInfo();
+    } else {
+        throw "Starving for uid";
+    }
+
+
+    QThreadPool *t_pool=QThreadPool::globalInstance();
+
+    foreach(QString key,experiment_info.keys()){
+        t_pool->start(new ATDPThreads(&experiment_info[key]));
+    }//foreach trough experiments
+
+    if(t_pool->activeThreadCount()!=0) {
+        qDebug()<<"waiting threads";
+        t_pool->waitForDone();
+    }
+
+    foreach(QString key,experiment_info.keys()){
+        exp_i=&experiment_info[key];
+        QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
+        /*
+         *  AVD
+         */
+        QFile outFile;
+        outFile.setFileName(key+".csv");
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        QString out;
+        for(int j=0; j<storage.size();j++) {
+            out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
+        }
+        outFile.write(out.toLocal8Bit());
+        outFile.close();
+        out.clear();
+        /*
+         *  AVD HEAT
+         */
+        outFile.setFileName(key+".matrix");
+        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        QList<QPair<quint64,quint64> > sort;
+        bool do_sort=gArgs().getArgs("avd_sort").toBool();
+        for(int j=0; j<exp_i->avd_matrix.size();j++) {
+            quint64 sum_line=0;
+            for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+                sum_line+=exp_i->avd_matrix[j].second[c];
+                if(!do_sort) {
+                    out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
+                }
+            }
+            if(do_sort) {
+                sort.append(qMakePair(sum_line,j));
+            } else {
+                out.chop(1);
+                out+=QString("\n");
+            }
+        }
+        if(do_sort){
+            qSort(sort.begin(), sort.end());
+            for(int j=0; j<exp_i->avd_matrix.size();j++) {
+                for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
+                }
+                out.chop(1);
+                out+=QString("\n");
+            }
+        }//do sort
+
+        outFile.write(out.toLocal8Bit());
+        outFile.close();
+        out.clear();
+
+    }//foreach trough experiments
+
+
+    qDebug()<<"end";
+
+    /*
+
+    QSqlQuery q;
+    q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands`");
+    if(!q.exec()) {
+        qDebug()<<"Cant describe "<<q.lastError().text();
+        throw "Error describe";
+    }
+    q.next();
+*/
 
     emit finished();
 }
+
+
+void ATDP::getRecordInfo() {
+    QSqlQuery q;
+    q.prepare("select g.db,g.annottable,l.fragmentsize,l.tagsmapped,l.filename from labdata l,genome g where l.uid=? and g.id=l.genome_id");
+    q.bindValue(0, gArgs().getArgs("avd_luid").toString());
+    if(!q.exec()) {
+        qDebug()<<"Query error info: "<<q.lastError().text();
+        throw "Error query to DB";
+    }
+    q.next();
+    EXPERIMENT_INFO *ei = new EXPERIMENT_INFO();
+    ei->source=q.value(1).toString();
+    ei->db=q.value(0).toString();
+    ei->fragmentsize=q.value(2).toInt();
+    ei->mapped=q.value(3).toInt();
+    ei->filepath=q.value(4).toString()+".bam";
+    ei->avd_total.resize(avd_whole_region);
+    ei->avd_total.fill(0,avd_whole_region);
+    experiment_info.insert(gArgs().getArgs("avd_luid").toString(),*ei);
+}
+
+void ATDP::getRecordsInfo() {
+    QSqlQuery q;
+
+     q.prepare("select a.pltname,tbl1_id,tbl2_id,l.fragmentsize,l.tagsmapped,g2.tableName,g.tableName "
+        " from atdp a,genelist g, genelist g2, labdata l where a.genelist_id=? "
+        " and g.labdata_id=l.id and a.tbl1_id=g.id and a.tbl2_id=g2.id");
+    q.bindValue(0, gArgs().getArgs("avd_guid").toString());
+    if(!q.exec()) {
+        qDebug()<<"Query error info: "<<q.lastError().text();
+        throw "Error query to DB";
+    }
+    while(q.next()) {
+        EXPERIMENT_INFO *ei = new EXPERIMENT_INFO();
+        ei->source=q.value(5).toString();
+        ei->db=gSettings().getValue("experimentsdb");
+        ei->fragmentsize=q.value(3).toInt();
+        ei->mapped=q.value(4).toInt();
+        ei->filepath=q.value(6).toString()+".bam";
+        ei->avd_total.resize(avd_whole_region);
+        ei->avd_total.fill(0,avd_whole_region);
+        experiment_info.insert(q.value(0).toString()+"_"+q.value(1).toString()+"_"+q.value(2).toString(),*ei);
+    }
+}
+
+
+ATDP::~ATDP()
+{
+}
+
+
+//        QSvgGenerator generator;
+//        generator.setFileName(gArgs().fileInfo("out").baseName()+".svg");
+//        generator.setSize(QSize(200, 200));
+//        generator.setViewBox(QRect(0, 0, 200, 200));
+//        generator.setTitle(tr("SVG Generator Example Drawing"));
+//        generator.setDescription(tr("An SVG drawing created by the SVG Generator "
+//            "Example provided with Qt."));
+//        QPainter painter;
+//        painter.begin(&generator);
+//        painter.fillRect(QRect(0, 0, 200, 200), Qt::gray);
+//        painter.setPen(QPen(Qt::white, 4, Qt::DashLine));
+//        painter.drawLine(QLine(0, 35, 200, 35));
+//        painter.drawLine(QLine(0, 165, 200, 165));
+//        painter.end();
+//return;
+
+
 
 #if 0
 
@@ -154,13 +342,13 @@ void ATDHeatmap::batchsql() {
 
             if(qq.value(3).toInt()<100) {
                 sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end "+columns+special_sort_name+" from "
-                        +sel_table+" where strand = '+' ";
+                           +sel_table+" where strand = '+' ";
                 sql_querym="select chrom,strand,txEnd-"+avd_window_str+" as start,txEnd+"+avd_window_str+" as end "+columns+special_sort_name+"  from "
-                        +sel_table+" where strand = '-' ";
+                           +sel_table+" where strand = '-' ";
                 sql_query=sql_queryp+" union "+sql_querym+" "+orderby;
             } else if(qq.value(3).toInt()==101){
                 sql_query="select chrom,'+' as strand,(start+end)/2-"+avd_window_str+" as start,(start+end)/2+"+avd_window_str+" as end from "
-                        +sel_table+"_macs ";
+                          +sel_table+"_macs ";
             }
 
             if(!q.exec(sql_query)) {//takes gene lists coordinates into q
@@ -182,13 +370,13 @@ void ATDHeatmap::batchsql() {
             if(!columns.isEmpty() && nplot==0) {
                 outFile.setFileName(gArgs().fileInfo("out").path()+"/"+"EXPRESSION"+".raw_data");
                 outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-//                QString line="";
-//                for(int j=0; j<columns_names.size();j++) {
-//                    line.append(QString("%1 ").arg(columns_names.at(j)));
-//                }
-//                line.chop(1);
-//                line+="\n";
-//                outFile.write(line.toAscii());
+                //                QString line="";
+                //                for(int j=0; j<columns_names.size();j++) {
+                //                    line.append(QString("%1 ").arg(columns_names.at(j)));
+                //                }
+                //                line.chop(1);
+                //                line+="\n";
+                //                outFile.write(line.toAscii());
             }
             while(q.next()) { //loop trough all genes for the current plot
                 QVector<double> avd_raw_data(length+1,0);
@@ -328,25 +516,3 @@ void ATDHeatmap::batchsql() {
     }//aid>0
 }
 #endif
-
-ATDP::~ATDP()
-{
-}
-
-
-
-//        QSvgGenerator generator;
-//        generator.setFileName(gArgs().fileInfo("out").baseName()+".svg");
-//        generator.setSize(QSize(200, 200));
-//        generator.setViewBox(QRect(0, 0, 200, 200));
-//        generator.setTitle(tr("SVG Generator Example Drawing"));
-//        generator.setDescription(tr("An SVG drawing created by the SVG Generator "
-//            "Example provided with Qt."));
-//        QPainter painter;
-//        painter.begin(&generator);
-//        painter.fillRect(QRect(0, 0, 200, 200), Qt::gray);
-//        painter.setPen(QPen(Qt::white, 4, Qt::DashLine));
-//        painter.drawLine(QLine(0, 35, 200, 35));
-//        painter.drawLine(QLine(0, 165, 200, 165));
-//        painter.end();
-//return;

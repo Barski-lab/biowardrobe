@@ -26,6 +26,7 @@ Ext.define( 'EMS.model.Preferences', {
                    { name: 'key', type: 'string', persist: true  },
                    { name: 'value', type: 'string' },
                    { name: 'description', type: 'string' },
-                   { name: 'status', type: 'int' }
+                   { name: 'status', type: 'int' },
+                   { name: 'group', type: 'int' }
                ]
            });

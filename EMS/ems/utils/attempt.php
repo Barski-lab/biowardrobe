@@ -36,4 +36,3 @@ if ($_SESSION["attempt"] > 30) {
 }
 
 ?>
- 

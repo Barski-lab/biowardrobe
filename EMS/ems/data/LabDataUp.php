@@ -25,43 +25,58 @@ require_once('../settings.php');
 
 //logmsg($_REQUEST);
 
-
-if ($worker->isAdmin()) {
-    $response->print_error("Insufficient privileges");
-}
-
-
 $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("Data is not set");
 
 
-class AddLabData extends AbstractTableDataProcessing
+class UpLabData extends AbstractTableDataProcessing
 {
-
-    public function fieldrule($field,$value) {
-        if (in_array($field, array("id","islandcount","browsergrp")))
-            return true;
-        if($field=="cells" && strlen(trim($value))==0)
+    public function fieldrule($field, $value)
+    {
+        global $worker;
+        if ($field == "cells" && strlen(trim($value)) == 0)
             $this->response->print_error("Cells is empty");
-        if($field=="conditions" && strlen(trim($value))==0)
+        if ($field == "conditions" && strlen(trim($value)) == 0)
             $this->response->print_error("Conditions is empty");
+        if ($field == "forcerun" && intval($value)>0) {
+            if ($worker->isLocalAdmin() || $worker->isAdmin()) {
+                $this->up_sql("libstatus",10);
+                $this->setwhere("libstatus", 10, " and (libstatus > ? and libstatus not between 1000 and 1009 and libstatus not between 2000 and 2009 or forcerun=1)");
+                $this->up_sql("libstatustxt","ready to be analyzed");
+                $this->up_sql("forcerun",1);
+            }
+            return true;
+        }
+
+        if (in_array($field, array("author", "browsergrp", "uid", "islandcount", "filename", "deleted","libstatus","libstatustxt")))
+            return true;
 
         return false;
     }
+
+    protected function where($field, $value)
+    {
+        global $worker;
+        if ($worker->isAdmin())
+            return false;
+        if ($field == "laboratory_id") {
+            $this->setwhere($field, $worker->worker['laboratory_id'], " and {$field}=? ");
+            return true;
+        }
+        return false;
+    }
+
 }
 
-$data->uid = guid();
-$data->laboratory_id=$worker->worker['laboratory_id'];
-$data->author=$worker->worker['fullname'];
+$uplabdata = new UpLabData('labdata');
+$uplabdata->upData($data, 'id');
+$uplabdata->exec();
 
-$addlabdata = new AddLabData('labdata');
-$addlabdata->addData($data);
-$addlabdata->exec();
 
 $response->success = true;
-$response->message = "Data inserted";
-$response->total = $total;
+$response->message = "Data updated";
+$response->total = 1;
 $response->data = array();
 print_r($response->to_json());
 ?>

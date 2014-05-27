@@ -33,43 +33,53 @@ import MySQLdb
 ##
 ##
 class Settings:
+    db_host=""
+    db_user=""
+    db_pass=""
+    db_name=""
     
+    def __init__(self):
+        self.argv=sys.argv
+        self.parser = OptionParser()
+        self.parser.add_option("", "--wardrobe", action="store", type="string",
+                  dest="wardrobe", help="Wardrobe config file", metavar="<file>")
+        (self.opt, args) = self.parser.parse_args(self.argv)
+        self.wardrobe="/etc/wardrobe/wardrobe"
+        if self.opt.wardrobe is not None:
+            self.wardrobe=str(self.opt.wardrobe)
+        try:
+            with open(self.wardrobe, 'r') as f:
+                for line in f:
+                    line=line.strip()
+                    if line.startswith("#") or len(line) == 0:
+                        continue
+                    if len(self.db_host) == 0:
+                        self.db_host=line
+                    elif len(self.db_user) == 0:
+                        self.db_user=line
+                    elif len(self.db_pass) == 0:
+                        self.db_pass=line
+                    elif len(self.db_name) == 0:
+                        self.db_name=line
+            f.closed
+        except IOError:
+            print "Cant open file "+str(self.wardrobe)
+            return
+        self.def_connect()
+        self.get_settings()
 
-    def __init__(self,a):
-	self.argv=a
-	self.parser = OptionParser()
-	self.parser.add_option("", "--wardrobe", action="store", type="string",
-                  dest="wordrobe", help="Wardrobe config file", metavar="<file>")
-	(self.opt, args) = self.parser.parse_args(self.argv)
-	self.wardrobe="/etc/wardrobe/wardrobe"
-	if len(self.argv) == 1:
-	    self.wardrobe=str(arguments.opt.wardrobe)
-	try
-	    with open('workfile', 'r') as f:
-     		for line in f:
-     		    line=line.strip()
-     		    if line.startswith("#") or len(line) == 0:
-     			continue
-     		    if len(self.db_host) == 0:
-     			self.db_host=line
-     		    if len(self.db_user) == 0:
-     			self.db_user=line
-     		    if len(self.db_pass) == 0:
-     			self.db_pass=line
-     		    if len(self.db_name) == 0:
-     			self.db_name=line
-     		    
-	    f.closed
-	except IOError:
-	    print "Cant open file "+str(self.wardrobe)
+    def def_connect(self):
+        try:
+            self.conn = MySQLdb.connect (host = self.db_host,user = self.db_user, passwd=self.db_pass, db=self.db_name)
+            self.conn.set_character_set('utf8')
+            self.cursor = self.conn.cursor ()
+        except Exception, e: 
+            Error_str=str(e)
+            print("Error database connection"+Error_str)
+        return self.cursor
 
-    def def_connect():
-
-
-    def readPass(self,name):
-	return str(QtCore.qUncompress(QtCore.QByteArray.fromBase64(self.settings.value(name, QtCore.QVariant()).toByteArray())))
-
-    def readString(self,name):
-	return str(self.settings.value(name, QtCore.QVariant()).toString())
-
-
+    def get_settings(self):
+        self.settings={}
+        self.cursor.execute ("select * from settings")
+        for (key,value,descr,stat,group) in self.cursor.fetchall():
+            self.settings[key]=value

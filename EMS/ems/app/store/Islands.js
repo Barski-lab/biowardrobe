@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -24,11 +24,12 @@
 Ext.define('EMS.store.Islands', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Islands'],
+    requires: ['EMS.model.Islands',
+               'EMS.proxy.StandardProxyRemote'],
     model: 'EMS.model.Islands',
     storeId: 'Islands',
     autoLoad: false,
-    singleton: true,
+//    singleton: true,
     remoteSort: true,
     remoteFilter: true,
     sorters: [
@@ -38,20 +39,15 @@ Ext.define('EMS.store.Islands', {
         }
     ],
     pageSize: 100,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    },
-    proxy: Ext.apply(STORE_DEFS.proxy(''), {
+    proxy: {
+        type: 'standardproxyremote',
         api: {
-            read: 'data/RPKM.php',
+            read: 'data/Islands.php',
             update: '',
             create: '',
             destroy: ''
         }
-    })
+    }
 });
-
-//direction: 'ASC'
 
 

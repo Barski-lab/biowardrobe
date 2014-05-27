@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
 **
-** Copyright (C) 2011 Andrey Kartashov .
+** Copyright (C) 2011-2014 Andrey Kartashov .
 ** All rights reserved.
 ** Contact: Andrey Kartashov (porter@porter.st)
 **
@@ -21,29 +21,25 @@
 **
 ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require("../settings.php");
 
 if(isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
-    $res->print_error('Not enough required parameters.');
+    $response->print_error('Not enough required parameters.');
 
 check_val($tablename);
 
-$con=def_connect();
-if($tablename=="labdata") {
-    $con->select_db($db_name_ems);
-} else {
-    $con->select_db($db_name_experiments);
+$EDB = $settings->settings['experimentsdb']['value'];
+
+if($tablename!="labdata") {
+    $settings->connection->select_db($EDB);
 }
-if (!($stmt = $con->prepare("describe `$tablename`"))) {
-    $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+if (!($stmt = $settings->connection->prepare("describe `$tablename`"))) {
+    $response->print_error("Prepare failed: (" . $settings->connection->errno . ") " . $settings->connection->error);
 }
 if (!$stmt->execute()) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    $response->print_error("Exec failed: (" . $settings->connection->errno . ") " . $settings->connection->error);
 }
 $result = $stmt->get_result();
 
@@ -56,11 +52,11 @@ while($row=$result->fetch_assoc()) {
 $stmt->close();
 
 
-if (!($stmt = $con->prepare("SELECT * FROM `$tablename`"))) {
-    $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+if (!($stmt = $settings->connection->prepare("SELECT * FROM `$tablename`"))) {
+    $response->print_error("Prepare failed: (" . $settings->connection->errno . ") " . $settings->connection->error);
 }
 if (!($stmt->execute())) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    $response->print_error("Exec failed: (" . $settings->connection->errno . ") " . $settings->connection->error);
 }
 $result = $stmt->get_result();
 
@@ -87,6 +83,6 @@ while($row=$result->fetch_assoc()) {
 }
 
 $stmt->close();
-$con->close();
+$settings->connection->close();
 $outstream->close();
 ?>

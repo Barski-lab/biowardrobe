@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
 **
-** Copyright (C) 2011 Andrey Kartashov .
+** Copyright (C) 2011-2014 Andrey Kartashov .
 ** All rights reserved.
 ** Contact: Andrey Kartashov (porter@porter.st)
 **
@@ -21,17 +21,14 @@
 **
 ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+//logmsg($_REQUEST);
 
 $tablename="";
 if(isset($_REQUEST['id']))
-    $tablename = $_REQUEST['id'];
+    $tablename = trim($_REQUEST['id']);
 else
     $res->print_error('Not enough required parameters.');
 $type="";

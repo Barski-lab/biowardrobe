@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET = bam2bedgraph
 
 CONFIG   += console warn_on release
+CONFIG   -= app_bundle
+
 QT       -= gui
 QT       += sql
 
@@ -28,6 +30,8 @@ LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE)
 QMAKE_EXTRA_TARGETS   = lib_bamtools
 PRE_TARGETDEPS        = lib_bamtools
+
+INCLUDEPATH += /usr/local/include/
 
 }
 

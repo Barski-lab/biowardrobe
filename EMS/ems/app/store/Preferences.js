@@ -22,7 +22,7 @@
 Ext.define('EMS.store.Preferences', {
     extend: 'Ext.data.Store',
     requires: ['EMS.model.Preferences',
-               'EMS.proxy.StandardProxy'],
+               'EMS.proxy.StandardProxyRemote'],
     storeId: 'Preferences',
     model: 'EMS.model.Preferences',
     autoLoad: false,
@@ -30,16 +30,15 @@ Ext.define('EMS.store.Preferences', {
     remoteSort: true,
     sorters: [
         {
-            property: 'key',
+            property: 'group',
             direction: 'ASC'
         }
     ],
     proxy: {
-        type: 'standardproxy',
+        type: 'standardproxyremote',
         extraParams: {
             tablename: 'settings'
-        },
-        sortParam: "sort"
+        }
     }
 });
 

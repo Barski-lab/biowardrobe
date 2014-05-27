@@ -21,7 +21,8 @@ Ext.define('EMS.controller.Login', {
 
     init: function (application) {
         this.control({
-                         "login form": {
+                         "login": {
+                             show: this.onShow
                          },
                          "login form button#submit": {
                              click: this.onButtonClickSubmit
@@ -33,8 +34,7 @@ Ext.define('EMS.controller.Login', {
                              specialkey: this.onTextfielSpecialKey
                          },
                          "login form textfield[name=username]": {
-                             keypress: this.onTextfielKeyPress,
-                             render: this.onRender
+                             keypress: this.onTextfielKeyPress
                          },
                          "login form textfield[name=password]": {
                              keypress: this.onTextfielKeyPress
@@ -50,12 +50,14 @@ Ext.define('EMS.controller.Login', {
                 return /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})/.test(val);
             },
             // vtype Text property: The error text to display when the validation function returns false
-            customPassText: 'Not a valid password.  Length must be at least 6 characters and maximum of 20Password must contain one digit, one letter lowercase, one letter uppercase, onse special symbol @#$% and between 6 and 20 characters.',
+            customPassText: 'Not a valid password.  Length must be at least 6 characters and maximum of 20 Password must contain one digit, one letter lowercase, one letter uppercase, onse special symbol @#$% and between 6 and 20 characters.',
         });
 
     },
-    onRender: function (f) {
-        f.focus(false,5000,function(){console.log('focus');});
+    onShow: function (window) {
+        window.down('textfield[name=username]').focus(false, 100, function () {
+//            console.log('focus');
+        });
     },
 
     onButtonClickSubmit: function (button, e, options) {
@@ -96,6 +98,7 @@ Ext.define('EMS.controller.Login', {
 
     onButtonClickCancel: function (button, e, options) {
         button.up('form').getForm().reset();
+        this.onShow(button.up('login'));
     },
 
     onTextfielSpecialKey: function (field, e, options) {

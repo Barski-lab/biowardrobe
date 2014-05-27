@@ -108,9 +108,10 @@ Ext.define('EMS.view.user.Users', {
                                 {
                                     xtype: 'combobox',
                                     name: 'laboratory_id',
+                                    //itemId: 'laboratory_id',
                                     displayField: 'name',
                                     fieldLabel: 'Laboratory',
-                                    store: 'Laboratories',
+                                    //store: 'Laboratories',
                                     queryMode: 'local',
                                     editable: false,
                                     allowBlank: false,

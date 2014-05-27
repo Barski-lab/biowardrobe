@@ -20,7 +20,7 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.controller.EGroup', {
+Ext.define('EMS.controller.Experiment.EGroup', {
     extend: 'Ext.app.Controller',
 
     models: ['EGroup', 'Laboratory', 'Worker', 'EGroupRights'],
@@ -60,7 +60,10 @@ Ext.define('EMS.controller.EGroup', {
              "egrouplist actioncolumn": {
                  itemclick: this.handleGrouplistActionColumn
              },
-
+             'egrouprights grid': {
+                 select: this.onEGroupRightsSelect,
+                 deselect: this.onEGroupRightsDeselect
+             }
          });
     },//init
     onDestroy: function () {
@@ -130,8 +133,8 @@ Ext.define('EMS.controller.EGroup', {
     makeAdminSelection: function () {
         var id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
         var lab_id = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0].data['id'];
-        console.log(lab_id);
-        console.log(id);
+//        console.log(lab_id);
+//        console.log(id);
         if (id && lab_id)
             this.getEGroupRightsStore().load({
                                                  params: {
@@ -229,5 +232,21 @@ Ext.define('EMS.controller.EGroup', {
                            }
                        }).show();
         }
+    },
+    /****************************
+     *
+     * Changing rights for an egroup
+     *
+     ****************************/
+    onEGroupRightsSelect: function(rowmodel, record, index, eOpts){
+        if (index<0) return;
+
+        var lab_id = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0].data['id'];
+        record.set('egroup_id',lab_id);
+        this.getEGroupRightsStore().sync();
+    },
+    onEGroupRightsDeselect: function(rowmodel, record, index, eOpts){
+        if (index<0) return;
+        console.log(arguments);
     }
 });//Ext.define

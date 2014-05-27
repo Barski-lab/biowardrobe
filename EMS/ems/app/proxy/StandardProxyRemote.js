@@ -20,9 +20,9 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.proxy.StandardProxy', {
+Ext.define('EMS.proxy.StandardProxyRemote', {
     extend: 'Ext.data.proxy.Ajax',
-    alias: 'proxy.standardproxy',
+    alias: 'proxy.standardproxyremote',
     timeout: 600000,
     api: {
         read: 'data/GeneralList.php',
@@ -55,7 +55,7 @@ Ext.define('EMS.proxy.StandardProxy', {
                                             icon: Ext.MessageBox.ERROR,
                                             buttons: Ext.Msg.OK
                                         });
-                    Logger.log(operation + ' failedm:' + json.message);
+//                    Logger.log(operation + ' failedm:' + json.message);
                     console.log(operation, ' failedm:', json.message, ' data:', json);
                 } else {
                     Ext.MessageBox.show({
@@ -75,11 +75,5 @@ Ext.define('EMS.proxy.StandardProxy', {
                              });
             }
         }
-    }, //listeners
-    filterParam: undefined,
-    groupParam: undefined,
-    pageParam: undefined,
-    startParam: undefined,
-    sortParam: undefined,
-    limitParam: undefined
+    } //listeners
 });

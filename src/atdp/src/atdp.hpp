@@ -34,25 +34,36 @@
 #define FSTM ATDP
 #endif
 
-//#include <averagedensity.hpp>
-
-
+#include <atdpbasics.h>
+#include <Math.hpp>
 
 class ATDP: public QObject
 {
-    Q_OBJECT
-private:
+        Q_OBJECT
+    private:
 
+        QMap<QString,EXPERIMENT_INFO> experiment_info;
+        int avd_window;
+        int avd_whole_region;
+        int avd_heat_window;
+        QString twicechr;
+        QString ignorechr;
 
-public slots:
-    void start(void);
+        void getRecordInfo(void);
+        void getRecordsInfo(void);
+//        void getRegions(QString);
 
-signals:
-    void finished(void);
+//        void prn_debug(QString ,BamAlignment &);
+    public slots:
+        void start(void);
 
-public:
-    ATDP(QObject* parent=0);
-    ~ATDP();
+    signals:
+        void finished(void);
+
+    public:
+
+        ATDP(QObject* parent=0);
+        ~ATDP();
 };
 
 #endif

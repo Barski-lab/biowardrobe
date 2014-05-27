@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -21,11 +21,11 @@
  ****************************************************************************/
 
 
-Ext.define('EMS.view.Experiment.LabDataEdit.LabDataWindow', {
+Ext.define('EMS.view.Experiment.Experiment.MainWindow', {
     extend: 'Ext.window.Window',
-    alias: 'widget.labdatawindow',
+    alias: 'widget.experimentmainwindow',
 
-    title: 'Experiment preliminary data',
+    title: 'Experiment review',
     layout: 'fit',
     iconCls: 'table2',
     buttonAlign: 'center',
@@ -33,63 +33,32 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataWindow', {
     constrain: true,
 
     plain: true,
-    height: 700,
-    width: 900,
+    height: 800,
+    width: 1100,
     border: false,
-
+    focusOnToFront: true,
     requires: [
-        'EMS.view.Experiment.LabDataEdit.LabDataForm',
+        'EMS.view.Experiment.Experiment.EditForm',
     ],
 
-    //    initComponent: function () {
-    //
-    //        var me = this;
-    //
-    ////        me.labDataForm = Ext.create('EMS.view.Experiment.LabDataEdit.LabDataForm');
-    //        me.descriptionDataForm = {};//Ext.create('EMS.view.Experiment.LabDataEdit.LabDataDescription');
-    //        me.targetFrame = {};//Ext.create('Ext.ux.IFrame',{ xtype: 'uxiframe', src: 'about:blank' });
-    //
     items: [
         {
             xtype: 'tabpanel',
-            itemId: 'labdatawindow-main-tab-panel',
+            itemId: 'experimentmainwindowtabpanel',
             frame: false,
             border: false,
             plain: true,
             activeTab: 0,
             items: [
                 {
-                    xtype: 'panel',
+                    xtype: 'experimenteditform',
+                    frame: false,
+                    plain: true,
                     border: false,
                     title: 'Experiment form',
                     layout: 'fit',
-                    iconCls: 'form-blue-edit',
-                    items: [
-                        {
-                            xtype: 'labdataform',
-                            frame: false,
-                            plain: true,
-                            border: false
-                        }
-                    ]
+                    iconCls: 'form-blue-edit'
                 }
-                //                    ,
-                //                    {
-                //                        xtype: 'panel',
-                //                        layout: 'fit',
-                //                        title: 'Processed data',
-                //                        iconCls: 'chart',
-                //                        items: me.descriptionDataForm
-                //                    } ,
-                //                    {
-                //                        xtype: 'panel',
-                //                        layout: 'fit',
-                //                        title: 'Genome browser',
-                //                        iconCls: 'genome-browser',
-                //                        items: me.targetFrame
-                //                    }
-
-
             ]
         }
     ],
@@ -97,19 +66,12 @@ Ext.define('EMS.view.Experiment.LabDataEdit.LabDataWindow', {
     buttons: [
         {
             text: 'Save',
-            action: 'save',
-            //                id: 'labdata-edit-save'
+            itemId: 'save'
         } ,
         {
             text: 'Cancel',
-            handler: function (button) {
-                //                    me.labDataForm.getForm().reset();
-                button.up('window').close();
-            }
+            itemId: 'cancel'
         }
     ]
-
-    //        me.callParent(arguments);
-    //    }
 });
 

@@ -30,6 +30,7 @@ require_once('utils/common.php');
 require_once('utils/Users.php');
 
 $response = new Response();
+$res = new Response();
 
 Class Settings
 {
@@ -86,7 +87,7 @@ Class Settings
 
     function get_settings()
     {
-        $query = execSQL($this->connection, "select * from settings", array(), false);
+        $query = execSQL($this->connection, "select * from settings order by `group`", array(), false);
         foreach ($query[0] as $k => $v) {
             $this->fields[] = $k;
         }
@@ -117,11 +118,10 @@ Class Settings
     }
 
 }
+
 session_start();
 require_once('utils/attempt.php');
-
 $settings = new Settings();
-
 //FIXME:remove this function later
 function def_connect()
 {
@@ -137,4 +137,3 @@ if (isset($_SESSION["authorizing"]) && $_SESSION["authorizing"] != 1) {
 //logmsg("settings", $settings);
 //logmsg("worker", $worker);
 ?>
- 

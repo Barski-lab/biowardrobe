@@ -56,12 +56,13 @@ class Worker
         $this->worker = $_SESSION["userinfo"];
         $this->fields = $this->worker['fields'];
         $this->primary_group();
+        $this->groups();
         $this->worker['fullname'] = $this->worker['lname'] . ", " . $this->worker['fname'];
         $this->worker['isa'] = $this->isAdmin();
         $this->worker['isla'] = $this->isLocalAdmin();
     }
 
-    public function primary_group()
+    function primary_group()
     {
         if (!isset($_SESSION["userinfo"]["group"])) {
             $query = selectSQL("SELECT * from laboratory where id=?", array("s", $this->worker['laboratory_id']));
@@ -71,9 +72,23 @@ class Worker
         return $this->group;
     }
 
-    public function groups()
+    function groups()
     {
-        return $this->group;
+        if (!isset($_SESSION["userinfo"]["groups"])) {
+            $SQL_STR = "SELECT distinct l.id,l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
+            $query = selectSQL($SQL_STR, array("s", $this->worker['laboratory_id']));
+            if ($query)
+                $_SESSION["userinfo"]["groups"] = $query;
+            else
+                $_SESSION["userinfo"]["groups"] = array();
+        }
+        $this->groups = $_SESSION["userinfo"]["groups"];
+        return $this->groups;
+    }
+
+    public function allgroups()
+    {
+        return array_merge(array($this->group), $this->groups);
     }
 
     public function isAdmin()
@@ -126,7 +141,7 @@ class Worker
 //                    break;
 //            }
             if ($this->fields[$i] === "passwd" || $this->fields[$i] === "dnapass")
-                $line[$this->fields[$i]] = "*";
+                $line[$this->fields[$i]] = "";
             else
                 $line[$this->fields[$i]] = $this->worker[$this->fields[$i]];
         }

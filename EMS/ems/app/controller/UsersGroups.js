@@ -22,7 +22,7 @@
 
 Ext.define('EMS.controller.UsersGroups', {
     extend: 'Ext.app.Controller',
-    stores: ['Worker', 'Workers', 'Laboratories'],
+    stores: ['Worker', 'Workers'],
     models: ['Worker', 'Laboratory'],
     views: ['user.UsersGroups', 'user.Users', 'user.Groups'],
 
@@ -34,7 +34,7 @@ Ext.define('EMS.controller.UsersGroups', {
         this.control
         ({
              'groupsedit': {
-                 render: this.onGroupsRender
+                 afterrender: this.onGroupsRender
              },
              'groupsedit grid': {
                  selectionchange: this.onGroupSelectionChange
@@ -54,7 +54,8 @@ Ext.define('EMS.controller.UsersGroups', {
 
 
              'usersedit': {
-                 render: this.onUsersRender
+                 render: this.onUsersRender,
+                 afterrender: this.onUsersShow
              },
              'usersedit grid': {
                  selectionchange: this.onUserSelectionChange
@@ -73,20 +74,12 @@ Ext.define('EMS.controller.UsersGroups', {
              },
              "usersedit actioncolumn": {
                  itemclick: this.handleUsersActionColumn
-             },
-
-             //             'WorkersEdit > grid': {
-             //                 itemdblclick: this.gridedit
-             //             },
-             //             '#worker-edit-save': {
-             //                 click: this.update
-             //             },
-             //             '#new-worker-window': {
-             //                 click: this.newworkerwin
-             //             }
+             }
          });
         this.worker = this.getWorkerStore().getAt(0);
-        this.getLaboratoriesStore().load();
+        this.LabStore = Ext.create('EMS.store.Laboratories', {storeId: Ext.id()});
+        this.LabStore.getProxy().setExtraParam('rights', true);
+        this.LabStore.load();
         this.getWorkersStore().load();
     },
     /*********************************
@@ -99,6 +92,7 @@ Ext.define('EMS.controller.UsersGroups', {
         this.groupForm.down('button#change').disable();
         if (!this.worker.data.isa)
             this.groupForm.down('button#add').disable();
+        this.groupForm.down('grid').bindStore(this.LabStore);
         this.groupForm.down('grid').getSelectionModel().select(0);
     },
     /*********************************
@@ -106,19 +100,23 @@ Ext.define('EMS.controller.UsersGroups', {
      **********************************/
     onGroupSelectionChange: function (model, records) {
         var rec = records[0];
-        if (rec && this.groupForm && rec.data['id'] != '00000000-0000-0000-0000-000000000000' && rec.data['id'] != 'laborato-ry00-0000-0000-000000000001') {
-            this.groupForm.getForm().loadRecord(rec);
-        } else {
+        if (!rec) {
             this.groupForm.getForm().reset();
+            return;
         }
+        if (rec.data['id'] != '00000000-0000-0000-0000-000000000000' && rec.data['id'] != 'laborato-ry00-0000-0000-000000000001') {
+            this.groupForm.getForm().loadRecord(rec);
+        }
+
         this.groupForm.down('button#change').disable();
-        if (this.worker.data.isa)
+        if (this.worker.data.isa) {
             this.getWorkersStore().load
             ({
                  params: {
                      laboratory: rec.data['id']
                  }
              });
+        }
     },
     /*********************************
      * Fires when add button cliked
@@ -127,13 +125,13 @@ Ext.define('EMS.controller.UsersGroups', {
         var grid = this.groupForm.down('grid'),
                 store = grid.getStore(),
                 modelName = store.getProxy().getModel().modelName,
-                groupForm=this.groupForm;
+                groupForm = this.groupForm;
         if (this.groupForm.isValid()) {
             store.insert(0, Ext.create(modelName, this.groupForm.getValues()));
-            this.getLaboratoriesStore().sync(function(){
+            this.LabStore.sync(function () {
                 groupForm.getForm().reset();
             });
-            this.getLaboratoriesStore().load();
+            this.LabStore.load();
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
         }
@@ -145,8 +143,8 @@ Ext.define('EMS.controller.UsersGroups', {
         if (this.groupForm.isValid()) {
             var record = this.groupForm.getRecord();
             record.set(this.groupForm.getValues());
-            this.getLaboratoriesStore().sync();
-//            this.getLaboratoriesStore().load();
+            this.LabStore.sync();
+            //            this.LabStore.load();
             this.groupForm.down('button#change').disable();
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
@@ -157,7 +155,7 @@ Ext.define('EMS.controller.UsersGroups', {
      **********************************/
     onGroupsFieldsChange: function (field, newValue, oldValue, eOpts) {
         var rec = this.groupForm.down('grid').getSelectionModel().getSelection()[0];
-        if (rec.data['id'] != '00000000-0000-0000-0000-000000000000' && rec.data['id'] != 'laborato-ry00-0000-0000-000000000001')
+        if (rec && rec.data['id'] != '00000000-0000-0000-0000-000000000000' && rec.data['id'] != 'laborato-ry00-0000-0000-000000000001')
             this.groupForm.down('button#change').enable();
     },
     /*********************************
@@ -167,7 +165,7 @@ Ext.define('EMS.controller.UsersGroups', {
         var me = this;
         if (action == 'delete') {
             var store = me.groupForm.down('grid').getStore(),
-                    rec = store.getAt(rowIndex);
+                rec = store.getAt(rowIndex);
             Ext.MessageBox.show
             ({
                  title: 'DELETE',
@@ -175,7 +173,6 @@ Ext.define('EMS.controller.UsersGroups', {
                  icon: Ext.MessageBox.QUESTION,
                  fn: function (buttonId) {
                      if (buttonId === "yes") {
-                         me.groupForm.getForm().reset();
                          store.remove(rec);
                          store.sync({
                                         callback: function () {
@@ -203,7 +200,16 @@ Ext.define('EMS.controller.UsersGroups', {
     onUsersRender: function (form) {
         this.userForm = form;
         this.userForm.down('button#change').disable();
+        (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).bindStore(this.LabStore);
         //        this.userForm.down('grid').getSelectionModel().select(0);
+    },
+    onUsersShow: function() {
+        if(!this.worker.data.isa) {
+            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setValue(this.worker.data['laboratory_id'],true);
+//            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setRawValue(this.worker.data['laboratory_id']);
+//            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).select(this.worker.data['laboratory_id']);
+            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setReadOnly(true);
+        }
     },
     /*********************************
      * Fills up user edit form on grid select

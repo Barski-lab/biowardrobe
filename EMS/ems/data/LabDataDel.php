@@ -23,52 +23,31 @@
 
 require_once('../settings.php');
 
-$SQL_QUERY = "";
-$lab_id = "";
-$egroup_id = "";
+//logmsg($_REQUEST);
 
-if (isset($_REQUEST['laboratory_id']))
-    $lab_id = $_REQUEST['laboratory_id'];
-if (isset($_REQUEST['egroup_id']))
-    $egroup_id = $_REQUEST['egroup_id'];
+$data = json_decode($_REQUEST['data']);
+if (!isset($data))
+    $res->print_error("Data is not set");
 
-$SQL_QUERY = "FROM labdata $where and deleted=0 ";
-$PARAMS = array();
+
+$SQL_QUERY = "update labdata set deleted=1 where id=?";
 
 if ($worker->isAdmin()) {
-    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000" && $lab_id != "laborato-ry00-0000-0000-000000000001") {
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $lab_id);
-    }
+    $PARAMS = array("i",$data->id);
 } else {
-    if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000") {
-        //check lab_id
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $lab_id);
-    } else {
-        //all allowed for non admins
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $worker->worker['laboratory_id']);
+    $SQL_QUERY .= " and laboratory_id=? ";
+    if(!$worker->isLocalAdmin()) {
+        $SQL_QUERY .= " and libstatus < 1 ";
     }
+    $PARAMS = array("is",$data->id,$worker->worker['laboratory_id']);
 }
 
-if ($egroup_id != "") {
-    $SQL_QUERY .= "and egroup_id=?";
-    if (count($PARAMS) != 0) {
-        $PARAMS[0] .= "s";
-        $PARAMS[] = $egroup_id;
-    } else {
-        $PARAMS = array("s", $egroup_id);
-    }
-}
-
-
-$total = selectSQL("SELECT COUNT(*) as count " . $SQL_QUERY, $PARAMS)[0]['count'];
-$query_array = selectSQL("SELECT * " . $SQL_QUERY . " $order $limit", $PARAMS);
+if(execSQL($settings->connection,$SQL_QUERY,$PARAMS,true)==0)
+    $response->print_error("Insufficient privileges");
 
 $response->success = true;
-$response->message = "Data loaded";
-$response->total = $total;
-$response->data = $query_array;
+$response->message = "Data deleted";
+$response->total = 1;
+$response->data = array();
 print_r($response->to_json());
 ?>

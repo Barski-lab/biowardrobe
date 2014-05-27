@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -27,14 +27,14 @@ Ext.define
          'EMS.util.SessionMonitor',
          'EMS.util.Util'
      ],
-     stores: ['Worker'],
-     models: ['Worker'],
+     models: ['Worker','Laboratory','Preferences'],
+     stores: ['Worker','Laboratories','Preferences'],
      views: ['EMSViewport', 'toolbar.EMSMenu'],
      worker: {},
      init: function () {
          this.control({
                           'viewport > panel[region=south]': {
-                              render: this.onLogPanelRender
+                              afterrender: this.onLogPanelRender
                           },
                           'viewport > toolbar#title': {
                               render: this.onTitleRender
@@ -44,7 +44,7 @@ Ext.define
 
      onLogPanelRender: function (p) {
          EMS.util.SessionMonitor.start(p);
-         Logger.init(p);
+         EMS.util.Util.Logger.init(p);
      },
 
      onTitleRender: function (p) {
@@ -53,22 +53,27 @@ Ext.define
          ({
               scope: this,
               callback: function () {
+                  this.worker = this.worker.getAt(0);
+                  this.getLaboratoriesStore().load();
+                  this.getPreferencesStore().load();
+
                   this.getController('EMSMenu');
-
-//                  this.getController('ExperimentTypeEdit');
-                  this.getController('LabData');
-                  this.getController('Project2');
-
-                  this.getController('GenomeEdit');
-                  this.getController('SequenceCutter');
-                  this.getController('Info');
 
                   this.getController('AntibodiesEdit');
                   this.getController('CrosslinkEdit');
                   this.getController('FragmentationEdit');
                   this.getController('Spikeins');
 
-                  this.worker = this.worker.getAt(0);
+                  this.getController('GenomeEdit');
+                  this.getController('SequenceCutter');
+                  this.getController('Info');
+
+                  //                  this.getController('ExperimentTypeEdit');
+                  this.getController('Experiment.LabData');
+                  this.getController('Experiment.Experiment');
+                  this.getController('Experiment.EGroup');
+                  this.getController('Project2');
+
                   p.insert(0,
                            Ext.create('Ext.form.Label',
                                       {
@@ -76,14 +81,14 @@ Ext.define
                                       })
                   );
 
-                  this.getController('EGroup');
-
                   if(this.worker.data.isa) {
                       this.getController('Preferences');
                   }
                   if(this.worker.data.isa || this.worker.data.isla) {
                       this.getController('UsersGroups');
                   }
+                  this.getController('User.Preferences');
+
               }
           });
      }

@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-//logmsg(print_r($_REQUEST,true));
+//logmsg($_REQUEST);
 
 
 $array_prepend = array();
@@ -31,23 +31,18 @@ $array_prepend[] = array('id' => '00000000-0000-0000-0000-000000000000', 'name' 
 
 $PARAMS = array();
 
-if($worker->isAdmin()) {
+if ($worker->isAdmin()) {
     $SQL_STR = "SELECT * FROM laboratory order by name";
-}
-else {
+    $query_array = selectSQL($SQL_STR, $PARAMS);
+} else {
 //EDIT list and Local admin !
-if($worker->isLocalAdmin()) {
-    $SQL_STR = "SELECT * FROM laboratory where id=? order by name";
-    $PARAMS=array("s",$worker->worker['laboratory_id']);
+    if (isset($_REQUEST['rights'])) {
+        $array_prepend = array();
+        $query_array[] = $worker->group;
+    } else {
+        $query_array = $worker->allgroups();
+    }
 }
-else {
-    //FIXME: have to always choose my own labaratory (maybe $worker->groups will work)
-    $SQL_STR = "SELECT distinct l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
-    $PARAMS=array("s",$worker->worker['laboratory_id']);
-}
-
-}
-$query_array = selectSQL($SQL_STR, $PARAMS);
 
 $result = array_merge($array_prepend, $query_array);
 

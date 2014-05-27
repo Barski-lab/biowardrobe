@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -57,10 +57,10 @@ Ext.define('EMS.controller.Preferences', {
     },
     onChangeClick: function () {
         if (this.localForm.isValid()) {
-            var record = this.egroupForm.getRecord();
+            var record = this.localForm.getRecord();
             record.set(this.localForm.getValues());
             this.getPreferencesStore().sync();
-            this.egroupForm.down('button#change').disable();
+            this.localForm.down('button#change').disable();
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
         }

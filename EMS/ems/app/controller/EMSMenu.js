@@ -102,7 +102,7 @@ Ext.define('EMS.controller.EMSMenu', {
     onEMSMenuForms: function (menuitem, e, opt) {
         var me = this;
 
-        switch(menuitem.action) {
+        switch (menuitem.action) {
             case "Preferences":
                 me.createWindow(menuitem.action, 'EMS.view.Preferences.Preferences', {});
                 break;
@@ -110,8 +110,7 @@ Ext.define('EMS.controller.EMSMenu', {
                 me.createWindow(menuitem.action, 'EMS.view.user.UsersGroups', {});
                 break;
             case "Worker":
-                //me.WorkerEditWindow = me.getController('EMS.controller.WorkersEdit').edit();
-                //Ext.ComponentQuery.query('EMSMenu')[0].add(me.WorkerEditWindow);
+                me.createWindow(menuitem.action, 'EMS.view.user.Preferences', {});
                 break;
             case "LabData":
                 me.createWindow(menuitem.action, 'EMS.view.Experiment.LabData.LabDataListWindow', {});
@@ -121,6 +120,9 @@ Ext.define('EMS.controller.EMSMenu', {
                 break;
             case "ExperimentGroups":
                 me.createWindow(menuitem.action, 'EMS.view.Experiment.EGroup.EGroup', {});
+                break;
+            case "SuppInfo":
+                me.createWindow(menuitem.action, 'EMS.view.Info.Supplemental', {});
                 break;
             case "":
                 break;
@@ -144,40 +146,8 @@ Ext.define('EMS.controller.EMSMenu', {
         if (menuitem.action === "GenomeType") {
             me.createWindow(menuitem.action, 'EMS.view.Genome.Genome', {});
         }
-        if (menuitem.action === "SuppInfo") {
-            me.createWindow(menuitem.action, 'EMS.view.Info.Supplemental', {});
-        }
         if (menuitem.action === "Help") {
             // me.createWindow(menuitem.action,'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
         }
-        /*
-         Create window for genome browser
-         */
-        if (menuitem.action === "GenomeBrowser") {
-            var win = Ext.create('Ext.window.Window', {
-                width: 1000,
-                minWidth: 200,
-                height: 600,
-                title: 'Genome Browser',
-                closable: true,
-                maximizable: true,
-                constrain: true,
-                layout: 'fit',
-                items: [
-                    {
-                        xtype: 'uxiframe',
-                        src: 'http://'
-                    }
-                ]
-            });
-
-            Ext.ComponentQuery.query('EMSMenu')[0].add(win);
-            win.show();
-        }
     }
-    //-----------------------------------------------------------------------
-    //
-    //
-    //-----------------------------------------------------------------------
-
 });

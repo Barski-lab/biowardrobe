@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -20,7 +20,7 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.view.LabDataEdit.ATPChart', {
+Ext.define('EMS.view.Experiment.Experiment.ATPChart', {
     extend: 'Ext.Panel',
     bodyPadding: 0,
     border: false,
@@ -29,10 +29,11 @@ Ext.define('EMS.view.LabDataEdit.ATPChart', {
     plain: true,
     title: 'Average Tag Density',
     iconCls: 'chart-line',
+
     initComponent: function () {
         var me = this;
-        me.chart = Ext.create('EMS.view.charts.ATP', me.initialConfig);
-        me.tbar = [
+        this.chart = Ext.create('EMS.view.charts.ATP', me.initialConfig);
+        this.tbar = [
             {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
@@ -43,7 +44,7 @@ Ext.define('EMS.view.LabDataEdit.ATPChart', {
                         text: 'Save Chart',
                         iconCls: 'svg-logo',
                         handler: function () {
-                            Ext.create('Ext.form.Panel', {
+                            var p = Ext.create('Ext.form.Panel', {
                                 standardSubmit: true,
                                 url: 'data/svg.php',
                                 hidden: true,
@@ -52,7 +53,13 @@ Ext.define('EMS.view.LabDataEdit.ATPChart', {
                                     {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
                                     {xtype: 'hiddenfield', name: 'svg', value: me.chart.save({type: 'image/svg+xml'})}
                                 ]
-                            }).getForm().submit();
+                            });
+                            p.getForm().submit
+                            ({
+                                 success: function (form, action) {
+                                     p.destroy();
+                                 }
+                             });
                         }
                     }
                 ]
@@ -60,7 +67,11 @@ Ext.define('EMS.view.LabDataEdit.ATPChart', {
         ];
         me.items = me.chart;
         me.callParent(arguments);
-    }
+    },
+    onDestroy: function () {
+        this.chart.destroy();
+        this.callParent(arguments);
+    },
 })
 ;
 

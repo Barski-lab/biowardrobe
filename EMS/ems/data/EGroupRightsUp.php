@@ -29,15 +29,22 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("Data is not set");
 
-//if ($worker->isAdmin() || ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id))) {
-//    $SQL_STR = "update egroup set name=?,description=?,priority=? where id=?";
-//    $PARAMS = array("ssss", $data->name, $data->description, $data->priority, $data->id);
-//} else {
-//    $response->print_error("Insufficient privileges");
-//}
-//
-//if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
-//    $response->print_error("Cant update");
+$SQL_STR="";
+$PARAMS=array();
+
+if ($worker->isAdmin() ) {
+    $SQL_STR = "insert ignore into egrouprights(egroup_id,laboratory_id) values(?,?)";
+    $PARAMS = array("ss",$data->egroup_id ,$data->id);
+}
+else if($worker->isLocalAdmin()) {
+    $SQL_STR = "insert ignore into egrouprights(egroup_id,laboratory_id) values(?,?)";
+    $PARAMS = array("ss",$data->egroup_id ,$data->id);
+} else {
+    $response->print_error("Insufficient privileges");
+}
+
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
+    $response->print_error("Cant update");
 
 $response->success = true;
 $response->message = "Data updated";

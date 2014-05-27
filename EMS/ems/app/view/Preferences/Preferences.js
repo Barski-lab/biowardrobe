@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -56,67 +56,5 @@ Ext.define('EMS.view.Preferences.Preferences', {
             ]
 
         }
-    ],
-//    initComponent: function () {
-//    }
+    ]
 });
-/*
-Ext.define('EMS.view.Preferences.Preferences', {
-
-extend: 'Ext.window.Window',
-            alias: 'widget.Preferences',
-
-            title: 'Wardrobe Preferences',
-            layout: 'fit',
-            iconCls: 'table2',
-            buttonAlign: 'center',
-            maximizable: true,
-            constrain: true,
-
-            plain: true,
-            height: 700,
-            width: 900,
-            border: false,
-
-            initComponent: function () {
-
-
-                me.items = [
-                    {
-                        xtype: 'tabpanel',
-                        frame: true,
-                        border: false,
-                        plain: true,
-                        activeTab: 0,
-                        items: [
-                            {
-                                xtype: 'panel',
-                                title: 'Global Settings',
-                                layout: 'fit',
-                                iconCls: 'form-blue-edit',
-                                //                        items: me.labDataForm
-                            }
-                        ]
-                    }
-                ];
-
-                me.buttons = [
-                    {
-                        text: 'Save',
-                        action: 'save',
-                        id: 'preferences-edit-save'
-                    } ,
-                    {
-                        text: 'Cancel',
-                        handler: function () {
-                            //                    me.labDataForm.getForm().reset();
-                            me.close();
-                        }
-                    }
-                ];
-
-                me.callParent(arguments);
-            }
-        });
-
-*/

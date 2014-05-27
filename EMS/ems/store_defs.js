@@ -55,7 +55,7 @@ var Logger = (function(){
     };
 })();
 
-
+/*
 STORE_DEFS = {
     //default parameters for store proxy
     proxy: function(TBL,UNL){
@@ -130,3 +130,4 @@ STORE_DEFS = {
 
 
 }
+*/

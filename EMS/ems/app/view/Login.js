@@ -36,6 +36,7 @@ Ext.define('EMS.view.Login', {
                     fieldLabel: 'Username',
                     name: 'username',
                     vtype: 'alphanum',
+                    tabIndex:0,
                     maxLength: 25
                 },
                 {

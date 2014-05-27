@@ -54,6 +54,7 @@
 #include <QSharedPointer>
 
 #include <Arguments.hpp>
+#include <Settings.hpp>
 
 #ifdef D_USE_BAM
 #include <api/BamMultiReader.h>
@@ -77,6 +78,7 @@ using namespace std;
  #include <boost/icl/interval.hpp>
  #include <boost/icl/closed_interval.hpp>
  #include <boost/icl/interval_map.hpp>
+ #include <boost/icl/split_interval_map.hpp>
  #include <boost/icl/interval_set.hpp>
  #include <boost/icl/separate_interval_set.hpp>
  #include <boost/icl/concept/set_value.hpp>

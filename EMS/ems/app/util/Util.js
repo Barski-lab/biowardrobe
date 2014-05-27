@@ -18,13 +18,13 @@ Ext.define('EMS.util.Util', {
         },
 
         showErrorMsg: function (text) {
-
             Ext.Msg.show({
                              title: 'Error!',
                              msg: text,
                              icon: Ext.Msg.ERROR,
                              buttons: Ext.Msg.OK
                          });
+            this.Logger.log(text);
         },
 
         UUID: function () {
@@ -35,6 +35,30 @@ Ext.define('EMS.util.Util', {
                 return (c === 'x' ? r : (r & 0x7 | 0x8)).toString(16);
             });
             return uuid;
+        },
+        Settings: function(key) {
+            return Ext.getStore('Preferences').findRecord('key',key,0,false,true,true).data['value'];
+        },
+        Logger: {
+            panel: {},
+
+            log: function (msg, color) {
+                color = typeof color !== 'undefined' ? color : "blue";
+                if (typeof this.panel !== 'undefined') {
+                    this.panel.update({
+                                          now: new Date(),
+                                          cls: color,
+                                          msg: msg
+                                      });
+                    this.panel.body.scroll('b', 100000, true);
+                }
+                console.log(msg);
+            },
+
+            init: function (logv) {
+                this.panel = logv;
+                this.log('Logging is on');
+            }
         }
     }
 });

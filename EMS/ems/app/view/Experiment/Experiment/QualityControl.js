@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -26,8 +26,8 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
     extend: 'Ext.Panel',
     alias: 'widget.experimentqualitycontrol',
 
-    requires:[
-            'EMS.view.charts.Fence'
+    requires: [
+        'EMS.view.charts.Fence'
     ],
     bodyPadding: 5,
     border: false,
@@ -40,7 +40,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             xtype: 'panel',
             frame: false,
             border: true,
-            height: 250,
+            height: 270,
             layout: 'fit',
             region: 'north',
             itemId: 'experiment-description',
@@ -50,19 +50,19 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                             '<tr><td class="experiment-descr-1">Cells type:</td><td colspan=2 class="experiment-descr-2">{cells}</td></tr>',
                             '<tr><td class="experiment-descr-1">Conditions:</td><td colspan=2 class="experiment-descr-2">{conditions}</td></tr>',
                             '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{[this.numformat(values.tagstotal)]}</td>',
-                                '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3"><div id="exp-chart"></div></td></tr>',
+                            '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3"><div id="experiment-qc-chart"></div></td></tr>',
                             '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{[this.numformat(values.tagsmapped)]}</td></tr>',
                             '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
                             '<tpl if="isRNA">',
-                                '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
-                                '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
                             '<tpl else>',
-                                '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
-                                '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
-                                '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td class="experiment-descr-2">{fragmentsize}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td class="experiment-descr-2">{fragmentsize}</td></tr>',
                             '</tpl>',
                             '<tr><td class="experiment-descr-1">File link:</td>',
-                                '<td colspan=2 class="experiment-descr-2">{[this.filename(values.basename,values.uid)]}</td></tr>',
+                            '<td colspan=2 class="experiment-descr-2">{[this.filename(values.basename,values.uid)]}</td></tr>',
                             '</table>', {
                         rowspan: function (values) {
                             if (values > 0)
@@ -70,7 +70,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                             return 3;
                         },
                         filename: function (basename, uid) {
-                            return '<a href="' + basename +'/'+uid+'.bam">' + uid + ".bam</a>";
+                            return '<a href="' + basename + '/' + uid + '.bam">' + uid + ".bam</a>";
                         },
                         numformat: function (num) {
                             var c = 1;
@@ -86,14 +86,24 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             )
         } ,
         {
-            xtype: 'chartfence',
+            xtype: 'panel',
             frame: false,
             border: true,
             region: 'center',
             collapsible: false,
-            title: 'Base frequency plot'
-//            layout: 'fit',
-//            items: [ Ext.create('EMS.view.charts.Fence') ]
+            title: 'Base frequency plot',
+            layout: 'fit',
+            items: [
+                {
+                    xtype: 'chartfence'
+               }
+//                ,
+//                {
+//                    xtype: 'canvasxpress',
+//                    showExampleData: true,
+//                    imgDir: './imagesCanvas/'
+//                }
+            ]
         }
     ]
 });
