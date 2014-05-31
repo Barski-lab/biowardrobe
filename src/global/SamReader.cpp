@@ -130,6 +130,7 @@ void SamReader<Storage>::Load(void)
     int ignored=0,mapped=gArgs().getArgs("sam_mapped_limit").toInt();
     bool debug=gArgs().getArgs("debug").toBool();
     bool RNA=false;
+    bool DUTP=false;
     int u=0, l=0;
     QStringList border=gArgs().split("sam_frag_filtr",'-');
     if(border.size()==2) {
@@ -137,6 +138,7 @@ void SamReader<Storage>::Load(void)
         u=border[1].toInt();
     }
 
+    DUTP=(QString::compare(gArgs().getArgs("rna_seq").toString(), "dUTP", Qt::CaseInsensitive)==0);
     RNA=!gArgs().getArgs("rna_seq").toString().isEmpty();
 
     BamAlignment al;
@@ -201,6 +203,15 @@ void SamReader<Storage>::Load(void)
                     continue;
                 }
             } // TODO:for RNA should join First and Second Mate reads
+            if(DUTP) {
+        	if(al.IsMateMapped() && al.IsSecondMate()) {
+        	    if(al.IsReverseStrand()) {// - strand
+            		strnd= QChar('+');
+            	    } else {
+            		strnd= QChar('-');
+            	    }
+            	}    
+            }
 
             genome::read_representation rp;
 

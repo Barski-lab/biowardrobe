@@ -569,7 +569,7 @@ void AverageDensity::batchsql() {
         int nplot=0;
         while(qq.next()) {
             QString cur_tbl = qq.value(0).toString();
-            QString sel_table = "experiments."+qq.value(1).toString();
+            QString sel_table = "experiments.`"+qq.value(1).toString()+"`";
             //QString plt_name=qq.value(2).toString();
 
             QString sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
