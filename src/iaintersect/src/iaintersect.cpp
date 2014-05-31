@@ -267,7 +267,6 @@ qDebug()<<"start";
                     continue;
 
                 //is upstream
-                qDebug()<<_upstream.lower()<<_upstream.upper();
                 if(bicl::intersects(current_region,_upstream)) {
                     result[4].insert(p);
                     //                    qDebug()<<chr<<"["<<_promoter.lower()<<":"<<_promoter.upper()<<"]=["<<current_region.lower()<<":"<<current_region.upper()<<"]";
