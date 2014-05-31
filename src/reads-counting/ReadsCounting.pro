@@ -6,6 +6,8 @@ TEMPLATE = app
 TARGET   = ReadsCounting
 
 CONFIG   += console warn_on release
+CONFIG   -= app_bundle
+
 QT       -= gui
 QT       += sql
 
@@ -31,6 +33,8 @@ UI_DIR      = GeneratedFiles
 MOC_DIR     = GeneratedFiles
 RCC_DIR     = GeneratedFiles
 
+INCLUDEPATH += /usr/local/include/
+
 }
 
 win32{
@@ -44,7 +48,7 @@ macx{
 
 QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
 QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
-INCLUDEPATH += /usr/include/boost
+
 }
 
 
@@ -65,8 +69,8 @@ HEADERS     +=  ../global/Arguments.hpp \
 		../global/Reads.hpp \
 		./src/Threads.hpp \
 		./src/ReadsCounting.hpp \
-    ../global/Matrix.hpp \
-    ../global/Math.hpp
+		../global/Matrix.hpp \
+		../global/Math.hpp
 		
                
                

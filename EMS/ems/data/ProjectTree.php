@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -21,26 +21,19 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
-
-
-$con = def_connect();
-$con->select_db($db_name_ems);
-
-$user_id = $_SESSION["user_id"];
+require("../settings.php");
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
 
+$user_id = $worker->worker['id'];
+
 $data = array();
 
 if (!isset($_REQUEST['node'])) {
-    $res->print_error("Not enough arguments.");
+    $response->print_error("Not enough arguments.");
 }
 
 function make_array($qr) {
@@ -66,10 +59,10 @@ check_val($_REQUEST['node']);
 
 if ($_REQUEST['node'] != 'root') {
 } else {
-    if (check_rights('ProjectTree')) {
-        $qr = execSQL($con, "select * from project2", array(), false);
+    if ($worker->isAdmin()) {
+        $qr = selectSQL("select * from project2", array());
     } else {
-        $qr = execSQL($con, "select * from project2 where worker_id=?", array("i", $user_id), false);
+        $qr = selectSQL("select * from project2 where worker_id=?", array("i", $user_id));
     }
 
     $data[] = array(
@@ -80,8 +73,8 @@ if ($_REQUEST['node'] != 'root') {
         'data' => make_array($qr)
     );
 
-    if (!check_rights('ProjectTree')) {
-        $qr = execSQL($con, "select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?", array("i", $user_id), false);
+    if (!$worker->isAdmin()) {
+        $qr = selectSQL("select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?", array("i", $user_id));
 
         $data[] = //array($data,
             array(
@@ -91,12 +84,8 @@ if ($_REQUEST['node'] != 'root') {
                 'id' => 'share',
                 'data' => make_array($qr)
             );
-        //$data=$data1;
     }
 }
-
-$con->close();
-
 
 echo json_encode(array(
     'text' => '.',

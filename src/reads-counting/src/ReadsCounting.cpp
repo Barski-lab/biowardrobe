@@ -260,11 +260,11 @@ void FSTM::WriteResult()
     if(wrtFile) {
         outFile.setFileName(gArgs().getArgs("out").toString());
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("refseq_id,gene_id,chrom,txStart,txEnd,strand,TOT_R_0,RPKM_0").toLocal8Bit());
         for(int i=1;i<m_ThreadNum;i++) {
-            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toLocal8Bit());
         }
-        outFile.write(QString("\n").toAscii());
+        outFile.write(QString("\n").toLocal8Bit());
     }
 
     this->CreateTablesViews();
@@ -296,7 +296,7 @@ void FSTM::WriteResult()
                                        arg(current.data()->txEnd).
                                        arg(current.data()->strand).
                                        arg(current.data()->totReads).
-                                       arg(current.data()->RPKM)).toAscii());
+                                       arg(current.data()->RPKM)).toLocal8Bit());
                     if(!gArgs().getArgs("no-sql-upload").toBool())
                         SQL_QUERY+=QString(" ('%1','%2','%3',%4,%5,'%6',%7,%8").
                                    arg(current.data()->name).
@@ -309,13 +309,13 @@ void FSTM::WriteResult()
                                    arg(current.data()->RPKM);
                 } else {
                     if(wrtFile)
-                        outFile.write(QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM).toAscii());
+                        outFile.write(QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM).toLocal8Bit());
                     if(!gArgs().getArgs("no-sql-upload").toBool())
                         SQL_QUERY+=QString(",%1,%2").arg(current.data()->totReads).arg(current.data()->RPKM);
                 }
             }
             if(wrtFile)
-                outFile.write(QString("\n").toAscii());
+                outFile.write(QString("\n").toLocal8Bit());
             SQL_QUERY+="),";
         }
         SQL_QUERY.chop(1);
@@ -334,12 +334,12 @@ void FSTM::WriteResult()
     if(wrtFile) {
         outFile.setFileName(gArgs().fileInfo("out").baseName()+"_common_tss.csv");
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toLocal8Bit());
 
         for(int i=1;i<m_ThreadNum;i++) {
-            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toLocal8Bit());
         }
-        outFile.write(QString("\n").toAscii());
+        outFile.write(QString("\n").toLocal8Bit());
 
         foreach(QString key,TSS_organized_list[0].keys()) {
             for(int i=0;i<m_ThreadNum;i++) {
@@ -368,13 +368,13 @@ void FSTM::WriteResult()
                                    arg(current.data()->txEnd).
                                    arg(current.data()->strand).
                                    arg(totReads).
-                                   arg(RPKM)).toAscii());
+                                   arg(RPKM)).toLocal8Bit());
                 } else {
                     QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
-                    outFile.write(tmp.toAscii());
+                    outFile.write(tmp.toLocal8Bit());
                 }
             }
-            outFile.write(QString("\n").toAscii());
+            outFile.write(QString("\n").toLocal8Bit());
         }
 
         outFile.close();
@@ -386,13 +386,13 @@ void FSTM::WriteResult()
         */
         outFile.setFileName(gArgs().fileInfo("out").baseName()+"_GENES.csv");
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toAscii());
+        outFile.write(QString("\"=\"\"refseq_id\"\"\",\"=\"\"gene_id\"\"\",\"chrom\",txStart,txEnd,strand,TOT_R_0,RPKM_0").toLocal8Bit());
 
         for(int i=1;i<m_ThreadNum;i++)
         {
-            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toAscii());
+            outFile.write(QString(",TOT_R_%1,RPKM_%2").arg(i).arg(i).toLocal8Bit());
         }
-        outFile.write(QString("\n").toAscii());
+        outFile.write(QString("\n").toLocal8Bit());
 
         foreach(QString key,GENES_organized_list[0].keys())
         {
@@ -425,15 +425,15 @@ void FSTM::WriteResult()
                                    arg(current.data()->txEnd).
                                    arg(current.data()->strand).
                                    arg(totReads).
-                                   arg(RPKM)).toAscii());
+                                   arg(RPKM)).toLocal8Bit());
                 }
                 else
                 {
                     QString tmp=QString(",%1,%2").arg(totReads).arg(RPKM);
-                    outFile.write(tmp.toAscii());
+                    outFile.write(tmp.toLocal8Bit());
                 }
             }
-            outFile.write(QString("\n").toAscii());
+            outFile.write(QString("\n").toLocal8Bit());
         }
 
         outFile.close();

@@ -1,13 +1,33 @@
 <?php
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+/****************************************************************************
+ **
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
+require_once('../settings.php');
 
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
-logmsg(print_r($data,true));
+logmsg($_REQUEST);
+
+if (!$worker->isAdmin() && !$worker->isLocalAdmin()) {
+    $response->print_error("Insufficient privileges");
+}
 
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -15,128 +35,42 @@ else
     $res->print_error('Not enough required parameters. t');
 
 $data = json_decode($_REQUEST['data']);
-
 if (!isset($data))
-    $res->print_error("no data");
+    $res->print_error("Data is not set");
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info",
-    "labdata", "grp_local",);
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome", "info");
 
-$IDFIELD = "id";
-$IDFIELDTYPE = "i";
 
-if (!in_array($tablename, $AllowedTable)) {
+if (!in_array($tablename, $AllowedTable))
     $res->print_error('Table not in the list');
-} else {
-    switch ($tablename) {
-        case "grp_local":
 
-            if (isset($_REQUEST['genomedb']) && isset($_REQUEST['genomenm'])) {
-                check_val($_REQUEST['genomedb']);
-                $gdb = $_REQUEST['genomedb'];
-            } else {
-                $res->print_error('Not enough required parameters.');
-            }
-
-            $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
-            if ($con->connect_errno)
-                $res->print_error('Could not connect: ' . $con->connect_error);
-            if (!$con->select_db($gdb))
-                $res->print_error('Could not select db: ' . $con->connect_error);
-
-            break;
-        default:
-            $con = def_connect();
-            $con->select_db($db_name_ems);
-            break;
-    }
-}
-$total = 1;
-
-$con->autocommit(FALSE);
-
-if (($table = execSQL($con, "describe `$tablename`", array(), false)) == 0) {
-    $res->print_error("Cant describe");
-}
-$types = array();
-foreach ($table as $dummy => $val) {
-    $t = "s";
-    if (strrpos($val["Type"], "int") !== false)
-        $t = "i";
-    elseif (strrpos($val["Type"], "float") !== false)
-        $t = "d";
-    elseif (strrpos($val["Type"], "double") !== false)
-        $t = "d";
-    elseif (strrpos($val["Type"], "date") !== false)
-        $t = "dd";
-
-    $types[$val["Field"]] = $t;
-}
-
-function insert_data($val)
+class AddData extends AbstractTableDataProcessing
 {
-    $PARAMS[] = "";
-    $VARIABLES = "";
-
-    $SQL_STR = "";
-    global $con, $tablename, $types,$res;
-
-    foreach ($val as $f => $d) {
-        if(!array_key_exists($f,$types))
-            $res->print_error("Table field does not exist $f");
-
-        if ($f=="worker_id" && intVal($d)!=$_SESSION["user_id"] && !check_rights())
-            $res->print_error("Insufficient credentials");
-
-        if (strrpos($f, "_id") !== false && intVal($d) == 0) {
-            $SQL_STR = $SQL_STR . " $f,";
-            $VARIABLES = $VARIABLES . "null,";
-            continue;
+    public function fieldrule($field, $value)
+    {
+        if (in_array($field, array("id"))) {
+            if ($this->types[$field] == "s" && strlen($value) != 36)
+                $this->add_sql($field, guid());
+            return true;
         }
-
-        $SQL_STR = $SQL_STR . " $f,";
-        $VARIABLES = $VARIABLES . "?,";
-
-        if ($f == "id" && $types[$f] == "s" && strlen($d)!=36) {
-            $PARAMS[] = guid();
-            $PARAMS[0] = $PARAMS[0] . $types[$f];
-        }
-        elseif ($types[$f] == "dd") {
-            $date = DateTime::createFromFormat('m/d/Y', $d);
-            $PARAMS[] = $date->format('Y-m-d');
-            $PARAMS[0] = $PARAMS[0] . "s";
-        } else {
-            $PARAMS[] = $d;
-            $PARAMS[0] = $PARAMS[0] . $types[$f];
-        }
+        return false;
     }
-
-    $SQL_STR = substr_replace($SQL_STR, "", -1);
-    $VARIABLES = substr_replace($VARIABLES, "", -1);
-
-    $SQL_STR = "insert into `$tablename` ($SQL_STR) VALUES($VARIABLES)";
-
-    execSQL($con, $SQL_STR, $PARAMS, true);
 }
 
-if (gettype($data) == "array") {
-    foreach ($data as $key => $val) {
-        insert_data($val);
-    }
-    $count = count($data);
-} else {
-    insert_data($data);
+if (gettype($data) != "array")
+    $data = array($data);
+
+foreach ($data as $key => $val) {
+    $adddata = new AddData($tablename);
+    $adddata->addData($val);
+    $adddata->exec();
 }
+$total = count($data);
 
-if (!$con->commit()) {
-    $res->print_error("Cant insert");
-}
 
-$con->close();
-
-$res->success = true;
-$res->message = "Data inserted";
-$res->total = $total;
-$res->data = $query_array;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data inserted";
+$response->total = $total;
+$response->data = $query_array;
+print_r($response->to_json());
 ?>

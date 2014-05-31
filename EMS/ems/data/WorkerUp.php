@@ -21,74 +21,91 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
+//logmsg($_REQUEST);
 
-$con=def_connect();
-$con->select_db($db_name_ems);
-$tablename="worker";
 
-$data=json_decode($_REQUEST['data']);
-if(!isset($data))
+$data = json_decode($_REQUEST['data']);
+if (!isset($data))
     $res->print_error("no data");
-if(intVal($data->id)==0)
-    $res->print_error("no id");
 
-if($data->passwd=='' && !check_rights('worker'))
-    $res->print_error("no passwd");
+$data->worker = trim($data->worker, "\n\r\t");
+$data->lname = trim($data->lname, "\n\r\t");
+$data->fname = trim($data->fname, "\n\r\t");
 
-if(!check_rights('worker') && $_SESSION["username"]!=$data->worker)
-    $res->print_error("How it is possible?");
+if (strlen($data->worker) == 0 || strlen($data->lname . $data->fname) == 0)
+    $response->print_error("Wrong username,lname,fname!");
 
-//logmsg(print_r($data,true));
-//logmsg(print_r($_REQUEST,true));
+if ($data->passwd == "*****")
+    $data->passwd = "";
 
-$SQL_STR="UPDATE `$tablename` set worker=?,fname=?,lname=?,dnalogin=?,dnapass=?,email=?,notify=?";
-$PARAMS=array("ssssssi",$data->worker,$data->fname,$data->lname,$data->dnalogin,$data->dnapass,$data->email,($data->notify=='on'?1:0));
-
-if($data->newpass!='') {
-    $SQL_STR=$SQL_STR.",passwd=? ";
-
-    array_push($PARAMS,crypt_pass($data->worker,$data->newpass));
-    $PARAMS[0]=$PARAMS[0]."s";
-}
-
-$SQL_STR=$SQL_STR." where id=?";
-array_push($PARAMS,$data->id);
-$PARAMS[0]=$PARAMS[0]."i";
-
-$result=execSQL($con,"select passwd from `$tablename` where id=?",array("i",$data->id),false);
-if(sizeof($result) != 1) {
-    $res->print_error("Something wrong");
-}
-
-$salt = substr($result[0]['passwd'], 0, 64);
-$hash = $salt . $data->passwd;
-for ($i = 0; $i < 100000; $i++) {
-    $hash = hash('sha256', $hash);
-}
-$hash = $salt . $hash;
-
-if($hash == $result[0]['passwd'] || check_rights('worker')) {
-    if(execSQL($con,$SQL_STR,$PARAMS,true)==0) {
-        $res->print_error("Can't update");
+if ($data->laboratory_id == "laborato-ry00-0000-0000-000000000001" && $data->worker == "admin" && $worker->worker['admin']) {
+    $SQL_STR = "UPDATE worker set changepass=? ";
+    $PARAMS = array("i", 0);
+} else {
+    if (isset($_REQUEST['workers'])) {
+        $SQL_STR = "UPDATE worker set worker=?,fname=?,lname=?,dnalogin=?,email=?,notify=?,changepass=?,relogin=?,admin=?,laboratory_id=?";
+        $PARAMS = array("sssssiiiis", $data->worker, $data->fname, $data->lname, $data->dnalogin, $data->email, $data->notify, $data->changepass,
+            $data->relogin, $data->admin, $data->laboratory_id);
     } else {
-        $res->success = true;
-        $res->message = "Data updated";
-        print_r($res->to_json());
-        exit();
+        $SQL_STR = "UPDATE worker set fname=?,lname=?,dnalogin=?,email=?,notify=?,changepass=0 ";
+        $PARAMS = array("ssssi", $data->fname, $data->lname, $data->dnalogin, $data->email, $data->notify);
+    }
+
+    if ($data->dnapass != "*****") {
+        array_push($PARAMS, $data->dnapass);
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . ",dnapass=?";
     }
 }
 
-$res->success = false;
-$res->message = "Data not updated";
-print_r($res->to_json());
+if (isset($_REQUEST['workers']) && ($worker->isLocalAdmin() || $worker->isAdmin())) {
+    if (strlen($data->passwd) != 0) {
+        array_push($PARAMS, $worker->crypt_pass($data->worker, $data->passwd));
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . ",passwd=?";
+    }
+} else if (!isset($_REQUEST['workers'])) {
+    if (strlen($data->newpass) != 0) {
+        array_push($PARAMS, $worker->crypt_pass($data->worker, $data->newpass));
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . ",passwd=?";
+    }
+}
 
-$con->close();
+array_push($PARAMS, $data->id);
+$PARAMS[0] = $PARAMS[0] . "i";
+$SQL_STR = $SQL_STR . " where id=?";
+
+//if others edit someone
+if (isset($_REQUEST['workers'])) {
+
+    if (!$worker->isLocalAdmin() && !$worker->isAdmin())
+        $response->print_error("Insufficient privileges!");
+
+    if ($worker->isLocalAdmin()) {
+        if ($worker->worker['laboratory_id'] != $data->laboratory_id)
+            $response->print_error("Insufficient privileges!");
+
+        array_push($PARAMS, $data->laboratory_id);
+        $PARAMS[0] = $PARAMS[0] . "s";
+        $SQL_STR = $SQL_STR . " and laboratory_id=?";
+    }
+
+} else {
+    if ($worker->worker['id'] != $data->id)
+        $response->print_error("Insufficient privileges!");
+}
+
+
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0) {
+    $response->print_error("Can't update");
+} else {
+    $response->success = true;
+    $response->message = "Data updated";
+    print_r($response->to_json());
+}
+
 ?>

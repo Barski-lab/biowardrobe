@@ -22,7 +22,8 @@
 
 Ext.define('EMS.view.Project2.DESeqRun', {
     extend: 'Ext.window.Window',
-    requires: ['Ext.form.Panel'],
+    requires: ['Ext.form.Panel',
+               'EMS.util.Util'],
     title: 'DESeq settings',
     id: 'Project2DESeqRun',
     layout: 'fit',
@@ -44,9 +45,9 @@ Ext.define('EMS.view.Project2.DESeqRun', {
 
         for (i = 0; i < me.initialConfig.tables.getChildAt(0).childNodes.length; i++) {
             tablesN.push({
-                id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
-                name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
-            });
+                             id: me.initialConfig.tables.getChildAt(0).childNodes[i].data.id,
+                             name: me.initialConfig.tables.getChildAt(0).childNodes[i].data.name
+                         });
         }
         me.tables = Ext.create('Ext.data.Store', {
             fields: [ 'id', 'name'],
@@ -73,35 +74,35 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                             for (i = 0; i < me.initialConfig.tables.getChildAt(1).childNodes.length; i++) {
                                 if (name.getValue().trim().toUpperCase() === me.initialConfig.tables.getChildAt(1).childNodes[i].data.name.trim().toUpperCase()) {
                                     Ext.MessageBox.show({
-                                        title: 'For you information',
-                                        msg: 'DESeq name "' + name.getValue() + '" already exists please provide the other one.',
-                                        icon: Ext.MessageBox.ERROR,
-                                        fn: function () {
-                                            name.focus(false, 200);
-                                        },
-                                        buttons: Ext.Msg.OK
-                                    });
+                                                            title: 'For you information',
+                                                            msg: 'DESeq name "' + name.getValue() + '" already exists please provide the other one.',
+                                                            icon: Ext.MessageBox.ERROR,
+                                                            fn: function () {
+                                                                name.focus(false, 200);
+                                                            },
+                                                            buttons: Ext.Msg.OK
+                                                        });
                                     return;
                                 }
                             }
                             if (form.getForm().isValid()) {
                                 var formData = me.getFormJson();
                                 if (me.isTablesUniq(formData)) {
-                                    LocalStorage.createData(LocalStorage.DESEQ_STORAGE, Ext.encode(formData));
+                                    //LocalStorage.createData(LocalStorage.DESEQ_STORAGE, Ext.encode(formData));
 
                                     if (typeof me.initialConfig.onSubmit !== 'undefined') {
                                         me.initialConfig.onSubmit();
                                     }
                                 } else {
                                     Ext.MessageBox.show({
-                                        title: 'For you information',
-                                        msg: 'You cant run DESeq on the same data.',
-                                        icon: Ext.MessageBox.ERROR,
-                                        fn: function () {
-                                            name.focus(false, 200);
-                                        },
-                                        buttons: Ext.Msg.OK
-                                    });
+                                                            title: 'For you information',
+                                                            msg: 'You cant run DESeq on the same data.',
+                                                            icon: Ext.MessageBox.ERROR,
+                                                            fn: function () {
+                                                                name.focus(false, 200);
+                                                            },
+                                                            buttons: Ext.Msg.OK
+                                                        });
                                 }
                             }
                         }
@@ -167,7 +168,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                 margin: '0 5 0 5',
                                 id: 'deseq-name',
                                 fieldLabel: 'Name for DESeq result',
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 submitValue: true,
                                 allowBlank: false,
                                 labelAlign: 'top',
@@ -185,7 +186,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 editable: false,
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 value: 1,
                                 id: 'deseq-an-type',
                                 fieldLabel: 'Series type',
@@ -212,8 +213,8 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 editable: false,
-                                afterLabelTextTpl: required,
-                                value: LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping'),
+                                afterLabelTextTpl: EMS.util.Util.required,
+                                //value: LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping'),
                                 id: 'deseq-rna-type',
                                 fieldLabel: 'Annotation grouping',
                                 labelAlign: 'top',
@@ -222,7 +223,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
                                 allowBlank: false,
                                 listeners: {
                                     'select': function (combo, records) {
-                                        LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping', combo.getValue())
+                                        //LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping', combo.getValue())
                                     }
                                 },
                                 store: Ext.create('Ext.data.Store', {
@@ -242,7 +243,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
 
 
         this.on('afterrender', function () {
-            var data = LocalStorage.findData(LocalStorage.DESEQ_STORAGE);
+            var data;// = LocalStorage.findData(LocalStorage.DESEQ_STORAGE);
             if (data) {
                 me.setFormJson(data);
             } else {
@@ -392,7 +393,7 @@ Ext.define('EMS.view.Project2.DESeqRun', {
     setFormJson: function (data) {
         var me = this, form = Ext.getCmp('ProjectDESeqForm'), filter;
         Ext.getCmp('deseq-name').setValue(data.name);
-        if(typeof data.seriestype != 'undefined' )
+        if (typeof data.seriestype != 'undefined')
             Ext.getCmp('deseq-an-type').setValue(data.seriestype);
         filter = me.addFilter(data.name, data.deseq[j]);
         form.add(filter);

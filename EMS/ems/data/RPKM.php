@@ -1,8 +1,5 @@
 <?php
-require('common.php');
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 if(isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -11,8 +8,8 @@ else
 
 check_val($tablename);
 
-$con=def_connect();
-$con->select_db($db_name_experiments);
+$con=$settings->connection;
+$con->select_db($settings->settings['experimentsdb']['value']);
 
 if(execSQL($con,"describe `$tablename`",array(),true)==0) {
        $res->print_error("Cant describe");

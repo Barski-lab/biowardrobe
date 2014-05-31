@@ -108,7 +108,6 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                                 }
                             }
                         ]
-
                     },
                     {
                         xtype: 'splitter'
@@ -229,15 +228,15 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
             //                remove: false,
             //                stopAnimation: true
             //            });
-            panel.setVisible(false);
+//            panel.setVisible(false);
             center.add(panel);
-            center.getComponent(1).getEl().slideIn('l', {
-                easing: 'easeInOut',
-                duration: 500,
-                remove: false,
-                stopAnimation: true
-            });
-            panel.setVisible(true);
+//            center.getComponent(1).getEl().slideIn('l', {
+//                easing: 'easeInOut',
+//                duration: 500,
+//                remove: false,
+//                stopAnimation: true
+//            });
+//            panel.setVisible(true);
         }
     },
     hideAnalysis: function () {

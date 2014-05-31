@@ -22,7 +22,8 @@
 
 Ext.define('EMS.view.Project2.ATDPRun', {
     extend: 'Ext.window.Window',
-    requires: ['Ext.form.Panel'],
+    requires: ['Ext.form.Panel',
+               "EMS.util.Util"],
     title: 'Average Tag Density settings',
     id: 'Project2ATDPRun',
     layout: 'fit',
@@ -100,7 +101,7 @@ Ext.define('EMS.view.Project2.ATDPRun', {
                             if (form.getForm().isValid()) {
                                 var formData = me.getFormJson();
                                 if (me.isTablesUniq(formData)) {
-                                    LocalStorage.createData(LocalStorage.ATDP_STORAGE, Ext.encode(formData));
+                                    //LocalStorage.createData(LocalStorage.ATDP_STORAGE, Ext.encode(formData));
 
                                     if (typeof me.initialConfig.onSubmit !== 'undefined') {
                                         me.initialConfig.onSubmit();
@@ -187,7 +188,7 @@ Ext.define('EMS.view.Project2.ATDPRun', {
                                 margin: '0 5 0 5',
                                 id: 'atdp-name',
                                 fieldLabel: 'Name for ATDP figure',
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 submitValue: true,
                                 allowBlank: false,
                                 labelAlign: 'top',
@@ -207,7 +208,7 @@ Ext.define('EMS.view.Project2.ATDPRun', {
         ];
 
         this.on('afterrender', function () {
-            var data = LocalStorage.findData(LocalStorage.ATDP_STORAGE);
+            var data;// = LocalStorage.findData(LocalStorage.ATDP_STORAGE);
             if (data) {
                 me.setFormJson(data);
             } else {
@@ -395,7 +396,7 @@ Ext.define('EMS.view.Project2.ATDPRun', {
         var items = data.atdp;
         for (var i = 0; i < items.length - 1; i++) {
             for (var j = i + 1; j < items.length; j++) {
-                if (items[i].tableD === items[j].tableD && items[i].tableL === items[j].tableL )
+                if (items[i].tableD === items[j].tableD && items[i].tableL === items[j].tableL)
                     return false;
             }
         }

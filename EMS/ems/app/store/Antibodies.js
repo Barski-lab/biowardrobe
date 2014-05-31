@@ -21,16 +21,16 @@
  ****************************************************************************/
 Ext.define('EMS.store.Antibodies', {
     extend: 'Ext.data.Store',
-
-    requires: ['EMS.model.Antibodies'],
+    requires: ['EMS.model.Antibodies',
+               'EMS.proxy.StandardProxy'],
     storeId: 'Antibodies',
     model: 'EMS.model.Antibodies',
     autoLoad: false,
     singleton: true,
     remoteSort: true,
+
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     },
     sorters: [
@@ -39,6 +39,12 @@ Ext.define('EMS.store.Antibodies', {
             direction: 'ASC'
         }
     ],
-    proxy: STORE_DEFS.proxy('antibody', true)
+    proxy: {
+        type: 'standardproxy',
+        extraParams: {
+            tablename: 'antibody'
+        },
+        sortParam: "sort"
+    }
 });
 

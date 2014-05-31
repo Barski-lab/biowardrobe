@@ -1,44 +1,50 @@
 <?php
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST, true));
 
-if (isset($_REQUEST['labdata_id']))
-    $labdata_id = $_REQUEST['labdata_id'];
+if (isset($_REQUEST['uid']))
+    $uid = $_REQUEST['uid'];
 else
-    $res->print_error('Not enough required parameters.');
+    $response->print_error('Not enough required parameters.');
 
-$con = def_connect();
-$con->select_db($db_name_ems);
+check_val($uid);
 
-
-$query_array = execSQL($con, "SELECT name4browser from labdata where id=?", array("i", $labdata_id), false);
+$query_array = selectSQL("SELECT name4browser from labdata where uid=?", array("s", $uid));
 $filename = $query_array[0]['name4browser'];
 
 if ($filename == "")
-    $res->print_error('Cant find file name');
+    $response->print_error('Cant find file name');
 
-$query_array = array();
+$EDB = $settings->settings['experimentsdb']['value'];
 
-exec("Rscript islands_distribution.R $labdata_id 2>/dev/null", $output);
+$tablename = "{$uid}_islands";
+
+for ($i = 0; $i < 100; $i++) {
+    $describe = selectSQL("describe `{$EDB}`.`{$tablename}`", array());
+
+    if ($describe[0]['Field'] == "refseq_id") {
+        break;
+    } else {
+        if ($i == 99)
+            $response->print_error('Not ready yet');
+        sleep(2);
+    }
+}
+
+$output = selectSQL("select region,count(region) as count from `{$EDB}`.`{$tablename}` where region is not null group by region order by region;", array());
 
 $DATA = array(
     'name' => $filename,
-    'Upstream' => intval($output[0]),
-    'Promoter' => intval($output[1]),
-    'Exon' => intval($output[2]),
-    'Intron' => intval($output[3]),
-    'Intergenic' => intval($output[4]),
-    'Total' => intval($output[5])
+    'Upstream' => $output[4]['count'],
+    'Promoter' => $output[3]['count'],
+    'Exon' => $output[0]['count'],
+    'Intron' => $output[2]['count'],
+    'Intergenic' => $output[1]['count'],
+    'Total' => $output[0]['count'] + $output[1]['count'] + $output[2]['count'] + $output[3]['count'] + $output[4]['count']
 );
-
-$con->close();
-
 
 $fields = array(
     array(
@@ -72,12 +78,11 @@ $fields = array(
 );
 
 
-
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = sizeof($DATA);
-$res->meta = array("fields" => $fields);
-$res->data = $DATA;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = sizeof($DATA);
+$response->meta = array("fields" => $fields);
+$response->data = $DATA;
+print_r($response->to_json());
 ?>
 

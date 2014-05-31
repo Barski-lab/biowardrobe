@@ -82,6 +82,75 @@ T Poisson_cdist(int k, T lambda) {
     return res;
 }
 
+template<typename T>
+static QVector<T> smooth(const QVector<T>&,const int &);
+
+template<typename T>
+static T mean(const QVector<T>&,const int&,const int&);
+
+/*
+ * calculating mean between end and begin in a QVector of type T
+ */
+template<typename T>
+T mean(const QVector<T>& list,const int& begin,const int& end)
+{
+    assert(end<list.size());
+    assert((end-begin)>0);
+    T tmp=0;
+    for(int i=begin;i<=end;i++)
+        tmp+=list.at(i);
+
+    return (tmp/(end-begin+1));
+}
+
+/*
+ * Smooth data in a QVector with span
+ */
+template<typename T>
+QVector<T> smooth(const QVector<T>& list,const int& span)
+{
+    QVector<T> result;
+    int win=span;
+    if(win<3 || list.size()<win) return list;
+    if(win%2!=1) --win;
+    int half_w=win/2;
+    int size=list.size();
+    int mid=size-half_w;
+    int x;
+    int start=0,end=0;
+    result<<list.first();
+    try{
+        for(x=1;x<size-1;x++)
+        {
+            if(x>=half_w && x<mid) //middle
+            {
+                start=x-half_w;
+                end=x+half_w;
+            }
+            else if(x<half_w) //beginning
+            {
+                start=0;
+                end=x+x;
+            }
+            else if(x>=mid) //end
+            {
+                start=x - (size-x);
+                end=size-1;
+            }
+            result<<mean<T>(list,start,end);
+        }
+        result<<list.last();
+    }
+    catch(...)
+    {
+        qDebug()<<"List.size:"<<list.size()<<" result.size:"<<result.size()<<" x="<<x;
+    }
+
+    return result;
+}
+
+
+
 }//namespace
 
 #include <Matrix.hpp>

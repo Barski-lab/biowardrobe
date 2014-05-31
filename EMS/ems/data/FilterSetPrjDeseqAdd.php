@@ -21,10 +21,7 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 
 //logmsg(__FILE__);
@@ -32,7 +29,7 @@ require_once('database_connection.php');
 try {
     $data = json_decode(file_get_contents('php://input'));
 } catch (Exception $e) {
-    $res->print_error("Cant read input" . $e);
+    $response->print_error("Cant read input" . $e);
 }
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data, true));
@@ -41,13 +38,13 @@ try {
 $V = $data->filters[0];
 
 if (!isset($V->name) || !isset($V->conditions) || !isset($data->uuid) || !isset($data->project_id))
-    $res->print_error("no data");
+    $response->print_error("no data");
 /**************************************************************
  ***************************************************************/
 
 function get_field($f)
 {
-    global $res;
+    global $response;
     switch ($f) {
         case 1:
             return array("name" => "P-value", "field" => "pvalue");
@@ -62,12 +59,12 @@ function get_field($f)
         case 6:
             return array("name" => "Chromosome", "field" => "chrom");
     }
-    $res->print_error("Error field");
+    $response->print_error("Error field");
 }
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 $con->autocommit(FALSE);
+$EDB = $settings->settings['experimentsdb']['value'];
 
 $tablenames = array();
 
@@ -98,18 +95,18 @@ $DB="";
 foreach ($V->conditions as $k2 => $val) {
     check_val($val->table);
     if (($val->bracketl != '' && $val->bracketl != '(') || ($val->bracketr != '' && $val->bracketr != ')'))
-        $res->print_error("Paranthesis error");
+        $response->print_error("Paranthesis error");
 
     if (!isset($tablenames[$val->table])) {
         $tn = get_table_info($val->table);
         if (!$tn)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
         if ($tn[0]['rtype_id'] != $EXT['id'])
-            $res->print_error("Incorrect annotation grouping");
+            $response->print_error("Incorrect annotation grouping");
 
-        $descr = execSQL($con, "describe " . $db_name_experiments . ".`" . $tn[0]['tableName'] . "`", array(), false);
+        $descr = execSQL($con, "describe `{$EDB}`.`" . $tn[0]['tableName'] . "`", array(), false);
         if (!$descr)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
 
         $tablenames[$val->table] = array("table" => $tn[0]['tableName'], "alias" => "a$c", "name" => $tn[0]['name'], "RPKM1" => $descr[6]['Field'], "RPKM2" => $descr[7]['Field']);
         if ($c > 0) {
@@ -118,7 +115,7 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txStart=a" . $c . ".txStart";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
-            $FROM = $FROM . "," . $db_name_experiments . "." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
+            $FROM = $FROM . ",`{$EDB}`." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
 
             $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . " as `" . $c . $tablenames[$val->table]['RPKM1'] ."`".
                 "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . " as `" . $c . $tablenames[$val->table]['RPKM2'] ."`".
@@ -129,7 +126,7 @@ foreach ($V->conditions as $k2 => $val) {
 
             $gblink = $gblink . "&" . $tn[0]['gblink'];
         } else {
-            $FROM = $db_name_experiments . "." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
+            $FROM = "`{$EDB}`." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
             $FIELDS = $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . "," .
                 $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . "," .
                 $tablenames[$val->table]['alias'] . "." . "LOGR as `LOG2R " . $tablenames[$val->table]['name'] . "`," .
@@ -158,7 +155,7 @@ foreach ($V->conditions as $k2 => $val) {
     $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . floatval($val->value) . "$val->bracketr<br>\n";
 }
 
-$SQL = "CREATE VIEW " . $db_name_experiments . "." . $tbname . " AS " .
+$SQL = "CREATE VIEW `{$EDB}`.`{$tbname}` AS " .
     "select a0.refseq_id as refseq_id," .
     "a0.gene_id AS gene_id," .
     "a0.chrom AS chrom," .
@@ -173,16 +170,16 @@ execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,lea
     array("sssssssi", $UUID, $V->name, $project_id, $DB, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
 $con->close();
 
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = 1;
-$res->data = array("id" => $UUID, "conditions" => $READABLE, "gblink" => $gblink);
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = 1;
+$response->data = array("id" => $UUID, "conditions" => $READABLE, "gblink" => $gblink);
+print_r($response->to_json());
 
 ?>

@@ -21,10 +21,7 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 
 //logmsg(__FILE__);
@@ -32,7 +29,7 @@ require_once('database_connection.php');
 try {
     $data = json_decode(file_get_contents('php://input'));
 } catch (Exception $e) {
-    $res->print_error("Cant read input" . $e);
+    $response->print_error("Cant read input" . $e);
 }
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
@@ -41,23 +38,24 @@ try {
 $V = $data->filters[0];
 
 if (!isset($V->name) || !isset($V->conditions) || !isset($data->uuid) || !isset($data->project_id))
-    $res->print_error("no data");
+    $response->print_error("no data");
 /**************************************************************
  ***************************************************************/
 function get_field($f)
 {
-    global $res;
+    global $response;
     switch ($f) {
         case 1:
             return array("name" => "RPKM", "field" => "RPKM_0");
         case 2:
             return array("name" => "Chromosome", "field" => "chrom");
     }
-    $res->print_error("Error field");
+    $response->print_error("Error field");
 }
 
-$con = def_connect();
-$con->select_db($db_name_ems);
+$EDB = $settings->settings['experimentsdb']['value'];
+$con=$settings->connection;
+
 $con->autocommit(FALSE);
 
 $tablenames = array();
@@ -88,7 +86,7 @@ foreach ($V->conditions as $k2 => $val) {
     if (!isset($tablenames[$val->table])) {
         $tn = get_table_info($val->table);
         if (!$tn)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
         $tablenames[$val->table] = array("table" => $tn[0]['tableName'], "alias" => "a$c", "name" => $tn[0]['name']);
         if ($c > 0) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".refseq_id=a" . $c . ".refseq_id";
@@ -96,11 +94,11 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txStart=a" . $c . ".txStart";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
-            $FROM = $FROM . "," . $db_name_experiments . ".`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
+            $FROM = $FROM . ",`{$EDB}`.`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
             $RPKMS = $RPKMS . "," . $tablenames[$val->table]['alias'] . "." . "RPKM_0 as `RPKM " . $tablenames[$val->table]['name'] . "`";
             $gblink = $gblink . "&" . $tn[0]['gblink'];
         } else {
-            $FROM = $db_name_experiments . ".`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
+            $FROM = "`{$EDB}`.`" . $tablenames[$val->table]['table'] . $EXT['ext'] . "` " . $tablenames[$val->table]['alias'];
             $RPKMS = $tablenames[$val->table]['alias'] . "." . "RPKM_0 as `RPKM " . $tablenames[$val->table]['name'] . "`";
             $gblink = $tn[0]['gblink'];
             $DB=$tn[0]['db'];
@@ -120,7 +118,7 @@ foreach ($V->conditions as $k2 => $val) {
     $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . floatval($val->value) . "$val->bracketr<br>\n";
 }
 
-$SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "` AS " .
+$SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "` AS " .
     "select a0.refseq_id as refseq_id," .
     "a0.gene_id AS gene_id," .
     "a0.chrom AS chrom," .
@@ -131,20 +129,20 @@ $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "` AS " .
     " FROM " . $FROM . " WHERE $WHERE $WHEREC ";
 execSQL($con, $SQL, array(), true);
 
-execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
+execSQL($con, "insert into genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
     array("sssssssi", $UUID, $V->name, $project_id, $DB, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
 $con->close();
 
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = 1;
-$res->data = array("id" => $UUID, "conditions" => $READABLE, "gblink" => $gblink);
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = 1;
+$response->data = array("id" => $UUID, "conditions" => $READABLE, "gblink" => $gblink);
+print_r($response->to_json());
 
 ?>

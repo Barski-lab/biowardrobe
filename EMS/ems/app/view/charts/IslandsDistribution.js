@@ -26,95 +26,97 @@ Ext.define('EMS.view.charts.IslandsDistribution',
            {
                extend: 'Ext.chart.Chart',
                style: 'background:#fff',
-
+               alias: 'widget.chartsislandsdistribution',
                border: 0,
 
                animate: false,
                shadow: true,
+               legend: {
+                   position: 'right'
+               },
+               store: 'IslandsDistribution',
+               items: [
+                   {
+                       type: 'text',
+                       text: 'Upstream is [TSS-20k,TSS-1k]',
+                       font: '12px Arial',
+                       fill: 'green',
+                       width: 100,
+                       height: 20,
+                       x: 40,
+                       y: 20
+                   },
+                   {
+                       type: 'text',
+                       text: 'Promoter is [TSS-1k,TSS+1k]',
+                       font: '12px Arial',
+                       fill: 'blue',
+                       width: 100,
+                       height: 20,
+                       x: 40,
+                       y: 39
+                   }
+               ], series: [
+               {
+                   type: 'bar',
+                   axis: 'bottom',
+                   gutter: 80,
+                   xField: 'name',
+                   yField: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
+                   stacked: true,
+                   yPadding: {
+                       top: 200,
+                       bottom: 100
+                   },
+                   //                               tips: {
+                   //                                   trackMouse: true,
+                   //                                   width: 100,
+                   //                                   height: 40,
+                   //                                   renderer: function (storeItem, item) {
+                   //                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
+                   //                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
+                   //                                   }
+                   //                               },
+                   label: {
+                       display: 'insideEnd',
+                       field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
+                       renderer: function (val, item, storeItem) {
+                           var percent = ((val / storeItem.data.Total) * 100);
+                           return String(val) + ', ' + String(percent.toFixed(2)) + '%';
+                       },
+                       contrast: true
+                   }
+               }
+           ],
 
+               axes: [
+                   {
+                       type: 'Numeric',
+                       position: 'bottom',
+                       fields: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
+                       title: 'Islands count'
+                   } ,
+                   {
+                       type: 'Category',
+                       position: 'left',
+                       fields: ['name'],
+                       //padding: "10 10 10 10",
+                       label: {
+                           display: 'outside',
+                           'text-anchor': 'middle',
+                           rotate: {
+                               degrees: 270
+                           },
+                           font: 'bold 12px Helvetica'
+                       }
+                   }
+               ],
                initComponent: function () {
                    var me = this;
 
-                   me.legend = { position: 'right' };
+
 
                    Ext.applyIf(me, {
-                       store: EMS.store.IslandsDistribution,
-                       items: [
-                           {
-                               type: 'text',
-                               text: 'Upstream is [TSS-20k,TSS-2k]',
-                               font: '12px Arial',
-                               fill: 'green',
-                               width: 100,
-                               height: 20,
-                               x: 40,
-                               y: 20
-                           },
-                           {
-                               type: 'text',
-                               text: 'Promoter is [TSS-2k,TSS+2k]',
-                               font: '12px Arial',
-                               fill: 'blue',
-                               width: 100,
-                               height: 20,
-                               x: 40,
-                               y: 39
-                           }
-                       ], series: [
-                           {
-                               type: 'bar',
-                               axis: 'bottom',
-                               gutter: 80,
-                               xField: 'name',
-                               yField: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                               stacked: true,
-                               yPadding: {
-                                   top: 200,
-                                   bottom: 100
-                               },
-//                               tips: {
-//                                   trackMouse: true,
-//                                   width: 100,
-//                                   height: 40,
-//                                   renderer: function (storeItem, item) {
-//                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
-//                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
-//                                   }
-//                               },
-                               label: {
-                                   display: 'insideEnd',
-                                   field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                                   renderer: function (val, item, storeItem) {
-                                       var percent = ((val / storeItem.data.Total) * 100);
-                                       return String(val) + ', ' + String(percent.toFixed(2)) + '%';
-                                   },
-                                   contrast: true
-                               }
-                           }
-                       ],
-
-                       axes: [
-                           {
-                               type: 'Numeric',
-                               position: 'bottom',
-                               fields: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                               title: 'Islands count'
-                           } ,
-                           {
-                               type: 'Category',
-                               position: 'left',
-                               fields: ['name'],
-                               //padding: "10 10 10 10",
-                               label: {
-                                   display: 'outside',
-                                   'text-anchor': 'middle',
-                                   rotate: {
-                                       degrees: 270
-                                   },
-                                   font: 'bold 12px Helvetica'
-                               }
-                           }
-                       ]
                    });
 
                    me.callParent(arguments);
