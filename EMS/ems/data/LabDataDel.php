@@ -30,16 +30,16 @@ if (!isset($data))
     $res->print_error("Data is not set");
 
 
-$SQL_QUERY = "update labdata set deleted=1 where id=?";
+$SQL_QUERY = "update labdata set deleted=1 where uid=?";
 
 if ($worker->isAdmin()) {
-    $PARAMS = array("i",$data->id);
+    $PARAMS = array("s",$data->uid);
 } else {
     $SQL_QUERY .= " and laboratory_id=? ";
     if(!$worker->isLocalAdmin()) {
         $SQL_QUERY .= " and libstatus < 1 ";
     }
-    $PARAMS = array("is",$data->id,$worker->worker['laboratory_id']);
+    $PARAMS = array("ss",$data->uid,$worker->worker['laboratory_id']);
 }
 
 if(execSQL($settings->connection,$SQL_QUERY,$PARAMS,true)==0)

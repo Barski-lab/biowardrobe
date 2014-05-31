@@ -203,6 +203,8 @@ Ext.define('Ext.ux.form.HtmlEditor.imageUpload', {
     },
 
     onRender: function () {
+        if(!this.cmp.UID)
+            return;
 
         var me = this;
         var imageButton = Ext.create('Ext.button.Button', {

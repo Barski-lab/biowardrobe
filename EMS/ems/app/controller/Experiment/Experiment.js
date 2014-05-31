@@ -100,8 +100,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
         this.spike = (gdata.genome.indexOf('spike') !== -1);
         this.db = gdata.db;
-        //FIXIT dont like it, nee dmore universal search for protocol and notes
-        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID=this.UID;//.items.items[1]
+
+
+        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID=this.UID;
         Ext.ComponentQuery.query('experimenteditform #notes')[0].UID=this.UID;
 
     },

@@ -59,6 +59,11 @@ $addlabdata = new AddLabData('labdata');
 $addlabdata->addData($data);
 $addlabdata->exec();
 
+$path=$settings->settings['wardrobe']['value'].$settings->settings['preliminary']['value'];
+$dir=$path.'/'.$data->uid;
+
+mkdir($dir,0777);
+
 $response->success = true;
 $response->message = "Data inserted";
 $response->total = $total;
