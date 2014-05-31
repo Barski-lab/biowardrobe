@@ -7,7 +7,7 @@ then
   exit 
 fi
 
-RS="/srv/ems/htdocs/data/"
+RS="/srv/ems/htdocs/ems/data/"
 
 MAINDIR="/data/DATA/MANORM/${9}"
 

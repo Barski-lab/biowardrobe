@@ -140,6 +140,45 @@ def get_stat(infile):
 	error[1]='Cant read stat file'
 	return error
 
+
+def run_rpkm(infile,name4browser,db,dutp,spike,antab,force=False):
+
+    infile=infile.split(";")[0]
+    FL=d.file_exist('.',infile+'_rpkm','log')
+    if len(FL) == 1 and force:
+	os.unlink(FL[0])
+    if len(FL) == 1 and not force:
+	success[1]=' Rpkm list uploaded'
+	return success
+	
+
+    PAR='ReadsCounting -sql_table="'+infile+'" -in="'+infile+'.bam" -out="'+infile+'.csv" -log="'+infile+'_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
+    PAR=PAR+'-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
+    PAR=PAR+""+db+"."+antab+" where chrom not like '%\\_%' "
+    if not spike:
+        PAR=PAR+" and chrom not like 'control%' "
+    PAR=PAR+" order by chrom,strand,txStart,txEnd"
+    PAR=PAR+'" -bed_trackname="'+name4browser+'" -sql_host=localhost -sql_dbname=experiments '
+    PAR=PAR+' -threads=4 -math-converging="arithmetic" -no-file '
+
+    if dutp:
+        PAR=PAR+' -rna_seq="dUTP" '
+    else:
+        PAR=PAR+' -rna_seq="RNA" '	
+    if not spike:
+	PAR=PAR+' -sam_ignorechr="control" '
+    
+    RET=''
+    try:
+	RET=s.check_output(PAR,shell=True)
+	#print RET
+	success[1]=' RPKMs was uploaded to genome browser'
+	return success
+    except Exception,e:
+	#print RET
+	error[1]=str(e)
+	return error
+
 ######################################################
 try:
     conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
@@ -157,7 +196,7 @@ cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10
 
 while True:
     row=[]
-    cursor.execute ("select e.etype,l.name4browser,g.db,g.findex,g.annotation,filename,w.worker,browsergrp,l.id "
+    cursor.execute ("select e.etype,l.name4browser,g.db,g.findex,g.annotation,filename,w.worker,browsergrp,l.id,g.annottable,g.genome "
     " from labdata l,experimenttype e,genome g,worker w "
     " where e.id=experimenttype_id and g.id=genome_id and w.id=worker_id and e.etype like 'RNA%' and libstatus in (10,1010) order by dateadd limit 1")
     row = cursor.fetchone()
@@ -171,6 +210,8 @@ while True:
     DB=row[2]
     FINDEX=row[3]
     ANNOTATION=row[4]
+    SPIKE=('spike' in row[10])
+    ANNOTTABLE=row[9]
     GROUP=row[7]
     LID=row[8]
     NAME=row[1]
@@ -237,7 +278,10 @@ while True:
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()
 
-    a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,150,isRNA)
+    rnadutp=1
+    if DUTP:
+	rnadutp=2
+    a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,150,rnadutp)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
@@ -255,6 +299,14 @@ while True:
     cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where id=%s",(a[0],a[1],a[2],LID))
     conn.commit()
 
+    a=run_rpkm(FNAME,NAME,DB,DUTP,SPIKE,ANNOTTABLE,True)
+    if 'Error' in a[0]:
+        cursor.execute("update labdata set libstatustxt=%s,libstatus=2020 where id=%s",(a[0]+": "+a[1],LID))
+        conn.commit()
+        continue
+
+    cursor.execute("update labdata set libstatustxt=%s,libstatus=21 where id=%s",(a[0]+": "+a[1],LID))
+    conn.commit()
     
     
     

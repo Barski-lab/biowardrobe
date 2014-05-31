@@ -174,17 +174,23 @@ while True:
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()
 
-    a=d.run_macs(FNAME,DB,FRAGEXP,FRAGFRC,False,True)
+    a=d.run_macs(FNAME,DB,FRAGEXP,FRAGFRC,False,False)
     #def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
+    MACSER=False
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
-        continue
+	MACSER=True
+	FRAGMENTE=FRAGEXP
+	FRAGMENT=FRAGMENTE
+	ISLANDS=0
+    else:
+	a=d.macs_data(FNAME)    
+	FRAGMENTE=a[0]
+	ISLANDS=a[1]
+	FRAGMENT=a[0]
 
-    a=d.macs_data(FNAME)    
-    FRAGMENTE=a[0]
-
-    if FRAGMENTE<80:
+    if not MACSER and FRAGMENTE<80:
     	a=d.run_macs(FNAME,DB,FRAGEXP,True,False,True)
 	if 'Error' in a[0]:
     	    cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
@@ -192,43 +198,29 @@ while True:
     	    continue
 	a=d.macs_data(FNAME)    
 	FRAGMENT=FRAGEXP
-    else:
-	FRAGMENT=FRAGMENTE
+	ISLANDS=a[1]
 
-    ISLANDS=a[1]
     cursor.execute("update labdata set fragmentsize=%s,fragmentsizeest=%s,islandcount=%s where id=%s",(FRAGMENT,FRAGMENTE,ISLANDS,LID))
     conn.commit()
 
-    a=d.upload_macsdata(conn,FNAME,arguments.readString("SQLEX/DB"),DB,NAME,GROUP,BROWSERSHARE)
-    if 'Error' in a[0]:
-        cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
-        conn.commit()
-        continue
+    if not MACSER:
+	a=d.upload_macsdata(conn,FNAME,arguments.readString("SQLEX/DB"),DB,NAME,GROUP,BROWSERSHARE)
+	if 'Error' in a[0]:
+	    cursor.execute("update labdata set libstatustxt=%s,libstatus=4010 where id=%s",(a[0]+": "+a[1],LID))
+	    conn.commit()
+	    continue
 
-#    ISLANDS=0
-#    for line in open(FN[0]+'_macs_peaks.xls'):
-#        if re.match('^# d = ',line):
-#            FRAGMENT=int(line.split('d = ')[1])
-#            continue
-#        if re.match('^#',line):
-#            continue
-#        if line.strip() != "":
-#            ISLANDS=ISLANDS+1
-#    cursor.execute("update labdata set fragmentsize=%s where id=%s",(FRAGMENT,LID))
-#    conn.commit()
-	
-#    if ISLANDS <100 or FRAGMENT<90:
-#        FRAGMENT=150
     a=d.run_bedgraph(FNAME,GROUP,NAME,BEDFORMAT,DB,FRAGMENT,isRNA)
     if 'Error' in a[0]:
         cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where id=%s",(a[0]+": "+a[1],LID))
         conn.commit()
         continue
 
-    cursor.execute ("""
-    update """+DB+""".trackDb_local set 
-    settings='parent """+FN[0]+"""_grp\ntrack """+FN[0]+"""\nautoScale on\nwindowingFunction maximum'
-    where tablename like '"""+FN[0]+"""';""");
+    if not MACSER:
+	cursor.execute ("""
+	update """+DB+""".trackDb_local set 
+	settings='parent """+FN[0]+"""_grp\ntrack """+FN[0]+"""\nautoScale on\nwindowingFunction maximum'
+	where tablename like '"""+FN[0]+"""';""");
 
     cursor.execute ("""
     delete from """+DB+""".trackDb_external where tablename like '"""+FN[0]+"""'; """)
@@ -238,11 +230,11 @@ while True:
 	cursor.execute ("""
 	insert into """+DB+""".trackDb_external select * from """+DB+""".trackDb_local where tablename like '"""+FN[0]+"""';""");    
 	conn.commit()
-	cursor.execute ("""
-	update """+DB+""".trackDb_external set 
-	settings='parent """+FN[0]+"""_grp\ntrack """+FN[0]+"""\nautoScale on\nwindowingFunction maximum'
-	where tablename like '"""+FN[0]+"""';""");
-	conn.commit()
+	#cursor.execute ("""
+	#update """+DB+""".trackDb_external set 
+	#settings='parent """+FN[0]+"""_grp\ntrack """+FN[0]+"""\nautoScale on\nwindowingFunction maximum'
+	#where tablename like '"""+FN[0]+"""';""");
+	#conn.commit()
 
     cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where id=%s",(a[0]+": "+a[1],LID))
     conn.commit()

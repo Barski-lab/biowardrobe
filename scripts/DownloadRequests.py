@@ -98,10 +98,14 @@ def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
     session = requests.session()
     session.get(main_page)
 
-    session.post(login_page,data={'username': USERNAME, 'password': PASSWORD})
+    r1=session.post(login_page,data={'username': USERNAME, 'password': PASSWORD})
+    print "----------------------------------------------------------------\n\n\n\n"
+    print r1.text
+    print "----------------------------------------------------------------\n\n\n\n"
 
     r = session.get(request_page)
-
+    print r.text
+    
     fname=list()
     path=list()
     flist=list()

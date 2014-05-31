@@ -116,7 +116,7 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
 	error[1] = ' MACS peak file does not exist'
 	return error 
 
-    table_name=dbexp+'.'+FNAME+'_macs'
+    table_name=dbexp+'.`'+FNAME+'_macs`' #FIXME
     
     cursor.execute ("DROP TABLE IF EXISTS "+table_name)
     cursor.execute ("""
@@ -137,12 +137,11 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
     conn.commit()
 
-    dbtblname=db+'.'+FNAME
+    dbtblname=db+'.`'+FNAME #FIXME
     cursor.execute ("""
-    CREATE OR REPLACE VIEW """ +dbtblname+"""_islands AS 
+    CREATE OR REPLACE VIEW """ +dbtblname+"""_islands` AS 
     select 0 as bin, chrom, start as chromStart, end as chromEnd,max(log10p) as name, max(log10q) as score
-    from """ +table_name+"""
-    group by chrom,start,end; """)
+    from """ +table_name+""" group by chrom,start,end; """)
     conn.commit()
 
 
@@ -153,9 +152,9 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     cursor.execute ("""
     insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
     colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-    values('"""+FNAME+"""_grp','"""+NAME+"""','bed 4 +','"""+NAME+"""',
-    0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
-    'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""")
+    values(%s,%s,'bed 4 +',%s,
+    0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
+    'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""",(FNAME+"_grp",NAME,NAME,grp))
     conn.commit()
     
     cursor.execute ("""
@@ -165,9 +164,9 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     cursor.execute ("""
     insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
     colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-    values('"""+FNAME+"""_islands','"""+NAME+""" islands','bed 4 +','"""+NAME+""" islands',
-    0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
-    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """)
+    values(%s,%s,'bed 4 +',%s,
+    0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
+    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """,(FNAME+"_islands",NAME+" islands",NAME+" islands",grp))
     conn.commit()
 
     cursor.execute ("""
@@ -178,19 +177,19 @@ def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     conn.commit()
     
     if share:
-	cursor.execute ("""
-        insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
-        colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-        values('"""+FNAME+"""_grp','"""+NAME+"""','bed 4 +','"""+NAME+"""',
-        0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
-        'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""")
-        conn.commit()
-	cursor.execute ("""
+        cursor.execute ("""
 	insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
 	colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-	values('"""+FNAME+"""_islands','"""+NAME+""" islands','bed 4 +','"""+NAME+""" islands',
-	0,10,0,0,0,0,0,0,0,0,0,'','','','"""+grp+"""',1,
-	'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """)
+	values(%s,%s,'bed 4 +',%s,
+        0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
+	'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""",(FNAME+"_grp",NAME,NAME,grp))
+        conn.commit()
+        cursor.execute ("""
+	insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
+	colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
+	values(%s,%s,'bed 4 +',%s,
+	0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
+	'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """,(FNAME+"_islands",NAME+" islands",NAME+" islands",grp))
 	conn.commit()
     
 
@@ -292,8 +291,10 @@ def run_bedgraph(infile,group,name4browser,bedformat,db,fragment,isRNA,force=Non
 
     PAR='bam2bedgraph -sql_table="'+FN+'" -in="'+FN+'.bam" -out="'+FN+'.out" -log="'+FN+'.log"'+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_format='+bedformat+' -no-bed-file '
     PAR=PAR+' -sql_host=localhost -sql_dbname='+db
-    if isRNA:	
+    if isRNA==1:	
 	PAR=PAR+' -bed_type=2 -rna_seq="RNA" '
+    elif isRNA==2:	
+	PAR=PAR+' -bed_type=2 -rna_seq="dUTP" '
     else:
 	if pair:
 	    PAR=PAR+' -bed_type=2 '
