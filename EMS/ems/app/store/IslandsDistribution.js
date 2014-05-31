@@ -24,26 +24,25 @@
 Ext.define('EMS.store.IslandsDistribution', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.IslandsDistribution'],
+    requires: ['EMS.model.IslandsDistribution',
+               'EMS.proxy.StandardProxy'],
     model: 'EMS.model.IslandsDistribution',
     storeId: 'IslandsDistribution',
     autoLoad: false,
-    singleton: true,
-    remoteSort: true,
-    remoteFilter: true,
+//    singleton: ,
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     },
-    proxy: Ext.apply(STORE_DEFS.proxy(''), {
+    proxy: {
+        type: 'standardproxy',
         api: {
             read: 'data/IslandsDistribution.php',
             update: '',
             create: '',
             destroy: ''
         }
-    })
+    }
 });
 
 

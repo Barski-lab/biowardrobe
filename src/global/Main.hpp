@@ -25,12 +25,13 @@
 
 #include <config.hpp>
 
-
 QFile _logfile;
-QMutex _logmut;
 
-void printMsgHandler(QtMsgType type, const char * _str)
+#if QT_VERSION >= 0x050000
+// Qt5 code
+void printMsgHandler(QtMsgType type, const QMessageLogContext&, const QString &_str)
 {
+    static QMutex _logmut;
     _logmut.lock();
     QString time=QTime::currentTime().toString("hh:mm:ss");
     QString str=QString("[%1]["+time+"] %2\n").arg(type).arg(_str);
@@ -59,10 +60,75 @@ void printMsgHandler(QtMsgType type, const char * _str)
     _logmut.unlock();
 };
 
+#else
+// Qt4 code
+void printMsgHandler(QtMsgType type, const char * _str)
+{
+    static QMutex _logmut;
+    _logmut.lock();
+    QString time=QTime::currentTime().toString("hh:mm:ss");
+    QString str=QString("[%1]["+time+"] %2\n").arg(type).arg(_str);
+
+    switch (type)
+    {
+        case QtDebugMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
+        break;
+        case QtWarningMsg:
+            fprintf(stderr, "Debug: %s\n", str.toLocal8Bit().data());
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
+        break;
+        case QtCriticalMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
+        break;
+        case QtFatalMsg:
+            _logfile.write(str.toLocal8Bit());
+            _logfile.flush();
+            exit(-1);
+        break;
+    }
+    _logmut.unlock();
+};
+#endif
+
+
+class App : public QCoreApplication
+{
+    public:
+
+    App(int& argc, char** argv):QCoreApplication(argc,argv){}
+    virtual ~App(){}
+
+    virtual bool notify(QObject *receiver, QEvent *event)
+    {
+        try
+        {
+            return QCoreApplication::notify(receiver, event);
+        }
+        catch(char *str)
+        {
+            cerr << "Error rised:"<<str << endl;
+        }
+        catch(exception &e )
+        {
+            cerr << "Caught " << e.what( ) << endl;
+            cerr << "Type " << typeid( e ).name( ) << endl;
+        }
+        catch(...)
+        {
+        }
+        emit quit();
+        return false;
+    }
+};
+
 int main( int _argc, char* _argv[] )
 {
     try{
-        QCoreApplication Application(_argc, _argv);
+        App Application(_argc, _argv);
 
         QCoreApplication::setOrganizationName("genome-tools");
         QCoreApplication::setApplicationName(_APPNAME);
@@ -77,39 +143,19 @@ int main( int _argc, char* _argv[] )
         _logfile.setFileName(gArgs().getArgs("log").toString());
         _logfile.open(QIODevice::WriteOnly|QIODevice::Append);
 
-#ifdef _SQL_
-        if (!QSqlDatabase::drivers().contains(gArgs().getArgs("sql_driver").toString()))
-        {
-            qDebug()<<"No SQL driver. Drivers list:"<<QSqlDatabase::drivers();
-            throw "No SQL driver";
-        }
-        else
-        {
-            QSqlDatabase db = QSqlDatabase::addDatabase(gArgs().getArgs("sql_driver").toString());
-            db.setDatabaseName(gArgs().getArgs("sql_dbname").toString());
-            db.setHostName(gArgs().getArgs("sql_host").toString());
-            db.setPort(gArgs().getArgs("sql_port").toInt());
-            db.setUserName(gArgs().getArgs("sql_user").toString());
-            db.setPassword(qUncompress(QByteArray::fromBase64(gArgs().getArgs("sql_pass").toByteArray())));
-            if (!db.open() )
-            {
-                QSqlError sqlErr = db.lastError();
-                qDebug()<<qPrintable("Error connect to DB commpressed: "+sqlErr.text());
-                db.setPassword(gArgs().getArgs("sql_pass").toString());
-                if (!db.open())
-                {
-                    qDebug()<<qPrintable("Error connect to DB uncopressed:"+sqlErr.text());
-                    throw "Error connect to DB";
-                }
-            }
-        }
+#ifdef _WARDROBE_
+        gSettings().Init(gArgs().getArgs("wardrobe").toString());
 #endif
 
+#if QT_VERSION >= 0x050000
+        qInstallMessageHandler(printMsgHandler);
+#else
         qInstallMsgHandler(printMsgHandler);
+#endif
 
         FSTM *machine = new FSTM();
-        QTimer::singleShot(0, machine, SLOT(start()));
         QObject::connect(machine,SIGNAL(finished()),QCoreApplication::instance(),SLOT(quit()));
+        QTimer::singleShot(0, machine, SLOT(start()));
         return Application.exec();
     }
     catch(char *str)

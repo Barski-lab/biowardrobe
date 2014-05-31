@@ -22,7 +22,8 @@
 
 Ext.define('EMS.view.Project2.MANormRun', {
     extend: 'Ext.window.Window',
-    requires: ['Ext.form.Panel'],
+    requires: ['Ext.form.Panel',
+               'EMS.util.Util'],
     title: 'MANorm settings',
     id: 'Project2MANormRun',
     layout: 'fit',
@@ -87,7 +88,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
                             if (form.getForm().isValid()) {
                                 var formData = me.getFormJson();
                                 if (me.isTablesUniq(formData)) {
-                                    LocalStorage.createData(LocalStorage.MANORM_STORAGE, Ext.encode(formData));
+                                    //LocalStorage.createData(LocalStorage.MANORM_STORAGE, Ext.encode(formData));
 
                                     if (typeof me.initialConfig.onSubmit !== 'undefined') {
                                         me.initialConfig.onSubmit();
@@ -172,7 +173,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                 margin: '0 5 0 5',
                                 id: 'manorm-name',
                                 fieldLabel: 'Name for MANorm result',
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 submitValue: true,
                                 allowBlank: false,
                                 labelAlign: 'top',
@@ -190,7 +191,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 editable: false,
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 value: 1,
                                 id: 'manorm-an-type',
                                 fieldLabel: 'Series type',
@@ -220,7 +221,7 @@ Ext.define('EMS.view.Project2.MANormRun', {
 
 
         this.on('afterrender', function () {
-            var data = LocalStorage.findData(LocalStorage.MANORM_STORAGE);
+            var data;// = LocalStorage.findData(LocalStorage.MANORM_STORAGE);
             if (data) {
                 me.setFormJson(data);
             } else {

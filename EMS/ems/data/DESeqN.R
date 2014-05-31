@@ -29,7 +29,9 @@ T1C<-dim(T1T)[1]
 T2C<-dim(T2T)[1]
 
 tblEnd="";
-print(RTYPE)
+#print(RTYPE)
+if(RTYPE=="1")
+  tblEnd="_isoforms";
 if(RTYPE=="2")
   tblEnd="_genes";
 if(RTYPE=="3")
@@ -56,7 +58,7 @@ for(i in 1:T1C) {
 for(i in 1:T2C) {
   tblName<-paste(T2T[i,1],tblEnd,sep="")
   names<-append(names,c(paste("R_t",i,sep=""),paste("RPKM_t",i,sep="")))
-  fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0 as R_t",i,",RPKM_0 from ",tblName," where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep="")))
+  fullData<-cbind(fullData,dbGetQuery(con,paste("SELECT TOT_R_0 as R_t",i,",RPKM_0 from `",tblName,"` where chrom not like 'control' order by chrom,txStart,txEnd,strand,refseq_id",sep="")))
 }
 
 if(T1C==1) {

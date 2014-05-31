@@ -37,6 +37,8 @@ class Arguments:
     def __init__(self,a):
 	self.argv=a
 	self.parser = OptionParser()
+	self.parser.add_option("", "--wardrobe", action="store", type="string",
+                  dest="wordrobe", help="Wardrobe config file", metavar="<file>")
 	self.parser.add_option("", "--in", action="store", type="string",
                   dest="infile", help="input file", metavar="<file>")
 	self.parser.add_option("", "--out", action="store", type="string",

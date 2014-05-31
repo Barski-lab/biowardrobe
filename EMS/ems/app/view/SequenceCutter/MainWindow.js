@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2011 Andrey Kartashov .
+** Copyright (C) 2011-2014 Andrey Kartashov .
 ** All rights reserved.
 ** Contact: Andrey Kartashov (porter@porter.st)
 **
@@ -22,13 +22,14 @@
 
 Ext.define('EMS.view.SequenceCutter.MainWindow', {
                extend: 'Ext.window.Window',
-               requires: ['Ext.form.Panel'],
+               requires: ['Ext.form.Panel',
+                          'EMS.util.Util'],
                title : 'Sequence Cutter',
                layout: 'fit',
                iconCls: 'cut',
                closeAction: 'hide',
                maximizable: true,
-               collapsible: true,
+//               collapsible: true,
                constrain: true,
                minHeight: 550,
                minWidth: 700,
@@ -58,7 +59,7 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                                         name: 'length',
                                                         fieldLabel: 'Length',
                                                         labelAlign: 'top',
-                                                        afterLabelTextTpl: required,
+                                                        afterLabelTextTpl: EMS.util.Util.required,
                                                         emptyText: '12',
                                                         labelWidth: 120,
                                                         value: 12,
@@ -71,7 +72,7 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                                         name: 'shift',
                                                         fieldLabel: 'Shift',
                                                         labelAlign: 'top',
-                                                        afterLabelTextTpl: required,
+                                                        afterLabelTextTpl: EMS.util.Util.required,
                                                         emptyText: '1',
                                                         labelWidth: 120,
                                                         value: 1,
@@ -85,8 +86,8 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                                         name : 'findex',
                                                         displayField: 'genome',
                                                         labelAlign: 'top',
-                                                        afterLabelTextTpl: required,
-                                                        store: EMS.store.Genome,
+                                                        afterLabelTextTpl: EMS.util.Util.required,
+                                                        store: 'Genome',
                                                         typeAhead: false,
                                                         editable: false,
                                                         allowBlank: false,
@@ -110,7 +111,7 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                         xtype: 'textarea',
                                         fieldLabel: 'Sequence without spaces',
                                         labelAlign: 'top',
-                                        afterLabelTextTpl: required,
+                                        afterLabelTextTpl: EMS.util.Util.required,
                                         margin: '6 4 0 4',
                                         name: 'sequence',
                                         allowBlank: false,
@@ -122,7 +123,7 @@ Ext.define('EMS.view.SequenceCutter.MainWindow', {
                                         margin: '0 4 2 4',
                                         border: false,
                                         columnLines: true,
-                                        store: EMS.store.SequenceCutter,
+                                        store: 'SequenceCutter',
                                         viewConfig: {
                                             enableTextSelection: true
                                         },

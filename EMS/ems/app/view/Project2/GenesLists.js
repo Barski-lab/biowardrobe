@@ -20,11 +20,12 @@
  **
  ****************************************************************************/
 Ext.require([
-    'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*', 'Ext.ux.form.SearchField'
-]);
+                'Ext.grid.*', 'Ext.data.*', 'Ext.dd.*', 'Ext.ux.form.SearchField'
+            ]);
 
 Ext.define('EMS.view.Project2.GenesLists', {
     extend: 'Ext.panel.Panel',
+    alias: 'widget.project2genelists',
     title: 'Defining Genes Lists',
     id: 'Project2GenesLists',
     layout: 'border',
@@ -72,16 +73,34 @@ Ext.define('EMS.view.Project2.GenesLists', {
                     items: [
                         {
                             xtype: 'combobox',
-                            id: 'project-worker-changed',
-                            displayField: 'fullname',
-                            editable: false,
+                            itemId: 'egroups',
+                            tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
+                            margin: '0 5 0 5',
+                            //labelWidth: 110,
+                            minWidth: 200,
+                            displayField: 'name',
+                            //fieldLabel: 'Select by projects',
                             valueField: 'id',
-                            margin: '0 5 0 0',
-                            flex: 1,
-                            labelAlign: 'top',
-                            labelWidth: 120,
-                            store: EMS.store.Worker,
-                            value: USER_ID
+                            //store: 'EGroups',
+                            store: Ext.create('EMS.store.EGroups', {storeId: Ext.id()}).
+                                    load({params: {
+                                             addall: true }
+                                         }),
+                            queryMode: 'local',
+                            //forceSelection: true,
+                            editable: false
+
+                            //                            xtype: 'combobox',
+                            //                            id: 'project-worker-changed',
+                            //                            displayField: 'fullname',
+                            //                            editable: false,
+                            //                            valueField: 'id',
+                            //                            margin: '0 5 0 0',
+                            //                            flex: 1,
+                            //                            labelAlign: 'top',
+                            //                            labelWidth: 120,
+                            //                            store: 'EGroups',//EMS.store.Worker,
+                            //                            //value: USER_ID
                         } ,
                         {
                             xtype: 'searchfield',
@@ -217,18 +236,18 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                         return 'funnel-add';
                                     }
                                 } ,
-                                {
-                                    getClass: function (v, meta, rec) {
-                                        return 'space5';
-                                    }
-                                } ,
+//                                {
+//                                    getClass: function (v, meta, rec) {
+//                                        return 'space5';
+//                                    }
+//                                } ,
                                 {
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             return;
-                                        this.items[2].text = 'download';
-                                        this.items[2].tooltip = 'download';
-                                        this.items[2].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        this.items[1].text = 'download';
+                                        this.items[1].tooltip = 'download';
+                                        this.items[1].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
                                             window.location = "data/csvgl.php?id=" + record.data['id'] + "&grp=" + !record.data['leaf'];
                                         };
                                         return 'disk';
@@ -240,27 +259,27 @@ Ext.define('EMS.view.Project2.GenesLists', {
                                  return true;
                                  }*/
                                 } ,
-                                {
-                                    getClass: function (v, meta, rec) {
-                                        return 'space';
-                                    }
-                                } ,
+//                                {
+//                                    getClass: function (v, meta, rec) {
+//                                        return 'space';
+//                                    }
+//                                } ,
                                 {
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             return;
-                                        this.items[4].tooltip = 'Delete';
-                                        this.items[4].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        this.items[2].tooltip = 'Delete';
+                                        this.items[2].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
                                             Ext.Msg.show({
-                                                title: 'Deleteing record ' + record.data.name,
-                                                msg: 'Are you sure, that you want to delete the record "' + record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' + 'and will delete all other records that have used this one.',
-                                                icon: Ext.Msg.QUESTION,
-                                                buttons: Ext.Msg.YESNO,
-                                                fn: function (btn) {
-                                                    if (btn !== "yes") return;
-                                                    record.remove(true);
-                                                }
-                                            });
+                                                             title: 'Deleteing record ' + record.data.name,
+                                                             msg: 'Are you sure, that you want to delete the record "' + record.data.name + '"  all data that belongs to it will be deleted. This process is nonreversible ' + 'and will delete all other records that have used this one.',
+                                                             icon: Ext.Msg.QUESTION,
+                                                             buttons: Ext.Msg.YESNO,
+                                                             fn: function (btn) {
+                                                                 if (btn !== "yes") return;
+                                                                 record.remove(true);
+                                                             }
+                                                         });
                                         }
                                         if (rec.data.leaf === false)
                                             return 'folder-delete'; else

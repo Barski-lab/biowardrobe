@@ -22,7 +22,8 @@
 
 Ext.define('EMS.view.Project2.Filter', {
     extend: 'Ext.window.Window',
-    requires: ['Ext.form.Panel'],
+    requires: ['Ext.form.Panel',
+    'EMS.util.Util'],
     title: 'Filter settings',
     id: 'Project2Filter',
     layout: 'fit',
@@ -152,7 +153,7 @@ Ext.define('EMS.view.Project2.Filter', {
                             }
                             if (form.getForm().isValid()) {
                                 var formData = me.getFormJson();
-                                LocalStorage.createData(me.initialConfig.localid, Ext.encode(formData));
+                                //LocalStorage.createData(me.initialConfig.localid, Ext.encode(formData));
 
                                 if (typeof me.initialConfig.onSubmit !== 'undefined') {
                                     me.initialConfig.onSubmit();
@@ -217,7 +218,7 @@ Ext.define('EMS.view.Project2.Filter', {
                                 margin: '0 5 0 5',
                                 id: 'filter-name',
                                 fieldLabel: 'Filter name, will be saved with this name',
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 submitValue: true,
                                 allowBlank: false,
                                 labelAlign: 'top',
@@ -235,9 +236,9 @@ Ext.define('EMS.view.Project2.Filter', {
                                 displayField: 'name',
                                 valueField: 'id',
                                 editable: false,
-                                value: me.deseq ? me.initialConfig.rtype_id : LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping'),
+                                value: me.deseq ? me.initialConfig.rtype_id : 2,//LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping'),
                                 id: 'filter-rna-type',
-                                afterLabelTextTpl: required,
+                                afterLabelTextTpl: EMS.util.Util.required,
                                 fieldLabel: 'Annotation grouping',
                                 labelAlign: 'top',
                                 labelWidth: 300,
@@ -246,7 +247,7 @@ Ext.define('EMS.view.Project2.Filter', {
                                 disabled: me.deseq,
                                 listeners: {
                                     'select': function (combo, records) {
-                                        LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping', combo.getValue());
+                                        //LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_annotation_grouping', combo.getValue());
                                     }
                                 },
                                 store: Ext.create('Ext.data.Store', {
@@ -266,13 +267,13 @@ Ext.define('EMS.view.Project2.Filter', {
                                 id: 'filter-noncoding-rna',
                                 //inputValue: '1',
                                 flex: 1,
-                                checked: LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna'),
-                                value: LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna'),
+                                checked: 1,//LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna'),
+                                value: 1,//LocalStorage.getParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna'),
                                 margin: '17 2 0 8',
                                 listeners: {
                                     'change': function (check, newV, oldV) {
                                         //console.log(newV);
-                                        LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna', newV);
+                                        //LocalStorage.setParam(LocalStorage.PARAMS_STORAGE, 'default_non_coding_rna', newV);
                                     }
                                 }
                             }
@@ -284,7 +285,7 @@ Ext.define('EMS.view.Project2.Filter', {
 
 
         this.on('afterrender', function () {
-            var data = LocalStorage.findData(me.initialConfig.localid);
+            var data; //= LocalStorage.findData(me.initialConfig.localid);
             if (data) {
                 me.setFormJson(data);
             } else {

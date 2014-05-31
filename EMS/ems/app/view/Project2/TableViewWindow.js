@@ -43,29 +43,6 @@ Ext.define('EMS.view.Project2.TableViewWindow', {
         me.targetFrame=Ext.create('EMS.view.Project2.TableView',{store: me.initialConfig.store});
 
         me.items =me.targetFrame;
-/*        [
-            {
-                xtype: 'tabpanel',
-                id: 'tableview-main-tab-panel',
-                frame: true,
-                border: false,
-                plain: true,
-                activeTab: 0,
-                items: [
-                    {
-                        xtype: 'panel',
-                        layout: 'fit',
-                        //title: 'Genome browser',
-                        //iconCls: 'genome-browser',
-
-                        items: me.targetFrame
-                    }
-
-
-                ]
-            }
-        ];*/
-
         me.buttons = [
             {
                 text: 'Close',

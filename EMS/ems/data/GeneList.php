@@ -21,33 +21,29 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require("../settings.php");
 
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
 
 if (!isset($_REQUEST['projectid']))
-    $res->print_error("Not enough arguments.");
+    $response->print_error("Not enough arguments.");
 check_val($_REQUEST['projectid']);
 
 $prjid = $_REQUEST['projectid'];
 
 if (!isset($_REQUEST['atypeid']) || intVal($_REQUEST['atypeid']) == 0)
-    $res->print_error("Not enough arguments.");
+    $response->print_error("Not enough arguments.");
 $atypeid = intVal($_REQUEST['atypeid']);
 
-$user_id = $_SESSION["user_id"];
+$user_id = $worker->worker["id"];
 
 if (!isset($_REQUEST['node'])) {
-    $res->print_error("Not enough arguments.");
+    $response->print_error("Not enough arguments.");
 }
 $node = $_REQUEST['node'];
 
@@ -81,8 +77,7 @@ function make_array($qr)
  */
 function get_by_id($parentid)
 {
-    global $con;
-    $qr = execSQL($con, "select * from genelist where parent_id like ? order by name", array("s", $parentid), false);
+    $qr = selectSQL("select * from genelist where parent_id like ? order by name", array("s", $parentid));
     return make_array($qr);
 }
 
@@ -93,8 +88,7 @@ function get_by_id($parentid)
  */
 function get_raw_list($prjid, $type = 1)
 {
-    global $con;
-    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = ? and parent_id is null order by leaf,name", array("si", $prjid, $type), false);
+    $qr = selectSQL( "select * from genelist where project_id like ? and `type` = ? and parent_id is null order by leaf,name", array("si", $prjid, $type));
     return array(
         'id' => 'gd',
         'name' => 'Raw Data',
@@ -112,8 +106,7 @@ function get_raw_list($prjid, $type = 1)
  ***************************************************************************/
 function get_list_by_type($prjid, $type = 2, $id, $name, $expanded = true)
 {
-    global $con;
-    $qr = execSQL($con, "select * from genelist where project_id like ? and `type` = ? order by name", array("si", $prjid, $type), false);
+    $qr = selectSQL("select * from genelist where project_id like ? and `type` = ? order by name", array("si", $prjid, $type));
     return array(
         'id' => $id,
         'name' => $name,
@@ -212,6 +205,5 @@ if(!in_array($node,array('root','gd','gl','de','ar','ma'))) {
         'data' => get_by_id($node)));
 }
 
-$con->close();
 
 ?>

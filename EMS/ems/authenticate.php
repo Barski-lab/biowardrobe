@@ -1,55 +1,47 @@
 <?php
-include('/etc/settings/config.php');
-require_once('data/response.php');
-require_once('data/def_vars.php');
-if (!(isset($_REQUEST["username"]) && isset($_REQUEST["password"]) && $_REQUEST["username"] != '' && $_REQUEST["password"] != ''))
-    $res->print_error('Not enough required parameters.');
-require_once('data/database_connection.php');
-
-$con = def_connect();
-$con->select_db($db_name_ems);
-
-
-$query_array = execSQL($con, "SELECT id,passwd,worker,lname,fname from worker where worker=? and passwd is not NULL", array("s", $_REQUEST["username"]), false);
-$con->close();
-
+/****************************************************************************
+ **
+ ** Copyright (C) 2011 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
 session_start();
-if (!isset($_SESSION["attempt"])) {
-    $_SESSION["attempt"] = 0;
-}
-$_SESSION["attempt"] = intVal($_SESSION["attempt"]) + 1;
 
-if ($_SESSION["attempt"] > 6) {
-    if (!isset($_SESSION["attempttime"])) $_SESSION["attempttime"] = time();
-    $diff = time() - $_SESSION["attempttime"];
-    if ($diff < 300) {
-        $res->print_error("You should wait " . intVal(((300 - $diff) / 60)) . " min, before next attempt");
-    } else {
-        $_SESSION["attempt"] = 1;
-    }
-}
+$_SESSION["authorizing"] = 1;
+require_once('settings.php');
 
-$_SESSION["changepass"] = 0;
+$data = json_decode(file_get_contents('php://input'));
+if ($data) {
+    if (!(isset($data->username) && isset($data->password) && $data->username != '' && $data->password != ''))
+        $response->print_error('Not enough required parameters.');
 
-$salt = substr($query_array[0]['passwd'], 0, 64);
-$hash = $salt . $_REQUEST["password"];
-for ($i = 0; $i < 100000; $i++) {
-    $hash = hash('sha256', $hash);
-}
-$hash = $salt . $hash;
-if ($hash != $query_array[0]['passwd']) {
-    $res->print_error("Incorrect user name or password");
+    $worker = new Worker($data->username, $data->password);
+} else {
+    $worker = new Worker();
 }
 
-$_SESSION["username"] = $query_array[0]['worker'];
-$_SESSION["usergroup"] = $query_array[0]['worker'];
-$_SESSION["fullname"] = $query_array[0]['lname'] . ", " . $query_array[0]['fname'];
-$_SESSION["user_id"] = $query_array[0]['id'];
 $_SESSION["timeout"] = time();
+$_SESSION["attempt"] = 1;
+$_SESSION["authorizing"] = 0;
 
-$res->success = true;
-$res->message = "auth";
-print_r($res->to_json());
+$response->success = true;
+$response->message = "auth";
+print_r($response->to_json());
 
 exit();
 ?>

@@ -24,28 +24,28 @@
 ignore_user_abort(true);
 set_time_limit(600);
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
 } catch (Exception $e) {
-    $res->print_error("Cant read input" . $e);
+    $response->print_error("Cant read input" . $e);
 }
 //logmsg(print_r($data, true));
 $count = 0;
 
 if (gettype($data->deseq) == "array") {
-    $res->print_error("Not supported yet.");
+    $response->print_error("Not supported yet.");
 }
 
 if (!isset($data->atype_id) || !isset($data->project_id) || !isset($data->deseq) || !isset($data->deseq->name) || !isset($data->deseq->seriestype)) {
-    $res->print_error("no data");
+    $response->print_error("no data");
 }
+
+$EDB = $settings->settings['experimentsdb']['value'];
+
 
 $atypeid = intval($data->atype_id);
 $timeseries = intval($data->deseq->seriestype);
@@ -60,11 +60,10 @@ $deseq = $data->deseq->deseq;
 $delength = count($deseq);
 
 if ($delength < 2) {
-    $res->print_error("Is it me who post this?");
+    $response->print_error("Is it me who post this?");
 }
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
 $tablepairs = array();
@@ -72,11 +71,11 @@ $tablepairs = array();
 check_val($deseq[0]->table);
 $tn = get_table_info($deseq[0]->table);
 if (!$tn)
-    $res->print_error("no tablename data");
+    $response->print_error("no tablename data");
 $tablenames[$deseq[0]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
 $DB=$tn[0]['db'];
 if (intval($deseq[0]->order) != 1)
-    $res->print_error("Incorrect ordering.");
+    $response->print_error("Incorrect ordering.");
 
 $prefix = "";
 
@@ -85,13 +84,13 @@ if ($delength == 2 || $timeseries == 1) {
         check_val($deseq[$i]->table);
         $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
 
         $tablepairs[] = array("id" => $i, "t1" => $deseq[$i - 1]->table, "t2" => $deseq[$i]->table);
 
         if (intval($deseq[$i]->order) != $i + 1)
-            $res->print_error("Incorrect ordering.");
+            $response->print_error("Incorrect ordering.");
     }
     $prefix = "t";
 } elseif ($timeseries == 2) { // kinetics
@@ -99,30 +98,30 @@ if ($delength == 2 || $timeseries == 1) {
         check_val($deseq[$i]->table);
         $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
 
         $tablepairs[] = array("id" => $i, "t1" => $deseq[0]->table, "t2" => $deseq[$i]->table);
 
         if (intval($deseq[$i]->order) != $i + 1)
-            $res->print_error("Incorrect ordering.");
+            $response->print_error("Incorrect ordering.");
     }
     $prefix = "k";
 } elseif ($timeseries == 3) { // pairwise
     $c = 1;
     for ($i = 0; $i < $delength - 1; $i++) {
         if (intval($deseq[$i]->order) != $i + 1)
-            $res->print_error("Incorrect ordering.");
+            $response->print_error("Incorrect ordering.");
         check_val($deseq[$i]->table);
         $tn = get_table_info($deseq[$i]->table);
         if (!$tn)
-            $res->print_error("no tablename data");
+            $response->print_error("no tablename data");
         $tablenames[$deseq[$i]->table] = array("table" => $tn[0]['tableName'], "gblink" => $tn[0]['gblink'], "name" => $tn[0]['name']);
         for ($j = $i + 1; $j < $delength; $j++) {
             check_val($deseq[$j]->table);
             $tn1 = get_table_info($deseq[$j]->table);
             if (!$tn1)
-                $res->print_error("no tablename data");
+                $response->print_error("no tablename data");
             $tablenames[$deseq[$j]->table] = array("table" => $tn1[0]['tableName'], "gblink" => $tn1[0]['gblink'], "name" => $tn1[0]['name']);
             $tablepairs[] = array("id" => $c, "t1" => $deseq[$i]->table, "t2" => $deseq[$j]->table);
             $c++;
@@ -146,11 +145,12 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     $UUID = guid();
     $TNAME = str_replace("-", "", $UUID);
     $TNAMES[] = $TNAME;
-    $CMD = "Rscript DESeqN.R $db_user $db_pass $db_name_experiments $db_host $db_name_ems " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME $atypeid";
+    $CMD = "Rscript DESeqN.R {$settings->db_user} {$settings->db_pass} {$EDB} {$settings->db_host} {$settings->db_name} " . $tablepairs[$i]['t1'] . " " . $tablepairs[$i]['t2'] . " $rtypeid $TNAME $atypeid";
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
-        $res->print_error("Cant execute R."); #.print_r($output,true)
+        logmsg($output,$CMD);
+        $response->print_error("Cant execute R."); #.print_r($output,true)
         //logmsg(print_r($output,true));
     }
 
@@ -166,18 +166,18 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         "'" . $tablenames[$tablepairs[$i]['t1']]['name'] . "' and '" . $tablenames[$tablepairs[$i]['t2']]['name'] . "' has been chosen.";
 
     execSQL($con,
-        "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id,atype_id) values(?,?,?,1,?,3,?,?,?,?,?)",
+        "insert into genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id,atype_id) values(?,?,?,1,?,3,?,?,?,?,?)",
         array("sssssssii", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $rtypeid, $atypeid), true);
 
     if (!$con->commit()) {
-        $res->print_error("Cant commit");
+        $response->print_error("Cant commit");
     }
 
 }
 
 for ($i = 0; $i < count($TNAMES); $i++) {
     execSQL($con,
-        "ALTER TABLE `" . $db_name_experiments . "`.`" . $TNAMES[$i] . "` " .
+        "ALTER TABLE `{$EDB}`.`" . $TNAMES[$i] . "` " .
         "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(1000) NULL DEFAULT NULL" .
         ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(500) NULL DEFAULT NULL" .
         ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL" .
@@ -194,7 +194,7 @@ for ($i = 0; $i < count($TNAMES); $i++) {
 }
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
 
@@ -214,10 +214,10 @@ if (!$con->commit()) {
 $con->close();
 
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = $tbpairlen;
-//$res->data = $query_array;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = $tbpairlen;
+//$response->data = $query_array;
+print_r($response->to_json());
 
 ?>

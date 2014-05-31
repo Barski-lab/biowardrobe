@@ -30,7 +30,6 @@ Ext.define( 'EMS.store.EGIDSamples', {
                singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: Ext.apply(STORE_DEFS.proxy('tblSamples',true), {

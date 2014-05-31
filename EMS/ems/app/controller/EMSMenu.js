@@ -21,43 +21,68 @@
  ****************************************************************************/
 
 Ext.require([
-    'Ext.ux.IFrame'
-]);
+                'Ext.ux.IFrame'
+            ]);
 
 
 Ext.define('EMS.controller.EMSMenu', {
     extend: 'Ext.app.Controller',
 
-    views: ['EMSMenu'],
+    views: ['EMSViewport', 'toolbar.EMSMenu'],
+    stores: ['Worker'],
+    //local variables
     windowList: new Array(),
+    worker: {},
 
     init: function () {
         this.control({
-            'viewport > EMSMenu': {
-                render: this.onPanelRendered
-            },
-            'menuitem': {
-                click: this.onEMSMenuForms
-            }
-        });
-
+                         'EMSMenu menuitem': {
+                             click: this.onEMSMenuForms
+                         }
+                     });
+        this.worker = this.getWorkerStore().getAt(0);
+        this.addAdminMenu();
     },
 
     //-----------------------------------------------------------------------
     //
     //
     //-----------------------------------------------------------------------
-    onPanelRendered: function () {
-        Ext.getCmp('MenuWorkers').setVisible(Rights.check(USER_ID,'MenuWorkers'));
-        Ext.getCmp('MenuAntibodies').setVisible(Rights.check(USER_ID,'MenuAntibodies'));
+    addAdminMenu: function () {
+        var emsmenu = Ext.ComponentQuery.query('viewport EMSMenu')[0];
+        admmenu = {
+            xtype: 'button',
+            text: 'Wardrobe',
+            tooltip: 'Wardrobe administration and preferences',
+            iconCls: 'preferences-edit',
+            menu: []
+        };
+        if (this.worker.data.isa)
+            admmenu.menu = [
+                { text: 'Preferences', action: 'Preferences', tooltip: 'The system preferences', iconCls: 'gears-preferences'},
+                { text: 'Users & Groups', action: 'UsersGroups', tooltip: 'Edit users and groups', iconCls: 'users3-edit'},
+                '-'
+            ];
+        if (this.worker.data.isla)
+            admmenu.menu = [
+                { text: 'Users & Groups', action: 'UsersGroups', tooltip: 'Edit users and groups', iconCls: 'users3-edit'},
+                '-'
+            ];
+        admmenu.menu.push({ text: 'Personal settings', action: 'Worker', tooltip: 'Password changing, notification and other...', iconCls: 'user-preferences'});
+        emsmenu.insert(0, admmenu);
     },
 
+    //-----------------------------------------------------------------------
+    //
+    //
+    //-----------------------------------------------------------------------
     createWindow: function (WinVar, Widget, Params) {
         var me = this;
 
         if (!(WinVar in me.windowList) || me.windowList[WinVar] === 'undefined') {
             me.windowList[WinVar] = Ext.create(Widget, Params);
-            Ext.getCmp('EMSMenu').add(me.windowList[WinVar]);
+
+            Ext.ComponentQuery.query('viewport panel#windows')[0].add(me.windowList[WinVar]);
 
             me.windowList[WinVar].on('destroy', function () {
                 me.windowList[WinVar] = 'undefined';
@@ -76,77 +101,53 @@ Ext.define('EMS.controller.EMSMenu', {
     //-----------------------------------------------------------------------
     onEMSMenuForms: function (menuitem, e, opt) {
         var me = this;
-        if (menuitem.action === "LabData") {
-            me.createWindow(menuitem.action, 'EMS.view.ExperimentsWindow.Main', {});
+
+        switch (menuitem.action) {
+            case "Preferences":
+                me.createWindow(menuitem.action, 'EMS.view.Preferences.Preferences', {});
+                break;
+            case "UsersGroups":
+                me.createWindow(menuitem.action, 'EMS.view.user.UsersGroups', {});
+                break;
+            case "Worker":
+                me.createWindow(menuitem.action, 'EMS.view.user.Preferences', {});
+                break;
+            case "LabData":
+                me.createWindow(menuitem.action, 'EMS.view.Experiment.LabData.LabDataListWindow', {});
+                break;
+            case "ProjectDesigner2":
+                me.createWindow(menuitem.action, 'EMS.view.Project2.ProjectDesigner', {});
+                break;
+            case "ExperimentGroups":
+                me.createWindow(menuitem.action, 'EMS.view.Experiment.EGroup.EGroup', {});
+                break;
+            case "SuppInfo":
+                me.createWindow(menuitem.action, 'EMS.view.Info.Supplemental', {});
+                break;
+            case "":
+                break;
         }
-        if (menuitem.action === "Workers") {
-            me.createWindow(menuitem.action, 'EMS.view.WorkersEdit', {});
-        }
-        if (menuitem.action === "Worker") {
-            me.WorkerEditWindow = me.getController('EMS.controller.WorkersEdit').edit();
-            Ext.getCmp('EMSMenu').add(me.WorkerEditWindow);
-        }
+
         if (menuitem.action === "Antibodies") {
             me.createWindow(menuitem.action, 'EMS.view.Antibodies.Antibodies', {});
-        }
-        if (menuitem.action === "ExpType") {
-            me.createWindow(menuitem.action, 'EMS.view.ExperimentType.ExperimentType', {});
         }
         if (menuitem.action === "CrossType") {
             me.createWindow(menuitem.action, 'EMS.view.Crosslink.Crosslink', {});
         }
+        if (menuitem.action === "FragmentType") {
+            me.createWindow(menuitem.action, 'EMS.view.Fragmentation.Fragmentation', {});
+        }
         if (menuitem.action === "SeqCut") {
             me.createWindow(menuitem.action, 'EMS.view.SequenceCutter.MainWindow', {});
         }
-        if (menuitem.action === "FragmentType") {
-            me.createWindow(menuitem.action, 'EMS.view.Fragmentation.Fragmentation', {});
+        if (menuitem.action === "ExpType") {
+            me.createWindow(menuitem.action, 'EMS.view.ExperimentType.ExperimentType', {});
         }
         if (menuitem.action === "GenomeType") {
             me.createWindow(menuitem.action, 'EMS.view.Genome.Genome', {});
         }
-        if (menuitem.action === "EGIDPatients") {
-            me.createWindow(menuitem.action, 'EMS.view.Patients.MainWindow', {});
-        }
-        if (menuitem.action === "SuppInfo") {
-            me.createWindow(menuitem.action, 'EMS.view.Info.Supplemental', {});
-        }
-        if (menuitem.action === "ProjectDesigner") {
-            me.createWindow(menuitem.action, 'EMS.view.Project.ProjectList', {});
-        }
-        if (menuitem.action === "ProjectDesigner2") {
-            me.createWindow(menuitem.action, 'EMS.view.Project2.ProjectDesigner', {});
-        }
         if (menuitem.action === "Help") {
             // me.createWindow(menuitem.action,'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
         }
-        /*
-         Create window for genome browser
-         */
-        if (menuitem.action === "GenomeBrowser") {
-            var win = Ext.create('Ext.window.Window', {
-                width: 1000,
-                minWidth: 200,
-                height: 600,
-                title: 'Genome Browser',
-                closable: true,
-                maximizable: true,
-                constrain: true,
-                layout: 'fit',
-                items: [
-                    {
-                        xtype: 'uxiframe',
-                        src: 'http://'
-                    }
-                ]
-            });
-
-            Ext.getCmp('EMSMenu').add(win);
-            win.show();
-        }
     }
-    //-----------------------------------------------------------------------
-    //
-    //
-    //-----------------------------------------------------------------------
-
 });

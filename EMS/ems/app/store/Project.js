@@ -29,7 +29,6 @@ Ext.define( 'EMS.store.Project', {
                singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
                proxy: Ext.apply(STORE_DEFS.proxy('project',true), {

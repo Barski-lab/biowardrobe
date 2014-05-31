@@ -23,9 +23,11 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
-    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
+    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP','Project2.TableViewWindow','Project2.TableView'],
+    requires: [ 'EMS.util.Util'
+            ],
     init: function () {
         var me = this;
         me.atype = undefined;
@@ -66,6 +68,9 @@ Ext.define('EMS.controller.Project2', {
                        '#project-worker-changed': {
                            select: me.onComboboxWorkerSelect
                        },
+                        'project2genelists #egroups':{
+                            select: me.onComboboxEGroupSelect
+                        },
                        '#projectgenelisttree': {
                            edit: me.onGeneListEdit,
                            beforeedit: me.onGeneListBeforeedit,
@@ -94,13 +99,13 @@ Ext.define('EMS.controller.Project2', {
         if (name.trim() === "")
             return;
         var store = me.getProjectTreeStore();
-        var uuid = generateUUID();
+        var uuid = EMS.util.Util.UUID();
 
         var r = Ext.create('EMS.model.ProjectTree', {
             id: uuid,
             text: name,
             name: name,
-            worker_id: USER_ID,
+            //worker_id: USER_ID,
             dateadd: Ext.Date.format(new Date(), 'm/d/Y'),
             type: 0,
             isnew: 1,
@@ -226,7 +231,12 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     onComboboxWorkerSelect: function (combo, records, options) {
         this.getProjectLabDataStore().getProxy().setExtraParam('workerid', Ext.getCmp('project-worker-changed').getValue());
-        //console.log(combo.up('panel').up('panel'));
+        combo.up('panel').up('panel').m_PagingToolbar.moveFirst();
+    },
+    /*************************************************************
+     *************************************************************/
+    onComboboxEGroupSelect: function (combo, records, options) {
+        this.getProjectLabDataStore().getProxy().setExtraParam('egroup_id', combo.getValue());
         combo.up('panel').up('panel').m_PagingToolbar.moveFirst();
     },
     /*************************************************************
@@ -261,7 +271,7 @@ Ext.define('EMS.controller.Project2', {
                 if (cont)
                     continue;
 
-                var uuid = generateUUID();
+                var uuid = EMS.util.Util.UUID();
                 var type = 1;
                 if (typeof data.records[i].data.experimenttype_id !== 'undefined') {
                     if (data.records[i].data.experimenttype_id <= 2) {
@@ -312,7 +322,7 @@ Ext.define('EMS.controller.Project2', {
             return false;
 
         var store = me.getGeneListStore();
-        var uuid = generateUUID();
+        var uuid = EMS.util.Util.UUID();
         var r = Ext.create('EMS.model.GeneList', {
             id: uuid,
             item_id: uuid,
@@ -355,7 +365,7 @@ Ext.define('EMS.controller.Project2', {
                                  var store = me.getGeneListStore();
                                  store.load({node: store.getRootNode().getChildAt(1)});
                                  if (!json.success) {
-                                     Logger.log("Cant run atdp, error: " + json.message);
+                                     EMS.util.Util.Logger.log("Cant run atdp, error: " + json.message);
                                      Ext.MessageBox.show({
                                                              title: 'For you information',
                                                              msg: 'There was an error with ATDP.You have to rerun it.<br>Do you want dialog for ATDP to be shown?<br>' + json.message,
@@ -374,7 +384,7 @@ Ext.define('EMS.controller.Project2', {
                                  }
                              },
                              failure: function () {
-                                 Logger.log("Cant run atdp, error");
+                                 EMS.util.Util.Logger.log("Cant run atdp, error");
                                  form.close();
                              },
                              jsonData: Ext.encode({
@@ -413,7 +423,7 @@ Ext.define('EMS.controller.Project2', {
                                  var store = me.getGeneListStore();
                                  store.load({node: store.getRootNode().getChildAt(1)});
                                  if (!json.success) {
-                                     Logger.log("Cant run manorm, error: " + json.message);
+                                     EMS.util.Util.Logger.log("Cant run manorm, error: " + json.message);
                                      Ext.MessageBox.show({
                                                              title: 'For you information',
                                                              msg: 'There was an error with MANorm.You have to rerun.<br>Do you want dialog for MANorm to be shown?<br>' + json.message,
@@ -432,7 +442,7 @@ Ext.define('EMS.controller.Project2', {
                                  }
                              },
                              failure: function () {
-                                 Logger.log("Cant run manorm, error");
+                                 EMS.util.Util.Logger.log("Cant run manorm, error");
                                  form.close();
                              },
                              jsonData: Ext.encode({
@@ -469,7 +479,7 @@ Ext.define('EMS.controller.Project2', {
                                  var store = me.getGeneListStore();
                                  store.load({node: store.getRootNode().getChildAt(1)});
                                  if (!json.success) {
-                                     Logger.log("Cant run deseq, error: " + json.message);
+                                     EMS.util.Util.Logger.log("Cant run deseq, error: " + json.message);
                                      Ext.MessageBox.show({
                                                              title: 'For you information',
                                                              msg: 'There was an error with DESeq.You have to rerun.<br>Do you want dialog for DESeq to be shown?<br>' + json.message,
@@ -488,7 +498,7 @@ Ext.define('EMS.controller.Project2', {
                                  }
                              },
                              failure: function () {
-                                 Logger.log("Cant run deseq, error");
+                                 EMS.util.Util.Logger.log("Cant run deseq, error");
                                  form.close();
                              },
                              jsonData: Ext.encode({
@@ -509,7 +519,7 @@ Ext.define('EMS.controller.Project2', {
             rtype_id: record.data.rtype_id,
             tables: me.getGeneListStore().getRootNode(),
             deseq: true,
-            localid: LocalStorage.FILTER_DESEQ,
+            //localid: LocalStorage.FILTER_DESEQ,
             onSubmit: function () {
                 me.filterSubmitDeseq(filterForm, record);
             }
@@ -518,7 +528,7 @@ Ext.define('EMS.controller.Project2', {
     },
     filterSubmitDeseq: function (form, record) {
         var me = this;
-        var uuid = generateUUID();
+        var uuid = EMS.util.Util.UUID();
         var formData = form.getFormJson();
         Ext.Ajax.request({
                              url: 'data/FilterSetPrjDeseqAdd.php',
@@ -541,7 +551,7 @@ Ext.define('EMS.controller.Project2', {
                                      r.commit();
                                      form.close();
                                  } else {
-                                     Logger.log("Cant add filter error: " + json.message);
+                                     EMS.util.Util.Logger.log("Cant add filter error: " + json.message);
                                      form.close();
                                  }
                              },
@@ -565,7 +575,7 @@ Ext.define('EMS.controller.Project2', {
             item_id: record.data.item_id,
             tables: me.getGeneListStore().getRootNode(),
             deseq: false,
-            localid: LocalStorage.FILTER_STORAGE,
+            //localid: LocalStorage.FILTER_STORAGE,
             onSubmit: function () {
                 me.filterSubmit(filterForm, record);
             }
@@ -574,7 +584,7 @@ Ext.define('EMS.controller.Project2', {
     },
     filterSubmit: function (form, record) {
         var me = this;
-        var uuid = generateUUID();
+        var uuid = EMS.util.Util.UUID();
         var formData = form.getFormJson();
         Ext.Ajax.request({
                              url: 'data/FilterSetPrjAdd.php',
@@ -597,7 +607,7 @@ Ext.define('EMS.controller.Project2', {
                                      r.commit();
                                      form.close();
                                  } else {
-                                     Logger.log("Cant add filter error: " + json.message);
+                                     EMS.util.Util.Logger.log("Cant add filter error: " + json.message);
                                      form.close();
                                  }
                              },
@@ -712,7 +722,7 @@ Ext.define('EMS.controller.Project2', {
         console.log();
         console.log('start=',start,' end=',end);
 
-        var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
+        //var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
         window.open(url,gblink);
 

@@ -31,7 +31,6 @@ Ext.define( 'EMS.store.AnalysisGroup', {
                singleton: true,
                listeners: {
                    load: function(store,records,successful,eOpts) {
-                       Timer.set();
                    }
                },
 //               proxy: Ext.apply(STORE_DEFS.proxy('analysis',true), {

@@ -23,26 +23,23 @@
 Ext.define( 'EMS.store.ATDP', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.ATDP'],
+    requires: ['EMS.model.ATDP',
+               'EMS.proxy.StandardProxyRemote'],
     model:  'EMS.model.ATDP',
     storeId: 'ATDP',
     autoLoad: false,
     singleton: true,
     remoteSort: true,
     remoteFilter: true,
-    listeners: {
-        load: function(store,records,successful,eOpts) {
-            Timer.set();
-        }
-    },
-    proxy: Ext.apply(STORE_DEFS.proxy(''), {
+    proxy: {
+        type: 'standardproxyremote',
         api: {
             read : 'data/ATDP.php',
             update: '',
             create: '',
             destroy: ''
         }
-    })
+    }
 });
 
 

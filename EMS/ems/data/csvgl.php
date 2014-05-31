@@ -21,32 +21,32 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once("../settings.php");
 
 if (!isset($_REQUEST['id']))
-    $res->print_error('Not enough required parameters.');
+    $response->print_error('Not enough required parameters.');
 
 if (!isset($_REQUEST['grp']))
-    $res->print_error('Not enough required parameters.');
+    $response->print_error('Not enough required parameters.');
 
 $id = $_REQUEST['id'];
 $grp = ($_REQUEST['grp'] == "true");
 
 $con = def_connect();
-$con->select_db($db_name_experiments);
+$EDB = $settings->settings['experimentsdb']['value'];
+
+
+//$con->select_db($db_name_experiments);
 
 
 function get_tbl_descr($tablename)
 {
-    global $con, $res;
-    if (!($stmt = $con->prepare("describe `$tablename`"))) {
-        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+    global $con, $response, $EDB;
+    if (!($stmt = $con->prepare("describe {$EDB}.`$tablename`"))) {
+        $response->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }
     if (!$stmt->execute()) {
-        $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+        $response->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
     }
     $result = $stmt->get_result();
 
@@ -62,9 +62,11 @@ function get_tbl_descr($tablename)
 
 
 //if(!$grp) {
-$qr = execSQL($con, "select tableName,type from " . $db_name_ems . ".genelist where id like ?", array("s", $id), false);
+$qr = selectSQL("select tableName,type from genelist where id like ?", array("s", $id));
 if (intVal($qr[0]['type']) == 101) {
-    $tablename = $qr[0]['tableName'] . "_macs";
+    $tablename = $qr[0]['tableName'] . "_islands";
+} elseif (intVal($qr[0]['type']) == 1) {
+    $tablename = $qr[0]['tableName'] . "_isoforms";
 } else {
     $tablename = $qr[0]['tableName'];
 }
@@ -73,22 +75,20 @@ $HEAD = $descr['HEAD'];
 $TYPE = $descr['TYPE'];
 
 if (intVal($qr[0]['type']) == 101) {
-    if (!($stmt = $con->prepare("SELECT * FROM `$tablename` order by chrom, start, end "))) {
-        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+    if (!($stmt = $con->prepare("SELECT * FROM {$EDB}.`$tablename` order by chrom, start, end "))) {
+        $response->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }
-}
-else if ( intVal($qr[0]['type']) == 103 ) {
-    if (!($stmt = $con->prepare("SELECT distinct * FROM `$tablename` order by chrom, start, end "))) {
-        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+} else if (intVal($qr[0]['type']) == 103) {
+    if (!($stmt = $con->prepare("SELECT distinct * FROM {$EDB}.`$tablename` order by chrom, start, end "))) {
+        $response->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }
-} 
-else {
-    if (!($stmt = $con->prepare("SELECT * FROM `$tablename` order by refseq_id,txStart,txEnd"))) {
-        $res->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
+} else {
+    if (!($stmt = $con->prepare("SELECT * FROM {$EDB}.`$tablename` order by refseq_id,txStart,txEnd"))) {
+        $response->print_error("Prepare failed: (" . $con->errno . ") " . $con->error);
     }
 }
 if (!($stmt->execute())) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
+    $response->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
 }
 $result = $stmt->get_result();
 //}

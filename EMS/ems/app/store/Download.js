@@ -22,17 +22,21 @@
 Ext.define('EMS.store.Download', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.Download'],
+    requires: ['EMS.model.Download',
+               'EMS.proxy.StandardProxy'],
     storeId: 'Download',
     model: 'EMS.model.Download',
     autoLoad: false,
     singleton: true,
-    remoteSort: true,
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     },
-    proxy: STORE_DEFS.proxy('download', true)
+    proxy: {
+        type: 'standardproxy',
+        extraParams: {
+            tablename: 'download'
+        }
+    }
 });
 

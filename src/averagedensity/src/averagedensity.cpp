@@ -839,7 +839,7 @@ void AverageDensity::batchfile() {
         QFile outFile;
         outFile.setFileName(gArgs().getArgs("out").toString());
         outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        outFile.write(out.toAscii());
+        outFile.write(out.toLocal8Bit());
         outFile.close();
 
         if(!gArgs().getArgs("plot_ext").toString().isEmpty())
@@ -889,7 +889,7 @@ void AverageDensity::batchfile() {
 
             outFile.setFileName(gArgs().fileInfo("out").path()+"/"+gArgs().fileInfo("out").baseName()+".plt");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-            outFile.write(plt.toAscii());
+            outFile.write(plt.toLocal8Bit());
             outFile.close();
 
             QProcess myProcess;
@@ -925,7 +925,7 @@ void AverageDensity::batchfile() {
                     }
                     line.chop(1);
                     line+="\n";
-                    outFile.write(line.toAscii());
+                    outFile.write(line.toLocal8Bit());
                 }
                 outFile.close();
             }

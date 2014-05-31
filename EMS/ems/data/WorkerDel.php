@@ -1,59 +1,64 @@
 <?php
-require('common.php');
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+/****************************************************************************
+ **
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
 
-if(!check_rights('worker'))
-    $res->print_error("no rights");
+require_once('../settings.php');
 
-$con=def_connect();
-$con->select_db($db_name_ems);
-$tablename="worker";
+//logmsg($_REQUEST);
 
-$data=json_decode(stripslashes($_REQUEST['data']));
+$data = json_decode(stripslashes($_REQUEST['data']));
 
-if(!isset($data))
-    $res->print_error("no data");
+if (!isset($data))
+    $response->print_error("no data");
 
+if(!$worker->isAdmin() && !$worker->isLocalAdmin())
+    $response->print_error('Insufficient priviliges!');
 
+if($data->worker == 'admin')
+    $response->print_error('Insufficient priviliges!');
 
-if(gettype($data)=="array") {
-    $SQL_STR="delete from `$tablename` where id in (";
-    $PARAMS=array("");
+if (intVal($data->id) == 0)
+    $response->print_error("no id");
 
-    foreach($data as $key => $val) {
-        if(intVal($val->id)==0)
-            $res->print_error("no id");
+$query = selectSQL("SELECT * from worker where id=?", array("i", $data->id));
+if (count($query) != 1)
+    $response->print_error("Cant select worker!");
+$query=$query[0];
 
-        array_push($PARAMS,intVal($val->id));
-        $PARAMS[0]=$PARAMS[0]."i";
-        $SQL_STR=$SQL_STR."?,";
-    }
+if($query['worker'] == 'admin')
+    $response->print_error('Insufficient priviliges!');
 
-    $SQL_STR = substr_replace($SQL_STR ,"",-1);
-    $SQL_STR=$SQL_STR.")";
+if($worker->isLocalAdmin() && ($query['admin']==1 || $worker->worker['laboratory_id'] !=$query['laboratory_id'] ))
+    $response->print_error('Insufficient priviliges!');
+
+$SQL_STR="delete from `worker` where id=?";
+$PARAMS=array("i",$data->id);
+
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) != 0) {
+    $response->success = true;
+    $response->message = "Data has been deleted";
 } else {
-    if(intVal($data->id)==0)
-        $res->print_error("no id");
-
-    $SQL_STR="delete from `$tablename` where id=?";
-
-    $PARAMS=array("i",intVal($data->id));
-
+    $response->success = false;
+    $response->message = "Data is not deleted";
 }
-
-if(execSQL($con,$SQL_STR,$PARAMS,true)!=0) {
-    $res->success = true;
-    $res->message = "Data has deleted";
-    print_r($res->to_json());
-    exit();
-}
-
-
-$res->success = false;
-$res->message = "Data is not deleted";
-print_r($res->to_json());
-
-$con->close();
+print_r($response->to_json());
 ?>

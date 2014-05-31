@@ -1,12 +1,29 @@
 <?php
+/****************************************************************************
+ **
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
+//logmsg($_REQUEST);
 
 if (isset($_REQUEST['id']))
     $id = $_REQUEST['id'];
@@ -16,7 +33,9 @@ else
 check_val($id);
 
 $con = def_connect();
-$con->select_db($db_name_experiments);
+$EDB = $settings->settings['experimentsdb']['value'];
+
+//$con->select_db($db_name_experiments);
 
 $record = get_table_info($id);
 if (!$record)
@@ -25,25 +44,12 @@ if (!$record)
 $tablename = $record[0]['tableName'];
 $gblink = $record[0]['gblink'];
 $db=$record[0]['db'];
-logmsg(print_r($record,true));
+
+$total = selectSQL("SELECT COUNT(*) as count FROM `{$EDB}`.`$tablename` $where", array())[0]['count'];
 
 
-if (!($totalquery = execSQL($con, "SELECT COUNT(*) as count FROM `$tablename` $where", array(), false, 0))) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-}
-//$row=$totalquery->fetch_row();
-$total = $totalquery[0]['count']; //$row[0];
-//$totalquery->close();
-
-
-if (($descr = execSQL($con, "describe `$tablename`", array(), false)) == 0) {
-    $res->print_error("Cant describe");
-}
-
-//logmsg(print_r($descr, true));
-
+$descr = selectSQL("describe `{$EDB}`.`$tablename`", array());
 $fields = array();
-
 foreach ($descr as $key => $val) {
     $type = "float";
     if (strpos($val['Type'], "int") !== false) $type = "int";
@@ -60,7 +66,7 @@ foreach ($descr as $key => $val) {
 //logmsg(print_r($fields, true));
 
 
-$query_array = execSQL($con, "SELECT * FROM `$tablename` $where $order $limit", array(), false, 0);
+$query_array = selectSQL("SELECT * FROM `{$EDB}`.`$tablename` $where $order $limit", array());
 $con->close();
 
 //logmsg(print_r($query_array,true));

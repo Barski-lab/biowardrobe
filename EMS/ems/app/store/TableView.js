@@ -24,7 +24,9 @@
 Ext.define('EMS.store.TableView', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.TableView'],
+    requires: ['EMS.model.TableView',
+               'EMS.proxy.StandardProxyRemote'
+    ],
     model: 'EMS.model.TableView',
     storeId: 'TableView',
     autoLoad: false,
@@ -34,17 +36,17 @@ Ext.define('EMS.store.TableView', {
     pageSize: 100,
     listeners: {
         load: function (store, records, successful, eOpts) {
-            Timer.set();
         }
     },
-    proxy: Ext.apply(STORE_DEFS.proxy(''), {
+    proxy: {
+        type: 'standardproxyremote',
         api: {
             read: 'data/TableById.php',
             update: '',
             create: '',
             destroy: ''
         }
-    })
+    }
 });
 
 
