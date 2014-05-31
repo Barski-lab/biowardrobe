@@ -31,7 +31,7 @@ Ext.define('EMS.store.Fence', {
     proxy: {
         type: 'standardproxy',
         api: {
-            read: 'data/fence.php'
+            read: 'data/Fence.php'
         }
     }
 });
