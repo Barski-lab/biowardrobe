@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 if (isset($_REQUEST['id']))
     $id = $_REQUEST['id'];
@@ -33,7 +33,9 @@ else
 check_val($id);
 
 $con = def_connect();
-$con->select_db($db_name_experiments);
+$EDB = $settings->settings['experimentsdb']['value'];
+
+//$con->select_db($db_name_experiments);
 
 $record = get_table_info($id);
 if (!$record)
@@ -42,25 +44,12 @@ if (!$record)
 $tablename = $record[0]['tableName'];
 $gblink = $record[0]['gblink'];
 $db=$record[0]['db'];
-logmsg(print_r($record,true));
+
+$total = selectSQL("SELECT COUNT(*) as count FROM `{$EDB}`.`$tablename` $where", array())[0]['count'];
 
 
-if (!($totalquery = execSQL($con, "SELECT COUNT(*) as count FROM `$tablename` $where", array(), false, 0))) {
-    $res->print_error("Exec failed: (" . $con->errno . ") " . $con->error);
-}
-//$row=$totalquery->fetch_row();
-$total = $totalquery[0]['count']; //$row[0];
-//$totalquery->close();
-
-
-if (($descr = execSQL($con, "describe `$tablename`", array(), false)) == 0) {
-    $res->print_error("Cant describe");
-}
-
-//logmsg(print_r($descr, true));
-
+$descr = selectSQL("describe `{$EDB}`.`$tablename`", array());
 $fields = array();
-
 foreach ($descr as $key => $val) {
     $type = "float";
     if (strpos($val['Type'], "int") !== false) $type = "int";
@@ -77,7 +66,7 @@ foreach ($descr as $key => $val) {
 //logmsg(print_r($fields, true));
 
 
-$query_array = execSQL($con, "SELECT * FROM `$tablename` $where $order $limit", array(), false, 0);
+$query_array = selectSQL("SELECT * FROM `{$EDB}`.`$tablename` $where $order $limit", array());
 $con->close();
 
 //logmsg(print_r($query_array,true));

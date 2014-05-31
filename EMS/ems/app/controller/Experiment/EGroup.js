@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -65,14 +65,18 @@ Ext.define('EMS.controller.Experiment.EGroup', {
                  deselect: this.onEGroupRightsDeselect
              }
          });
+        this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
+        this.EGroupsStore.getProxy().setExtraParam('rights', true);
+        this.EGroupsStore.load();
+
     },//init
     onDestroy: function () {
     },
     onEGroupPanelRendered: function (form) {
         this.egroupForm = form;
         this.worker = this.getWorkerStore().getAt(0);
-
-        this.getEGroupsStore().load();
+        Ext.ComponentQuery.query('egrouplist grid')[0].bindStore(this.EGroupsStore);
+        //this.getEGroupsStore().load();
 
         if (this.worker.data.isa) {
             Ext.ComponentQuery.query('egrouplist')[0].addDocked
@@ -113,35 +117,38 @@ Ext.define('EMS.controller.Experiment.EGroup', {
             return;
 
         Ext.ComponentQuery.query('egrouprights grid')[0].getSelectionModel().deselectAll(true);
+        this.makeEGroupSelection();
+        //        if (this.worker.data.isa)
+        //            this.makeAdminSelection();
+        //        else
+        //            this.getEGroupRightsStore().load({
+        //                                                 params: {
+        //                                                     egroup_id: records[0].data['id']
+        //                                                 }
+        //                                             });
 
-        if (this.worker.data.isa)
-            this.makeAdminSelection();
-        else
-            this.getEGroupRightsStore().load({
-                                                 params: {
-                                                     egroup_id: records[0].data['id']
-                                                 }
-                                             });
-
-//        this.egroupForm.getForm().reset();
-        if (records[0]) { // --- bug does not work appropriatly affects combobox
+        //        this.egroupForm.getForm().reset();
+        if (records[0]) { // --- bug does not work appropriately affects combobox
             this.egroupForm.getForm().loadRecord(records[0]);
         }
         this.egroupForm.down('button#change').disable();
     },
 
-    makeAdminSelection: function () {
-        var id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
-        var lab_id = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0].data['id'];
-//        console.log(lab_id);
-//        console.log(id);
-        if (id && lab_id)
-            this.getEGroupRightsStore().load({
-                                                 params: {
-                                                     egroup_id: id,
-                                                     laboratory_id: lab_id
-                                                 }
-                                             });
+    makeEGroupSelection: function () {
+        var lab_id;
+        if (this.worker.data.isa)
+            lab_id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
+        var sel = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0];
+        var id;
+        if (sel)
+            id = sel.data['id'];
+
+        this.getEGroupRightsStore().load({
+                                             params: {
+                                                 egroup_id: id,
+                                                 laboratory_id: lab_id
+                                             }
+                                         });
     },
     /****************************
      *
@@ -150,7 +157,7 @@ Ext.define('EMS.controller.Experiment.EGroup', {
         if (this.egroupForm.isValid()) {
             var record = this.egroupForm.getRecord();
             record.set(this.egroupForm.getValues());
-            this.getEGroupsStore().sync();
+            this.EGroupsStore.sync();
             this.egroupForm.down('button#change').disable();
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
@@ -160,6 +167,36 @@ Ext.define('EMS.controller.Experiment.EGroup', {
      *
      ****************************/
     onEGroupAddClick: function () {
+        var grid = this.egroupForm.down('grid'),
+                store = grid.getStore(),
+                modelName = store.getProxy().getModel().modelName;
+        var id;
+        if (this.egroupForm.isValid()) {
+            if (this.worker.data.isa) {
+                id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
+                if (id && id != '00000000-0000-0000-0000-000000000000')
+                    store.insert(0, Ext.create(modelName, Ext.apply(this.egroupForm.getValues(), {laboratory_id: id})));
+                else
+                    store.insert(0, Ext.create(modelName, Ext.apply(this.egroupForm.getValues())));
+            }
+            else {
+                store.insert(0, Ext.create(modelName));
+            }
+            store.sync(function () {
+                this.egroupForm.getForm().reset();
+            });
+            if (!this.worker.data.isa) {
+                store.load();
+            } else {
+                store.load({
+                               params: {
+                                   laboratory_id: id
+                               }
+                           });
+            }
+        } else {
+            EMS.util.Util.showErrorMsg('Please fill up required fields!');
+        }
 
     },
     /****************************
@@ -176,11 +213,15 @@ Ext.define('EMS.controller.Experiment.EGroup', {
     onLabSelectFieldsChange: function (combo, records) {
         //        this.egroupForm.down('grid').getSelectionModel().deselectAll();
         //this.egroupForm.getForm().reset();
-        this.getEGroupsStore().load
+        this.EGroupsStore.load
         ({
+            scope: this,
              params: {
-                 laboratory: records[0].data['id']
-             }
+                 laboratory_id: records[0].data['id']
+             },
+            callback: function() {
+                this.makeEGroupSelection();
+            }
          });
     },
 
@@ -192,27 +233,40 @@ Ext.define('EMS.controller.Experiment.EGroup', {
         if (action == 'delete') {
             var store = me.egroupForm.down('grid').getStore(),
                     rec = store.getAt(rowIndex);
+            var lid;
+            if (this.worker.data.isa)
+                lid = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
+
             Ext.create('EMS.util.MessageBox',
                        {
                            title: 'DELETE',
                            msg: 'Do you want to delete laboratory name "' + rec.data['name'] + '"?<br>You have to choose new group for the experiments!.',
                            fn: function (buttonId, combo) {
                                //console.log("fn", combo.getValue());
-                               if(combo.getValue()===rec.data['id']) {
+                               if (combo.getValue() === rec.data['id']) {
                                    return false;
                                }
                                var mvid = combo.getValue();
                                if (buttonId === "yes") {
                                    me.egroupForm.getForm().reset();
-                                   me.getEGroupRightsStore().load();
+                                   me.makeEGroupSelection();
                                    store.remove(rec);
                                    store.getProxy().setExtraParam('moveto', mvid);
                                    store.sync({
                                                   callback: function () {
-                                                      store.load();
+                                                      store.getProxy().setExtraParam('moveto', null);
+                                                      if (me.worker.data.isa) {
+                                                          Ext.ComponentQuery.query('egrouplist combobox')[0].setValue(lid);
+                                                          store.load({
+                                                                         params: {
+                                                                             laboratory_id: lid
+                                                                         }
+                                                                     });
+                                                      } else {
+                                                          store.load();
+                                                      }
                                                   }
                                               });
-
                                }
                            },
                            combobox: {
@@ -228,7 +282,7 @@ Ext.define('EMS.controller.Experiment.EGroup', {
                                forceSelection: true,
                                editable: false,
                                allowBlank: false,
-                               store: this.getEGroupsStore()
+                               store: this.EGroupsStore
                            }
                        }).show();
         }
@@ -238,15 +292,18 @@ Ext.define('EMS.controller.Experiment.EGroup', {
      * Changing rights for an egroup
      *
      ****************************/
-    onEGroupRightsSelect: function(rowmodel, record, index, eOpts){
-        if (index<0) return;
+    onEGroupRightsSelect: function (rowmodel, record, index, eOpts) {
+        if (index < 0) return;
 
         var lab_id = Ext.ComponentQuery.query('egrouplist grid')[0].getSelectionModel().getSelection()[0].data['id'];
-        record.set('egroup_id',lab_id);
+        record.set('egroup_id', lab_id);
         this.getEGroupRightsStore().sync();
     },
-    onEGroupRightsDeselect: function(rowmodel, record, index, eOpts){
-        if (index<0) return;
-        console.log(arguments);
+    onEGroupRightsDeselect: function (rowmodel, record, index, eOpts) {
+        if (index < 0) return;
+        this.getEGroupRightsStore().remove(record);
+        this.getEGroupRightsStore().sync();
+        this.makeEGroupSelection();
+        //this.getEGroupRightsStore().load();
     }
 });//Ext.define

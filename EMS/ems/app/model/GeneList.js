@@ -22,6 +22,8 @@
 
 Ext.define('EMS.model.GeneList', {
     extend: 'Ext.data.Model',
+    requires: ['EMS.proxy.StandardProxyRemote'],
+
     fields: [
         {name: 'id', type: 'string'},
         {name: 'name', type: 'string'},
@@ -39,12 +41,14 @@ Ext.define('EMS.model.GeneList', {
         {name: 'parent_id', type: 'string'},
         {name: 'status', type: 'int'}
     ],
-//    proxy: Ext.apply(STORE_DEFS.proxy('', true), {
-//        api: {
-//            read: 'data/GeneList.php',
-//            //create: 'data/GeneListAdd.php',
-//            update: 'data/GeneListUp.php',
-//            destroy: 'data/GeneListDel.php'
-//        }
-//    })
+    proxy: {
+        type: 'standardproxyremote',
+        api: {
+            read: 'data/GeneList.php',
+            //create: 'data/GeneListAdd.php',
+            update: 'data/GeneListUp.php',
+            destroy: 'data/GeneListDel.php'
+        }
+    }
+
 });

@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -324,7 +324,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         {
                                             xtype: 'textfield',
                                             name: 'name4browser',
-                                            fieldLabel: 'Experiment short name',
+                                            fieldLabel: 'Experiment\'s short name',
                                             emptyText: 'Experiment short name/UCSC genome browser track name',
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             flex: 1,
@@ -341,15 +341,19 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                                 {
                                                     xtype: 'combobox',
                                                     name: 'egroup_id',
+                                                    tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
+                                                    labelWidth: 110,
+                                                    minWidth: 300,
                                                     displayField: 'name',
-                                                    fieldLabel: 'Project',
-                                                    store: 'EGroups',
-                                                    typeAhead: true,
+                                                    fieldLabel: 'Folders/Genome Browser folders',
                                                     valueField: 'id',
+                                                    //store: 'EGroups',
                                                     triggerAction: 'all',
                                                     queryMode: 'local',
-                                                    flex: 1
-                                                } ,
+                                                    flex: 1,
+                                                    forceSelection: true,
+                                                    editable: false
+                                                } /*,
                                                 {
                                                     xtype: 'button',
                                                     text: '',
@@ -357,7 +361,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                                     submitValue: false,
                                                     iconCls: 'element-edit',
                                                     margin: '18 0 0 8'
-                                                }
+                                                }*/
                                             ]
                                         } ,
                                         {
@@ -418,6 +422,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                 } ,
                 {
                     title: 'Protocol',
+                    itemId: 'protocol',
                     xtype: 'htmleditor',
                     name: 'protocol',
                     plugins: [new Ext.create('Ext.ux.form.HtmlEditor.imageUpload')],
@@ -429,13 +434,15 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                 } ,
                 {
                     title: 'Notes',
-                    padding: 0,
-                    margin: 0,
-                    frame: false,
-                    border: false,
+                    itemId: 'notes',
                     xtype: 'htmleditor',
                     name: 'notes',
-                    hideLabel: true
+                    plugins: [new Ext.create('Ext.ux.form.HtmlEditor.imageUpload')],
+                    frame: false,
+                    border: false,
+                    hideLabel: true,
+                    padding: 0,
+                    margin: 0
                 },
                 {
                     xtype: 'panel',

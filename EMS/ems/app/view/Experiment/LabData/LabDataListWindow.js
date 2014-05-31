@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -262,8 +262,10 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                         {
                             tooltip: 'Delete record',
                             isDisabled: function (view, rowIndex, colIndex, item, record) {
-                                if (Ext.getStore('Worker').getAt(0).data['isla']) return false;
                                 if (Ext.getStore('Worker').getAt(0).data['isa']) return false;
+                                if (Ext.getStore('Worker').getAt(0).data['laboratory_id']!=
+                                    record.get('laboratory_id')) return true;
+                                if (Ext.getStore('Worker').getAt(0).data['isla']) return false;
                                 if (view.getStore().getAt(rowIndex).data['libstatus'] > 0) return true;
                                 return false;
                             },
@@ -283,23 +285,6 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     tooltip: 'Add a new experiment',
                     itemId: 'newexperiment'
                 } ,
-                //                {
-                //                    text: 'Save',
-                //                    iconCls: 'table2-check',
-                //                    tooltip: 'Save changes',
-                //                    handler: function () {
-                //                        EMS.store.LabData.sync({
-                //                                                   success: function (batch, options) {
-                //                                                       Ext.Msg.show({
-                //                                                                        title: 'Data saved',
-                //                                                                        msg: 'Records successfully stored',
-                //                                                                        icon: Ext.Msg.INFO,
-                //                                                                        buttons: Ext.Msg.OK
-                //                                                                    });
-                //                                                   }
-                //                                               });
-                //                    }
-                //                },
                 '-' ,
                 {
                     xtype: 'pagingtoolbar',
@@ -333,7 +318,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     displayField: 'name',
                     fieldLabel: 'Select by projects',
                     valueField: 'id',
-                    store: 'EGroups',
+                    //store: 'EGroups',
                     queryMode: 'local',
                     forceSelection: true,
                     editable: false

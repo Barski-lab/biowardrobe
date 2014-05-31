@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -20,7 +20,7 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.controller.UsersGroups', {
+Ext.define('EMS.controller.User.UsersGroups', {
     extend: 'Ext.app.Controller',
     stores: ['Worker', 'Workers'],
     models: ['Worker', 'Laboratory'],
@@ -165,7 +165,7 @@ Ext.define('EMS.controller.UsersGroups', {
         var me = this;
         if (action == 'delete') {
             var store = me.groupForm.down('grid').getStore(),
-                rec = store.getAt(rowIndex);
+                    rec = store.getAt(rowIndex);
             Ext.MessageBox.show
             ({
                  title: 'DELETE',
@@ -203,11 +203,11 @@ Ext.define('EMS.controller.UsersGroups', {
         (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).bindStore(this.LabStore);
         //        this.userForm.down('grid').getSelectionModel().select(0);
     },
-    onUsersShow: function() {
-        if(!this.worker.data.isa) {
-            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setValue(this.worker.data['laboratory_id'],true);
-//            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setRawValue(this.worker.data['laboratory_id']);
-//            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).select(this.worker.data['laboratory_id']);
+    onUsersShow: function () {
+        if (!this.worker.data.isa) {
+            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setValue(this.worker.data['laboratory_id'], true);
+            //            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setRawValue(this.worker.data['laboratory_id']);
+            //            (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).select(this.worker.data['laboratory_id']);
             (Ext.ComponentQuery.query('usersedit combobox[name=laboratory_id]')[0]).setReadOnly(true);
         }
     },
@@ -222,6 +222,7 @@ Ext.define('EMS.controller.UsersGroups', {
         } else {
             this.userForm.getForm().reset();
         }
+        this.onUsersShow();
         this.userForm.down('button#change').disable();
     },
     /*********************************
@@ -238,9 +239,20 @@ Ext.define('EMS.controller.UsersGroups', {
             ({
                  scope: this,
                  callback: function () {
-                     this.getWorkersStore().load();
-                     this.userForm.getForm().reset();
-                     this.userForm.down('grid').getSelectionModel().deselectAll();
+                     var me = this;
+                     var rec = this.groupForm.down('grid').getSelectionModel().getSelection()[0];
+                     this.getWorkersStore().load({
+                                                     scope: this,
+                                                     callback: function () {
+                                                         //me.userForm.down('grid').getSelectionModel().deselectAll();
+                                                         me.userForm.getForm().reset();
+                                                         me.onUsersShow();
+                                                     },
+                                                     params: {
+                                                         laboratory: this.worker.data.isa ? rec.data['id'] : this.worker.data['laboratory_id']
+                                                     }
+
+                                                 });
                  }
              });
         } else {
@@ -296,12 +308,22 @@ Ext.define('EMS.controller.UsersGroups', {
                  icon: Ext.MessageBox.QUESTION,
                  fn: function (buttonId) {
                      if (buttonId === "yes") {
-                         me.groupForm.getForm().reset();
                          store.remove(rec);
                          store.sync
                          ({
                               callback: function () {
-                                  store.load();
+                                  var rec = me.groupForm.down('grid').getSelectionModel().getSelection()[0];
+                                  store.load({
+                                                 scope: this,
+                                                 callback: function () {
+                                                     me.groupForm.getForm().reset();
+                                                     me.onUsersShow();
+                                                 },
+                                                 params: {
+                                                     laboratory: me.worker.data.isa ? rec.data['id'] : me.worker.data['laboratory_id']
+                                                 }
+
+                                             });
                               }
                           });
                      }

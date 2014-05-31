@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -35,7 +35,7 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
             menu: [
                 { text: 'Experiments', action: 'LabData', tooltip: 'List of experiments', iconCls: 'form-blue-edit' },
                 { text: 'Analyzes', action: 'ProjectDesigner2', tooltip: 'Project designer', iconCls: 'analysis' },
-                { text: 'Projects', action: 'ExperimentGroups', tooltip: 'Experiment groupping', iconCls: 'magazine-folder' }
+                { text: 'Folders', action: 'ExperimentGroups', tooltip: 'Experiment groupping', iconCls: 'magazine-folder' }
             ],
             iconCls: 'form-blue'
         } /* { xtype: 'button',

@@ -37,6 +37,7 @@ Ext.define('EMS.view.Experiment.Experiment.MainWindow', {
     width: 1100,
     border: false,
     focusOnToFront: true,
+    UID: "",
     requires: [
         'EMS.view.Experiment.Experiment.EditForm',
     ],
@@ -53,6 +54,7 @@ Ext.define('EMS.view.Experiment.Experiment.MainWindow', {
                 {
                     xtype: 'experimenteditform',
                     frame: false,
+                    UID: this.UID,
                     plain: true,
                     border: false,
                     title: 'Experiment form',

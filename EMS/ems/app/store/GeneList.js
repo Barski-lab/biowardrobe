@@ -23,19 +23,15 @@
 Ext.define('EMS.store.GeneList', {
     extend: 'Ext.data.TreeStore',
     requires: ['EMS.model.GeneList',
-               'EMS.proxy.StandardProxy'],
+               'EMS.proxy.StandardProxyRemote'],
     storeId: 'GeneList',
     model: 'EMS.model.GeneList',
     folderSort: false,
     autoLoad: false,
     autoSync: false,
-//    singleton: true,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    },
-    proxy: {
-        type: 'standardproxy',
+    singleton: true,
+    /*proxy: {
+        type: 'standardproxyremote',
         api: {
             read: 'data/GeneList.php',
             create: 'data/GeneListAdd.php',
@@ -43,6 +39,6 @@ Ext.define('EMS.store.GeneList', {
             destroy: 'data/GeneListDel.php'
         }
     }
-
+*/
 });
 

@@ -29,15 +29,52 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $res->print_error("Data is not set");
 
-//if ($worker->isAdmin() || ($worker->isLocalAdmin() && ($worker->worker['laboratory_id'] == $data->id))) {
-//    $SQL_STR = "update egroup set name=?,description=?,priority=? where id=?";
-//    $PARAMS = array("ssss", $data->name, $data->description, $data->priority, $data->id);
-//} else {
-//    $response->print_error("Insufficient privileges");
-//}
-//
-//if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
-//    $response->print_error("Cant update");
+if (!isset($_REQUEST['moveto'])
+    || $_REQUEST['moveto'] == ""
+    || $_REQUEST['moveto'] == "00000000-0000-0000-0000-000000000000"
+    || $_REQUEST['moveto'] == "laborato-ry00-0000-0000-000000000001"
+) {
+    $response->print_error("Move to error");
+}
+
+$moveto = $_REQUEST['moveto'];
+if($moveto==$data->id)
+    $response->print_error("Cant move to itself");
+
+if ($worker->isAdmin()) {
+    $SQL_STR = "update labdata set egroup_id=? where egroup_id=?";
+    $PARAMS = array("ss", $moveto, $data->id);
+    if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) < 0)
+        $response->print_error("Cant move");
+
+    $SQL_STR = "delete from egrouprights where egroup_id=?";
+    $PARAMS = array("s",$data->id);
+    if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) < 0)
+        $response->print_error("Cant remove rights");
+
+    $SQL_STR = "delete from egroup where id=?";
+    $PARAMS = array("s", $data->id);
+
+} elseif ($worker->isLocalAdmin()) {
+    $SQL_STR = "update labdata set egroup_id=? where egroup_id=? and laboratory_id=?";
+    $PARAMS = array("sss", $moveto, $data->id,$worker->worker['laboratory_id']);
+    if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) < 0)
+        $response->print_error("Cant move");
+
+    $SQL_STR = "delete from egrouprights where egroup_id=(select id from egroup where id=? and laboratory_id=?)";
+    $PARAMS = array("ss",$data->id,$worker->worker['laboratory_id']);
+    if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) < 0)
+        $response->print_error("Cant remove rights");
+
+    $SQL_STR = "delete from egroup where id=? and laboratory_id=?";
+    $PARAMS = array("ss", $data->id,$worker->worker['laboratory_id']);
+
+}else {
+    $response->print_error("Insufficient privileges");
+}
+
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
+    $response->print_error("Cant delete");
 
 $response->success = true;
 $response->message = "Data deleted";

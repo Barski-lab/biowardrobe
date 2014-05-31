@@ -42,17 +42,21 @@ if ($worker->isAdmin()) {
     }
 } else {
     if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000") {
-        //check lab_id
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $lab_id);
+        if($worker->worker['laboratory_id']==$lab_id) {
+            $SQL_QUERY .= " and laboratory_id=? ";
+            $PARAMS = array("s", $lab_id);
+        } else {
+            $SQL_QUERY .= " and egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) and laboratory_id=? ";
+            $PARAMS = array("ss",$worker->worker['laboratory_id'], $lab_id);
+        }
     } else {
-        //all allowed for non admins
-        $SQL_QUERY .= "and laboratory_id=? ";
-        $PARAMS = array("s", $worker->worker['laboratory_id']);
+
+        $SQL_QUERY .= "and (laboratory_id=? or (egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) ) )";
+        $PARAMS = array("ss", $worker->worker['laboratory_id'],$worker->worker['laboratory_id']);
     }
 }
 
-if ($egroup_id != "") {
+if ($egroup_id != "" && $egroup_id != "00000000-0000-0000-0000-000000000000") {
     $SQL_QUERY .= "and egroup_id=?";
     if (count($PARAMS) != 0) {
         $PARAMS[0] .= "s";
@@ -61,7 +65,6 @@ if ($egroup_id != "") {
         $PARAMS = array("s", $egroup_id);
     }
 }
-
 
 $total = selectSQL("SELECT COUNT(*) as count " . $SQL_QUERY, $PARAMS)[0]['count'];
 $query_array = selectSQL("SELECT * " . $SQL_QUERY . " $order $limit", $PARAMS);

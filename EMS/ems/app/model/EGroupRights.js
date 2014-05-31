@@ -27,7 +27,8 @@ Ext.define('EMS.model.EGroupRights', {
         { name: 'id', type: 'string'},
         { name: 'name', type: 'string' },
         { name: 'description', type: 'string' },
-        { name: 'egroup_id', type: 'string' }
+        { name: 'egroup_id', type: 'string' },
+        { name: 'locked', type: 'string' }
     ]
 
 });

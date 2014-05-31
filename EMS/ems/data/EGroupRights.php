@@ -37,13 +37,17 @@ if (!$_REQUEST['egroup_id']) {
     exit();
 }
 
-$SQL_STR = "select l.id,l.name,l.description,e.egroup_id from ems.laboratory l left join (ems.egrouprights e) on l.id=e.laboratory_id and e.egroup_id=? where l.name not like 'admin';";
+$SQL_STR = "select l.id,l.name,l.description,e.egroup_id,eg.id as locked
+from ems.laboratory l
+left join (ems.egrouprights e) on l.id=e.laboratory_id and e.egroup_id=?
+left join ems.egroup eg on eg.laboratory_id=l.id and eg.id=?
+where l.name not like 'admin';";
 
 if($worker->isAdmin()) {
     //$PARAMS = array("ss", $_REQUEST['egroup_id'],$_REQUEST['laboratory_id']);
-    $PARAMS = array("s", $_REQUEST['egroup_id']);
+    $PARAMS = array("ss", $_REQUEST['egroup_id'],$_REQUEST['egroup_id']);
 } else {
-    $PARAMS = array("s", $_REQUEST['egroup_id']);
+    $PARAMS = array("ss", $_REQUEST['egroup_id'],$_REQUEST['egroup_id']);
 }
 
 

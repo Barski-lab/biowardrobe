@@ -31,7 +31,7 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupRights', {
     items: [
         {
             xtype: 'fieldset',
-            title: 'Projects rights',
+            title: 'Folder rights',
             padding: {top: 0, right: 1, left: 1, bottom: 0},
             margin: {top: 10, right: 1, left: 1, bottom: 1},
 
@@ -57,11 +57,15 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupRights', {
                             var worker = Ext.getStore('Worker').getAt(0);
                             if(!worker.data.isla && !worker.data.isa)
                                 return null;
+                            if(record.data['locked']) {
+                                view.getSelectionModel().select(record, true);
+                                return null
+                            }
                             if(worker.data.isla && worker.data['laboratory_id']==record.data['id']) {
                                 view.getSelectionModel().select(record, true);
                                 return null
                             }
-                            if(worker.data.isla && record.data['egroup_id']) {
+                            if(record.data['egroup_id']) {
                                 view.getSelectionModel().select(record, true);
                             }
                             meta.tdCls = Ext.baseCSSPrefix + 'grid-cell-special';

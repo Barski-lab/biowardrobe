@@ -21,11 +21,6 @@
  **
  ****************************************************************************/
 
-//include('/etc/settings/config.php');
-
-//require_once('response.php');
-
-
 /*
 execSQL("SELECT * FROM table WHERE id = ?", array('i', $id), false);
 execSQL("SELECT * FROM table", array(), false);
@@ -44,12 +39,12 @@ function get_extension($f)
         case 3:
             return array("name" => "common tss", "ext" => "_common_tss", "id" => $f);
     }
-    return array("name" => "isoforms", "ext" => "", "id" => $f);
+    return array("name" => "isoforms", "ext" => "_isoforms", "id" => $f);
 }
 
 function get_expression($f, $d = false)
 {
-    global $res;
+    global $response;
     switch ($f) {
         case 1:
             if ($d) {
@@ -72,7 +67,7 @@ function get_expression($f, $d = false)
         case 6:
             return array("name" => "greater than or equal", "exp" => ">=");
     }
-    $res->print_error("get expression error $f");
+    $response->print_error("get expression error $f");
 }
 
 function get_operand($o)
@@ -84,10 +79,8 @@ function get_operand($o)
 
 function get_table_info($val)
 {
-    global $con, $db_name_ems;
-    $qr = execSQL($con, "select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db,ge.annottable as annotation from " .
-        $db_name_ems . ".genelist g
-     left join (" . $db_name_ems . ".labdata l," . $db_name_ems . ".worker w," . $db_name_ems . ".experimenttype e, " . $db_name_ems . ".genome ge)
+    $qr = selectSQL("select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db,ge.annottable as annotation from genelist g
+     left join (labdata l,worker w,experimenttype e,genome ge)
      on (labdata_id=l.id and worker_id=w.id and l.genome_id=ge.id and l.experimenttype_id=e.id)
      where g.id like ?", array("s", $val), false);
 
@@ -96,18 +89,20 @@ function get_table_info($val)
 
 function recreate_rna_views($id, $parentid, $add = true)
 {
-    global $con, $db_name_ems, $db_name_experiments;
+    global $settings;//$db_name_ems, $db_name_experiments;
+    $EDB = $settings->settings['experimentsdb']['value'];
+    $con=$settings->connection;
 
     if ($add) {
-        $qr = execSQL($con, "select tableName from " . $db_name_ems . ".genelist where id like ?", array("s", $parentid), false);
+        $qr = selectSQL("select tableName from genelist where id like ?", array("s", $parentid));
         if (!$qr) return;
         $tbname = $qr[0]['tableName'];
 
-        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_genes`", array(), true);
-        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_common_tss`", array(), true);
-        execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "`", array(), true);
+        execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "_genes`", array(), true);
+        execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "_common_tss`", array(), true);
+        execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "`", array(), true);
 
-        $qr = execSQL($con, "select * from " . $db_name_ems . ".genelist where parent_id like ?", array("s", $parentid), false);
+        $qr = selectSQL("select * from genelist where parent_id like ?", array("s", $parentid));
         if (!$qr) {
             return;
         }
@@ -127,26 +122,25 @@ function recreate_rna_views($id, $parentid, $add = true)
             if ($c != 0) {
                 $AV_R = $AV_R . "+a" . $c . ".TOT_R_0";
                 $AV_RP = $AV_RP . "+a" . $c . ".RPKM_0";
-                $TABLES = $TABLES . "," . $db_name_experiments . ".`" . $val['tableName'] . "` a" . $c;
-                $gblink = $gblink . "&" . $val['tableName'] . "=full";
+                $TABLES = $TABLES . ",{$EDB}.`" . $val['tableName'] . "_isoforms` a" . $c;
+                $gblink = $gblink . "&" . str_replace('-','_',$val['tableName']) . "=full";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".refseq_id=a" . $c . ".refseq_id";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".chrom=a" . $c . ".chrom";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".txStart=a" . $c . ".txStart";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
                 $WHERE = $WHERE . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
             } else {
-                $db = execSQL($con, "select g.db as db from " . $db_name_ems . ".genome g," .
-                    $db_name_ems . ".labdata l where l.genome_id=g.id and l.id = ?", array("i", $val['labdata_id']), false);
+                $db = selectSQL("select g.db as db from genome g,labdata l where l.genome_id=g.id and l.id = ?", array("i", $val['labdata_id']));
 
-                $TABLES = $db_name_experiments . ".`" . $val['tableName'] . "` a0";
-                $gblink = $val['tableName'] . "=full";
+                $TABLES = "{$EDB}.`" . $val['tableName'] . "_isoforms` a0";
+                $gblink = str_replace('-','_',$val['tableName']) . "=full";
             }
             $c++;
         }
         $AV_R = "(" . $AV_R . ")/" . $c;
         $AV_RP = "(" . $AV_RP . ")/" . $c;
-
-        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "` AS " .
+//Possible _isoforms
+        $SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "` AS " .
             "select a0.refseq_id as refseq_id," .
             "a0.gene_id AS gene_id," .
             "a0.chrom AS chrom," .
@@ -160,7 +154,7 @@ function recreate_rna_views($id, $parentid, $add = true)
         //logmsg(print_r($SQL,true));
         execSQL($con, $SQL, array(), true);
 
-        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "_common_tss` AS " .
+        $SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "_common_tss` AS " .
             "select " .
             "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id," .
             "group_concat(distinct gene_id order by gene_id separator ',') AS gene_id," .
@@ -170,7 +164,7 @@ function recreate_rna_views($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname . "` where strand = '+' " .
+            "from `{$EDB}`.`" . $tbname . "` where strand = '+' " .
             "group by chrom,txStart,strand " .
             " union " .
             "select " .
@@ -182,11 +176,11 @@ function recreate_rna_views($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname . "` where strand = '-' " .
+            "from `{$EDB}`.`" . $tbname . "` where strand = '-' " .
             "group by chrom,txEnd,strand ";
         execSQL($con, $SQL, array(), true);
 
-        $SQL = "CREATE VIEW " . $db_name_experiments . ".`" . $tbname . "_genes` AS " .
+        $SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "_genes` AS " .
             "select " .
             "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id," .
             "gene_id," .
@@ -196,10 +190,10 @@ function recreate_rna_views($id, $parentid, $add = true)
             "max(strand) AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from " . $db_name_experiments . ".`" . $tbname . "` group by gene_id ";
+            "from `{$EDB}`.`" . $tbname . "` group by gene_id ";
         execSQL($con, $SQL, array(), true);
 
-        execSQL($con, "update " . $db_name_ems . ".genelist set gblink=?,db=? where id like ?",
+        execSQL($con, "update genelist set gblink=?,db=? where id like ?",
             array("sss", $gblink, $db, $parentid), true);
 
     }

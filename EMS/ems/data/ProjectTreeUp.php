@@ -21,25 +21,17 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
-
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST, true));
 
 $data = json_decode($_REQUEST['data']);
 
 if (!isset($data))
     $res->print_error("no data");
-//logmsg(print_r($data,true));
 
 $count = 1;
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
 
@@ -49,11 +41,11 @@ function update_insert($val)
     check_val($val->id);
 
     if ($val->parentId == "own" && intVal($val->isnew) == 1) {
-        execSQL($con, "insert into " . $db_name_ems . ".project2 (id,name,dateadd,worker_id) values(?,?,?,?)",
+        execSQL($con, "insert into project2 (id,name,dateadd,worker_id) values(?,?,?,?)",
             array("sssi", $val->id, $val->text, DateTime::createFromFormat('m/d/Y', $val->dateadd)->format('Y-m-d'), $_SESSION["user_id"]), true);
     }
     if ($val->parentId == "own" && intVal($val->isnew) == 0) {
-        execSQL($con, "update " . $db_name_ems . ".project2 set name=?,description=? where id like ?",
+        execSQL($con, "update project2 set name=?,description=? where id like ?",
             array("sss", $val->text, $val->description, $val->id), true);
     }
 

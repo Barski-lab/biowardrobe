@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 $data = json_decode(stripslashes($_REQUEST['data']));
 
@@ -36,49 +36,22 @@ if(!$worker->isAdmin() && !$worker->isLocalAdmin())
 if($data->worker == 'admin')
     $response->print_error('Insufficient priviliges!');
 
-$query = selectSQL("SELECT * from worker where worker=?", array("i", $data->id));
+if (intVal($data->id) == 0)
+    $response->print_error("no id");
+
+$query = selectSQL("SELECT * from worker where id=?", array("i", $data->id));
 if (count($query) != 1)
     $response->print_error("Cant select worker!");
+$query=$query[0];
 
 if($query['worker'] == 'admin')
     $response->print_error('Insufficient priviliges!');
 
 if($worker->isLocalAdmin() && ($query['admin']==1 || $worker->worker['laboratory_id'] !=$query['laboratory_id'] ))
     $response->print_error('Insufficient priviliges!');
-//$query['laboratory_id']=="laborato-ry00-0000-0000-000000000001" ||
-
-if (intVal($data->id) == 0)
-    $response->print_error("no id");
 
 $SQL_STR="delete from `worker` where id=?";
-$PARAMS=array("i",intVal($data->id));
-
-/*
-if(gettype($data)=="array") {
-    $SQL_STR="delete from `$tablename` where id in (";
-    $PARAMS=array("");
-
-    foreach($data as $key => $val) {
-        if(intVal($val->id)==0)
-            $res->print_error("no id");
-
-        array_push($PARAMS,intVal($val->id));
-        $PARAMS[0]=$PARAMS[0]."i";
-        $SQL_STR=$SQL_STR."?,";
-    }
-
-    $SQL_STR = substr_replace($SQL_STR ,"",-1);
-    $SQL_STR=$SQL_STR.")";
-} else {
-    if(intVal($data->id)==0)
-        $res->print_error("no id");
-
-    $SQL_STR="delete from `$tablename` where id=?";
-
-    $PARAMS=array("i",intVal($data->id));
-
-}
-*/
+$PARAMS=array("i",$data->id);
 
 if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) != 0) {
     $response->success = true;

@@ -16,6 +16,34 @@ MYSQL
         IDENTIFIED BY '${READONLYP}';" mysql
  done
 
+#macosx
+easy_install pip
+export CFLAGS=-Qunused-arguments
+export CPPFLAGS=-Qunused-arguments
+pip install mysql-python
+sudo ln -s /usr/local/mysql/lib/libmysqlclient.18.dylib /usr/lib/libmysqlclient.18.dylib
+install_name_tool -change libmysqlclient.18.dylib $MYSQL_LIB/libmysqlclient.18.dylib $QT_PLUGIN_PATH/sqldrivers/libqsqlmysql.dylib
+http://stackoverflow.com/questions/6833939/path-environment-variable-for-apache2-on-mac
+/System/Library/LaunchDaemons/org.apache.httpd.plist
+<key>EnvironmentVariables</key>
+<dict>
+    <key>PATH</key>
+    <string>/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/git/bin</string>
+</dict>
+defaults write /System/Library/LaunchDaemons/org.apache.httpd Disabled -bool false
+
+#blue tooth keyboard in bluetooth settings
+
+#apache ssl
+#http://blog.andyhunt.info/2011/11/26/apache-ssl-on-max-osx-lion-10-7/
+mkdir /private/etc/apache2/ssl
+cd /private/etc/apache2/ssl
+sudo ssh-keygen -f server.key
+sudo openssl req -new -key server.key -out request.csr
+sudo openssl x509 -req -days 365 -in request.csr -signkey server.key -out server.crt
+
+
+pmset -c spindown 0
 
 
 R additional packages

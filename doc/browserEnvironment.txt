@@ -32,10 +32,10 @@ export kentSrc="${KENTHOME}/kent"
 #	LOGDIR - location to keep log files of script activities:
 export LOGDIR="${KENTHOME}/browserLogs"
 # GBDB - You will need a symlink /gbdb -> to this directory with gbdb downloads
-export GBDB="/data/gbdb"
+export GBDB="/wardrobe/gbdb"
 # BROWSERHOME - directory where cgi-bin/ trash/ and htdocs/ should exist
 #   This is typically something like /var/www or /usr/local/apache
-export BROWSERHOME="/srv/gbinternal"
+export BROWSERHOME="/srv/www/"
 # DOCUMENTROOT - location of top level htdocs for downloading UCSC static html
 #	file hierarchy
 export DOCUMENTROOT="${BROWSERHOME}/htdocs"
@@ -54,8 +54,8 @@ export PATH="$KENTBIN/$MACHTYPE:$KENTBIN/:$PATH"
 export HGSQL="$KENTBIN/$MACHTYPE/hgsql"
 # You will need to find out where your MySQL libs are.
 #	see notes in: README.building.source about finding them
-export MYSQLLIBS="/usr/lib64/mysql/libmysqlclient.a -lz"
-export MYSQLINC="/usr/include/mysql"
+#export MYSQLLIBS="/usr/lib64/mysql/libmysqlclient.a -lz"
+export MYSQLINC="/usr/local/mysql/include/mysql"
 # If your mysql is SSL enabled, use the -lssl:
 # export MYSQLLIBS="/usr/lib64/mysql/libmysqlclient.a -lssl -lz"
 export MYSQLLIBS=`mysql_config --libs`
@@ -96,9 +96,9 @@ export AUTH_USER=$USER
 
 export USE_SSL=1
 export USE_SAMTABIX=1
-export SAMTABIXDIR="/data/DEVEL/GIT/samtabix"
-export SAMTABIXINC="/data/DEVEL/GIT/samtabix"
-export SAMTABIXLIB="/data/DEVEL/GIT/samtabix/libsamtabix.a"
+export SAMTABIXDIR="/Users/porter/Development/GIT/WORK/samtabix"
+export SAMTABIXINC="/Users/porter/Development/GIT/WORK/samtabix"
+export SAMTABIXLIB="/Users/porter/Development/GIT/WORK/samtabix/libsamtabix.a"
 
 ########################################################################
 # probably no changes needed with these variables, they are just convenient

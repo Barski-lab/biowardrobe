@@ -28,7 +28,7 @@ if (isset($_REQUEST['tablename']))
 else
     $response->print_error('Not enough required parameters. t');
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "info", "download", "settings", "genome");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "info", "download", "settings", "genome","atype");
 
 if (!in_array($tablename, $AllowedTable))
     $response->print_error('Table not in the list');

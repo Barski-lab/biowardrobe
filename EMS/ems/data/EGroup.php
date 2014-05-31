@@ -23,38 +23,37 @@
 
 require_once('../settings.php');
 
-//logmsg(print_r($_REQUEST,true));
+//logmsg(print_r($_REQUEST, true));
 
 
 $array_prepend = array();
-//$array_prepend[] = array('id' => '00000000-0000-0000-0000-000000000000', 'name' => 'All', 'description' => 'All laboratories');
+if (isset($_REQUEST['addall']))
+    $array_prepend[] = array('id' => '00000000-0000-0000-0000-000000000000', 'name' => 'All', 'description' => 'All projects');
 
 $PARAMS = array();
 
+$SQL_STR = "SELECT * FROM egroup ";
+
 if ($worker->isAdmin()) {
-    $SQL_STR = "SELECT * FROM egroup ";
-    if (isset($_REQUEST['laboratory']) && $_REQUEST['laboratory'] != "00000000-0000-0000-0000-000000000000") {
+    if (isset($_REQUEST['laboratory_id']) && $_REQUEST['laboratory_id'] != "00000000-0000-0000-0000-000000000000") {
         $SQL_STR = $SQL_STR . " where laboratory_id=?";
-        $PARAMS = array("s", $_REQUEST['laboratory']);
+        $PARAMS = array("s", $_REQUEST['laboratory_id']);
     }
 } else {
-//EDIT list and Local admin !
-    if ($worker->isLocalAdmin() && isset($_REQUEST['laboratory'])) {
-        $SQL_STR = "SELECT * FROM egroup where laboratory_id=?";
-        $PARAMS = array("s", $worker->worker['laboratory_id']);
+    if (isset($_REQUEST['rights'])) {
+            $SQL_STR = $SQL_STR . " where laboratory_id=?";
+            $PARAMS = array("s", $worker->worker['laboratory_id']);
     } else {
-        $SQL_STR = "SELECT * FROM egroup where laboratory_id=?";
-        $PARAMS = array("s", $worker->worker['laboratory_id']);
+        if (isset($_REQUEST['laboratory_id']) && $_REQUEST['laboratory_id'] != "00000000-0000-0000-0000-000000000000") {
+            $SQL_STR = $SQL_STR . " where (laboratory_id=? or id in(select egroup_id from egrouprights where laboratory_id=?)) and laboratory_id=?";
+            $PARAMS = array("sss", $worker->worker['laboratory_id'], $worker->worker['laboratory_id'], $_REQUEST['laboratory_id']);
+        } else {
+            $SQL_STR = $SQL_STR . " where (laboratory_id=? or id in(select egroup_id from egrouprights where laboratory_id=?))";
+            $PARAMS = array("ss", $worker->worker['laboratory_id'], $worker->worker['laboratory_id']);
+        }
     }
 }
 $SQL_STR = $SQL_STR . " order by priority DESC, name";
-
-//else {
-//    //FIXME: have to always choose my own labaratory (maybe $worker->groups will work)
-//    $SQL_STR = "SELECT distinct l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
-//    $PARAMS=array("s",$worker->worker['laboratory_id']);
-//}
-
 
 $query_array = selectSQL($SQL_STR, $PARAMS);
 

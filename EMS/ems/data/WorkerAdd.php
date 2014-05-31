@@ -24,7 +24,7 @@
 require_once('../settings.php');
 
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 
 $data = json_decode($_REQUEST['data']);

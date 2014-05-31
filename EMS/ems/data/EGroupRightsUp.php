@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 $data = json_decode($_REQUEST['data']);
 if (!isset($data))
@@ -43,7 +43,7 @@ else if($worker->isLocalAdmin()) {
     $response->print_error("Insufficient privileges");
 }
 
-if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
+if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) < 0)
     $response->print_error("Cant update");
 
 $response->success = true;

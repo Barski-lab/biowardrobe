@@ -28,11 +28,11 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     //    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
     //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
 
-    models: ['Preferences','EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands','Antibodies','IslandsDistribution','RPKM'],
-    stores: ['Preferences','EGroups', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands','Antibodies','IslandsDistribution','RPKM'],
+    models: ['Preferences', 'EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM'],
+    stores: ['Preferences', 'EGroups', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins'],
 
-    views: ['Experiment.Experiment.MainWindow',
-            'Experiment.Experiment.EditForm',
+    views: [//'Experiment.Experiment.MainWindow',
+            //'Experiment.Experiment.EditForm',
             'Experiment.Experiment.QualityControl',
             'Experiment.Experiment.Islands',
             'Experiment.Experiment.RPKM',
@@ -70,6 +70,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
              'experimenteditform': {
              }
          });
+        this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
+        this.EGroupsStore.load();
     },//init
     /****************************
      * Init window functions
@@ -85,8 +87,23 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var me = this;
         this.worker = this.getWorkerStore().getAt(0);
         this.getDownloadStore().load();
+        this.getSpikeinsStore().load();
         this.getController('Experiment.Islands');
         this.getController('Experiment.RPKM');
+        Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].bindStore(this.EGroupsStore);
+
+        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+        var record = form.getRecord();
+
+        this.UID = record.data['uid'];
+        this.tblname = record.data['filename'].split(';')[0];
+        var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
+        this.spike = (gdata.genome.indexOf('spike') !== -1);
+        this.db = gdata.db;
+        //FIXIT dont like it, nee dmore universal search for protocol and notes
+        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID=this.UID;//.items.items[1]
+        Ext.ComponentQuery.query('experimenteditform #notes')[0].UID=this.UID;
+
     },
     /******************************
      *
@@ -102,19 +119,13 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
         var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
         var record = form.getRecord();
-
         var maintabpanel = Ext.ComponentQuery.query('experimentmainwindow > tabpanel')[0];
+        Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].setValue(record.data['egroup_id']);
 
-        this.UID = record.data['uid'];
-        this.tblname = record.data['filename'].split(';')[0];
-        var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
-        this.spike = (gdata.genome.indexOf('spike') !== -1);
-        this.db = gdata.db;
 
         this.isRNA = ((Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue().indexOf('RNA') !== -1);
 
-
-        if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa && !this.worker.data.isla)
+        if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa )
             this.readOnlyAll(form);
 
 
@@ -130,7 +141,6 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts < 11)
             return;
 
-        if (!this.worker.data.isa && !this.worker.data.isla)
             this.setDisabledByStatus(sts);
 
         this.addQC(maintabpanel, record);
@@ -244,22 +254,25 @@ Ext.define('EMS.controller.Experiment.Experiment', {
             form.findField('url').setReadOnly(true);
             form.findField('download_id').setReadOnly(true);
         }
-        if (sts >= 11) {
+        if (sts >= 10) {
             form.findField('experimenttype_id').setReadOnly(true);
             form.findField('genome_id').setReadOnly(true);
-            form.findField('name4browser').setReadOnly(true);
-            form.findField('egroup_id').setReadOnly(true);
-            form.findField('fragmentation_id').setReadOnly(true);
-            form.findField('crosslink_id').setReadOnly(true);
-            form.findField('antibody_id').setReadOnly(true);
-            form.findField('antibodycode').setReadOnly(true);
-            form.findField('spikeins_id').setReadOnly(true);
-            form.findField('dateadd').setReadOnly(true);
-            form.findField('cells').setReadOnly(true);
-            form.findField('conditions').setReadOnly(true);
-            form.findField('groupping').setReadOnly(true);
-            form.findField('protocol').setReadOnly(true);
-            form.findField('notes').setReadOnly(true);
+            //form.findField('protocol').setReadOnly(true);
+            //form.findField('notes').setReadOnly(true);
+            if (!this.worker.data.isa && !this.worker.data.isla) {
+                form.findField('name4browser').setReadOnly(true);
+                form.findField('egroup_id').setReadOnly(true);
+                form.findField('groupping').setReadOnly(true);
+                form.findField('fragmentation_id').setReadOnly(true);
+                form.findField('crosslink_id').setReadOnly(true);
+                form.findField('antibody_id').setReadOnly(true);
+                form.findField('antibodycode').setReadOnly(true);
+                form.findField('spikeins_id').setReadOnly(true);
+                form.findField('dateadd').setReadOnly(true);
+                form.findField('cells').setReadOnly(true);
+                form.findField('conditions').setReadOnly(true);
+            }
+
             //            Ext.getCmp('browser-grp-edit').disable();
         }
     },
@@ -293,7 +306,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                 });
         var panelD = Ext.ComponentQuery.query('experimentqualitycontrol panel#experiment-description')[0];
         panelD.on('afterrender', function () {
-            var basename=EMS.util.Util.Settings('preliminary')+'/'+this.UID;
+            var basename = EMS.util.Util.Settings('preliminary') + '/' + this.UID;
             panelD.tpl.overwrite(panelD.body, Ext.apply(record.data, {isRNA: this.isRNA, basename: basename}));
 
 
@@ -361,11 +374,11 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addGB: function (tab) {
 
-        var gtbl = this.UID.replace(/-/g,'_')+'_wtrack';
+        var gtbl = this.UID.replace(/-/g, '_') + '_wtrack';
         if (!this.isRNA) {
-            gtbl = this.UID.replace(/-/g,'_')+ '_grp';
+            gtbl = this.UID.replace(/-/g, '_') + '_grp';
         }
-        var url = EMS.util.Util.Settings('genomebrowserroot')+'/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + gtbl + '=full';
+        var url = EMS.util.Util.Settings('genomebrowserroot') + '/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + gtbl + '=full';
         tab.add({
                     title: 'Genome browser',
                     iconCls: 'genome-browser',
@@ -380,7 +393,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addATDPChart: function (tab, bn) {
         var stor = this.getATDPChartStore();
-        var me=this;
+        var me = this;
         stor.getProxy().setExtraParam('tablename', this.UID + '_atdp');
         stor.load({
                       callback: function (records, operation, success) {
@@ -403,7 +416,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     addIslandsList: function (tab) {
         var stor = this.getIslandsStore();
         stor.getProxy().setExtraParam('uid', this.UID);
-        var me=this;
+        var me = this;
         stor.load({
                       callback: function (records, operation, success) {
                           if (success) {

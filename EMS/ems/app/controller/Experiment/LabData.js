@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -30,7 +30,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
     views: ['Experiment.LabData.LabDataListWindow'],
 
     requires: [
-        //        'EMS.util.MessageBox'
+        'EMS.util.Util'
     ],
 
 
@@ -59,6 +59,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
                  itemclick: this.handleLabDataActionColumn
              }
          });
+        this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
     },//init
     onDestroy: function () {
     },
@@ -67,9 +68,16 @@ Ext.define('EMS.controller.Experiment.LabData', {
         this.worker = this.getWorkerStore().getAt(0);
         this.getExperimentTypeStore().load();
         this.getGenomeStore().load();
-        this.getEGroupsStore().load();
+
+        this.EGroupsStore.load({
+                                   params: {
+                                       addall: true,
+                                       laboratory_id: me.worker.data['laboratory_id']
+                                   }
+                               });
+        Ext.ComponentQuery.query('experimentlistwindow combobox#projects')[0].bindStore(this.EGroupsStore);
         this.getLaboratoriesStore().load(function () {
-            Ext.ComponentQuery.query('experimentlistwindow combobox')[0].setValue(me.worker.data['laboratory_id']);
+            Ext.ComponentQuery.query('experimentlistwindow combobox#laboratories')[0].setValue(me.worker.data['laboratory_id']);
             me.reloadLabData();
         });
     },
@@ -88,6 +96,12 @@ Ext.define('EMS.controller.Experiment.LabData', {
      *
      ****************************/
     onLaboratoriesChange: function (combo, records) {
+        this.EGroupsStore.load({
+                                   params: {
+                                       addall: true,
+                                       laboratory_id: combo.getValue()
+                                   }
+                               });
         this.reloadLabData();
     },
     /****************************
@@ -150,6 +164,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
         var store = this.getLabDataStore();
         var r = Ext.create('EMS.model.LabData', {
             worker_id: this.worker.data['id'],
+            laboratory_id: this.worker.data['laboratory_id'],
             author: this.worker.data['fullname'],
             fragmentsizeexp: 150,
             browsershare: false,
@@ -158,14 +173,18 @@ Ext.define('EMS.controller.Experiment.LabData', {
             fragmentation_id: 1,
             antibody_id: 'antibody-0000-0000-0000-000000000001',
             experimenttype_id: 1,
-            spikeins: 1,
+            spikeins_id: 1,
             libstatus: 0,
             libstatustxt: 'new',
             download_id: 1,
             dateadd: new Date()
         });
-        store.insert(0, r);
-        this.onExperimentShow(button, r);
+        if (this.worker.data.isa) {
+            EMS.util.Util.showErrorMsg("It is just not possible :)");
+        } else {
+            store.insert(0, r);
+            this.onExperimentShow(button, r);
+        }
     },
     /****************************
      *
@@ -175,6 +194,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
         var data = store.getAt(rowIndex).data;
         var r = Ext.create('EMS.model.LabData', {
             worker_id: this.worker.data['id'],
+            laboratory_id: this.worker.data['laboratory_id'],
             author: this.worker.data['fullname'],
             fragmentsizeexp: 150,
             browsershare: false,
@@ -187,7 +207,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
             cells: data['cells'],
             conditions: data['conditions'],
             spikeinspool: data['spikeinspool'],
-            spikeins: data['spikeins'],
+            spikeins_id: data['spikeins_id'] == 0 ? 1 : data['spikeins_id'],
             download_id: data['download_id'],
             notes: data['notes'],
             protocol: data['protocol'],
@@ -196,18 +216,27 @@ Ext.define('EMS.controller.Experiment.LabData', {
             libstatustxt: 'new',
             dateadd: data['dateadd']
         });
-        store.insert(rowIndex + 1, r);
-        this.onExperimentShow(view, r);
+        if (this.worker.data.isa) {
+            EMS.util.Util.showErrorMsg("It is just not possible :)");
+        } else {
+            store.insert(rowIndex + 1, r);
+            this.onExperimentShow(view, r);
+        }
     },
     /****************************
      *
      ****************************/
     onExperimentShow: function (grid, record) {
         //var me = this;
-        var LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {modal: true });
+        var LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {modal: true, UID: record.data['uid'] });
         LabDataEdit.down('experimenteditform').getForm().loadRecord(record);
-        LabDataEdit.show();
-        LabDataEdit.focus(false, 400);
+        LabDataEdit.show({
+                             scope: this,
+                             callback: function () {
+                                 //LabDataEdit.down('experimenteditform').getForm().loadRecord(record);
+                                 LabDataEdit.focus(false, 400);
+                             }
+                         });
     },
 
 });//Ext.define

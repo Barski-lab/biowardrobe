@@ -26,7 +26,7 @@ Ext.define('EMS.view.Experiment.EGroup.EGroup', {
     width: 900,
     minWidth: 400,
     height: 600,
-    title: 'Project Preferences',
+    title: 'Folders Preferences',
     iconCls: 'table2',
     closable: true,
     maximizable: true,

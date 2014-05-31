@@ -85,7 +85,7 @@ Ext.define
                       this.getController('Preferences');
                   }
                   if(this.worker.data.isa || this.worker.data.isla) {
-                      this.getController('UsersGroups');
+                      this.getController('User.UsersGroups');
                   }
                   this.getController('User.Preferences');
 

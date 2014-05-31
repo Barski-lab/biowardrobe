@@ -335,4 +335,6 @@ abstract class AbstractTableDataProcessing
     }
 }
 
+require_once('database_connection.php');
+
 ?>

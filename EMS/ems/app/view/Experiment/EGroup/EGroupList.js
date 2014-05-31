@@ -1,6 +1,6 @@
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -30,7 +30,7 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
     items: [
         {
             xtype: 'fieldset',
-            title: 'Laboratory projects',
+            title: 'Laboratory folders',
             padding: {top: 0, right: 1, left: 1, bottom: 0},
 
             margin: 0,
@@ -48,10 +48,10 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
                     height: '100%',
                     hideHeaders: true,
                     margin: {top: 0, right: 5, left: 0, bottom: 0},
-                    store: 'EGroups',
+                    //store: 'EGroups',
                     padding: 0,
                     columns: [
-                        {header: 'Projects', dataIndex: 'name', flex: 1,
+                        {header: 'Folders', dataIndex: 'name', flex: 1,
                             renderer: function(value,metaData,record) {
                                 metaData.css = 'multilineColumn';
                                 return Ext.String.format('<div class="grptopic"><b>{0}</b><span style="color: #333;">{1}</span></div>', value, record.get('description') || "");

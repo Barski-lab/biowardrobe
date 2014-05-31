@@ -28,7 +28,7 @@ $recordid = $_REQUEST['recordid'];
 check_val($recordid);
 $path=$settings->settings['wardrobe']['value'].$settings->settings['preliminary']['value'];
 $file=$path.'/'.$recordid.'/'.$recordid.'.fence';
-logmsg($file);
+
 if(file_exists($file))
     $handle = fopen($file, "r");
 else

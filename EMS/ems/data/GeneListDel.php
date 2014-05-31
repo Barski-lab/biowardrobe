@@ -21,11 +21,7 @@
  **
  ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
-
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
@@ -33,7 +29,7 @@ require_once('database_connection.php');
 $data = json_decode($_REQUEST['data']);
 
 if (!isset($data))
-    $res->print_error("no data");
+    $response->print_error("no data");
 //logmsg(print_r($data,true));
 
 $count = 1;
@@ -41,54 +37,56 @@ $count = 1;
 
 function delete_record($id)
 {
-    global $con, $db_name_ems, $db_name_experiments;
-    $qr = execSQL($con, "select tableName,type from " . $db_name_ems . ".genelist where id like ? and labdata_id is null and (`type`<>1 or leaf=0 )", array("s", $id), false);
+    global $settings;
+    $EDB = $settings->settings['experimentsdb']['value'];
+    $con=$settings->connection;
+
+    $qr = selectSQL("select tableName,type from genelist where id like ? and labdata_id is null and (`type`<>1 or leaf=0 )", array("s", $id));
     //logmsg(print_r($qr,true));
     if ($qr) {
         $tbname = $qr[0]['tableName'];
         if (strlen($tbname)>0) {
-            execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_genes`", array(), true);
-            execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname . "_common_tss`", array(), true);
-            execSQL($con, "drop view if exists " . $db_name_experiments . ".`" . $tbname."`", array(), true);
-            execSQL($con, "drop table if exists " . $db_name_experiments . ".`" . $tbname."`", array(), true);
+            execSQL($con, "drop view if exists `{$EDB}`.`" . $tbname . "_genes`", array(), true);
+            execSQL($con, "drop view if exists `{$EDB}`.`" . $tbname . "_common_tss`", array(), true);
+            execSQL($con, "drop view if exists `{$EDB}`.`" . $tbname."`", array(), true);
+            execSQL($con, "drop table if exists `{$EDB}`.`" . $tbname."`", array(), true);
         }
         if ($qr[0]['type'] == 102) {
-            execSQL($con, "delete from " . $db_name_ems . ".atdp where genelist_id like ?", array("s", $id), true);
+            execSQL($con, "delete from atdp where genelist_id like ?", array("s", $id), true);
         }
     }
-    execSQL($con, "delete from " . $db_name_ems . ".genelist where id like ?", array("s", $id), true);
+    execSQL($con, "delete from genelist where id like ?", array("s", $id), true);
     if (!$qr)
         recreate_rna_views($val->item_id, $val->parentId);
 }
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
 if (gettype($data) == "array") {
     foreach ($data as $key => $val) {
         if ($val->item_id == "root" || $val->item_id == "gl" || $val->item_id == "gd")
-            $res->print_error("Cant delete");
+            $response->print_error("Cant delete");
         delete_record($val->item_id);
     }
 } else {
     $val = $data;
     if ($val->item_id == "root" || $val->item_id == "gl" || $val->item_id == "gd")
-        $res->print_error("Cant delete");
+        $response->print_error("Cant delete");
 
     delete_record($val->item_id);
 }
 
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
 $con->close();
 
-$res->success = true;
-$res->message = "Data deleted";
-$res->total = $count;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data deleted";
+$response->total = $count;
+print_r($response->to_json());
 
 ?>

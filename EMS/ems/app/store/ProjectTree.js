@@ -22,13 +22,10 @@
 Ext.define('EMS.store.ProjectTree', {
     extend: 'Ext.data.TreeStore',
     requires: ['EMS.model.ProjectTree'],
+
     storeId: 'ProjectTree',
     model: 'EMS.model.ProjectTree',
     autoLoad: false,
     autoSync: false,
     singleton: false,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    }
 });

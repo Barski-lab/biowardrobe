@@ -30,12 +30,13 @@ require_once('utils/common.php');
 require_once('utils/Users.php');
 
 $response = new Response();
-$res = new Response();
+$res = & $response;
 
 Class Settings
 {
-    public $settings, $connection;
-    private $db_host, $db_user, $db_pass, $db_name, $fields, $response;
+    public  $settings, $connection;
+    private $fields, $response;
+    public  $db_host, $db_user, $db_pass, $db_name;
 
     function __construct()
     {
