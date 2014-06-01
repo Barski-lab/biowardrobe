@@ -103,6 +103,8 @@ class Worker
 
     function journal_login()
     {
+        global $settings;
+        execSQL($settings->connection,"insert into login_journal (login) value(?)",array("s",$this->worker['lname'] . ", " . $this->worker['fname']),true);
     }
 
     public function check_pass($passwd)
