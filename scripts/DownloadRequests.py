@@ -1,414 +1,289 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
+
+# /****************************************************************************
+# **
+#  ** Copyright (C) 2011-2014 Andrey Kartashov .
+#  ** All rights reserved.
+#  ** Contact: Andrey Kartashov (porter@porter.st)
+#  **
+#  ** This file is part of the EMS web interface module of the genome-tools.
+#  **
+#  ** GNU Lesser General Public License Usage
+#  ** This file may be used under the terms of the GNU Lesser General Public
+#  ** License version 2.1 as published by the Free Software Foundation and
+#  ** appearing in the file LICENSE.LGPL included in the packaging of this
+#  ** file. Please review the following information to ensure the GNU Lesser
+#  ** General Public License version 2.1 requirements will be met:
+#  ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+#  **
+#  ** Other Usage
+#  ** Alternatively, this file may be used in accordance with the terms and
+#  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+#  **
+#  ****************************************************************************/
+
 ##
 ##
-## Selecting data from MySQL database with respect to status downloading files from website
+## Selects data from Wardrobe database with respect to status then downloads files from website
 ##
 ##
 
 import os
-import sys
-import Arguments
+import Settings
 import requests
 import re
-import random
-import MySQLdb 
 import glob
 import DefFunctions as d
-import subprocess as s # import call
+import subprocess as s  # import call
 import datetime
 import urlparse
 import urllib2
 import shutil
 import base64
 
+
 print str(datetime.datetime.now())
 
-arguments = Arguments.Arguments(sys.argv)
+settings = Settings.Settings()
 
-#global vars
+#EDB = settings.settings['experimentsdb']
+WARDROBEROOT = settings.settings['wardrobe']
+PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
+TEMP = WARDROBEROOT + '/' + settings.settings['temp']
+BIN = WARDROBEROOT + '/' + settings.settings['bin']
 
-main_page=arguments.readString("main_page")
-login_page=arguments.readString("login_page")
-request_page=arguments.readString("request_page")
-download_page=arguments.readString("download_page")
-
-BOWTIE_INDEXES=arguments.readString("BOWTIE_INDEXES")
-BASE_DIR=arguments.readString("BASE_DIR")
-
-extension='fastq'
-
-error=list()
-error.append('Error')
-error.append('')
-warning=list()
-warning.append('Warning')
-warning.append('')
+extension = 'fastq'
 
 
-def error_msg(msg):
-    print """ %s """%(msg)
-    sys.exit()
 
+######################################################################
+def local_file(downloaddir,basedir, libcode, filename, pair):
+    fl = glob.glob(downloaddir + '/' + libcode)
+    if len(fl) == 0:
+        fl = glob.glob(downloaddir + '/*' + libcode + '*')
 
-def file_exist(basedir,libcode):
-    LIST=glob.glob(basedir+'/'+libcode)
-    if len(LIST) == 0:
-	LIST=glob.glob(basedir+'/*'+libcode+'*.fastq')
-    if len(LIST) == 0:
-	LIST=glob.glob(basedir+'/*'+libcode+'*.fastq.bz2')
-    return LIST
+    flist = list()
 
-
-def make_fname(fname):
-    outfname=os.path.basename(fname)
-    outfname=re.sub(r'\.gz$|\.bz2$|\.zip$|\.'+extension,'',outfname)
-    try:
-	outfname=re.match(r'(.*index[0-9]*).*',outfname).group(1)
-    except:
-	pass
-    outfname=re.sub(r'[^a-zA-Z0-9]','_',outfname)
-    if len(outfname)>35:
-	outfname=outfname[:35]	
-    return outfname+'_'+datetime.datetime.now().strftime("%Y%m%d%H%M%S")+str(random.randrange(10,99))
-
-
-def get_file_core(USERNAME,PASSWORD,libcode,basedir,pair):
-    #
-    libcode=libcode.strip()
-    flist=list()
-    fl=file_exist(basedir,libcode)
-
-    if len(fl) > 0 and len(fl)!=2 and pair: 
-	error[1]='incorrect number of files for pair end reads'
-	return error
-    if len(fl) > 0 and len(fl) != 1 and not pair: 
-	error[1]='incorrect number of files for single end reads'
-	return error
-
+    if len(fl) > 0 and len(fl) != 2 and pair:
+        return ['Error', 'incorrect number of files for pair end reads']
+    if len(fl) > 0 and len(fl) != 1 and not pair:
+        return ['Error', 'incorrect number of files for single end reads']
+    c = 0
     for i in fl:
-	mf=make_fname(i)
-	newfn=os.path.basename(i)
-	if mf != newfn:
-	    os.rename(i,basedir+'/'+mf+'.'+extension)
-	flist.append(mf)
-
-    if len(flist)>0:
-	return flist
-
-    session = requests.session()
-    session.get(main_page)
-
-    r1=session.post(login_page,data={'username': USERNAME, 'password': PASSWORD})
-    print "----------------------------------------------------------------\n\n\n\n"
-    print r1.text
-    print "----------------------------------------------------------------\n\n\n\n"
-
-    r = session.get(request_page)
-    print r.text
-    
-    fname=list()
-    path=list()
-    flist=list()
-    ofname=str()
-    gz=False
-    #print r.text
-    if 'logon_form' in r.text:
-	error[1]='incorrect DNA core credentials'
-	return error
-    for line in r.text.splitlines():
-	if '/data' in line:
-	    split_line=line.split('\'')
-	    if extension in split_line[3] and libcode in split_line[3]:
-		path.append(split_line[1])
-		fname.append(split_line[3])
-		if re.search("\.gz$",split_line[3]):
-		    gz=True
-		
-    if len(fname) == 1 and not pair:
-	r = session.get(download_page+'?file='+path[0]+'&name='+fname[0])
-	outfname=make_fname(fname[0]) #+'_'+str(random.randrange(10000,99999))
-
-	if os.path.isfile(basedir+'/'+outfname+'.'+extension):
-	    error[1] = 'Now file exist'
-	    return error
-	    
-	ofname=basedir+'/'+outfname+'.'+extension
-
-	if gz:
-	    ofname=ofname+'.gz'
-	    
-	if r.status_code == 200:
-	    with open(ofname, 'wb') as f:
-    		for chunk in r.iter_content(1024*1024):
-        	    f.write(chunk)
-	    if gz:
-		PAR='gunzip '+ofname    	
-		RET=''
-		try:
-		    RET=s.check_output(PAR,shell=True)
-		except Exception,e:
-        	    print "error ungzip"+RET
-		    pass
-	    flist.append(outfname)
-	    return flist
-
-    if len(fname) == 2 and pair:
-
-	for i in range(2):
-	    r = session.get(download_page+'?file='+path[i]+'&name='+fname[i])
-	    outfname=make_fname(fname[i]) #+'_'+rnd
-	    
-	    ofname=basedir+'/'+outfname+'.'+extension
-	    if gz:
-		ofname=ofname+'.gz'
-		
-	    if os.path.isfile(basedir+'/'+outfname+'.'+extension):
-		error[1]='Now file exist'
-		return error
-	    
-	    if r.status_code == 200:
-		with open(ofname, 'wb') as f:
-    		    for chunk in r.iter_content(1024*1024):
-        		f.write(chunk)
-        	if gz:	
-		    PAR='gunzip '+ofname    	
-		    RET=''
-		    try:
-			RET=s.check_output(PAR,shell=True)
-		    except Exception,e:
-        		print "error ungzip"+RET
-			pass
-		
-		flist.append(outfname)	
-	return flist
-	
-    warning[1]='Cant find file'
-    return warning
-#### end of def get_file
-
-
+        if c == 0:
+            os.rename(i, basedir + '/' + filename + '.' + extension)
+            flist.append(filename + '.' + extension)
+            c = 1
+        else:
+            os.rename(i, basedir + '/' + filename + '_2.' + extension)
+            flist.append(filename + '_2.' + extension)
+    return flist
 
 
 ######################################################################
+def check_auth(url, auth):
+    lp = auth.split('@')[0]
+    username = lp.split(':')[0]
+    password = lp.split(':')[1]
+    url = url.replace(lp + '@', '')
+    req = urllib2.Request(url)
+    try:
+        r = urllib2.urlopen(req)
+    except IOError, e:
+        pass
+    if hasattr(e, 'code') and e.code == 401 and 'basic' in e.headers.get('www-authenticate', '').lower():
+        base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
+        authheader = "Basic %s" % base64string
+        req.add_header("Authorization", authheader)
+        try:
+            r = urllib2.urlopen(req)
+        except IOError, e:
+            return ['Warning', 'Wrong authorization ' + url]
+            pass
+    else:
+        return ['Warning', 'Unsupported authorization ' + e.headers.get('www-authenticate', '').lower()]
+        pass
+    return ['', r]
 
-def get_file(urlin,basedir,pair):
+
+######################################################################
+def decompress(fname, ofname):
+    cmd = ""
+    if re.search("\.gz$", fname):
+        cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
+        ofname += '.gz'
+    elif re.search("\.bz2$", fname):
+        cmd = 'bzcat "' + ofname + '.bz2" >>' + ofname + '; rm -f ' + ofname + '.bz2'
+        ofname += '.bz2'
+    elif re.search("\.zip$", fname):
+        cmd = 'unzip -p "' + ofname + '.zip" >>' + ofname + '; rm -f ' + ofname + '.zip'
+        ofname += '.zip'
+    elif re.search("\.sra$", fname):
+        cmd = 'fastq-dump -Z -B "' + ofname + '.sra" >>' + ofname + ' && rm -f ' + ofname + '.sra'
+        ofname += '.sra'
+    else:
+        cmd = 'cat "' + ofname + '.part" >>' + ofname + '; rm -f ' + ofname + '.part'
+        ofname += '.part'
+    return [cmd, ofname]
+
+
+######################################################################
+def get_file_url(urlin, basedir, filename, pair):
     #
-    flist=list()
+    flist = list()
 
-    ofname=str()
-    urls=urlin.split(';')
-    
+    ofname = str()
+    urls = urlin.split(';')
+
     for url in urls:
-	if len(url) == 0: 
-	    print "empty"
-	    continue
-	urlparsed=urlparse.urlparse(url)
-	if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
-	    warning[1]='ftp and http methods are supported'
-    	    return warning
+        if len(url) == 0:
+            continue
+        urlparsed = urlparse.urlparse(url)
+        if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
+            return ['Warning', 'ftp and http methods are supported']
 
-	if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
-	    lp=urlparsed[1].split('@')[0]
-	    username=lp.split(':')[0]
-	    password=lp.split(':')[1]
-	    url=url.replace(lp+'@','')
-	    req = urllib2.Request(url)
-	    try:
-		r = urllib2.urlopen(req)
-	    except IOError, e:
-		pass
-	    if hasattr(e, 'code') and e.code==401 and 'basic' in e.headers.get('www-authenticate', '').lower():
-		base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
-		authheader =  "Basic %s" % base64string
-		req.add_header("Authorization", authheader)
-		try:
-		    r = urllib2.urlopen(req)
-		except IOError, e:
-		    warning[1]='Wrong authorization '+url
-		    return warning
-		    pass
-	    else:
-		warning[1]='Unsupported authorization '+ e.headers.get('www-authenticate', '').lower()
-		return warning
-		pass
-	else:
-	    r = urllib2.urlopen(url)
-	    
-	if r.info().has_key('Content-Disposition'):
-	# If the response has Content-Disposition, we take file name from it
-	    fname = r.info()['Content-Disposition'].split('filename=')[1]
-	    if fname[0] == '"' or fname[0] == "'":
-		fname = fname[1:-1]
-	else:
-	    fname=os.path.basename(urlparse.urlparse(r.url)[2])
-	    
-	if len(fname)==0:
-	    fname="default_fastq"
+        if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
+            rc = check_auth(url, urlparsed[1])
+            if rc[0] != '':
+                return rc
+            r = rc[1]
+        else:
+            r = urllib2.urlopen(url)
 
-	if 'fastq' not in fname and 'sra' not in fname:
-	    warning[1]='File has to contain fastq string'
-	    return warning
-	#r.close();
-    	
+        # If the response has Content-Disposition, we take file name from it
+        if r.info().has_key('Content-Disposition'):
+            fname = r.info()['Content-Disposition'].split('filename=')[1]
+            if fname[0] == '"' or fname[0] == "'":
+                fname = fname[1:-1]
+        else:
+            fname = os.path.basename(urlparse.urlparse(r.url)[2])
+
+        if len(fname) == 0:
+            fname = "default_fastq"
+
+        if 'fastq' not in fname and 'sra' not in fname:
+            return ['Warning', 'File has to contain fastq string']
+
     if not pair:
-	outfname=make_fname(fname) #+'_'+str(random.randrange(10000,99999))
-	if os.path.isfile(basedir+'/'+outfname+'.'+extension):
-	    error[1] = 'Now file exist'
-	    return error
-	    
-	ofname=basedir+'/'+outfname+'.'+extension
+        if os.path.isfile(basedir + '/' + filename + '.' + extension):
+            return ['Error', 'Now file exist']
 
-	PAR=""
-	if re.search("\.gz$",fname):
-	    PAR='zcat '+ofname+'.gz >>'+ofname+'; rm -f '+ofname+'.gz'
-	    ofname=ofname+'.gz'
-	elif re.search("\.bz2$",fname):
-	    PAR='bzcat '+ofname+'.bz2 >>'+ofname+'; rm -f '+ofname+'.bz2'
-	    ofname=ofname+'.bz2'
-	elif re.search("\.zip$",fname):
-	    PAR='unzip -p '+ofname+'.zip >>'+ofname+'; rm -f '+ofname+'.zip'
-	    ofname=ofname+'.zip'
-	elif re.search("\.sra$",fname):
-	    PAR='fastq-dump -Z -B '+ofname+'.sra >>'+ofname+'; rm -f '+ofname+'.sra'
-	    ofname=ofname+'.sra'
-	else:
-	    PAR='cat '+ofname+'.part >>'+ofname+'; rm -f '+ofname+'.part'
-	    ofname=ofname+'.part'
-	
-	for url in urls:
-	    urlparsed=urlparse.urlparse(url)
-	    if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
-		lp=urlparsed[1].split('@')[0]
-		www=urlparsed[1].split('@')[1]
-		username=lp.split(':')[0]
-		password=lp.split(':')[1]
-		url=url.replace(lp+'@','')
-		req = urllib2.Request(url)
-		try:
-		    r = urllib2.urlopen(req)
-		except IOError, e:
-		    pass
-		if hasattr(e, 'code') and e.code==401 and 'basic' in e.headers.get('www-authenticate', '').lower():
-		    base64string = base64.encodestring('%s:%s' % (username, password))[:-1]
-		    authheader =  "Basic %s" % base64string
-		    req.add_header("Authorization", authheader)
-		    try:
-			r = urllib2.urlopen(req)
-		    except IOError, e:
-    			warning[1]='Cant download from '+url
-			return warning
-			pass
-		else:
-		    warning[1]='Unsupported authorization '+ e.headers.get('www-authenticate', '').lower()
-		    return warning
-		    pass
-	    else:
-		r = urllib2.urlopen(url)
-	    try:
-        	with open(ofname, 'wb') as f:
-            	    shutil.copyfileobj(r,f)
-    	    except Exception,e:
-    		warning[1]='Cant download from '+url
-		return warning
-    	    finally:
-        	r.close()
+        ofname = basedir + '/' + filename + '.' + extension
 
-	    RET=''
-	    try:
-		RET=s.check_output(PAR,shell=True)
-	    except Exception,e:
-    		warning[1]='Cant uncompress '+ofname
-		return warning
-	flist.append(outfname)
-	return flist
+        (cmd, ofname) = decompress(fname, ofname)
 
-    warning[1]='Cant find file'
-    return warning
+        for url in urls:
+            urlparsed = urlparse.urlparse(url)
+            if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
+                rc = check_auth(url, urlparsed[1])
+                if rc[0] != '':
+                    return rc
+                r = rc[1]
+            else:
+                r = urllib2.urlopen(url)
+
+            try:
+                with open(ofname, 'wb') as f:
+                    shutil.copyfileobj(r, f)
+            except Exception, e:
+                return ['Warning', 'Cant download from ' + url]
+            finally:
+                r.close()
+
+            try:
+                s.check_output(cmd, shell=True)
+            except Exception, e:
+                return ['Warning', 'Cant uncompress ' + ofname]
+        flist.append(filename)
+        return flist
+
+    return ['Warning', 'Cant find file']
+
+
 #### end of def get_file
 
 ######################################################################
+def get_file_core(USERNAME, PASSWORD, libcode, basedir, filename, pair):
+    if os.path.isfile(BIN + '/Core.py'):
+        with open(BIN + '/Core.py', 'r') as content_file:
+            content = content_file.read()
+        exec content
+        return get_core(USERNAME, PASSWORD, libcode, basedir, filename, pair)
+    else:
+        return ['Warning', 'Core module not supported']
 
+######################################################################
 
 pidfile = "/tmp/DownloadRequests.pid"
 d.check_running(pidfile)
 
-try:
-    conn = MySQLdb.connect (host = arguments.readString("SQLE/HOST"),user = arguments.readString("SQLE/USER"), passwd=arguments.readPass("SQLE/PASS"), db=arguments.readString("SQLE/DB"))
-    conn.set_character_set('utf8')
-    cursor = conn.cursor ()
-except Exception, e: 
-    Error_str=str(e)
-    error_msg("Error database connection"+Error_str)
 
-    
 #in future if exist stus 1 delete temporary donloaded files
-cursor.execute ("update labdata set libstatus=2000 where libstatus in (1)")
-cursor.execute ("update labdata set libstatus=0 where libstatus in (1000)")
-conn.commit()
-
+settings.cursor.execute("UPDATE labdata SET libstatus=2000 WHERE libstatus IN (1)")
+settings.cursor.execute("UPDATE labdata SET libstatus=0 WHERE libstatus IN (1000)")
+settings.conn.commit()
 
 while True:
-    row=[]
-    cursor.execute ("select dnalogin,dnapass,a.url,worker,a.id, etype e,w.email,w.notify,a.download_id from labdata a, worker w,experimenttype e "
-	" where a.worker_id =w.id and e.id=experimenttype_id "
-	" and (( dnalogin is not null and dnalogin <> '' and dnapass is not null and dnapass <> '' and a.download_id = 1) or a.download_id > 1 ) and url is not null and url <> '' and libstatus in (0) limit 1")
-    row = cursor.fetchone()
+    row = []
+    settings.cursor.execute(
+        "SELECT dnalogin,dnapass,l.url,l.uid, etype,w.email,w.notify,l.download_id,w.id "
+        " FROM labdata l, experimenttype e, worker w "
+        " WHERE l.worker_id = w.id AND e.id=experimenttype_id "
+        " AND (( COALESCE(dnalogin,'') <> '' AND COALESCE(dnapass,'') <> '' AND l.download_id = 1) OR l.download_id > 1 ) "
+        " AND deleted=0 AND COALESCE(url,'') <> '' AND libstatus IN (0) LIMIT 1")
+    row = settings.cursor.fetchone()
     if not row:
-	break
-    
-    notify=(int(row[7])==1)
-    url=row[2]
-    downloadid=int(row[8])
-    email=row[6]
-    
-    PAIR=('pair' in row[5])
-    SUBDIR='/DNA'
-    if 'RNA' in row[5]:
-	SUBDIR='/RNA'
+        break
 
-	
-    basedir=BASE_DIR+'/'+row[3].upper()+SUBDIR
+    notify = (int(row[6]) == 1)
+    UID = row[3]
+    url = row[2]
+    downloadid = int(row[7])
+    email = row[5]
+
+    PAIR = ('pair' in row[4])
+
+    basedir = PRELIMINARYDATA + '/' + UID
     try:
-	os.makedirs(basedir,0775)
+        os.makedirs(basedir, 0777)
+        os.lchmod(basedir, 0777)
     except:
-	pass
-    #print row[0]
-    a=list()
+        pass
+
+    a = list()
     if downloadid == 1:
-	cursor.execute("update labdata set libstatustxt='downloading',libstatus=1 where id=%s",row[4])
-	conn.commit()
-	a=get_file_core(row[0],row[1],url,basedir,PAIR)
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s", ('downloading', UID))
+        settings.conn.commit()
+        a = get_file_core(row[0], row[1], url, basedir, UID, PAIR)
     if downloadid == 2:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where id=%s",("URL downloading in proccess",row[4]))
-	conn.commit()
-	a=get_file(url,basedir,PAIR)
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s",
+                                ("URL downloading in proccess", UID))
+        settings.conn.commit()
+        a = get_file_url(url, basedir, UID, PAIR)
     if downloadid == 3:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",("Not supproted yet!",row[4]))
-	conn.commit()
-	continue		
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where uid=%s",
+                                ("Not supproted yet!", UID))
+        settings.conn.commit()
+        continue
 
     if 'Error' in a[0]:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where id=%s",(a[0]+":"+a[1],row[4]))
-	conn.commit()
-	if 'incorrect DNA core credentials' in a[1]:
-	    cursor.execute("update worker set dnapass='' where worker like %s",(row[3]))
-	    conn.commit()
-	continue
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where uid=%s",
+                                (a[0] + ":" + a[1], UID))
+        settings.conn.commit()
+        if 'incorrect DNA core credentials' in a[1]:
+            settings.cursor.execute("update worker set dnapass='' where id = %s", (row[8]))
+            settings.conn.commit()
+        continue
     if 'Warning' in a[0]:
-	cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where id=%s",(a[0]+":"+a[1],row[4]))
-	conn.commit()
-	continue
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where uid=%s",
+                                (a[0] + ":" + a[1], UID))
+        settings.conn.commit()
+        continue
 
-    if len(a)==1 and not PAIR:
-	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0],row[4]))
-    if len(a)==2 and PAIR:
-	cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where id=%s",(a[0]+";"+a[1],row[4]))
-
+    settings.cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where uid=%s",
+                            (UID, UID))
     if notify:
-    	d.send_mail(email,'Record #'+str(row[4])+' has been downloaded')
+        d.send_mail(email, 'Record #' + str(UID) + ' has been downloaded')
 
-    conn.commit()
-
-cursor.close()
-conn.commit()
-conn.close()
+settings.conn.commit()
+settings.cursor.close()
