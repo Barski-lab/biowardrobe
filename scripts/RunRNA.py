@@ -53,20 +53,8 @@ BIN = WARDROBEROOT + '/' + settings.settings['bin']
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
 
-extension = 'fastq'
-
 pidfile = "/tmp/runRNA.pid"
 d.check_running(pidfile)
-
-error = list()
-error.append('Error')
-error.append('')
-warning = list()
-warning.append('Warning')
-warning.append('')
-success = list()
-success.append('Success')
-success.append('')
 
 
 def run_tophat(infile, params, pair, force=False):
@@ -89,6 +77,7 @@ def run_tophat(infile, params, pair, force=False):
         os.unlink('./' + infile + '.bam')
         os.rename('./' + infile + '_s.bam', './' + infile + '.bam')
         s.check_output('samtools index ./' + infile + '.bam ', shell=True)
+        s.check_output('bzip2' + infile + '*.fastq', shell=True)
         return ['Success', ' Tophat finished']
     except Exception, e:
         return ['Error', str(e)]
