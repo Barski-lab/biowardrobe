@@ -55,31 +55,6 @@ BIN = WARDROBEROOT + '/' + settings.settings['bin']
 extension = 'fastq'
 
 
-
-######################################################################
-def local_file(downloaddir,basedir, libcode, filename, pair):
-    fl = glob.glob(downloaddir + '/' + libcode)
-    if len(fl) == 0:
-        fl = glob.glob(downloaddir + '/*' + libcode + '*')
-
-    flist = list()
-
-    if len(fl) > 0 and len(fl) != 2 and pair:
-        return ['Error', 'incorrect number of files for pair end reads']
-    if len(fl) > 0 and len(fl) != 1 and not pair:
-        return ['Error', 'incorrect number of files for single end reads']
-    c = 0
-    for i in fl:
-        if c == 0:
-            os.rename(i, basedir + '/' + filename + '.' + extension)
-            flist.append(filename + '.' + extension)
-            c = 1
-        else:
-            os.rename(i, basedir + '/' + filename + '_2.' + extension)
-            flist.append(filename + '_2.' + extension)
-    return flist
-
-
 ######################################################################
 def check_auth(url, auth):
     lp = auth.split('@')[0]
@@ -212,6 +187,38 @@ def get_file_core(USERNAME, PASSWORD, libcode, basedir, filename, pair):
     else:
         return ['Warning', 'Core module not supported']
 
+
+######################################################################
+def local_file(downloaddir,basedir, libcode, filename, pair):
+    fl = glob.glob(downloaddir + '/' + libcode)
+    if len(fl) == 0:
+        fl = glob.glob(downloaddir + '/*' + libcode + '*')
+
+    flist = list()
+
+    if len(fl) > 0 and len(fl) != 2 and pair:
+        return ['Error', 'incorrect number of files for pair end reads']
+    if len(fl) > 0 and len(fl) != 1 and not pair:
+        return ['Error', 'incorrect number of files for single end reads']
+    c = 0
+    for i in fl:
+        if c == 0:
+            os.rename(i, basedir + '/' + filename + '.' + extension)
+            flist.append(filename + '.' + extension)
+            c = 1
+        else:
+            os.rename(i, basedir + '/' + filename + '_2.' + extension)
+            flist.append(filename + '_2.' + extension)
+    return flist
+
+
+######################################################################
+def get_file_local(downloaddir,basedir, libcode, filename, pair):
+    return ""
+
+
+######################################################################
+
 ######################################################################
 
 pidfile = "/tmp/DownloadRequests.pid"
@@ -283,7 +290,10 @@ while True:
     settings.cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where uid=%s",
                             (UID, UID))
     if notify:
-        d.send_mail(email, 'Record #' + str(UID) + ' has been downloaded')
+        try:
+            d.send_mail(email, 'Record #' + str(UID) + ' has been downloaded')
+        except:
+            pass
 
 settings.conn.commit()
 settings.cursor.close()
