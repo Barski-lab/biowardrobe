@@ -165,12 +165,10 @@ def run_rpkm(infile, db, dutp, spike, antab, force=False):
         cmd += ' -rna_seq="RNA" '
     if not spike:
         cmd += ' -sam_ignorechr="control" '
+    cmd += ' >'+infile + '_rpkm_error.log 2>&1'
 
     try:
-        print cmd
-        errorout=str()
-        s.check_output(cmd,stderr=errorout, shell=True)
-        print errorout
+        s.check_output(cmd, shell=True)
         return ['Success', ' RPKMs was uploaded to genome browser']
     except Exception, e:
         return ['Error', str(e)]
