@@ -447,12 +447,12 @@ void FSTM::CreateTablesViews(void)
     if(!gArgs().getArgs("no-sql-upload").toBool())
     {
 
-        QString DROP_TBL= QString("DROP VIEW IF EXISTS %1_common_tss;").arg(gArgs().getArgs("sql_table").toString());
+        QString DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_common_tss`;").arg(gArgs().getArgs("sql_dbname").toString()).arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(DROP_TBL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
-        DROP_TBL= QString("DROP VIEW IF EXISTS %1_genes;").arg(gArgs().getArgs("sql_table").toString());
+        DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_genes`;").arg(gArgs().getArgs("sql_dbname").toString()).arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(DROP_TBL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
@@ -464,8 +464,8 @@ void FSTM::CreateTablesViews(void)
             RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
         }
 
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1;"
-                                     "CREATE TABLE %2 ( "
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
+                                     "CREATE TABLE `%3`.`%4` ( "
                                      "`refseq_id` VARCHAR(100) NOT NULL ,"
                                      "`gene_id` VARCHAR(100) NOT NULL ,"
                                      "`chrom` VARCHAR(45) NOT NULL,"
@@ -474,7 +474,7 @@ void FSTM::CreateTablesViews(void)
                                      "`strand` char(1),"
                                      "TOT_R_0   float,"
                                      "RPKM_0   float,"
-                                     "%3 "
+                                     "%5 "
                                      "INDEX refseq_id_idx (refseq_id) using btree,"
                                      "INDEX gene_id_idx (gene_id) using btree,"
                                      "INDEX chr_idx (chrom) using btree,"
@@ -483,7 +483,9 @@ void FSTM::CreateTablesViews(void)
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by readscounting';").
+                             arg(gArgs().getArgs("sql_dbname").toString()).
                              arg(gArgs().getArgs("sql_table").toString()).
+                             arg(gArgs().getArgs("sql_dbname").toString()).
                              arg(gArgs().getArgs("sql_table").toString()).
                              arg(RPKM_FIELDS);
 
@@ -501,7 +503,7 @@ void FSTM::CreateTablesViews(void)
 
 
         CREATE_TABLE=QString(
-                         "CREATE VIEW %1_common_tss AS "
+                         "CREATE VIEW `%1`.`%2_common_tss` AS "
                          "select "
                          "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
                          "group_concat(distinct gene_id   order by gene_id   separator ',') AS gene_id,"
@@ -511,12 +513,14 @@ void FSTM::CreateTablesViews(void)
                          "strand AS strand,"
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                         "%2 "
-                         "from %3 "
+                         "%3 "
+                         "from `%4`.`%5` "
                          "where strand = '+' "
                          "group by chrom,txStart,strand ").
+                     arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString()).
                      arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString())+
                      QString(
                          " union "
@@ -530,10 +534,11 @@ void FSTM::CreateTablesViews(void)
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                          "%1 "
-                         "from %2 "
+                         "from `%2`.`%3` "
                          "where strand = '-' "
                          "group by chrom,txEnd,strand ").
                      arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(CREATE_TABLE))
         {
@@ -541,7 +546,7 @@ void FSTM::CreateTablesViews(void)
         }
 
         CREATE_TABLE=QString(
-                         "CREATE VIEW %1_genes AS "
+                         "CREATE VIEW `%1`.`%2_genes` AS "
                          "select "
                          "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
                          "gene_id,"
@@ -551,11 +556,13 @@ void FSTM::CreateTablesViews(void)
                          "max(strand) AS strand,"
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                         "%2 "
-                         "from %3 "
+                         "%3 "
+                         "from `%4`.`%5` "
                          "group by gene_id ").
+                     arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString()).
                      arg(RPKM_FIELDS).
+                     arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString());
 
         if(!q.exec(CREATE_TABLE))

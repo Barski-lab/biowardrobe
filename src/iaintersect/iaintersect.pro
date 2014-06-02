@@ -13,15 +13,15 @@ QT       += sql
 
 
 
-DEFINES      += _WARDROBE_    \
-                D_USE_BAM \
-	        _NORMAL
+DEFINES      += _WARDROBE_  \
+                 D_USE_BAM  \
+                _NORMAL
 
 !win32{
 
 DEFINES                  += _APPNAME=\\\"$$TARGET\\\"
 LIBS                     += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-#QMAKE_CXXFLAGS           += -Werror 
+#QMAKE_CXXFLAGS          += -Werror 
 #-std=c++0x
 
 lib_bamtools.commands    = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
@@ -53,7 +53,7 @@ LIBS           += -lbamtools
 DEPENDPATH  +=  . \
                 ./src \
                 ../global \
-	        ../../thirdparty/bamtools 
+                ../../thirdparty/bamtools 
 
 INCLUDEPATH +=  . \
                 ./src \
@@ -63,10 +63,10 @@ INCLUDEPATH +=  . \
 
 
 HEADERS     +=  src/iaintersect.hpp \
-		../global/Arguments.hpp \
-		../global/Settings.hpp
-               
-               
+                ../global/Arguments.hpp \
+                ../global/Settings.hpp
+
+
 SOURCES     +=  src/main.cpp \
                 src/iaintersect.cpp \
 		../global/Arguments.cpp \

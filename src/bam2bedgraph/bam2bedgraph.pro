@@ -17,7 +17,7 @@ UI_DIR      = GeneratedFiles
 MOC_DIR     = GeneratedFiles
 RCC_DIR     = GeneratedFiles
 
-DEFINES     += _SQL_    \
+DEFINES     += _WARDROBE_    \
                D_USE_BAM
 
 !win32{
@@ -32,29 +32,22 @@ QMAKE_EXTRA_TARGETS   = lib_bamtools
 PRE_TARGETDEPS        = lib_bamtools
 
 INCLUDEPATH += /usr/local/include/
-
 }
 
 win32{
-
 DEFINES        += _APPNAME=\"$$TARGET\"
 LIBS           += -lbamtools
-
 }
 
 macx{
-
 QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
 QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
-
-INCLUDEPATH += /usr/include/boost
-               
 }
 
 
 DEPENDPATH +=  . \
                src \
-	       ../../thirdparty/bamtools \
+               ../../thirdparty/bamtools \
                ../global 
 
 INCLUDEPATH += . \
@@ -62,19 +55,19 @@ INCLUDEPATH += . \
                ../global \
                ../../thirdparty/bamtools
 
-
 HEADERS +=     ../global/Arguments.hpp \
                ../global/Reads.hpp \
                src/Bam2Bedgraph.hpp \
-    ../global/BEDHandler.hpp
-
+               ../global/BEDHandler.hpp \
+               ../global/Settings.hpp
 
 # Input
 SOURCES +=     src/main.cpp \
                ../global/Reads.cpp \
                src/Bam2Bedgraph.cpp \
-	       ../global/Arguments.cpp \
-    ../global/BEDHandler.cpp
+               ../global/Arguments.cpp \
+               ../global/BEDHandler.cpp \
+               ../global/Settings.cpp
 
 
 QMAKE_CLEAN += $${TARGET} logfile.log *~ ./src/*~ *.txt ../global/*~

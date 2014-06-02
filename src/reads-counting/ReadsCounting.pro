@@ -12,9 +12,9 @@ QT       -= gui
 QT       += sql
 
 
-DEFINES     += _SQL_     \
-               D_USE_BAM \
-	       _NORMAL
+DEFINES     += _WARDROBE_     \
+               D_USE_BAM      \
+               _NORMAL
 
 
 !win32{
@@ -70,6 +70,7 @@ HEADERS     +=  ../global/Arguments.hpp \
 		./src/Threads.hpp \
 		./src/ReadsCounting.hpp \
 		../global/Matrix.hpp \
+		../global/Settings.hpp \
 		../global/Math.hpp
 		
                
@@ -79,6 +80,7 @@ SOURCES     += \
 		../global/Reads.cpp \
                 ./src/Threads.cpp \
                 ./src/ReadsCounting.cpp \
+		  ../global/Settings.cpp \
                 ./src/main.cpp
 
 

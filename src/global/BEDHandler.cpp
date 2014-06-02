@@ -64,7 +64,6 @@ void BEDHandler::init(Storage& sam)
 
     if(no_sql_upload) return;
 
-#define trackDb_table QString("trackDb_local")
     QSqlDatabase db = QSqlDatabase::database();
     db.close();
     if (!db.open() ) {
@@ -72,47 +71,11 @@ void BEDHandler::init(Storage& sam)
         qDebug()<<qPrintable("Error connect to DB:"+sqlErr.text());
         throw "Error connect to DB";
     }
-    QString trackDb="CREATE TABLE IF NOT EXISTS %1 ("
-                    "tableName varchar(255) not null,"
-                    "shortLabel varchar(255) not null,"
-                    "type varchar(255) not null,"
-                    "longLabel varchar(255) not null,"
-                    "visibility tinyint unsigned not null,"
-                    "priority float not null,"
-                    "colorR tinyint unsigned not null,"
-                    "colorG tinyint unsigned not null,"
-                    "colorB tinyint unsigned not null,"
-                    "altColorR tinyint unsigned not null,"
-                    "altColorG tinyint unsigned not null,"
-                    "altColorB tinyint unsigned not null,"
-                    "useScore tinyint unsigned not null,"
-                    "private tinyint unsigned not null,"
-                    "restrictCount int not null,"
-                    "restrictList longblob not null,"
-                    "url longblob not null,"
-                    "html longblob not null,"
-                    "grp varchar(255) not null,"
-                    "canPack tinyint unsigned not null,"
-                    "settings longblob not null,"
-                    "PRIMARY KEY(tableName)"
-                    ") ENGINE=MyISAM DEFAULT CHARSET=utf8;";
-
-    if(!q.exec(trackDb.arg(trackDb_table))) {
-        qWarning()<<qPrintable("Create table query error. "+q.lastError().text());
-    }
-
-    if(!q.exec("DELETE IGNORE FROM "+trackDb_table+" WHERE tableName like '"+gArgs().getArgs("sql_table").toString()+"';")) {
-        qWarning()<<qPrintable("Delete from table query error. "+q.lastError().text());
-    }
 
     if(!q.exec("DROP TABLE IF EXISTS "+gArgs().getArgs("sql_table").toString()+";")) {
         qWarning()<<qPrintable("Drop table query error. "+q.lastError().text());
     }
 
-    QString tbl;
-    QString sql;
-    tbl=gArgs().getArgs("bed_trackname").toString();
-    tbl.replace('_'," ");
 
     switch(gArgs().getArgs("bed_format").toInt()) {
         case 4:
@@ -127,19 +90,6 @@ void BEDHandler::init(Storage& sam)
             {
                 qWarning()<<qPrintable("Create table error. "+q.lastError().text());
                 exit(-1);
-            }
-            sql=QString("insert ignore into "+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
-                        "colorR,colorG,colorB,"
-                        "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
-                        "values('%1','%2','bedGraph 4','%3',0,10,"
-                        "30,70,150,"
-                        "1,1,1,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(tbl).arg(tbl).
-                arg(gArgs().getArgs("sql_grp").toString());
-            if(!q.exec(sql))
-            {
-                qWarning()<<qPrintable("Insert record into trackDb query error. "+q.lastError().text());
             }
             sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name) VALUES";
         break;
@@ -156,19 +106,6 @@ void BEDHandler::init(Storage& sam)
                        ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
             {
                 qWarning()<<qPrintable("Create 1 query error. "+q.lastError().text());
-            }
-            sql=QString("insert ignore into "+trackDb_table+"(tablename,shortLabel,type,longLabel,visibility,priority,"
-                        "colorR,colorG,colorB,"
-                        "altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)"
-                        "values('%1','%2','PbedGraph 4','%3',0,10,"
-                        "1,1,1,"
-                        "1,1,1,0,0,0,'','','','%4',0,'autoScale on\nwindowingFunction maximum')").
-                arg(gArgs().getArgs("sql_table").toString()).
-                arg(tbl).arg(tbl).
-                arg(gArgs().getArgs("sql_grp").toString());
-            if(!q.exec(sql))
-            {
-                qWarning()<<qPrintable("Insert 1 query error. "+q.lastError().text());
             }
             sql_prep="START TRANSACTION; INSERT INTO "+gArgs().getArgs("sql_table").toString()+" (bin,chrom,chromStart,chromEnd,name,score,strand) VALUES";
         break;
