@@ -151,7 +151,7 @@ def run_rpkm(infile, db, dutp, spike, antab, force=False):
     if len(FL) == 1 and not force:
         return ['Success', ' Rpkm list uploaded']
 
-    cmd = 'ReadsCounting -sql_table="' + infile + '_isoforms" -in="' + infile + '.bam" -out="' + infile + '.csv" -log="' + infile + '_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
+    cmd = 'ReadsCounting -sql_table="' + infile + '" -in="' + infile + '.bam" -out="' + infile + '.csv" -log="' + infile + '_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
     cmd += '-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
     cmd += db + "." + antab + " where chrom not like '%\\_%' "
     if not spike:
