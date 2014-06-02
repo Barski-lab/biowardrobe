@@ -43,25 +43,18 @@ success=list()
 success.append('Success')
 success.append('')
 
-    
-def send_mail(toaddrs,body):
-    fromaddr='ems@ems.chmccorp.cchmc.org'
+
+def send_mail(toaddrs, body):
+    fromaddr = 'ems@ems.chmccorp.cchmc.org'
     # Add the From: and To: headers at the start!
     msg = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
-           % (fromaddr,toaddrs,body))
+           % (fromaddr, toaddrs, body))
     msg = msg + body
-                                                   
+
     server = smtplib.SMTP('localhost')
     server.set_debuglevel(1)
     server.sendmail(fromaddr, toaddrs, msg)
     server.quit()
-
-
-def error_msg(msg):
-    #print """
-    #	{"success": false, "message": "%s" }"""%(msg.replace('"','\\"'))
-    print """ %s """%(msg)
-    sys.exit()
 
 
 def check_pid(pid):
@@ -76,22 +69,22 @@ def check_pid(pid):
 
 def check_running(fname):
     if os.path.isfile(fname):
-        old_pid=file(fname, 'r').readline()
+        old_pid = file(fname, 'r').readline()
         if check_pid(int(old_pid)):
             sys.exit()
     file(fname, 'w').write(str(os.getpid()))
 
 
-def file_exist(basedir,fname,extension):
-    LIST=glob.glob(basedir+'/'+fname+'.'+extension)
-    return LIST
+def file_exist(basedir, fname, extension):
+    return glob.glob(basedir + '/' + fname + '.' + extension)
+
 
 def macs_data(infile):
     FRAGMENT=0
     ISLANDS=0
     FNAME=infile
     if ";" in infile:
-	FNAME=infile.split(";")[0]
+        FNAME=infile.split(";")[0]
     for line in open(FNAME+'_macs_peaks.xls'):
         if re.match('^# d = ',line):
             FRAGMENT=int(line.split('d = ')[1])
@@ -107,14 +100,14 @@ def macs_data(infile):
 def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
     FNAME=infile
     if ";" in infile:
-	FNAME=infile.split(";")[0]
+        FNAME=infile.split(";")[0]
 
     warnings.filterwarnings('ignore', category=MySQLdb.Warning) 
     cursor=conn.cursor()
 
     if len(file_exist('.',FNAME+'_macs_peaks','xls')) != 1:
-	error[1] = ' MACS peak file does not exist'
-	return error 
+        error[1] = ' MACS peak file does not exist'
+        return error
 
     table_name=dbexp+'.`'+FNAME+'_macs`' #FIXME
     
@@ -273,81 +266,61 @@ def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
 	error[1]=str(e)+RET
 	return error
 
-def run_bedgraph(infile,group,name4browser,bedformat,db,fragment,isRNA,force=None):
-    pair=False
-    FN=infile
-    if ";" in infile:
-	pair=True
-	FN=infile.split(";")[0]
-        
-    if force:
-	FL=file_exist('.',FN,'log')
-	if len(FL) == 1:
-	    os.unlink(FL[0])
 
-    if len(file_exist('.',FN,'log')) == 1:
-	success[1]=' Bedgraph uploaded'
-	return success
+def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
+    FL = file_exist('.', infile, 'log')
 
-    PAR='bam2bedgraph -sql_table="'+FN+'" -in="'+FN+'.bam" -out="'+FN+'.out" -log="'+FN+'.log"'+' -bed_trackname="'+name4browser+'" -sql_grp="'+group+'" -bed_format='+bedformat+' -no-bed-file '
-    PAR=PAR+' -sql_host=localhost -sql_dbname='+db
-    if isRNA==1:	
-	PAR=PAR+' -bed_type=2 -rna_seq="RNA" '
-    elif isRNA==2:	
-	PAR=PAR+' -bed_type=2 -rna_seq="dUTP" '
+    if force and len(FL) == 1:
+        os.unlink(FL[0])
+
+    if len(file_exist('.', infile, 'log')) == 1:
+        return ['Success', ' Bedgraph uploaded']
+
+    cmd = 'bam2bedgraph -sql_table="\`'+db+'\`.\`' + infile + '_wtrack\`" -in="' + infile + '.bam" -out="'
+    cmd += infile + '.out" -log="' + infile + '.log"' + ' -bed_format=' + bedformat + ' -no-bed-file '
+
+    if isRNA == 1:
+        cmd += ' -bed_type=2 -rna_seq="RNA" '
+    elif isRNA == 2:
+        cmd += ' -bed_type=2 -rna_seq="dUTP" '
     else:
-	if pair:
-	    PAR=PAR+' -bed_type=2 '
-	else:
-	    PAR=PAR+' -bed_window='+str(fragment)+' -bed_siteshift='+str(fragment/2)
-	    PAR=PAR+' -bed_type=3 '
-	    
-    PAR=PAR+' -bed_normalize '
-    
-    RET=''
+        if pair:
+            cmd += ' -bed_type=2 '
+        else:
+            cmd += ' -bed_window=' + str(fragment) + ' -bed_siteshift=' + str(fragment / 2)
+            cmd += ' -bed_type=3 '
+
+    cmd += ' -bed_normalize '
     try:
-	RET=s.check_output(PAR,shell=True)
-	success[1]=' Upload to genome browser success'
-	return success
-    except Exception,e:
-	error[1]=str(e)
-	return error
+        s.check_output(cmd, shell=True)
+        return ['Success', ' Upload to genome browser success']
+    except Exception, e:
+        return ['Error', str(e)]
 
 
-def run_fence(infile):
-    PAR=''
-    if ";" in infile:
-	FN=infile.split(";")
-	if len(file_exist('.',FN[0],'fence')) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in="'+infile+'" >'+FN[0]+'.fence'
-    else:	
-	FL=file_exist('.',infile,'fence')
-	if len(FL) == 1:
-	    success[1]='Fence file exists'
-	    return success
-	PAR='fence.py --in=./'+infile+'.fastq >'+infile+'.fence'
-
-    RET=''
+def run_fence(infile, pair):
+    if len(file_exist('.', infile, 'fence')) == 1:
+        return ['Success', 'Fence file exists']
+    if pair:
+        cmd = 'fence.py --in="' + infile + ';' + infile + '_2" >' + infile + '.fence'
+    else:
+        cmd = 'fence.py --in="' + infile + '" >' + infile + '.fence'
     try:
-	RET=s.Popen(PAR,shell=True)
-	success[1]=' Fence backgrounded'
-	return success
-    except Exception,e:
-	error[1]=str(e)
-	return error
+        s.Popen(cmd, shell=True)
+        return ['Success', ' Fence backgrounded']
+    except Exception, e:
+        return ['Error', str(e)]
+
 
 def run_atp(lid):
-
     PAR='averagedensity -avd_lid='+str(lid)+' -log="./AverageTagDensity.log" -sql_host="localhost" -sql_dbname="ems" '
     PAR=PAR+' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" '
 
     RET=''
     try:
-	RET=s.check_output(PAR,shell=True)
-	success[1]=' ATP finished '
-	return success
+        RET=s.check_output(PAR,shell=True)
+        success[1]=' ATP finished '
+        return success
     except Exception,e:
-	error[1]=str(e)+RET
-	return error
+        error[1]=str(e)+RET
+        return error

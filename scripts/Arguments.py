@@ -24,7 +24,7 @@
 
 import os
 import sys
-from PyQt4 import QtCore, QtGui
+#from PyQt4 import QtCore, QtGui
 from optparse import OptionParser
 
 ##
@@ -46,9 +46,9 @@ class Arguments:
 	self.parser.add_option("", "--id", action="store", type="int",
                   dest="id", help="record id", metavar="<int>")
 	(self.opt, args) = self.parser.parse_args(self.argv)
-	self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.UserScope,"genome-tools")
-	if not self.settings.isWritable():
- 	 self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.SystemScope,"genome-tools")
+	# self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.UserScope,"genome-tools")
+	# if not self.settings.isWritable():
+ 	#  self.settings = QtCore.QSettings(QtCore.QSettings.IniFormat,QtCore.QSettings.SystemScope,"genome-tools")
 
 
 
@@ -58,10 +58,10 @@ class Arguments:
 	    sys.exit(1)
 
 
-    def readPass(self,name):
-	return str(QtCore.qUncompress(QtCore.QByteArray.fromBase64(self.settings.value(name, QtCore.QVariant()).toByteArray())))
+    # def readPass(self,name):
+	# return str(QtCore.qUncompress(QtCore.QByteArray.fromBase64(self.settings.value(name, QtCore.QVariant()).toByteArray())))
 
-    def readString(self,name):
-	return str(self.settings.value(name, QtCore.QVariant()).toString())
+    # def readString(self,name):
+	# return str(self.settings.value(name, QtCore.QVariant()).toString())
 
 

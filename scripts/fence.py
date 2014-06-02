@@ -9,7 +9,7 @@ import os
 import sys
 import Arguments
 
-from PyQt4 import QtCore, QtGui
+#from PyQt4 import QtCore, QtGui
 from optparse import OptionParser
 
 arguments = Arguments.Arguments(sys.argv)
