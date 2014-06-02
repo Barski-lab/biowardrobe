@@ -304,7 +304,7 @@ def run_fence(infile, pair):
     if pair:
         cmd = 'fence.py --in="' + infile + ';' + infile + '_2" >' + infile + '.fence'
     else:
-        cmd = 'fence.py --in="' + infile + '" >' + infile + '.fence'
+        cmd = 'fence.py --in="' + infile + '.fastq" >' + infile + '.fence'
     try:
         s.Popen(cmd, shell=True)
         return ['Success', ' Fence backgrounded']
