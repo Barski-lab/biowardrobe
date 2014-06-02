@@ -253,7 +253,7 @@ while True:
     basedir = PRELIMINARYDATA + '/' + UID
     try:
         os.makedirs(basedir, 0777)
-        os.lchmod(basedir, 0777)
+        os.chmod(basedir, 0777)
     except:
         pass
 
@@ -289,11 +289,11 @@ while True:
 
     settings.cursor.execute("update labdata set libstatustxt='downloaded',libstatus=2,filename=%s where uid=%s",
                             (UID, UID))
+    settings.conn.commit()
     if notify:
         try:
             d.send_mail(email, 'Record #' + str(UID) + ' has been downloaded')
         except:
             pass
 
-settings.conn.commit()
 settings.cursor.close()
