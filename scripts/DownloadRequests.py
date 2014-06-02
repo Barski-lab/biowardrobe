@@ -40,7 +40,7 @@ import urlparse
 import urllib2
 import shutil
 import base64
-
+import string
 
 print str(datetime.datetime.now())
 
@@ -83,6 +83,7 @@ def check_auth(url, auth):
 
 ######################################################################
 def decompress(fname, ofname):
+    ofname=string.replace(ofname, "//", "/")
     cmd = ""
     if re.search("\.gz$", fname):
         cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
