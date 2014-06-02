@@ -270,7 +270,7 @@ void FSTM::WriteResult()
     this->CreateTablesViews();
 
     QString SQL_QUERY_BASE=QString("insert into `%1`.`%2` values ").
-                           gArgs().getArgs("sql_dbname").toString().
+                           arg(gArgs().getArgs("sql_dbname").toString()).
                            arg(gArgs().getArgs("sql_table").toString());
 
     foreach(const QString &chr,isoforms[0][0].keys())
