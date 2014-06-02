@@ -104,10 +104,12 @@ def decompress(fname, ofname):
 
 
 ######################################################################
-def get_file_url(urlin, basedir, filename, pair):
-    #
-    flist = list()
+def get_file_url(urlin, basedir, filename, pair, force=False):
 
+    if not force and os.path.isfile(basedir + '/' + filename + '.' + extension):
+        return ['Error', 'File already exist, possible mistake when download']
+
+    flist = list()
     ofname = str()
     urls = urlin.split(';')
 
@@ -141,9 +143,6 @@ def get_file_url(urlin, basedir, filename, pair):
             return ['Warning', 'File has to contain fastq string']
 
     if not pair:
-        #if os.path.isfile(basedir + '/' + filename + '.' + extension):
-        #    return ['Error', 'Now file exist']
-
         ofname = basedir + '/' + filename + '.' + extension
 
         (cmd, ofname) = decompress(fname, ofname)
@@ -254,6 +253,9 @@ while True:
     basedir = PRELIMINARYDATA + '/' + UID
     try:
         os.makedirs(basedir, 0777)
+    except:
+        pass
+    try:
         os.chmod(basedir, 0777)
     except:
         pass
