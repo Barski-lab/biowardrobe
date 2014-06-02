@@ -269,7 +269,7 @@ void FSTM::WriteResult()
 
     this->CreateTablesViews();
 
-    QString SQL_QUERY_BASE=QString("insert into `%1`.`%2` values ").
+    QString SQL_QUERY_BASE=QString("insert into `%1`.`%2_isoforms` values ").
                            arg(gArgs().getArgs("sql_dbname").toString()).
                            arg(gArgs().getArgs("sql_table").toString());
 
@@ -465,8 +465,8 @@ void FSTM::CreateTablesViews(void)
             RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
         }
 
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
-                                     "CREATE TABLE `%3`.`%4` ( "
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_isoforms`;"
+                                     "CREATE TABLE `%3`.`%4_isoforms` ( "
                                      "`refseq_id` VARCHAR(100) NOT NULL ,"
                                      "`gene_id` VARCHAR(100) NOT NULL ,"
                                      "`chrom` VARCHAR(45) NOT NULL,"
@@ -515,7 +515,7 @@ void FSTM::CreateTablesViews(void)
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                          "%3 "
-                         "from `%4`.`%5` "
+                         "from `%4`.`%5_isoforms` "
                          "where strand = '+' "
                          "group by chrom,txStart,strand ").
                      arg(gArgs().getArgs("sql_dbname").toString()).
@@ -535,7 +535,7 @@ void FSTM::CreateTablesViews(void)
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                          "%1 "
-                         "from `%2`.`%3` "
+                         "from `%2`.`%3_isoforms` "
                          "where strand = '-' "
                          "group by chrom,txEnd,strand ").
                      arg(RPKM_FIELDS).
@@ -558,7 +558,7 @@ void FSTM::CreateTablesViews(void)
                          "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
                          "coalesce(sum(RPKM_0),0) AS RPKM_0 "
                          "%3 "
-                         "from `%4`.`%5` "
+                         "from `%4`.`%5_isoforms` "
                          "group by gene_id ").
                      arg(gArgs().getArgs("sql_dbname").toString()).
                      arg(gArgs().getArgs("sql_table").toString()).
