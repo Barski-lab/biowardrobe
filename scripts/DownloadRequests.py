@@ -233,7 +233,7 @@ settings.conn.commit()
 while True:
     row = []
     settings.cursor.execute(
-        "SELECT dnalogin,dnapass,l.url,l.uid, etype,w.email,w.notify,l.download_id,w.id "
+        "SELECT dnalogin,dnapass,l.url,l.uid, etype,w.email,w.notify,l.download_id,w.id,forcerun "
         " FROM labdata l, experimenttype e, worker w "
         " WHERE l.worker_id = w.id AND e.id=experimenttype_id "
         " AND (( COALESCE(dnalogin,'') <> '' AND COALESCE(dnapass,'') <> '' AND l.download_id = 1) OR l.download_id > 1 ) "
@@ -247,7 +247,7 @@ while True:
     url = row[2]
     downloadid = int(row[7])
     email = row[5]
-
+    forcerun = (int(row[9]) == 1)
     PAIR = ('pair' in row[4])
 
     basedir = PRELIMINARYDATA + '/' + UID
@@ -269,7 +269,7 @@ while True:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s",
                                 ("URL downloading in proccess", UID))
         settings.conn.commit()
-        a = get_file_url(url, basedir, UID, PAIR)
+        a = get_file_url(url, basedir, UID, PAIR, forcerun)
     if downloadid == 3:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where uid=%s",
                                 ("Not supproted yet!", UID))
