@@ -151,23 +151,26 @@ def run_rpkm(infile, db, dutp, spike, antab, force=False):
     if len(FL) == 1 and not force:
         return ['Success', ' Rpkm list uploaded']
 
-    PAR = 'ReadsCounting -sql_table="' + infile + '_isoforms" -in="' + infile + '.bam" -out="' + infile + '.csv" -log="' + infile + '_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
-    PAR += '-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
-    PAR += db + "." + antab + " where chrom not like '%\\_%' "
+    cmd = 'ReadsCounting -sql_table="' + infile + '_isoforms" -in="' + infile + '.bam" -out="' + infile + '.csv" -log="' + infile + '_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
+    cmd += '-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
+    cmd += db + "." + antab + " where chrom not like '%\\_%' "
     if not spike:
-        PAR += " and chrom not like 'control%' "
-    PAR += " order by chrom,strand,txStart,txEnd"
-    PAR += '" -sql_dbname=' + EDB + ' -threads=4 -math-converging="arithmetic" -no-file '
+        cmd += " and chrom not like 'control%' "
+    cmd += " order by chrom,strand,txStart,txEnd"
+    cmd += '" -sql_dbname=' + EDB + ' -threads=4 -math-converging="arithmetic" -no-file '
 
     if dutp:
-        PAR = PAR + ' -rna_seq="dUTP" '
+        cmd += ' -rna_seq="dUTP" '
     else:
-        PAR = PAR + ' -rna_seq="RNA" '
+        cmd += ' -rna_seq="RNA" '
     if not spike:
-        PAR = PAR + ' -sam_ignorechr="control" '
+        cmd += ' -sam_ignorechr="control" '
 
     try:
-        s.check_output(PAR, shell=True)
+        print cmd
+        errorout=str()
+        s.check_output(cmd,stderr=errorout, shell=True)
+        print errorout
         return ['Success', ' RPKMs was uploaded to genome browser']
     except Exception, e:
         return ['Error', str(e)]
@@ -281,7 +284,7 @@ while True:
 
     a = get_stat(UID,PAIR)
     settings.cursor.execute(
-        "update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
+        "update labdata set libstatustxt='RPKMs calculating',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
         (a[0], a[1], a[2], UID))
     settings.conn.commit()
 
@@ -292,6 +295,6 @@ while True:
         settings.conn.commit()
         continue
 
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=12 where uid=%s", (a[0] + ": " + a[1], UID))
+    settings.cursor.execute("update labdata set libstatustxt='Complete',libstatus=12 where uid=%s", (UID,))
     settings.conn.commit()
 
