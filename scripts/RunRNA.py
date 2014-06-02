@@ -85,6 +85,10 @@ def run_tophat(infile, params, pair, force=False):
         if len(d.file_exist('./' + outdir, 'accepted_hits', 'bam')) != 1:
             return ['Error', 'accepted_hits.bam does not exist']
         os.rename('./' + outdir + '/accepted_hits.bam', './' + infile + '.bam')
+        s.check_output('samtools sort ./' + infile + '.bam ' +infile+"_s ", shell=True)
+        os.unlink('./' + infile + '.bam')
+        os.rename('./' + infile + '_s.bam', './' + infile + '.bam')
+        s.check_output('samtools index ./' + infile + '.bam ', shell=True)
         return ['Success', ' Tophat finished']
     except Exception, e:
         return ['Error', str(e)]
