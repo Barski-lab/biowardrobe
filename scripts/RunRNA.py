@@ -279,7 +279,7 @@ while True:
     except:
         pass
 
-    a = get_stat(UID)
+    a = get_stat(UID,PAIR)
     settings.cursor.execute(
         "update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
         (a[0], a[1], a[2], UID))
@@ -294,4 +294,4 @@ while True:
 
     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=12 where uid=%s", (a[0] + ": " + a[1], UID))
     settings.conn.commit()
-    
+

@@ -32,6 +32,7 @@ import re
 import random
 import MySQLdb 
 import warnings
+import string
 
 error=list()
 error.append('Error')
@@ -276,7 +277,7 @@ def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
     if len(file_exist('.', infile, 'log')) == 1:
         return ['Success', ' Bedgraph uploaded']
 
-    cmd = 'bam2bedgraph -sql_table="\`'+db+'\`.\`' + infile + '_wtrack\`" -in="' + infile + '.bam" -out="'
+    cmd = 'bam2bedgraph -sql_table="\`' + db + '\`.\`' + string.replace(infile, "-", "_") + '_wtrack\`" -in="' + infile + '.bam" -out="'
     cmd += infile + '.out" -log="' + infile + '.log"' + ' -bed_format=' + bedformat + ' -no-bed-file '
 
     if isRNA == 1:
