@@ -141,8 +141,8 @@ def get_file_url(urlin, basedir, filename, pair):
             return ['Warning', 'File has to contain fastq string']
 
     if not pair:
-        if os.path.isfile(basedir + '/' + filename + '.' + extension):
-            return ['Error', 'Now file exist']
+        #if os.path.isfile(basedir + '/' + filename + '.' + extension):
+        #    return ['Error', 'Now file exist']
 
         ofname = basedir + '/' + filename + '.' + extension
 
