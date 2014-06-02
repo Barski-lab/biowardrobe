@@ -225,12 +225,12 @@ void Arguments::argsList(void)
 
     /*
     Arguments::addArg("sql_driver","sql_driver","SQL/DRIVER",QVariant::String,"Database driver",QString("QMYSQL"));
-    Arguments::addArg("sql_dbname","sql_dbname","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));
     Arguments::addArg("sql_host","sql_host","SQL/HOST",QVariant::String,"Database hostname",QString("localhost"));
     Arguments::addArg("sql_port","sql_port","SQL/PORT",QVariant::Int,"Database port",3306);
     Arguments::addArg("sql_user","sql_user","SQL/USER",QVariant::String,"Database user",QString("root"));
     Arguments::addArg("sql_pass","sql_pass","SQL/PASS",QVariant::ByteArray,"Database pass","",false,true);
     */
+    Arguments::addArg("sql_dbname","sql_dbname","SQL/DBNAME",QVariant::String,"Database name",QString("hg19"));
     Arguments::addArg("sql_query1","sql_query1","QUERIES/Q1",QVariant::String,"Q1","");
     Arguments::addArg("sql_query2","sql_query2","QUERIES/Q2",QVariant::String,"Q2","");
     Arguments::addArg("sql_query3","sql_query3","QUERIES/Q3",QVariant::String,"Q3","");
