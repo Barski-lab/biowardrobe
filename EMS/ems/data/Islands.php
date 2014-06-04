@@ -49,7 +49,7 @@ if ($describe[0]['Field'] != "refseq_id" || $promoter) {
     if (!$promoter) $promoter = 1000;
     ignore_user_abort(true);
     set_time_limit(600);
-    $command = "${BIN}/iaintersect -uid=\"{$uid}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
+    $command = "{$BIN}/iaintersect -uid=\"{$uid}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
     exec($command, $output, $retval);
     if ($retval != 0)
         $response->print_error("Cant execute command " . print_r($output, true));

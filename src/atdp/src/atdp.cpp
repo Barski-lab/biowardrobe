@@ -58,6 +58,7 @@ ATDP::ATDP(QObject* parent):
 void ATDP::start() {
 
     EXPERIMENT_INFO* exp_i;
+    bool preliminary_atdp=false;
 
     qDebug()<<"start";
 
@@ -65,6 +66,7 @@ void ATDP::start() {
      * Prepare experiments to proccess
      */
     if(!gArgs().getArgs("avd_luid").toString().isEmpty()) {
+        preliminary_atdp=true;
         this->getRecordInfo();
     } else if(!gArgs().getArgs("avd_guid").toString().isEmpty()) {
         this->getRecordsInfo();
