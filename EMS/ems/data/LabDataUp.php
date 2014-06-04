@@ -42,7 +42,7 @@ class UpLabData extends AbstractTableDataProcessing
         if ($field == "forcerun" && intval($value)>0) {
             if ($worker->isLocalAdmin() || $worker->isAdmin()) {
                 $this->up_sql("libstatus",10);
-                $this->setwhere("libstatus", 10, " and (libstatus > ? and libstatus not between 1000 and 1009 and libstatus not between 2000 and 2009 or forcerun=1)");
+                $this->setwhere("libstatus", 10, " and (libstatus > ? and libstatus not between 1000 and 1009 and libstatus not between 2000 and 2009)");
                 $this->up_sql("libstatustxt","ready to be analyzed");
                 $this->up_sql("forcerun",1);
             }
