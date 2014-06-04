@@ -270,7 +270,7 @@ void FSTM::WriteResult()
     this->CreateTablesViews();
 
     QString SQL_QUERY_BASE=QString("insert into `%1`.`%2_isoforms` values ").
-                           arg(gArgs().getArgs("sql_dbname").toString()).
+                           arg(gSettings().getValue("experimentsdb")).
                            arg(gArgs().getArgs("sql_table").toString());
 
     foreach(const QString &chr,isoforms[0][0].keys())
@@ -448,12 +448,12 @@ void FSTM::CreateTablesViews(void)
     if(!gArgs().getArgs("no-sql-upload").toBool())
     {
 
-        QString DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_common_tss`;").arg(gArgs().getArgs("sql_dbname").toString()).arg(gArgs().getArgs("sql_table").toString());
+        QString DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_common_tss`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(DROP_TBL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
-        DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_genes`;").arg(gArgs().getArgs("sql_dbname").toString()).arg(gArgs().getArgs("sql_table").toString());
+        DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_genes`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(DROP_TBL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
@@ -484,9 +484,9 @@ void FSTM::CreateTablesViews(void)
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by readscounting';").
-                             arg(gArgs().getArgs("sql_dbname").toString()).
+                             arg(gSettings().getValue("experimentsdb")).
                              arg(gArgs().getArgs("sql_table").toString()).
-                             arg(gArgs().getArgs("sql_dbname").toString()).
+                             arg(gSettings().getValue("experimentsdb")).
                              arg(gArgs().getArgs("sql_table").toString()).
                              arg(RPKM_FIELDS);
 
@@ -518,10 +518,10 @@ void FSTM::CreateTablesViews(void)
                          "from `%4`.`%5_isoforms` "
                          "where strand = '+' "
                          "group by chrom,txStart,strand ").
-                     arg(gArgs().getArgs("sql_dbname").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString()).
                      arg(RPKM_FIELDS).
-                     arg(gArgs().getArgs("sql_dbname").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString())+
                      QString(
                          " union "
@@ -539,7 +539,7 @@ void FSTM::CreateTablesViews(void)
                          "where strand = '-' "
                          "group by chrom,txEnd,strand ").
                      arg(RPKM_FIELDS).
-                     arg(gArgs().getArgs("sql_dbname").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString());
         if(!q.exec(CREATE_TABLE))
         {
@@ -560,10 +560,10 @@ void FSTM::CreateTablesViews(void)
                          "%3 "
                          "from `%4`.`%5_isoforms` "
                          "group by gene_id ").
-                     arg(gArgs().getArgs("sql_dbname").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString()).
                      arg(RPKM_FIELDS).
-                     arg(gArgs().getArgs("sql_dbname").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString());
 
         if(!q.exec(CREATE_TABLE))
