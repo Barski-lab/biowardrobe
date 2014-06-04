@@ -211,14 +211,18 @@ abstract class AbstractTableDataProcessing
         }
     }
 
-    protected function up_sql($field, $value)
+    protected function up_sql($field, $value, $inject = false)
     {
-        if ($value == NULL)
-            $this->SQL_STR .= "{$field}=null,";
-        else {
-            $this->SQL_STR .= "{$field}=?,";
-            $this->PARAMS[] = $value;
-            $this->PARAMS[0] .= $this->types[$field];
+        if ($inject) {
+            $this->SQL_STR .= "{$field}{$value}";
+        } else {
+            if ($value == NULL)
+                $this->SQL_STR .= "{$field}=null,";
+            else {
+                $this->SQL_STR .= "{$field}=?,";
+                $this->PARAMS[] = $value;
+                $this->PARAMS[0] .= $this->types[$field];
+            }
         }
     }
 

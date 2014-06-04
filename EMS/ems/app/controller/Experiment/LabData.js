@@ -201,7 +201,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
             genome_id: data['genome_id'],
             crosslink_id: data['crosslink_id'],
             fragmentation_id: data['fragmentation_id'],
-            antibody_id: data['antibody_id'],
+            antibody_id: data['antibody_id']?data['antibody_id']:"antibody-0000-0000-0000-000000000001",
             antibodycode: data['antibodycode'],
             experimenttype_id: data['experimenttype_id'],
             cells: data['cells'],
