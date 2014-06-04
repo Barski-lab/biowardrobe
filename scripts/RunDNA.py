@@ -151,9 +151,9 @@ while True:
 
     OK = True
 
-    if len(d.file_exist('.', UID, 'fastq')) != 1:
+    if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID, 'fastq.bz2')) != 1:
         OK = False
-    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1:
+    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_2", 'fastq.bz2')) != 1:
         OK = False
     if not OK:
         settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
@@ -168,9 +168,6 @@ while True:
 
     if check_error(run_bowtie(UID, FINDEX, PAIR),UID):
         continue
-
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where uid=%s",(a[0]+": "+a[1],UID))
-    settings.conn.commit()
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
     MACSER = False
@@ -205,8 +202,8 @@ while True:
     if check_error(d.run_bedgraph(UID, BEDFORMAT, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where uid=%s", (a[0] + ": " + a[1], UID))
-    settings.conn.commit()
+    if check_error(get_stat(UID), UID):
+        continue
 
     # a=d.run_atp(UID)
     # if type(a[0]) == str and 'Error' in a[0]:
@@ -214,7 +211,6 @@ while True:
     #     settings.conn.commit()
     #     continue
     #
-    # #statistics must be followed last update
     # a=get_stat(UID)
     # if type(a[0]) == str and 'Error' in a[0]:
     #     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",(a[0]+": "+a[1],UID))
