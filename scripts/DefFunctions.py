@@ -1,5 +1,6 @@
-#! /usr/bin/env python
-##/****************************************************************************
+#!/usr/bin/env python
+
+# #/****************************************************************************
 ##**
 ##** Copyright (C) 2011 Andrey Kartashov .
 ##** All rights reserved.
@@ -26,23 +27,13 @@ import sys
 
 import smtplib
 import glob
-import subprocess as s # import call
+import subprocess as s
 import time
 import re
 import random
 import MySQLdb 
 import warnings
 import string
-
-error=list()
-error.append('Error')
-error.append('')
-warning=list()
-warning.append('Warning')
-warning.append('')
-success=list()
-success.append('Success')
-success.append('')
 
 
 def send_mail(toaddrs, body):
@@ -81,191 +72,125 @@ def file_exist(basedir, fname, extension):
 
 
 def macs_data(infile):
-    FRAGMENT=0
-    ISLANDS=0
-    FNAME=infile
-    if ";" in infile:
-        FNAME=infile.split(";")[0]
-    for line in open(FNAME+'_macs_peaks.xls'):
-        if re.match('^# d = ',line):
-            FRAGMENT=int(line.split('d = ')[1])
+    FRAGMENT = 0
+    ISLANDS = 0
+    FNAME = infile
+    for line in open(FNAME + '_macs_peaks.xls'):
+        if re.match('^# d = ', line):
+            FRAGMENT = int(line.split('d = ')[1])
             continue
-        if re.match('^#',line):
+        if re.match('^#', line):
             continue
         if line.strip() != "":
-            ISLANDS=ISLANDS+1
-    ISLANDS=ISLANDS-1 #header
-    return [FRAGMENT,ISLANDS]
+            ISLANDS = ISLANDS + 1
+    ISLANDS = ISLANDS - 1  # header
+    return [FRAGMENT, ISLANDS]
 
 
-def upload_macsdata(conn,infile,dbexp,db,NAME,grp,share=False):
-    FNAME=infile
-    if ";" in infile:
-        FNAME=infile.split(";")[0]
+def upload_macsdata(conn, infile, dbexp, db):
+    warnings.filterwarnings('ignore', category=MySQLdb.Warning)
+    cursor = conn.cursor()
 
-    warnings.filterwarnings('ignore', category=MySQLdb.Warning) 
-    cursor=conn.cursor()
+    if len(file_exist('.', infile + '_macs_peaks', 'xls')) != 1:
+        return ['Error', ' MACS peak file does not exist']
 
-    if len(file_exist('.',FNAME+'_macs_peaks','xls')) != 1:
-        error[1] = ' MACS peak file does not exist'
-        return error
+    table_name = dbexp + '.`' + infile + '_islands`'
+    gb_table_name = db + '.`' + infile + '_islands`'
 
-    table_name=dbexp+'.`'+FNAME+'_macs`' #FIXME
-    
-    cursor.execute ("DROP TABLE IF EXISTS "+table_name)
-    cursor.execute ("""
-       CREATE TABLE """+table_name+"""
-        (
-    chrom varchar(255) NOT NULL,
-    start int(10) unsigned NOT NULL,
-    end int(10) unsigned NOT NULL,
-    length int(10) unsigned NOT NULL,
-    abssummit int(10),
-    pileup float, 
-    log10p float,
-    foldenrich float,
-    log10q float,
-    INDEX chrom_idx (chrom) using btree,
-    INDEX start_idx (start) using btree,
-    INDEX end_idx (end) using btree
+    cursor.execute("DROP TABLE IF EXISTS " + table_name)
+    cursor.execute(""" CREATE TABLE """ + table_name + """
+        ( chrom VARCHAR(255) NOT NULL,
+    start INT(10) UNSIGNED NOT NULL,
+    end INT(10) UNSIGNED NOT NULL,
+    length INT(10) UNSIGNED NOT NULL,
+    abssummit INT(10),
+    pileup FLOAT,
+    log10p FLOAT,
+    foldenrich FLOAT,
+    log10q FLOAT,
+    INDEX chrom_idx (chrom) USING BTREE,
+    INDEX start_idx (start) USING BTREE,
+    INDEX end_idx (end) USING BTREE
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
     conn.commit()
 
-    dbtblname=db+'.`'+FNAME #FIXME
-    cursor.execute ("""
-    CREATE OR REPLACE VIEW """ +dbtblname+"""_islands` AS 
-    select 0 as bin, chrom, start as chromStart, end as chromEnd,max(log10p) as name, max(log10q) as score
-    from """ +table_name+""" group by chrom,start,end; """)
+    cursor.execute("""CREATE OR REPLACE VIEW """ + gb_table_name +
+                   """ AS select 0 as bin, chrom, start as chromStart, end as chromEnd,
+                   max(log10p) as name, max(log10q) as score
+                   from """ + table_name + """ group by chrom,start,end; """)
     conn.commit()
 
+    SQL = "INSERT INTO " + table_name + " (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
+    SQLB = "INSERT INTO " + table_name + " (chrom,start,end,length,pileup,log10p,foldenrich,log10q) VALUES"
 
-    cursor.execute ("""
-    delete from """+db+""".trackDb_local where tablename like '"""+FNAME+"""_grp'; """)
-    conn.commit()
-
-    cursor.execute ("""
-    insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
-    colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-    values(%s,%s,'bed 4 +',%s,
-    0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
-    'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""",(FNAME+"_grp",NAME,NAME,grp))
-    conn.commit()
-    
-    cursor.execute ("""
-    delete from """+db+""".trackDb_local where tablename like '"""+FNAME+"""_islands'; """)
-    conn.commit()
-
-    cursor.execute ("""
-    insert ignore into """+db+""".trackDb_local (tablename,shortLabel,type,longLabel,visibility,priority,
-    colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-    values(%s,%s,'bed 4 +',%s,
-    0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
-    'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """,(FNAME+"_islands",NAME+" islands",NAME+" islands",grp))
-    conn.commit()
-
-    cursor.execute ("""
-    delete from """+db+""".trackDb_external where tablename like '"""+FNAME+"""_islands'; """)
-    conn.commit()
-    cursor.execute ("""
-    delete from """+db+""".trackDb_external where tablename like '"""+FNAME+"""_grp'; """)
-    conn.commit()
-    
-    if share:
-        cursor.execute ("""
-	insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
-	colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-	values(%s,%s,'bed 4 +',%s,
-        0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
-	'compositeTrack on\ngroup """+grp+"""\ntrack """+FNAME+"""_grp');""",(FNAME+"_grp",NAME,NAME,grp))
-        conn.commit()
-        cursor.execute ("""
-	insert ignore into """+db+""".trackDb_external (tablename,shortLabel,type,longLabel,visibility,priority,
-	colorR,colorG,colorB,altColorR,altColorG,altColorB,useScore,private,restrictCount,restrictList,url,html,grp,canPack,settings)
-	values(%s,%s,'bed 4 +',%s,
-	0,10,0,0,0,0,0,0,0,0,0,'','','',%s,1,
-	'parent """+FNAME+"""_grp\ntrack """+FNAME+"""_islands\nvisibility dense'); """,(FNAME+"_islands",NAME+" islands",NAME+" islands",grp))
-	conn.commit()
-    
-
-    SQL="INSERT INTO "+table_name+" (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
-    SQLB="INSERT INTO "+table_name+" (chrom,start,end,length,pileup,log10p,foldenrich,log10q) VALUES"
-
-    skip=True
-    broad=False
-    islands=0
-    for line in open(FNAME+'_macs_peaks.xls','r'):
-	if re.match('^#',line) or line.strip()=="":
-	    continue
-	if skip:
-	    a=line.strip().split('\t')
-	    broad=("pileup" in a[4])
-	    skip=False
-	    continue
-	a=line.strip().split('\t')
-	islands=islands+1
-	try:
-	    if broad:
-		cursor.execute(SQLB+" (%s,%s,%s,%s,%s,%s,%s,%s)",(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7]))
-	    else:
-		cursor.execute(SQL+" (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(a[0],a[1],a[2],a[3],a[4],a[5],a[6],a[7],a[8]))
-    	    conn.commit()
-	except Exception, e: 
-	    error[1]=line+":"+str(e) 
-	    return error
-	    	    
-    success[1]=islands
-    return success
+    skip = True
+    broad = False
+    islands = 0
+    for line in open(infile + '_macs_peaks.xls', 'r'):
+        if re.match('^#', line) or line.strip() == "":
+            continue
+        if skip:
+            a = line.strip().split('\t')
+            broad = ("pileup" in a[4])
+            skip = False
+            continue
+        a = line.strip().split('\t')
+        islands += 1
+        try:
+            if broad:
+                cursor.execute(SQLB + " (%s,%s,%s,%s,%s,%s,%s,%s)", (a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]))
+            else:
+                cursor.execute(SQL + " (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                               (a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8]))
+            conn.commit()
+        except Exception, e:
+            return ['Error', line + ":" + str(e)]
+    return ['Success', islands]
 
 
-def run_macs(infile,db,fragsize=150,fragforce=False,broad=False,force=None):
-    format="BAM"
-    FN=infile
-    shiftsize=int(fragsize/2)
-    
-    if ";" in infile:
-	FN=infile.split(";")[0]
-	format="BAMPE"
-        
-    if len(file_exist('.',FN,'bam')) != 1:
-	error[1]='Bam file does not exist'
-	return error
+def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
+    format = "BAM"
+    shiftsize = int(fragsize / 2)
+
+    if pair:
+        format = "BAMPE"
+
+    if len(file_exist('.', infile, 'bam')) != 1:
+        return ['Error', 'Bam file does not exist']
 
     if force:
-	FL=file_exist('.',FN+'_macs_peaks','xls')
-	if len(FL) == 1:
-	    os.unlink(FL[0])
+        FL = file_exist('.', infile + '_macs_peaks', 'xls')
+        if len(FL) == 1:
+            os.unlink(FL[0])
 
-    if len(file_exist('.',FN+'_macs_peaks','xls')) == 1:
-	success[1]=' Macs analyzes done '
-	return success
+    if len(file_exist('.', infile + '_macs_peaks', 'xls')) == 1:
+        return ['Success', ' Macs analyzes done ']
 
-    G='hs'
+    #samtools view -H b4f4ede6-e866-11e3-9546-ac162d784858.bam |grep 'SQ'| awk -F'LN:' '{print $2}'|paste -sd+ | bc
+    G = 'hs'
     if 'mm' in db:
-	G='mm'
+        G = 'mm'
 
-    ADPAR=""
-
+    ADPAR = ""
     if fragforce:
-	ADPAR=ADPAR+" --nomodel "
+        ADPAR += " --nomodel "
     else:
-	ADPAR=ADPAR+" --bw "+str(fragsize)
+        ADPAR += " --bw " + str(fragsize)
+
     if broad:
-    	ADPAR=ADPAR+" --broad "
+        ADPAR += " --broad "
     else:
-	ADPAR=ADPAR+" --call-summits "
+        ADPAR += " --call-summits "
 
-    #FIXME    
-    PAR='/usr/local/MACS2L/bin/macs callpeak -t '+FN+'.bam -n '+FN+'_macs -g '+G+' --format '+format+' -m 3 60  --verbose 0 --shiftsize='+str(shiftsize)+' -q 0.01 --nolambda '+ADPAR+' >./'+FN+'_macs.log 2>&1'
+    cmd = bin+'/macs callpeak -t ' + infile + '.bam -n ' + infile + '_macs -g ' + G
+    cmd += ' --format ' + format + ' -m 3 60  --verbose 0 --shiftsize=' + str(
+        shiftsize) + ' -q 0.01 --nolambda ' + ADPAR + ' >./' + infile + '_macs.log 2>&1'
 
-    RET=''
-    #print PAR
     try:
-	RET=s.check_output(PAR,shell=True)
-	success[1]=' MACS finished '
-	return success
-    except Exception,e:
-	error[1]=str(e)+RET
-	return error
+        s.check_output(cmd, shell=True)
+        return ['Success', ' MACS finished ']
+    except Exception, e:
+        return ['Error', str(e)]
 
 
 def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
@@ -314,14 +239,12 @@ def run_fence(infile, pair):
 
 
 def run_atp(lid):
-    PAR='averagedensity -avd_lid='+str(lid)+' -log="./AverageTagDensity.log" -sql_host="localhost" -sql_dbname="ems" '
-    PAR=PAR+' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" '
+    cmd = 'averagedensity -avd_lid=' + str(
+        lid) + ' -log="./AverageTagDensity.log" '
+    cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" '
 
-    RET=''
     try:
-        RET=s.check_output(PAR,shell=True)
-        success[1]=' ATP finished '
-        return success
-    except Exception,e:
-        error[1]=str(e)+RET
-        return error
+        s.check_output(cmd, shell=True)
+        return ['Success', ' ATP finished ']
+    except Exception, e:
+        return ['Error', str(e)]

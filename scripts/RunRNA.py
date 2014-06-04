@@ -41,7 +41,7 @@ import subprocess as s
 import time
 
 
-print str(datetime.datetime.now())
+#print str(datetime.datetime.now())
 
 settings = Settings.Settings()
 
