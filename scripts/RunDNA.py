@@ -206,7 +206,7 @@ while True:
         continue
 
     a = get_stat(UID)
-    if check_error(a, UID):
+    if type(a[0]) is str and check_error(a, UID):
         continue
     settings.cursor.execute(
         "update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
