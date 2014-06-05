@@ -1,6 +1,7 @@
+<?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -19,33 +20,34 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
+require_once('../settings.php');
+
+ini_set('memory_limit', '-1');
+if(isset($_REQUEST['tablename']))
+    $tablename = $_REQUEST['tablename'];
+else
+    $response->print_error('Not enough required parameters.');
+
+check_val($tablename);
+
+$DB=$settings->settings['experimentsdb']['value'];
 
 
-Ext.define('EMS.store.ATDPChart', {
-    extend: 'Ext.data.Store',
+$total = selectSQL("SELECT COUNT(*) as count FROM `{$DB}`.`$tablename`",array())[0]['count'];
+$query_array=selectSQL("SELECT * FROM `{$DB}`.`$tablename` limit 10",array());
 
-    requires: ['EMS.model.ATDPChart',
-               'EMS.proxy.StandardProxyRemote'],
-    model: 'EMS.model.ATDPChart',
-    storeId: 'ATDPChart',
-    autoLoad: false,
-    singleton: false,
-    remoteSort: true,
-    remoteFilter: true,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    },
-    proxy: {
-        type: 'standardproxyremote',
-        api: {
-            read: 'data/ATDPChart.php',
-            update: '',
-            create: '',
-            destroy: ''
-        }
-    }
 
-});
+foreach($query_array as $record) {
+    $t=unpack('v*',$record['heat']);
+    logmsg($t);
+}
 
+$response->meta=array( "fields"=>$fields );
+
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = sizeof($query_array);
+$response->data = array();//$query_array;
+print_r($response->to_json());
+?>
 

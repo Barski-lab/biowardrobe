@@ -238,10 +238,9 @@ def run_fence(infile, pair):
         return ['Error', str(e)]
 
 
-def run_atp(lid):
-    cmd = 'averagedensity -avd_lid=' + str(
-        lid) + ' -log="./AverageTagDensity.log" '
-    cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot" '
+def run_atp(lid,bin="/wardrobe/bin"):
+    cmd = bin+'atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
+    cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=5 '
 
     try:
         s.check_output(cmd, shell=True)

@@ -202,21 +202,14 @@ while True:
     if check_error(d.run_bedgraph(UID, BEDFORMAT, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
-    if check_error(get_stat(UID), UID):
+    if check_error(d.run_atp(UID,BIN), UID):
         continue
 
-    # a=d.run_atp(UID)
-    # if type(a[0]) == str and 'Error' in a[0]:
-    #     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",(a[0]+": "+a[1],UID))
-    #     settings.conn.commit()
-    #     continue
-    #
-    # a=get_stat(UID)
-    # if type(a[0]) == str and 'Error' in a[0]:
-    #     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",(a[0]+": "+a[1],UID))
-    #     settings.conn.commit()
-    #     continue
-    #
-    # settings.cursor.execute("update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",(a[0],a[1],a[2],UID))
-    # settings.conn.commit()
+    a = get_stat(UID)
+    if check_error(a, UID):
+        continue
+    settings.cursor.execute(
+        "update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
+        (a[0], a[1], a[2], UID))
+    settings.conn.commit()
 

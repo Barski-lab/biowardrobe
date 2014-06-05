@@ -19,6 +19,13 @@
 
 <body>
 
+<center>
+    <div id="loading-mask"></div>
+    <div id="loading">
+            Wardrobe is loading...
+    </div>
+
+
 
 
 

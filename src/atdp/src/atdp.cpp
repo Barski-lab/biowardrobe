@@ -86,61 +86,155 @@ void ATDP::start() {
         t_pool->waitForDone();
     }
 
-    foreach(QString key,experiment_info.keys()){
-        exp_i=&experiment_info[key];
-        QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
+    if(preliminary_atdp) {
+        QSqlQuery q;
+        exp_i=&experiment_info[experiment_info.keys().at(0)];
+        QVector<double> storage;
+        for(int w=0; w< exp_i->avd_total.size(); w++)
+            storage<<(exp_i->avd_total.at(w)/exp_i->mapped)/exp_i->regions.size();
+        storage=Math::smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
+
         /*
+         * First part just standart average tag density
+         */
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_atdp`;"
+                                     "CREATE TABLE `%3`.`%4_atdpn` ( "
+                                     "`X` INT NULL ,"
+                                     "`Y` FLOAT NULL ,"
+                                     "INDEX X_idx (X) using btree"
+                                     ")"
+                                     "ENGINE = MyISAM "
+                                     "COMMENT = 'created by atdp';").
+                             arg(gSettings().getValue("experimentsdb")).
+                             arg(gArgs().getArgs("avd_luid").toString()).
+                             arg(gSettings().getValue("experimentsdb")).
+                             arg(gArgs().getArgs("avd_luid").toString());
+
+        if(!q.exec(CREATE_TABLE)) {
+            qDebug()<<"Query error T: "<<q.lastError().text();
+        }
+
+        QString SQL_QUERY_BASE=QString("insert into `%1`.`%2_atdp` values ").
+                               arg(gSettings().getValue("experimentsdb")).
+                               arg(gArgs().getArgs("avd_luid").toString());
+        QString SQL_QUERY="";
+
+        int rows=storage.size();
+        for(int i=0; i<rows;i++) {
+            SQL_QUERY+=QString(" (%1,%2),").
+                       arg((int)(i-rows/2)).
+                       arg(storage.at(i));
+        }
+
+        SQL_QUERY.chop(1);
+        if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
+            qDebug()<<"Query error batch up: "<<q.lastError().text();
+        }
+
+        /*
+         * Second part heatmap prepared data
+         */
+        CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_atdph`;"
+                             "CREATE TABLE `%3`.`%4_atdph` ( "
+                             "`refseq_id` VARCHAR(500) NULL,"
+                             "`gene_id` VARCHAR(500) NULL,"
+                             "`chrom` VARCHAR(45) NOT NULL,"
+                             "`txStart` INT NULL,"
+                             "`txEnd` INT NULL,"
+                             "`strand` VARCHAR(1),"
+                             "`heat` blob,"
+                             "INDEX `chrom_idx` USING BTREE (`chrom` ASC),"
+                             "INDEX `txEnd_idx` USING BTREE (`txEnd` ASC),"
+                             "INDEX `txStart_idx` USING BTREE (`txStart` ASC),"
+                             "INDEX `gene_idx` USING BTREE (`gene_id`(100) ASC),"
+                             "INDEX `strand` USING BTREE (`strand` ASC),"
+                             "INDEX `refseq_idx` USING BTREE (`refseq_id`(100) ASC)"
+                             ")"
+                             "ENGINE = MyISAM "
+                             "COMMENT = 'created by atdp';").
+                     arg(gSettings().getValue("experimentsdb")).
+                     arg(gArgs().getArgs("avd_luid").toString()).
+                     arg(gSettings().getValue("experimentsdb")).
+                     arg(gArgs().getArgs("avd_luid").toString());
+
+        if(!q.exec(CREATE_TABLE)) {
+            qDebug()<<"Query error T: "<<q.lastError().text();
+        }
+
+        SQL_QUERY_BASE=QString("insert into `%1`.`%2_atdph` values ").
+                       arg(gSettings().getValue("experimentsdb")).
+                       arg(gArgs().getArgs("avd_luid").toString());
+        SQL_QUERY="";
+        for(int j=0; j<exp_i->avd_matrix.size();j++) {
+            q.prepare(SQL_QUERY_BASE+"(?,?,?,?,?,?,?)");
+            q.bindValue(0,exp_i->avd_matrix[j].first->refseq_id.mid(0,500));
+            q.bindValue(1,exp_i->avd_matrix[j].first->gene_id.mid(0,500));
+            q.bindValue(2,exp_i->avd_matrix[j].first->chrom);
+            q.bindValue(3,exp_i->avd_matrix[j].first->start);
+            q.bindValue(4,exp_i->avd_matrix[j].first->end);
+            q.bindValue(5,exp_i->avd_matrix[j].first->strand?"+":"-");
+            q.bindValue(6,QByteArray((char*)exp_i->avd_matrix[j].second.data(),exp_i->avd_matrix[j].second.size()*sizeof(quint16)));
+            if(!q.exec()) {
+                qDebug()<<"Query error info: "<<q.lastError().text();
+                throw "Error query to DB";
+            }
+        }
+    } else {
+        foreach(QString key,experiment_info.keys()){
+            exp_i=&experiment_info[key];
+            QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
+            /*
          *  AVD
          */
-        QFile outFile;
-        outFile.setFileName(key+".csv");
-        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        QString out;
-        for(int j=0; j<storage.size();j++) {
-            out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
-        }
-        outFile.write(out.toLocal8Bit());
-        outFile.close();
-        out.clear();
-        /*
+            QFile outFile;
+            outFile.setFileName(key+".csv");
+            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+            QString out;
+            for(int j=0; j<storage.size();j++) {
+                out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
+            }
+            outFile.write(out.toLocal8Bit());
+            outFile.close();
+            out.clear();
+            /*
          *  AVD HEAT
          */
-        outFile.setFileName(key+".matrix");
-        outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-        QList<QPair<quint64,quint64> > sort;
-        bool do_sort=gArgs().getArgs("avd_sort").toBool();
-        for(int j=0; j<exp_i->avd_matrix.size();j++) {
-            quint64 sum_line=0;
-            for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-                sum_line+=exp_i->avd_matrix[j].second[c];
-                if(!do_sort) {
-                    out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
-                }
-            }
-            if(do_sort) {
-                sort.append(qMakePair(sum_line,j));
-            } else {
-                out.chop(1);
-                out+=QString("\n");
-            }
-        }
-        if(do_sort){
-            qSort(sort.begin(), sort.end());
+            outFile.setFileName(key+".matrix");
+            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+            QList<QPair<quint64,quint64> > sort;
+            bool do_sort=gArgs().getArgs("avd_sort").toBool();
             for(int j=0; j<exp_i->avd_matrix.size();j++) {
+                quint64 sum_line=0;
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
+                    sum_line+=exp_i->avd_matrix[j].second[c];
+                    if(!do_sort) {
+                        out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
+                    }
                 }
-                out.chop(1);
-                out+=QString("\n");
+                if(do_sort) {
+                    sort.append(qMakePair(sum_line,j));
+                } else {
+                    out.chop(1);
+                    out+=QString("\n");
+                }
             }
-        }//do sort
+            if(do_sort){
+                qSort(sort.begin(), sort.end());
+                for(int j=0; j<exp_i->avd_matrix.size();j++) {
+                    for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
+                    }
+                    out.chop(1);
+                    out+=QString("\n");
+                }
+            }//do sort
 
-        outFile.write(out.toLocal8Bit());
-        outFile.close();
-        out.clear();
+            outFile.write(out.toLocal8Bit());
+            outFile.close();
+            out.clear();
 
-    }//foreach trough experiments
-
+        }//foreach trough experiments
+    }
 
     qDebug()<<"end";
 
@@ -173,7 +267,7 @@ void ATDP::getRecordInfo() {
     ei->db=q.value(0).toString();
     ei->fragmentsize=q.value(2).toInt();
     ei->mapped=q.value(3).toInt();
-    ei->filepath=q.value(4).toString()+".bam";
+    ei->filepath=q.value(4).toString()+"/"+q.value(4).toString()+".bam";
     ei->avd_total.resize(avd_whole_region);
     ei->avd_total.fill(0,avd_whole_region);
     experiment_info.insert(gArgs().getArgs("avd_luid").toString(),*ei);
@@ -182,9 +276,9 @@ void ATDP::getRecordInfo() {
 void ATDP::getRecordsInfo() {
     QSqlQuery q;
 
-     q.prepare("select a.pltname,tbl1_id,tbl2_id,l.fragmentsize,l.tagsmapped,g2.tableName,g.tableName "
-        " from atdp a,genelist g, genelist g2, labdata l where a.genelist_id=? "
-        " and g.labdata_id=l.id and a.tbl1_id=g.id and a.tbl2_id=g2.id");
+    q.prepare("select a.pltname,tbl1_id,tbl2_id,l.fragmentsize,l.tagsmapped,g2.tableName,g.tableName "
+              " from atdp a,genelist g, genelist g2, labdata l where a.genelist_id=? "
+              " and g.labdata_id=l.id and a.tbl1_id=g.id and a.tbl2_id=g2.id");
     q.bindValue(0, gArgs().getArgs("avd_guid").toString());
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();

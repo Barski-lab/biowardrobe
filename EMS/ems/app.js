@@ -29,19 +29,6 @@ Ext.Loader.setConfig({
                          }
                      });
 
-//var required = '<span style="color:red;font-weight:bold" data-qtip="Required">*</span>';
-//
-//function generateUUID() {
-//    var d = new Date().getTime();
-//    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-//        var r = (d + Math.random() * 16) % 16 | 0;
-//        d = Math.floor(d / 16);
-//        return (c === 'x' ? r : (r & 0x7 | 0x8)).toString(16);
-//    });
-//    return uuid;
-//};
-
-
 //var LocalStorage = (function () {
 //    return {
 //        FILTER_STORAGE: 1,
@@ -135,49 +122,38 @@ Ext.application
          'EMS.util.Util'
      ],
 
-     //     stores: ['EMSLocalStorage'],
-     //     models: ['EMSLocalStorage'],
-
      views: [
          'EMSViewport',
          'Login'
      ],
 
-     splashscreen: {},
-
      init: function () {
-         splashscreen = Ext.getBody().mask('Wardrobe is loading...', 'splashscreen');
-         splashscreen.addCls('splashscreen');
-         Ext.DomHelper.insertFirst(Ext.query('.x-mask-msg')[0], {
-             cls: 'x-splash-icon'
-         });
+
      },
 
      launch: function () {
          var me = this;
          me.login = true;
          var task = new Ext.util.DelayedTask(function () {
-             //Fade out the body mask
-             splashscreen.fadeOut
-             ({
-                  duration: 1000,
-                  remove: true
-              });
-             splashscreen.next().fadeOut
-             ({
-                  duration: 1000,
-                  remove: true,
-                  listeners: {
-                      afteranimate: function (el, startTime, eOpts) {
-                          if (me.login) {
-                              Ext.widget('login');
-                          } else {
-                              Ext.create('EMS.view.EMSViewport');
+             setTimeout(function () {
+                 Ext.get('loading').remove();
+                 Ext.get('loading-mask').fadeOut
+                 ({
+                      duration: 1000,
+                      remove: true,
+                      listeners: {
+                          afteranimate: function (el, startTime, eOpts) {
+                              if (me.login) {
+                                  Ext.widget('login');
+                              } else {
+                                  Ext.create('EMS.view.EMSViewport');
+                              }
                           }
                       }
-                  }
-              });
+                  });
+             }, 50);
          });
+
          Ext.Ajax.request
          ({
               url: 'authenticate.php',

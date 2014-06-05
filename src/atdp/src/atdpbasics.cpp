@@ -12,7 +12,9 @@ ATDPBasics::ATDPBasics(EXPERIMENT_INFO* e)
 
     /* Open bam files preparing EXPERIMENT_INFO class
      */
-    if ( !exp_i->reader.Open(exp_i->filepath.toStdString()) ) {
+    QString fp=gSettings().getValue("wardrobe")+"/"+gSettings().getValue("preliminary")+"/"+exp_i->filepath;
+    //    if ( !exp_i->reader.Open(exp_i->filepath.toStdString()) ) {
+    if ( !exp_i->reader.Open(fp.toStdString()) ) {
         qDebug() << "Could not open input BAM files.";
         throw "Could not open input BAM files";
     }
@@ -50,7 +52,7 @@ void ATDPBasics::getRegions() {
     QSqlQuery q;
 
     q.prepare("select * from `"+exp_i->db+"`.`"+exp_i->source+
-              "` where chrom not like '%\\_%' and chrom not like '%control%' order by chrom,txStart,txEnd");
+              "` where chrom not like '%\\_%' and chrom not like '%control%' order by chrom,strand,txStart,txEnd");
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();
         throw "Error query to DB";
@@ -70,7 +72,7 @@ void ATDPBasics::getRegions() {
     while(q.next()) {
         QString chr=q.value(fieldChrom).toString();
         QChar strand=q.value(fieldStrand).toString().at(0);
-        quint64 txStart=q.value(fieldTxStart).toInt()+1;
+        quint64 txStart=q.value(fieldTxStart).toInt();//+1 ??? FIXME
         quint64 txEnd=q.value(fieldTxEnd).toInt();
         QString refseq_id=q.value(fieldRefseq_id).toString();
         QString gene_id=q.value(fieldGene_id).toString();
@@ -83,22 +85,30 @@ void ATDPBasics::getRegions() {
         if(strand=='+'){
             qint64 start=txStart-avd_window-exp_i->fragmentsize/2;
             if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
-                exp_i->regions.last()->gene_id.append(","+gene_id);
-                exp_i->regions.last()->refseq_id.append(","+refseq_id);
+                if(!exp_i->regions.last()->gene_id.contains(gene_id))
+                    exp_i->regions.last()->gene_id.append(","+gene_id);
+                if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
+                    exp_i->regions.last()->refseq_id.append(","+refseq_id);
                 region.clear();
                 continue;
             }
+            region->txStart=txStart;
+            region->txEnd=txEnd;
             region->start=start;
             region->end=txStart+avd_window+exp_i->fragmentsize/2;
             region->strand=true;
         } else {
             qint64 start=txEnd-avd_window-exp_i->fragmentsize/2;
             if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
-                exp_i->regions.last()->gene_id.append(","+gene_id);
-                exp_i->regions.last()->refseq_id.append(","+refseq_id);
+                if(!exp_i->regions.last()->gene_id.contains(gene_id))
+                    exp_i->regions.last()->gene_id.append(","+gene_id);
+                if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
+                    exp_i->regions.last()->refseq_id.append(","+refseq_id);
                 region.clear();
                 continue;
             }
+            region->txStart=txStart;
+            region->txEnd=txEnd;
             region->start=start;
             region->end=txEnd+avd_window+exp_i->fragmentsize/2;
             region->strand=false;
@@ -107,8 +117,8 @@ void ATDPBasics::getRegions() {
         region->refseq_id=refseq_id;
         region->chrom=chr;
         exp_i->avd_matrix.append(
-                    QPair<QSharedPointer<REGION>,QVector<double> >(
-                        QSharedPointer<REGION>(region),QVector<double>(qCeil((qreal)avd_whole_region/avd_heat_window),0) ) );
+                    QPair<QSharedPointer<REGION>,QVector<quint16> >(
+                        QSharedPointer<REGION>(region),QVector<quint16>(qCeil((qreal)avd_whole_region/avd_heat_window),0) ) );
 
         exp_i->regions.append(region);
     }
@@ -131,13 +141,9 @@ void ATDPBasics::RegionsProcessing () {
                  <<exp_i->regions[i]->end;
             throw "Cant set region.";
         } else {
-            //                qDebug()<<"Region:"
-            //                       <<exp_i->regions[i]->chrom
-            //                      <<exp_i->regions[i]->strand
-            //                      <<exp_i->regions[i]->start
-            //                     <<exp_i->regions[i]->end;
-
             BamAlignment al;
+            int shift=exp_i->fragmentsize/2;
+            qint64 left=exp_i->regions[i]->start+shift;
 
             while ( exp_i->reader.GetNextAlignmentCore(al) ) {
 
@@ -152,13 +158,9 @@ void ATDPBasics::RegionsProcessing () {
                     }
                 }
 
-                int shift=exp_i->fragmentsize/2;
-                if(al.IsReverseStrand()) {// - strand
-                    shift*=-1;
-                }
-
                 int position_b = al.Position+1;
                 int position_e = al.GetEndPosition();
+
                 int length=abs(al.InsertSize);
 
                 if(al.IsMateMapped() && al.IsFirstMate() ) { //pair-end reads
@@ -181,32 +183,28 @@ void ATDPBasics::RegionsProcessing () {
 
                 int b;
                 if(al.IsPaired()) {
-                    b=position_b-exp_i->regions[i]->start+length/2;
+                    b=position_b-left+length/2;
                 } else {
-                    b=position_b+shift-exp_i->regions[i]->start;
+                    if(al.IsReverseStrand()) {// - strand
+                        b=position_e-shift-left;
+                    } else {
+                        b=position_b+shift-left;
+                    }
                 }
                 if(b<0) continue;
                 if(b>=avd_whole_region) break;
-                /*
-                int e=b+exp_i->fragmentsize;
-                double d=1.0/exp_i->fragmentsize;
-                if(al.IsPaired()) {
-                    //b=position_b-exp_i->regions[i]->start;
-                    d=1.0/abs(al.InsertSize);
-                    e=b+abs(al.InsertSize);
-                }
 
-                for(;b<e && b<avd_whole_region;b++)
-                */
-                int d=1;
-                if(exp_i->tids.contains(al.RefID))
+                quint16 d=1;
+                if(exp_i->tids.contains(al.RefID)) {
                     d=2;
+                    exp_i->mapped++;
+                }
                 if(exp_i->regions[i]->strand){
                     exp_i->avd_total[b]+=d;
-                    exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
+                    exp_i->avd_matrix[i].second[b/avd_heat_window]+=1;
                 } else {
                     exp_i->avd_total[avd_whole_region-b-1]+=d;
-                    exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=d;
+                    exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=1;
                 }
             }//trough bam reads while
 

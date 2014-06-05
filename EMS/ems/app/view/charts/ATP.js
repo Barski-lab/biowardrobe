@@ -36,10 +36,9 @@ Ext.define('EMS.view.charts.ATP',
 
                initComponent: function() {
                    var me=this;
-                   if(this.store) {
-                       this.store = Ext.data.StoreManager.lookup('ATDPChart');
-                       console.log(this.store);
-                   }
+//                   if(this.store) {
+//                       this.store = Ext.data.StoreManager.lookup('ATDPChart');
+//                   }
                    var fields=['Y'];
                    var series=[{
                                    type: 'line',
@@ -77,7 +76,6 @@ Ext.define('EMS.view.charts.ATP',
                    }
 
                    Ext.applyIf(me, {
-                                   //store: EMS.store.ATDPChart,
                                    axes: [{
                                            type: 'Numeric',
                                            minimum: 0,

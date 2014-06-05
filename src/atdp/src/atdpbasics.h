@@ -11,6 +11,8 @@ struct REGION {
         bool strand;
         qint64 start;
         qint64 end;
+        qint64 txStart;
+        qint64 txEnd;
 };
 
 class EXPERIMENT_INFO {
@@ -31,7 +33,7 @@ class EXPERIMENT_INFO {
         QSet<int> i_tids;//Reads from this chromosome (ids) should be ignored
 
         QVector<double> avd_total;
-        QVector<QPair<QSharedPointer<REGION>,QVector<double> > > avd_matrix;
+        QVector<QPair<QSharedPointer<REGION>,QVector<quint16> > > avd_matrix;
 
 };
 
