@@ -239,7 +239,7 @@ def run_fence(infile, pair):
 
 
 def run_atp(lid,bin="/wardrobe/bin"):
-    cmd = bin+'atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
+    cmd = bin+'/atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
     cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=5 '
 
     try:
