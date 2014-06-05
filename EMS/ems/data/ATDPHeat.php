@@ -36,18 +36,30 @@ $DB=$settings->settings['experimentsdb']['value'];
 $total = selectSQL("SELECT COUNT(*) as count FROM `{$DB}`.`$tablename`",array())[0]['count'];
 $query_array=selectSQL("SELECT * FROM `{$DB}`.`$tablename` limit 10",array());
 
+$z=[];
+$x=[];
+$y=[];
+$Symbol=[];
+$Type=[];
+$smps=[];
 
 foreach($query_array as $record) {
     $t=unpack('v*',$record['heat']);
-    logmsg($t);
+    $smps[]=$record['refseq_id'];
+    $Type[]=$record['gene_id'];
+    //logmsg($t);
 }
+$y["smps"]=$smps;
 
-$response->meta=array( "fields"=>$fields );
+$z["Symbol"]=$Symbol;
+$x["Type"]=$Type;
+
+//$response->meta=array( "fields"=>$fields );
 
 $response->success = true;
 $response->message = "Data loaded";
 $response->total = sizeof($query_array);
-$response->data = array();//$query_array;
+$response->data = array("z"=>$z);
 print_r($response->to_json());
 ?>
 

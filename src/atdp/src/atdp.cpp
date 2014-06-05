@@ -98,7 +98,7 @@ void ATDP::start() {
          * First part just standart average tag density
          */
         QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_atdp`;"
-                                     "CREATE TABLE `%3`.`%4_atdpn` ( "
+                                     "CREATE TABLE `%3`.`%4_atdp` ( "
                                      "`X` INT NULL ,"
                                      "`Y` FLOAT NULL ,"
                                      "INDEX X_idx (X) using btree"
