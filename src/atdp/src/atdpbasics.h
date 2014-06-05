@@ -2,7 +2,7 @@
 #define ATDPBASICS_H
 
 #include <config.hpp>
-#include <settings.hpp>
+#include <Settings.hpp>
 
 struct REGION {
         QString chrom;

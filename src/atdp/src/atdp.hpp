@@ -24,7 +24,7 @@
 #define _ATDHEATMAP_
 
 #include <config.hpp>
-#include <settings.hpp>
+#include <Settings.hpp>
 
 //#include <Reads.hpp>
 //#include <SamReader.hpp>

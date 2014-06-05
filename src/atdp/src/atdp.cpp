@@ -203,7 +203,7 @@ void ATDP::start() {
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
             QList<QPair<quint64,quint64> > sort;
             bool do_sort=gArgs().getArgs("avd_sort").toBool();
-            for(int j=0; j<exp_i->avd_matrix.size();j++) {
+            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
                 quint64 sum_line=0;
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
                     sum_line+=exp_i->avd_matrix[j].second[c];
