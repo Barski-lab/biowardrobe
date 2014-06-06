@@ -34,6 +34,7 @@ Ext.define('EMS.controller.Experiment.EGroup', {
 
     egroupForm: {},
     worker: {},
+    EGroupsStore: {},
 
     init: function () {
         this.control
@@ -167,7 +168,7 @@ Ext.define('EMS.controller.Experiment.EGroup', {
      *
      ****************************/
     onEGroupAddClick: function () {
-        var me=this;
+        var me = this;
         var grid = me.egroupForm.down('grid'),
                 store = grid.getStore(),
                 modelName = store.getProxy().getModel().modelName;
@@ -184,20 +185,24 @@ Ext.define('EMS.controller.Experiment.EGroup', {
             if (id && id != '00000000-0000-0000-0000-000000000000') {
                 store.insert(0, Ext.create(modelName, Ext.apply(me.egroupForm.getValues(), {laboratory_id: id})));
             } else {
-                store.insert(0, Ext.create(modelName, Ext.apply(me.egroupForm.getValues())));
+                store.insert(0, Ext.create(modelName, me.egroupForm.getValues()));
             }
-            store.sync(function () {
-                me.egroupForm.getForm().reset();
-                if (!me.worker.data.isa) {
-                    store.load();
-                } else {
-                    store.load({
-                                   params: {
-                                       laboratory_id: id
-                                   }
-                               });
-                }
-            });
+            store.sync
+            ({
+                 scope: this,
+                 callback: function () {
+                     me.egroupForm.getForm().reset();
+                     if (me.worker.data.isa) {
+                         store.load({
+                                        params: {
+                                            laboratory_id: id
+                                        }
+                                    });
+                     } else {
+                         store.load();
+                     }
+                 }
+             });
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
         }
@@ -215,8 +220,6 @@ Ext.define('EMS.controller.Experiment.EGroup', {
      *
      ****************************/
     onLabSelectFieldsChange: function (combo, records) {
-        //        this.egroupForm.down('grid').getSelectionModel().deselectAll();
-        //this.egroupForm.getForm().reset();
         this.EGroupsStore.load
         ({
              scope: this,
