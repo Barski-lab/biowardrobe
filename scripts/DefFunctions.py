@@ -95,7 +95,7 @@ def upload_macsdata(conn, infile, dbexp, db):
         return ['Error', ' MACS peak file does not exist']
 
     table_name = dbexp + '.`' + infile + '_islands`'
-    gb_table_name = db + '.`' + infile + '_islands`'
+    gb_table_name = db + '.`' + string.replace(infile, "-", "_") + '_islands`'
 
     cursor.execute("DROP TABLE IF EXISTS " + table_name)
     cursor.execute(""" CREATE TABLE """ + table_name + """

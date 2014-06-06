@@ -166,13 +166,15 @@ def run_rpkm(infile, db, dutp, spike, antab, force=False):
 
 
 settings.cursor.execute(
-    "update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and egroup_id is not null "
-    "and experimenttype_id in (select id from experimenttype where etype like 'RNA%')")
+    "update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'RNA%')"
+    " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 "
+   )
 
 while True:
     settings.cursor.execute("select e.etype,l.uid,g.db,g.findex,g.annotation,g.annottable,g.genome,l.forcerun "
                             " from labdata l,experimenttype e,genome g "
-                            " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'RNA%' and libstatus in (10,1010) and deleted=0 and egroup_id is not null"
+                            " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'RNA%' and libstatus in (10,1010) "
+                            " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 "
                             " order by dateadd limit 1")
 
     row = settings.cursor.fetchone()
