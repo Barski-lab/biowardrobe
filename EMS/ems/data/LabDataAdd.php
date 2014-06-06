@@ -54,6 +54,7 @@ class AddLabData extends AbstractTableDataProcessing
 $data->uid = guid();
 $data->laboratory_id=$worker->worker['laboratory_id'];
 $data->author=$worker->worker['fullname'];
+$data->worker_id=$worker->worker['id'];
 
 $addlabdata = new AddLabData('labdata');
 $addlabdata->addData($data);
