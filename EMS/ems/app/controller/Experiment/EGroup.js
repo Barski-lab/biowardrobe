@@ -167,36 +167,37 @@ Ext.define('EMS.controller.Experiment.EGroup', {
      *
      ****************************/
     onEGroupAddClick: function () {
-        var grid = this.egroupForm.down('grid'),
+        var me=this;
+        var grid = me.egroupForm.down('grid'),
                 store = grid.getStore(),
                 modelName = store.getProxy().getModel().modelName;
         var id;
-        if (!this.worker.data.isa && !this.worker.data.isla) {
+        if (!me.worker.data.isa && !me.worker.data.isla) {
             EMS.util.Util.showErrorMsg('Insufficient privileges');
             return;
         }
 
-        if (this.egroupForm.isValid()) {
-            if (this.worker.data.isa) {
+        if (me.egroupForm.isValid()) {
+            if (me.worker.data.isa) {
                 id = Ext.ComponentQuery.query('egrouplist combobox')[0].getValue();
             }
             if (id && id != '00000000-0000-0000-0000-000000000000') {
-                store.insert(0, Ext.create(modelName, Ext.apply(this.egroupForm.getValues(), {laboratory_id: id})));
+                store.insert(0, Ext.create(modelName, Ext.apply(me.egroupForm.getValues(), {laboratory_id: id})));
             } else {
-                store.insert(0, Ext.create(modelName, Ext.apply(this.egroupForm.getValues())));
+                store.insert(0, Ext.create(modelName, Ext.apply(me.egroupForm.getValues())));
             }
             store.sync(function () {
-                this.egroupForm.getForm().reset();
+                me.egroupForm.getForm().reset();
+                if (!me.worker.data.isa) {
+                    store.load();
+                } else {
+                    store.load({
+                                   params: {
+                                       laboratory_id: id
+                                   }
+                               });
+                }
             });
-            if (!this.worker.data.isa) {
-                store.load();
-            } else {
-                store.load({
-                               params: {
-                                   laboratory_id: id
-                               }
-                           });
-            }
         } else {
             EMS.util.Util.showErrorMsg('Please fill up required fields!');
         }
