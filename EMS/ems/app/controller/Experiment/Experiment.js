@@ -154,6 +154,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
             this.addIslandsList(maintabpanel);
             this.addATDPChart(maintabpanel, record.data.name4browser + " " + anti);
+            //this.addATDPChartH(maintabpanel);
         }//>11 and not RNA
 
         if (sts > 11 && this.isRNA) {
@@ -411,6 +412,47 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                           }
                       }
                   }, this);
+    },
+    /***********************************************************************
+     * Add average tag density profile tab
+     ***********************************************************************/
+    addATDPChartH: function (tab, bn) {
+        var me=this;
+
+        Ext.Ajax.request({
+                             url: 'data/ATDPHeat.php',
+            params:{
+                'tablename': me.UID+"_atdph"
+            },
+                             method: 'GET',
+                             timeout: 600000, //600 sec
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 console.log(arguments);
+                                 console.log(json);
+//                                 if (!json.success) {
+//                                     EMS.util.Util.Logger.log("Cant run manorm, error: " + json.message);
+//                                     Ext.MessageBox.show({
+//                                                             title: 'For you information',
+//                                                             msg: 'There was an error with MANorm.You have to rerun.<br>Do you want dialog for MANorm to be shown?<br>' + json.message,
+//                                                             icon: Ext.MessageBox.ERROR,
+//                                                             fn: function (buttonId) {
+//                                                                 if (buttonId === "yes") {
+//                                                                 } else {
+//                                                                 }
+//                                                             },
+//                                                             buttons: Ext.Msg.YESNO
+//                                                         });
+//                                 } else {
+//                                 }
+                                 me.ATDPChartH = Ext.create("EMS.view.Experiment.Experiment.ATPHeat",{data:json.data});
+                                 tab.add(me.ATDPChartH);
+                             },
+                             failure: function () {
+                                 EMS.util.Util.Logger.log("Cant run error");
+                             },
+                         });
+
     },
     /***********************************************************************
      ***********************************************************************/

@@ -97,7 +97,7 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: 'Project name',
+                            fieldLabel: 'Folder name',
 //                            padding: 0,
                             margin: 0,
                             afterLabelTextTpl: EMS.util.Util.required,
@@ -108,7 +108,7 @@ Ext.define('EMS.view.Experiment.EGgroup.EGroupList', {
                             name: 'description',
                             margin: 0,
 //                            padding: 0,
-                            fieldLabel: 'Project description',
+                            fieldLabel: 'Folder description',
                             afterLabelTextTpl: EMS.util.Util.required,
                             allowBlank: false,
                         },

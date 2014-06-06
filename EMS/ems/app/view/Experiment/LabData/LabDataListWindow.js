@@ -316,9 +316,8 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     labelWidth: 110,
                     minWidth: 300,
                     displayField: 'name',
-                    fieldLabel: 'Select by projects',
+                    fieldLabel: 'Select by folder',
                     valueField: 'id',
-                    //store: 'EGroups',
                     queryMode: 'local',
                     forceSelection: true,
                     editable: false

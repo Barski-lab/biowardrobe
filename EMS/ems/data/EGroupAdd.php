@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-//logmsg($_REQUEST);
+logmsg($_REQUEST);
 
 $data = json_decode($_REQUEST['data']);
 if (!isset($data))
@@ -33,7 +33,7 @@ if($data->laboratory_id=="00000000-0000-0000-0000-000000000000" || $data->labora
     $response->print_error("Insufficient privileges");
 }
 
-if($data->laboratory_id=="" || $data->name == "" || $data->description=="")
+if($data->name == "" || $data->description=="")
     $response->print_error("Error in receiving data");
 
 
