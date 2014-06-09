@@ -71,7 +71,7 @@ Ext.define('EMS.view.charts.ATDP',
                    }
 
                    Ext.applyIf(me, {
-                                   store: EMS.store.ATDPChart,
+                                   store: "ATDPChart",
                                    shadow: false,
                                    theme: 'Category1',
                                    axes: [{

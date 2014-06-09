@@ -61,8 +61,10 @@ function logmsg()
 
 function guid()
 {
+    $possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    $uuid="";
     if (function_exists('com_create_guid')) {
-        return trim(com_create_guid(), '{}');
+        $uuid=trim(com_create_guid(), '{}');
     } else {
         mt_srand((double)microtime() * 10000); //optional for php 4.2.0 and up.
         $charid = strtoupper(md5(uniqid(rand(), true)));
@@ -73,8 +75,9 @@ function guid()
             . substr($charid, 12, 4) . $hyphen
             . substr($charid, 16, 4) . $hyphen
             . substr($charid, 20, 12);
-        return $uuid;
     }
+    $uuid[0]=$possible[rand(0,count_chars($possible))];
+    return $uuid;
 }
 
 function execSQL($mysqli, $sql, $params, $affectedrows, $round = 3)

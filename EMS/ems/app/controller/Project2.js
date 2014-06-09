@@ -24,7 +24,7 @@
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
     models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
-    stores: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
+    stores: ['ProjectLabData', 'Worker','Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP','Project2.TableViewWindow','Project2.TableView'],
     requires: [ 'EMS.util.Util'
             ],
@@ -136,7 +136,7 @@ Ext.define('EMS.controller.Project2', {
         var detp = Ext.getCmp('project2-details-panel');
 
         if (record.get('type') === 0) {//project
-            var worker = this.getWorkerStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
+            var worker = this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
 
             detp.expand();
             var bd = detp.body;

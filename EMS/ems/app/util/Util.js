@@ -26,8 +26,16 @@ Ext.define('EMS.util.Util', {
                          });
             this.Logger.log(text);
         },
-
-        UUID: function () {
+        UUID: function() {
+            var d = new Date().getTime();
+            var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            var uuid = 'lxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c === 'x' ? r : (c=== 'l')?possible.charAt(Math.floor(Math.random() * possible.length)):(r & 0x7 | 0x8)).toString(16);
+            });
+        },
+        UUID_OLD: function () {
             var d = new Date().getTime();
             var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
                 var r = (d + Math.random() * 16) % 16 | 0;
