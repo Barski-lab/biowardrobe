@@ -4,6 +4,10 @@
 <dict>
 	<key>Disabled</key>
 	<true/>
+	<key>GroupName</key>
+	<string>staff</string>
+	<key>InitGroups</key>
+	<true/>
 	<key>Label</key>
 	<string>st.porter.wardrobe.getnew</string>
 	<key>ProgramArguments</key>
@@ -15,6 +19,10 @@
 	<true/>
 	<key>StartInterval</key>
 	<integer>3600</integer>
+	<key>Umask</key>
+	<integer>2</integer>
+	<key>UserName</key>
+	<string>porter</string>
 	<key>WorkingDirectory</key>
 	<string>/wardrobe/src/genome-tools</string>
 </dict>
