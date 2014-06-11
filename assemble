@@ -18,7 +18,7 @@ read WPASS
 #think twice
 exit 
 #think twice
-mysql -hlocalhost -p${PASS} -uroot < ./sql/wardrobe.sql >>../../output.log 2>&1
+mysql -hlocalhost -p${PASS} -uroot < ./sql/wardrobe.sql >>./output.log 2>&1
 
 mysql -hlocalhost -p${PASS} -uroot -N -e "DROP USER 'wardrobe'@'localhost';" 
 mysql -hlocalhost -p${PASS} -uroot -N -e "CREATE USER 'wardrobe'@'localhost' IDENTIFIED BY PASSWORD '${WPASS}';"
