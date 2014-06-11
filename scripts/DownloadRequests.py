@@ -51,6 +51,7 @@ WARDROBEROOT = settings.settings['wardrobe']
 PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
 BIN = WARDROBEROOT + '/' + settings.settings['bin']
+UPLOAD = WARDROBEROOT + '/upload'  # + settings.settings['bin']
 
 extension = 'fastq'
 
@@ -83,7 +84,7 @@ def check_auth(url, auth):
 
 ######################################################################
 def decompress(fname, ofname):
-    ofname=string.replace(ofname, "//", "/")
+    ofname = string.replace(ofname, "//", "/")
     cmd = ""
     if re.search("\.gz$", fname):
         cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
@@ -140,7 +141,7 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
             fname = "default_fastq"
 
         if 'fastq' not in fname and 'sra' not in fname:
-            return ['Warning', 'File has to contain fastq string']
+            return ['Warning', 'Sra or fastq files only']
 
     if not pair:
         ofname = basedir + '/' + filename + '.' + extension
@@ -183,16 +184,19 @@ def get_file_core(USERNAME, PASSWORD, libcode, basedir, filename, pair):
         with open(BIN + '/Core.py', 'r') as content_file:
             content = content_file.read()
         exec content
-        return get_core(USERNAME, PASSWORD, libcode, basedir, filename, pair)
+        try:
+            return get_core(USERNAME, PASSWORD, libcode, basedir, filename, pair)
+        except Exception, e:
+            return ['Warning', 'Core module not supported']
     else:
         return ['Warning', 'Core module not supported']
 
 
 ######################################################################
-def local_file(downloaddir,basedir, libcode, filename, pair):
+def local_file(downloaddir, basedir, libcode, filename, pair):
     fl = glob.glob(downloaddir + '/' + libcode)
     if len(fl) == 0:
-        fl = glob.glob(downloaddir + '/*' + libcode + '*')
+        fl = glob.glob(downloaddir + '/*' + libcode + '*.fastq*')
 
     flist = list()
 
@@ -200,21 +204,31 @@ def local_file(downloaddir,basedir, libcode, filename, pair):
         return ['Error', 'incorrect number of files for pair end reads']
     if len(fl) > 0 and len(fl) != 1 and not pair:
         return ['Error', 'incorrect number of files for single end reads']
+
     c = 0
     for i in fl:
+        ofname = str()
+        cmd = str()
         if c == 0:
-            os.rename(i, basedir + '/' + filename + '.' + extension)
-            flist.append(filename + '.' + extension)
+            ofname = basedir + '/' + filename + '.' + extension
+            (cmd, ofname) = decompress(i, ofname)
             c = 1
         else:
-            os.rename(i, basedir + '/' + filename + '_2.' + extension)
-            flist.append(filename + '_2.' + extension)
+            ofname = basedir + '/' + filename + '_2.' + extension
+            (cmd, ofname) = decompress(i, ofname)
+        os.rename(i, ofname)
+        flist.append(filename)
+        try:
+            s.check_output(cmd, shell=True)
+        except Exception, e:
+            return ['Warning', 'Cant uncompress ' + ofname]
+
     return flist
 
 
 ######################################################################
-def get_file_local(downloaddir,basedir, libcode, filename, pair):
-    return ""
+def get_file_local(basedir, libcode, filename, pair):
+    return local_file(UPLOAD,basedir,libcode,filename,pair)
 
 
 ######################################################################
@@ -261,27 +275,24 @@ while True:
         pass
 
     a = list()
+
+    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s",
+                                ("URL downloading in proccess", UID))
+    settings.conn.commit()
+
     if downloadid == 1:
-        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s", ('downloading', UID))
-        settings.conn.commit()
         a = get_file_core(row[0], row[1], url, basedir, UID, PAIR)
     if downloadid == 2:
-        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s",
-                                ("URL downloading in proccess", UID))
-        settings.conn.commit()
         a = get_file_url(url, basedir, UID, PAIR, forcerun)
     if downloadid == 3:
-        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where uid=%s",
-                                ("Not supproted yet!", UID))
-        settings.conn.commit()
-        continue
+        a = get_file_local(basedir, url, UID, PAIR)
 
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where uid=%s",
                                 (a[0] + ":" + a[1], UID))
         settings.conn.commit()
         if 'incorrect DNA core credentials' in a[1]:
-            settings.cursor.execute("update worker set dnapass='' where id = %s", (row[8]))
+            settings.cursor.execute("update worker set dnapass='' where uid = %s", (UID))
             settings.conn.commit()
         continue
     if 'Warning' in a[0]:
