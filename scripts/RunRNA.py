@@ -109,9 +109,11 @@ def get_stat(infile, pair):
     lines = 0
 
     if len(FL) == 1:
-        for line in open(infile + '.fastq'):
-            lines += 1
-        TOTAL = lines / 4
+        TOTAL=0
+        for line in open('tophat/align_summary.txt'):
+            if 'Input:' in line:
+                TOTAL = int(line.split('Input:')[1])
+                break
         ALIGNED = 0
         RIBO = 0
         for line in open(infile + '.log'):
