@@ -198,6 +198,9 @@ def local_file(downloaddir, basedir, libcode, filename, pair):
     if len(fl) == 0:
         fl = glob.glob(downloaddir + '/*' + libcode + '*.fastq*')
 
+    if len(fl) == 0:
+        return ['Warning', 'Cant find file']
+
     flist = list()
 
     if len(fl) > 0 and len(fl) != 2 and pair:
