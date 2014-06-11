@@ -274,7 +274,7 @@ while True:
     except:
         pass
 
-    a = get_stat(UID,PAIR)
+    a = get_stat(UID, PAIR)
     settings.cursor.execute(
         "update labdata set libstatustxt='RPKMs calculating',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
         (a[0], a[1], a[2], UID))

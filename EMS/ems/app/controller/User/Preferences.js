@@ -99,6 +99,13 @@ Ext.define('EMS.controller.User.Preferences', {
             this.worker.set(values);
             //this.worker.setDirty();
             this.getWorkerStore().sync();
+        } else {
+            Ext.Msg.show({
+                             title: 'ERROR',
+                             msg: 'Form does not correctly filled up',
+                             icon: Ext.Msg.ERROR,
+                             buttons: Ext.Msg.OK });
+            return false;
         }
             button.up('window').close();
     },
