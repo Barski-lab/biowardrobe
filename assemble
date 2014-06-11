@@ -63,6 +63,7 @@ make >>../../output.log 2>&1
 ln -sf $(pwd)/atdp $BINS/atdp
 
 echo "Assemble complete"
+cd ../../
 
 cd ./scripts/
 

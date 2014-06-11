@@ -519,7 +519,7 @@ CREATE TABLE `worker` (
 
 LOCK TABLES `crosslink` WRITE;
 /*!40000 ALTER TABLE `crosslink` DISABLE KEYS */;
-INSERT INTO `crosslink` VALUES (1,'N/A'),(2,'FA, 10min, RT'),(5,'FA, 5min, RT'),(4,'FA, 8min');
+INSERT INTO `crosslink` VALUES (1,' N/A'),(2,'FA, 10min, RT'),(5,'FA, 5min, RT'),(4,'FA, 8min');
 /*!40000 ALTER TABLE `crosslink` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -606,6 +606,9 @@ INSERT INTO `antibody` VALUES
 /*!40000 ALTER TABLE `antibody` ENABLE KEYS */;
 UNLOCK TABLES;
 
+LOCK TABLES `laboratory` WRITE;
+insert into `laboratory` values('laborato-ry00-0000-0000-000000000001','admin','Admin\'s labaratory. Can do everything.','','');
+UNLOCK TABLES;
 
 LOCK TABLES `worker` WRITE;
 /*!40000 ALTER TABLE `worker` DISABLE KEYS */;
