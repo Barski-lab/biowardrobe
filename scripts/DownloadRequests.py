@@ -219,14 +219,17 @@ def local_file(downloaddir, basedir, libcode, filename, pair):
         else:
             ofname = basedir + '/' + filename + '_2.' + extension
             (cmd, ofname) = decompress(i, ofname)
-        os.rename(i, ofname)
+        shutil.move(i, ofname)
         flist.append(filename)
         try:
             s.check_output(cmd, shell=True)
         except Exception, e:
             return ['Warning', 'Cant uncompress ' + ofname]
-
-    return flist
+    if len(fl)!=len(flist):
+        return ['Error', 'incorrect number of files']
+    else:
+        return ['Success', 'Successfully downloaded']
+    
 
 
 ######################################################################
