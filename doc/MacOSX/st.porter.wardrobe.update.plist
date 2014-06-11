@@ -3,13 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>Disabled</key>
-	<true/>
-	<key>GroupName</key>
-	<string>staff</string>
-	<key>InitGroups</key>
+	<false/>
+	<key>EnableGlobbing</key>
 	<true/>
 	<key>Label</key>
-	<string>st.porter.wardrobe.getnew</string>
+	<string>st.porter.wardrobe.update</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/bin/git</string>
@@ -17,13 +15,13 @@
 	</array>
 	<key>RunAtLoad</key>
 	<true/>
+	<key>StandardErrorPath</key>
+	<string>/tmp/st.porter.wardrobe.getnew</string>
+	<key>StandardOutPath</key>
+	<string>/tmp/st.porter.wardrobe.getnew</string>
 	<key>StartInterval</key>
 	<integer>3600</integer>
 	<key>Umask</key>
 	<integer>2</integer>
-	<key>UserName</key>
-	<string>porter</string>
-	<key>WorkingDirectory</key>
-	<string>/wardrobe/src/genome-tools</string>
 </dict>
 </plist>
