@@ -15,6 +15,8 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/ `experiments` /*!40100 DEFAULT CHARACTE
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `ems` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `ems`;
 
+set foreign_key_checks = 0 ;
+
 --
 -- Table structure for table `antibody`
 --
