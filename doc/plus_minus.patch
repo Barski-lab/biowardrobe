@@ -1,0 +1,261 @@
+diff --git a/src/hg/hgTracks/bedGraph.c b/src/hg/hgTracks/bedGraph.c
+index 06365e1..ff26111 100644
+--- a/src/hg/hgTracks/bedGraph.c
++++ b/src/hg/hgTracks/bedGraph.c
+@@ -140,6 +140,8 @@ struct preDrawContainer *bedGraphLoadPreDraw(struct track *tg, int seqStart, int
+ if (tg->preDrawContainer)
+     return tg->preDrawContainer;
+ 
++struct wigCartOptions *wigCart = (struct wigCartOptions *) tg->extraUiData;
++
+ struct bedGraphItem *wi;
+ double pixelsPerBase = scaleForPixels(width);
+ double basesPerPixel = 1.0;
+@@ -191,6 +193,26 @@ for (wi = tg->items; wi != NULL; wi = wi->next)
+ 		    preDraw[xCoord].min = dataValue;
+ 		preDraw[xCoord].sumData += dataValue;
+ 		preDraw[xCoord].sumSquares += dataValue * dataValue;
++//--------------------------------------------------------------Porter
++if(wigCart->PbedGraph)
++{
++		if (dataValue > preDraw[xCoord].pmax) {
++		    preDraw[xCoord].pmax = dataValue;
++		    preDraw[xCoord].aX = dataValue;
++		}
++		if (dataValue < preDraw[xCoord].pmin) {
++		    preDraw[xCoord].pmin = dataValue;
++		    if(dataValue<0) preDraw[xCoord].bX = dataValue;
++		}
++
++		if(wigCart->windowingFunction == wiggleWindowingWhiskers)
++		{
++		    preDraw[xCoord].max=abs(preDraw[xCoord].pmax)+abs(preDraw[xCoord].pmin);
++		    preDraw[xCoord].min=0;
++		    preDraw[xCoord].sumData = abs(preDraw[xCoord].pmax)+abs(preDraw[xCoord].pmin);
++		}
++}
++		
+ 		}
+ 	    }
+ 	}
+@@ -211,6 +233,26 @@ for (wi = tg->items; wi != NULL; wi = wi->next)
+ 		preDraw[xCoord].min = dataValue;
+ 	    preDraw[xCoord].sumData += dataValue;
+ 	    preDraw[xCoord].sumSquares += dataValue * dataValue;
++
++//--------------------------------------------------------------Porter
++if(wigCart->PbedGraph)
++{
++		if (dataValue > preDraw[xCoord].pmax) {
++		    preDraw[xCoord].pmax = dataValue;
++		    preDraw[xCoord].aX = dataValue;
++		}
++		if (dataValue < preDraw[xCoord].pmin) {
++		    preDraw[xCoord].pmin = dataValue;
++		    if(dataValue<0) preDraw[xCoord].bX = dataValue;
++		}
++
++		if(wigCart->windowingFunction == wiggleWindowingWhiskers)
++		{
++		    preDraw[xCoord].max=abs(preDraw[xCoord].pmax)+abs(preDraw[xCoord].pmin);
++		    preDraw[xCoord].min=0;
++		    preDraw[xCoord].sumData = abs(preDraw[xCoord].pmax)+abs(preDraw[xCoord].pmin);
++		}
++}
+ 	    }
+ 	}
+     }	/*	for (wi = tg->items; wi != NULL; wi = wi->next)	*/
+@@ -230,6 +272,21 @@ if (pre != NULL)
+     }
+ }
+ 
++
++/*
++ Porter
++ synonim for bedGraphMethods
++*/
++void bedGraphMethodsP(struct track *track, struct trackDb *tdb, 
++	int wordCount, char *words[])
++{
++ bedGraphMethods(track, tdb, wordCount, words);
++
++ struct wigCartOptions *wigCart = (struct wigCartOptions *)track->extraUiData;// = (void *) wigCart;
++ wigCart->PbedGraph = TRUE;	/*	signal to left labels	*/
++}
++
++
+ /*
+  *	WARNING ! - track->visibility is merely the default value
+  *	from the trackDb entry at this time.  It will be set after this
+diff --git a/src/hg/hgTracks/hgTracks.h b/src/hg/hgTracks/hgTracks.h
+index 95ff496..65999bc 100644
+--- a/src/hg/hgTracks/hgTracks.h
++++ b/src/hg/hgTracks/hgTracks.h
+@@ -903,6 +903,8 @@ void wigLoadItems(struct track *tg);
+ void wigMethods(struct track *track, struct trackDb *tdb,
+                                 int wordCount, char *words[]);
+ /* Set up wig pointers and do some other precalculations on a wig type track. */
++void bedGraphMethodsP(struct track *track, struct trackDb *tdb,
++	int wordCount, char *words[]);//Porter
+ void bedGraphMethods(struct track *track, struct trackDb *tdb,
+ 	int wordCount, char *words[]);
+ void bigWigMethods(struct track *track, struct trackDb *tdb,
+diff --git a/src/hg/hgTracks/simpleTracks.c b/src/hg/hgTracks/simpleTracks.c
+index 5e06517..503efcc 100644
+--- a/src/hg/hgTracks/simpleTracks.c
++++ b/src/hg/hgTracks/simpleTracks.c
+@@ -12117,6 +12117,10 @@ else if (sameWord(type, "bedGraph"))
+     {
+     bedGraphMethods(track, tdb, wordCount, words);
+     }
++else if (sameWord(type, "PbedGraph")) //Porter
++    {
++     bedGraphMethodsP(track, tdb, wordCount, words);
++    }
+ else if (sameWord(type, "bigWig"))
+     {
+     bigWigMethods(track, tdb, wordCount, words);
+diff --git a/src/hg/hgTracks/wigCommon.h b/src/hg/hgTracks/wigCommon.h
+index 2643d37..d9962fe 100644
+--- a/src/hg/hgTracks/wigCommon.h
++++ b/src/hg/hgTracks/wigCommon.h
+@@ -27,6 +27,7 @@ struct wigCartOptions
+     char *colorTrack;   /*	Track to use for coloring wiggle track. */
+     int graphColumn;	/*	column to be graphing (bedGraph tracks)	*/
+     boolean bedGraph;	/*	is this a bedGraph track ?	*/
++    boolean PbedGraph;	/*	is this a PbedGraph track ?	*/
+     boolean isMultiWig;	/*      If true it's a multi-wig. */
+     boolean overlay;	/*      Overlay multiple wigs on top of each other? */
+     boolean transparent;  /* Doing transparency? */
+@@ -50,9 +51,14 @@ struct preDrawElement
+     {
+     double	max;	/*	maximum value seen for this point	*/
+     double	min;	/*	minimum value seen for this point	*/
++    double	pmax;	/*	maximum value seen for this point	*/
++    double	pmin;	/*	minimum value seen for this point	*/
+     unsigned long long	count;	/* number of datum at this point */
++    unsigned long long	mcount;	/* number of datum at this point */
+     double	sumData;	/*	sum of all values at this point	*/
+     double  sumSquares;	/* sum of (values squared) at this point */
++    double	aX;	/*	sum of all values at this point	*/
++    double	bX;	/*	sum of all values at this point	*/
+     double  plotValue;	/*	raw data to plot	*/
+     double  smooth;	/*	smooth data values	*/
+     };
+diff --git a/src/hg/hgTracks/wigTrack.c b/src/hg/hgTracks/wigTrack.c
+index ff5dfaa..ef063fe 100644
+--- a/src/hg/hgTracks/wigTrack.c
++++ b/src/hg/hgTracks/wigTrack.c
+@@ -552,8 +552,15 @@ int i;
+ for (i = 0; i < size; ++i)
+     {
+     preDraw[i].count = 0;
+-    preDraw[i].max = wigEncodeStartingUpperLimit;
+-    preDraw[i].min = wigEncodeStartingLowerLimit;
++    //preDraw[i].max = wigEncodeStartingUpperLimit;
++    //preDraw[i].min = wigEncodeStartingLowerLimit;
++    preDraw[i].mcount = 0;
++    preDraw[i].max = 0;//wigEncodeStartingUpperLimit;
++    preDraw[i].min = 0;//wigEncodeStartingLowerLimit;
++    preDraw[i].pmax = 0;//wigEncodeStartingUpperLimit;
++    preDraw[i].pmin = 0;//wigEncodeStartingLowerLimit;
++    preDraw[i].aX=0;
++    preDraw[i].bX=0;
+     }
+ return pre;
+ }
+@@ -889,6 +896,60 @@ for (x1 = 0; x1 < width; ++x1)
+          *      clipping will be taken care of by the vgBox() function.
+          */
+ 
++//-----------------------------------------Porter
++if(wigCart->PbedGraph)
++{
++	double aY = max(graphLowerLimit, min(p->aX, graphUpperLimit));//>=0
++	double bY = max(graphLowerLimit, min(p->bX, graphUpperLimit));//<0
++	int y0 = graphUpperLimit * scaleFactor;
++	
++	if(wigCart->windowingFunction == wiggleWindowingWhiskers)
++	{
++		    int y1 = (graphUpperLimit - p->max)*scaleFactor;
++
++		    int boxHeight = max(1,abs(y1 - y0));
++		    int boxTop = min(y1,y0);
++
++		    //	positive data value exactly equal to Bottom pixel
++		    //  make sure it draws at least a pixel there
++		    if (boxTop == h)
++			boxTop = h - 1;
++
++		    // negative data value exactly equal to top pixel
++		    // make sure it draws something
++		    if ((boxTop+boxHeight) == 0)
++			boxHeight += 1;
++		    hvGfxBox(image,x, yOff+boxTop, 1, boxHeight, MG_BLACK);		    
++	} else {
++		    int y1 = (graphUpperLimit - aY)*scaleFactor;
++		    int boxHeight = max(1,abs(y1 - y0));
++		    int boxTop = min(y1,y0);
++
++		    if (boxTop >= h) boxTop = h - 1;
++		    if ((boxTop+boxHeight) == 0) boxHeight += 1;
++		    
++		    hvGfxBox(image,x, yOff+boxTop, 1, boxHeight, MG_BLACK);
++
++		    //minus
++		    y1 = (graphUpperLimit - bY)*scaleFactor;
++
++		    boxHeight = max(1,abs(y1 - y0));
++		    boxTop = min(y1,y0);
++
++		    if (boxTop >= h) boxTop = h - 1;
++		    if ((boxTop+boxHeight) == 0) boxHeight += 1;
++		    hvGfxBox(image,x, yOff+boxTop, 1, boxHeight, MG_GRAY);
++	}
++
++	    if (dataValue > graphUpperLimit)
++		hvGfxBox(image, x, yOff, 1, 2, clipColor);
++	    else if (dataValue < graphLowerLimit)
++		hvGfxBox(image, x, yOff + h - 1, 1, 2, clipColor);
++continue;
++}	    
++ 
++//-----------------------------------------Porter
++
+         if (vis == tvFull || vis == tvPack)
+             {
+ #define scaleHeightToPixels(val) (min(BIGNUM,(scaleFactor * (graphUpperLimit - (val)) + yOff)))
+@@ -1679,6 +1740,7 @@ track->maxRange = wigCart->maxY;
+ track->graphUpperLimit = wigEncodeStartingUpperLimit;
+ track->graphLowerLimit = wigEncodeStartingLowerLimit;
+ wigCart->bedGraph = FALSE;	/*	signal to left labels	*/
++wigCart->PbedGraph = FALSE;	/*	signal to left labels	Porter*/
+ 
+ track->loadItems = wigLoadItems;
+ track->freeItems = wigFreeItems;
+diff --git a/src/hg/lib/trackDbCustom.c b/src/hg/lib/trackDbCustom.c
+index c7b0bd8..2901e52 100644
+--- a/src/hg/lib/trackDbCustom.c
++++ b/src/hg/lib/trackDbCustom.c
+@@ -641,6 +641,8 @@ else if(startsWith("bigWig", type))
+     cType = cfgWig;
+ else if(startsWith("bedGraph", type))
+     cType = cfgWig;
++else if(startsWith("PbedGraph", type)) //Porter
++    cType = cfgWig;
+ else if (startsWith("netAlign", type)
+      || startsWith("net", tdb->track)) // SPECIAL CASE from hgTrackUi which might not be needed
+     cType = cfgNetAlign;
+diff --git a/src/parasol/paraNode/paraNode.c b/src/parasol/paraNode/paraNode.c
+index 278bfb5..b903710 100644
+--- a/src/parasol/paraNode/paraNode.c
++++ b/src/parasol/paraNode/paraNode.c
+@@ -17,6 +17,8 @@
+ #include "internet.h"
+ #include "log.h"
+ 
++#include <sys/time.h>
++#include <sys/resource.h>
+ 
+ /* command line option specifications */
+ static struct optionSpec optionSpecs[] = {

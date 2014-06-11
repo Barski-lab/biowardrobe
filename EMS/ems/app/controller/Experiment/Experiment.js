@@ -20,6 +20,174 @@
  **
  ****************************************************************************/
 
+
+(function (H) {
+    var wrap = H.wrap,
+            seriesTypes = H.seriesTypes;
+
+    /**
+     * Recursively builds a K-D-tree
+     */
+    function KDTree(points, depth) {
+        var axis, median, length = points && points.length;
+
+        if (length) {
+
+            // alternate between the axis
+            axis = ['plotX', 'plotY'][depth % 2];
+
+            // sort point array
+            points.sort(function (a, b) {
+                return a[axis] - b[axis];
+            });
+
+            median = Math.floor(length / 2);
+
+            // build and return node
+            return {
+                point: points[median],
+                left: KDTree(points.slice(0, median), depth + 1),
+                right: KDTree(points.slice(median + 1), depth + 1)
+            };
+
+        }
+    }
+
+    /**
+     * Recursively searches for the nearest neighbour using the given K-D-tree
+     */
+    function nearest(search, tree, depth) {
+        var point = tree.point,
+                axis = ['plotX', 'plotY'][depth % 2],
+                tdist,
+                sideA,
+                sideB,
+                ret = point,
+                nPoint1,
+                nPoint2;
+
+        // Get distance
+        point.dist = Math.pow(search.plotX - point.plotX, 2) +
+                     Math.pow(search.plotY - point.plotY, 2);
+
+        // Pick side based on distance to splitting point
+        tdist = search[axis] - point[axis];
+        sideA = tdist < 0 ? 'left' : 'right';
+
+        // End of tree
+        if (tree[sideA]) {
+            nPoint1 = nearest(search, tree[sideA], depth + 1);
+
+            ret = (nPoint1.dist < ret.dist ? nPoint1 : point);
+
+            sideB = tdist < 0 ? 'right' : 'left';
+            if (tree[sideB]) {
+                // compare distance to current best to splitting point to decide wether to check side B or not
+                if (Math.abs(tdist) < ret.dist) {
+                    nPoint2 = nearest(search, tree[sideB], depth + 1);
+                    ret = (nPoint2.dist < ret.dist ? nPoint2 : ret);
+                }
+            }
+        }
+        return ret;
+    }
+
+    // Extend the heatmap to use the K-D-tree to search for nearest points
+    H.seriesTypes.heatmap.prototype.setTooltipPoints = function () {
+        var series = this;
+
+        this.tree = null;
+        setTimeout(function () {
+            series.tree = KDTree(series.points, 0);
+        });
+    };
+    H.seriesTypes.heatmap.prototype.getNearest = function (search) {
+        if (this.tree) {
+            return nearest(search, this.tree, 0);
+        }
+    };
+
+    H.wrap(H.Pointer.prototype, 'runPointActions', function (proceed, e) {
+        var chart = this.chart;
+        proceed.call(this, e);
+
+        // Draw independent tooltips
+        H.each(chart.series, function (series) {
+            var point;
+            if (series.getNearest) {
+                point = series.getNearest({
+                                              plotX: e.chartX - chart.plotLeft,
+                                              plotY: e.chartY - chart.plotTop
+                                          });
+                if (point) {
+                    point.onMouseOver(e);
+                }
+            }
+        })
+    });
+
+    /**
+     * Get the canvas context for a series
+     */
+    H.Series.prototype.getContext = function () {
+        var canvas;
+        if (!this.ctx) {
+            canvas = document.createElement('canvas');
+            canvas.setAttribute('width', this.chart.plotWidth);
+            canvas.setAttribute('height', this.chart.plotHeight);
+            canvas.style.position = 'absolute';
+            canvas.style.left = this.group.translateX + 'px';
+            canvas.style.top = this.group.translateY + 'px';
+            canvas.style.zIndex = 0;
+            canvas.style.cursor = 'crosshair';
+            this.chart.container.appendChild(canvas);
+            if (canvas.getContext) {
+                this.ctx = canvas.getContext('2d');
+            }
+        }
+        return this.ctx;
+    }
+
+    /**
+     * Wrap the drawPoints method to draw the points in canvas instead of the slower SVG,
+     * that requires one shape each point.
+     */
+    H.wrap(H.seriesTypes.heatmap.prototype, 'drawPoints', function (proceed) {
+
+        var ctx;
+        if (this.chart.renderer.forExport) {
+            // Run SVG shapes
+            proceed.call(this);
+
+        } else {
+
+            if (ctx = this.getContext()) {
+
+                // draw the columns
+                H.each(this.points, function (point) {
+                    var plotY = point.plotY,
+                            shapeArgs;
+
+                    if (plotY !== undefined && !isNaN(plotY) && point.y !== null) {
+                        shapeArgs = point.shapeArgs;
+
+                        ctx.fillStyle = point.pointAttr[''].fill;
+                        ctx.fillRect(shapeArgs.x, shapeArgs.y, shapeArgs.width, shapeArgs.height);
+                    }
+                });
+
+            } else {
+                this.chart.showLoading("Your browser doesn't support HTML5 canvas, <br>please use a modern browser");
+
+                // Uncomment this to provide low-level (slow) support in oldIE. It will cause script errors on
+                // charts with more than a few thousand points.
+                //proceed.call(this);
+            }
+        }
+    });
+}(Highcharts));
+
+
 Ext.define('EMS.controller.Experiment.Experiment', {
     extend: 'Ext.app.Controller',
 
@@ -32,10 +200,10 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     stores: ['Preferences', 'EGroups', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins'],
 
     views: [//'Experiment.Experiment.MainWindow',
-            //'Experiment.Experiment.EditForm',
-            'Experiment.Experiment.QualityControl',
-            'Experiment.Experiment.Islands',
-            'Experiment.Experiment.RPKM',
+        //'Experiment.Experiment.EditForm',
+        'Experiment.Experiment.QualityControl',
+        'Experiment.Experiment.Islands',
+        'Experiment.Experiment.RPKM',
     ],
 
     requires: [
@@ -102,8 +270,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         this.db = gdata.db;
 
 
-        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID=this.UID;
-        Ext.ComponentQuery.query('experimenteditform #notes')[0].UID=this.UID;
+        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID = this.UID;
+        Ext.ComponentQuery.query('experimenteditform #notes')[0].UID = this.UID;
 
     },
     /******************************
@@ -126,7 +294,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
         this.isRNA = ((Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue().indexOf('RNA') !== -1);
 
-        if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa )
+        if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa)
             this.readOnlyAll(form);
 
 
@@ -142,7 +310,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts < 11)
             return;
 
-            this.setDisabledByStatus(sts);
+        this.setDisabledByStatus(sts);
 
         this.addQC(maintabpanel, record);
         this.addGB(maintabpanel);
@@ -154,7 +322,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
             this.addIslandsList(maintabpanel);
             this.addATDPChart(maintabpanel, record.data.name4browser + " " + anti);
-            //this.addATDPChartH(maintabpanel);
+            //this.addATDPChartH(maintabpanel, record.data.name4browser + " " + anti);
         }//>11 and not RNA
 
         if (sts > 11 && this.isRNA) {
@@ -417,41 +585,137 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      * Add average tag density profile tab
      ***********************************************************************/
     addATDPChartH: function (tab, bn) {
-        var me=this;
+        var me = this;
 
         Ext.Ajax.request({
                              url: 'data/ATDPHeat.php',
-            params:{
-                'tablename': me.UID+"_atdph"
-            },
+                             params: {
+                                 'tablename': me.UID + "_atdph"
+                             },
                              method: 'GET',
                              timeout: 600000, //600 sec
                              success: function (response) {
                                  var json = Ext.decode(response.responseText);
-                                 console.log(arguments);
-                                 console.log(json);
-//                                 if (!json.success) {
-//                                     EMS.util.Util.Logger.log("Cant run manorm, error: " + json.message);
-//                                     Ext.MessageBox.show({
-//                                                             title: 'For you information',
-//                                                             msg: 'There was an error with MANorm.You have to rerun.<br>Do you want dialog for MANorm to be shown?<br>' + json.message,
-//                                                             icon: Ext.MessageBox.ERROR,
-//                                                             fn: function (buttonId) {
-//                                                                 if (buttonId === "yes") {
-//                                                                 } else {
-//                                                                 }
-//                                                             },
-//                                                             buttons: Ext.Msg.YESNO
-//                                                         });
-//                                 } else {
-//                                 }
-                                 me.ATDPChartH = Ext.create("EMS.view.Experiment.Experiment.ATPHeat",{data:json.data});
-                                 tab.add(me.ATDPChartH);
+                                 tab.add(
+                                         {
+
+                                             bodyPadding: 0,
+                                             border: false,
+                                             frame: false,
+                                             layout: 'border',
+                                             plain: true,
+                                             title: 'Average Tag Density Heat',
+                                             iconCls: 'chart-line',
+                                             layout: 'fit',
+                                             items: [
+                                                 {
+                                                     xtype: 'highchart',
+                                                     animation: false,
+                                                     chartConfig: {
+                                                         alignTicks: false,
+                                                         exporting: {
+                                                             enabled: false
+                                                         },
+                                                         xAxis: {
+                                                             categories: json.data.catx,
+                                                             labels: {
+                                                                 //enabled: false,
+                                                                 //align: 'left',
+                                                                 //x: 5,
+                                                                 //format: '{value:%B}' // long month
+                                                             },
+                                                             //showLastLabel: false,
+                                                             minorTickLength: 0,
+                                                             tickLength: 0,
+                                                             tickPositions: [0, json.data.catx.length - 1],
+                                                             gridLineWidth: 0,
+                                                             minorGridLineWidth: 0,
+                                                             startOnTick: false,
+                                                             endOnTick: false,
+                                                         },
+                                                         tooltip: {
+                                                             backgroundColor: null,
+                                                             borderWidth: 0,
+                                                             //distance: 10,
+                                                             shadow: false,
+                                                             useHTML: true,
+                                                             positioner: function (a, b, c) {
+                                                                 return {x: 10, y: c.plotY + 80};
+                                                             },
+                                                             style: {
+                                                                 padding: 0,
+                                                                 color: 'black'
+                                                             },
+                                                             formatter: function () {
+                                                                 return '<b> TSS '+ this.series.xAxis.categories[this.point.x] + '</b><br>' +
+                                                                        '<b> ' + this.series.yAxis.categories[this.point.y] + '</b><br>' +
+                                                                        this.point.value;
+                                                             }
+
+                                                         },
+                                                         legend: {
+                                                             align: 'right',
+                                                             layout: 'vertical',
+                                                             margin: 0,
+                                                             verticalAlign: 'top',
+                                                             y: 150,
+                                                             symbolHeight: 300
+                                                         },
+                                                         yAxis: {
+                                                             categories: json.data.caty,
+                                                             title: 'Genes',
+                                                             //showLastLabel: false,
+                                                             minorTickLength: 0,
+                                                             tickLength: 0,
+                                                             gridLineWidth: 0,
+                                                             tickInterval: json.data.caty.length - 1,
+                                                             minorGridLineWidth: 0,
+                                                             labels: {
+                                                                 enabled: false,
+                                                             },
+                                                             startOnTick: false,
+                                                             endOnTick: false,
+                                                             //tickLength: 10
+                                                         },
+                                                         chart: {
+                                                             type: 'heatmap',
+                                                             //borderWidth: 1
+                                                             //zoomType: 'y',
+                                                             plotBorderWidth: 1,
+                                                             animation: false,
+                                                             width: 500,
+                                                             margin: [100, 200, 100, 200]
+                                                         },
+                                                         title: {
+                                                             text: bn
+                                                         },
+                                                         colorAxis: {
+                                                             min: 0,
+                                                             max: json.data.max,
+                                                             minColor: '#FFFFFF',
+                                                             maxColor: '#000000'
+                                                         },
+                                                         series: [
+                                                             {
+                                                                 name: 'heat',
+                                                                 borderWidth: 0,
+                                                                 data: json.data.index,
+                                                             }
+                                                         ]
+
+                                                     }
+                                                 }
+                                             ]
+                                         });
+
+                                 //me.ATDPChartH = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {data: json.data});
+                                 //tab.add(me.ATDPChartH);
                              },
                              failure: function () {
                                  EMS.util.Util.Logger.log("Cant run error");
                              },
                          });
+
 
     },
     /***********************************************************************

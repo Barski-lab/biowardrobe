@@ -1,0 +1,19 @@
+#MySQL host to connect
+localhost
+
+#MySQL User
+wardrobe
+
+#MySQL password
+mypassword
+
+#Wardrobe DB
+ems
+
+#MySQL port
+3306
+
+#C++ variables
+#MySQL Qt Driver
+QMYSQL
+

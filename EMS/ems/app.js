@@ -25,7 +25,8 @@ Ext.Loader.setConfig({
                          enabled: true,
                          paths: {
                              //Ext: '.',
-                             'Ext.ux': 'ux'
+                             'Ext.ux': 'ux',
+                             'Chart' : 'Chart'
                          }
                      });
 
@@ -105,6 +106,11 @@ Ext.Loader.setConfig({
 
 /******************************************************************
  ******************************************************************/
+
+Ext.require('Chart.ux.Highcharts');
+Ext.require('Chart.ux.Highcharts.Serie');
+Ext.require('Chart.ux.Highcharts.HeatmapSerie');
+
 
     //http://stackoverflow.com/questions/15834689/extjs-4-2-tooltips-not-wide-enough-to-see-contents
 delete Ext.tip.Tip.prototype.minWidth;

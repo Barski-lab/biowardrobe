@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<true/>
+	<key>Label</key>
+	<string>st.porter.wardrobe.getnew</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/bin/git</string>
+		<string>pull</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StartInterval</key>
+	<integer>3600</integer>
+	<key>WorkingDirectory</key>
+	<string>/wardrobe/src/genome-tools</string>
+</dict>
+</plist>

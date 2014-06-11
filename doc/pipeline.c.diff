@@ -1,0 +1,44 @@
+--- ./pipeline.c.orig	2012-03-14 16:06:42.000000000 -0400
++++ ./pipeline.c	2012-03-14 17:00:13.000000000 -0400
+@@ -1,5 +1,6 @@
+ /* pipeline.c - create a process pipeline that can be used for reading or
+  * writing  */
++/* Patched 03/2012 by Andrey Kartashov porter@porter.st. Issue setpgid() operation not permitted. */
+ #include "pipeline.h"
+ #include "common.h"
+ #include "sqlNum.h"
+@@ -294,9 +295,9 @@
+ if (signal(SIGPIPE, SIG_IGN) == SIG_ERR)
+     errnoAbort("error ignoring SIGPIPE");
+ // set process group to first subprocess id, which might be us
+-pid_t pgid = (pl->pgid < 0) ? getpid() : pl->pgid;
+-if (setpgid(getpid(), pgid) != 0)
+-    errnoAbort("error from setpgid(%d, %d)", getpid(), pgid);
++//pid_t pgid = (pl->pgid < 0) ? getpid() : pl->pgid;
++if (setpgid(getpid(), getppid()) != 0)
++    errnoAbort("error from setpgid(%d, %d)", getpid(), getppid());
+ 
+ if (otherEndBuf != NULL)
+     plProcMemWrite(proc, procStdoutFd, stderrFd, otherEndBuf, otherEndBufSize);
+@@ -328,8 +329,10 @@
+ 
+ /* parent only */
+ if (pl->pgid < 0)
++   {
++    setpgid(0,0);
+     pl->pgid = proc->pid; // first process defines pgid
+-
++   }
+ /* record that we did this */
+ plProcStateTrans(proc, procStateRun);
+ pl->numRunning++;
+@@ -624,7 +627,8 @@
+ /* wait on one process to finish */
+ {
+ int status;
+-pid_t pid = waitpid(-pl->pgid, &status, 0);
++//pid_t pid = waitpid(-pl->pgid, &status, 0);
++pid_t pid = waitpid(0, &status, 0);
+ if (pid < 0)
+     errnoAbort("waitpid failed");
+ plProcWait(pipelineFindProc(pl, pid), status);

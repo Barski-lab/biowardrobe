@@ -1,0 +1,127 @@
+diff --cc src/parasol/paraNode/paraNode.c
+index 7b7c7b0,b903710..0000000
+--- a/src/parasol/paraNode/paraNode.c
++++ b/src/parasol/paraNode/paraNode.c
+@@@ -16,6 -16,8 +16,11 @@@
+  #include "paraMessage.h"
+  #include "internet.h"
+  #include "log.h"
+++//<<<<<<< Updated upstream
+++//=======
++ 
++ #include <sys/time.h>
+++//>>>>>>> Stashed changes
+  #include <sys/resource.h>
+  
+  /* command line option specifications */
+diff --git a/src/hg/hgTracks/simpleTracks.c b/src/hg/hgTracks/simpleTracks.c
+index 083216b..1c48a62 100644
+--- a/src/hg/hgTracks/simpleTracks.c
++++ b/src/hg/hgTracks/simpleTracks.c
+@@ -3802,7 +3802,7 @@ if (differentString(option,ETHNIC_GROUP_DEFAULT))
+ 
+ if (needJoin)
+     {
+-    sqlDyStringPrintf(query, "select %s.* from %s,polyGenotype where ",
++    sqlDyStringPrintf(query, "select `%s`.* from `%s`,polyGenotype where ",
+ 	tg->table, tg->table);
+ 
+     if (differentString(option,ETHNIC_GROUP_DEFAULT))
+@@ -3811,13 +3811,13 @@ if (needJoin)
+ 	    cartCgiUsualString(cart, ETHNIC_GROUP_EXCINC, ETHNIC_NOT_DEFAULT);
+ 	if (sameWord(optionNot,"include"))
+ 	    {
+-	    sqlDyStringPrintf(query, "%s.name=polyGenotype.name and "
++	    sqlDyStringPrintf(query, "`%s`.name=polyGenotype.name and "
+ 		"polyGenotype.ethnicGroup=\"%s\" and ",
+ 		    tg->table, option);
+ 	    }
+ 	    else
+ 	    {
+-	    sqlDyStringPrintf(query, "%s.name=polyGenotype.name and "
++	    sqlDyStringPrintf(query, "`%s`.name=polyGenotype.name and "
+ 		"polyGenotype.ethnicGroup!=\"%s\" and ",
+ 		    tg->table, option);
+ 	    }
+@@ -3832,7 +3832,8 @@ if (needJoin)
+     }
+ else
+     {
+-    sqlDyStringPrintf(query, "select * from %s where ", tg->table);
++    //Porter
++    sqlDyStringPrintf(query, "select * from `%s` where ", tg->table);
+     }
+ 
+ hAddBinToQuery(winStart, winEnd, query);
+@@ -3871,7 +3872,7 @@ if (differentString(option,DISEASE_DEFAULT))
+ 	dyStringPrintf(query, " and disease!=\"NA\"");
+     }
+ 
+-sqlDyStringPrintf(query, " group by %s.name", tg->table);
++sqlDyStringPrintf(query, " group by `%s`.name", tg->table);
+ 
+ sr = sqlGetResult(conn, dyStringCannibalize(&query));
+ rowOffset=1;
+diff --git a/src/hg/lib/hdb.c b/src/hg/lib/hdb.c
+index eab02ff..c7fe0e1 100644
+--- a/src/hg/lib/hdb.c
++++ b/src/hg/lib/hdb.c
+@@ -3507,7 +3507,8 @@ else
+     else
+         {
+ 	table = rootTable;
+-	sqlDyStringPrintf(query, "%s where %s='%s' and ",
++	//Porter
++	sqlDyStringPrintf(query, "`%s` where %s='%s' and ",
+ 	    table, hti->chromField, chrom);
+ 	}
+     }
+diff --git a/src/hg/lib/jksql.c b/src/hg/lib/jksql.c
+index a08e6e1..2266332 100644
+--- a/src/hg/lib/jksql.c
++++ b/src/hg/lib/jksql.c
+@@ -804,13 +804,13 @@ struct sqlConnection *cacheConn = sqlTableCacheFindConn(conn);
+ if (cacheConn)
+     {
+     char *tableListTable = cfgVal("showTableCache");
+-    sqlSafef(query, sizeof(query), "SELECT Field, Type, NullAllowed, isKey, hasDefault, Extra FROM %s WHERE tableName='%s'", \
++    sqlSafef(query, sizeof(query), "SELECT Field, Type, NullAllowed, isKey, hasDefault, Extra FROM `%s` WHERE tableName='%s'", \
+         tableListTable, table);
+     conn = cacheConn;
+     }
+ 
+ else
+-    sqlSafef(query, sizeof(query), "DESCRIBE %s", table);
++    sqlSafef(query, sizeof(query), "DESCRIBE `%s`", table);
+ 
+ struct sqlResult *sr;
+ sr = sqlGetResult(conn, query);
+@@ -1428,24 +1428,24 @@ if (strchr(table,'%'))
+ 	dumpStack("jksql sqlTableExists: Buggy code is feeding me junk wildcards. table=[%s].\n", table); fflush(stderr); // log only
+     return FALSE;
+     }
+-if (strchr(table,'-'))
++/*if (strchr(table,'-'))
+     {
+     return FALSE;  // mysql does not allow tables with dash (-) so it will not be found.
+     // hg/lib/hdb.c can generate an invalid table names with dashes while looking for split tables,
+     // if the first chrom name has a dash in it. Examples found were: scaffold_0.1-193456 scaffold_0.1-13376 HERVE_a-int 1-1
+     // Assembly hubs also may have dashes in chrom names.
+     }
+-
++*/
+ // use the table cache if we have one
+ struct sqlConnection *cacheConn = sqlTableCacheFindConn(sc);
+ if (cacheConn)
+     return sqlTableCacheTableExists(cacheConn, table);
+ 
+-sqlSafef(query, sizeof(query), "SELECT 1 FROM %-s LIMIT 0", sqlCkIl(table));  
++sqlSafef(query, sizeof(query), "SELECT 1 FROM `%-s` LIMIT 0", sqlCkIl(table));  
+ //sqlSafef(query, sizeof(query), "SELECT 1 FROM %-s LIMIT 0", sqlCkId(table));  // DEBUG RESTORE
+ if ((sr = sqlUseOrStore(sc, query, DEFAULTGETTER, FALSE)) == NULL)
+     {
+-    if (!sc->failoverConn)
++    if (!sc->failoverConn) 
+         return FALSE;
+     // if not found but we have a main connection, check the main connection, too
+     else if ((sr = sqlUseOrStore(sc->failoverConn, query, DEFAULTGETTER, FALSE)) == NULL)
