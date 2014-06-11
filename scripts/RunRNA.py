@@ -77,7 +77,7 @@ def run_tophat(infile, params, pair, force=False):
         os.unlink('./' + infile + '.bam')
         os.rename('./' + infile + '_s.bam', './' + infile + '.bam')
         s.check_output('samtools index ./' + infile + '.bam ', shell=True)
-        s.check_output('bzip2' + infile + '*.fastq', shell=True)
+        s.check_output('bzip2 "' + infile + '*.fastq"', shell=True)
         return ['Success', ' Tophat finished']
     except Exception, e:
         return ['Error', str(e)]
