@@ -8,17 +8,14 @@
 	<true/>
 	<key>Label</key>
 	<string>st.porter.wardrobe.update</string>
-	<key>ProgramArguments</key>
-	<array>
-		<string>/usr/bin/git</string>
-		<string>pull</string>
-	</array>
+	<key>Program</key>
+	<string>/wardrobe/bin/update.sh</string>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/tmp/st.porter.wardrobe.getnew</string>
+	<string>/tmp/st.porter.wardrobe.update</string>
 	<key>StandardOutPath</key>
-	<string>/tmp/st.porter.wardrobe.getnew</string>
+	<string>/tmp/st.porter.wardrobe.update</string>
 	<key>StartInterval</key>
 	<integer>3600</integer>
 	<key>Umask</key>
