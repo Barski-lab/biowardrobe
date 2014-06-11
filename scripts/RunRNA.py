@@ -268,8 +268,9 @@ while True:
     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=11 where uid=%s", (a[0] + ": " + a[1], UID))
     settings.conn.commit()
     try:
-        os.waitpid(PID, 0)
-        time.sleep(5)
+        if PID != 0:
+            os.waitpid(PID, 0)
+            time.sleep(5)
     except:
         pass
 
