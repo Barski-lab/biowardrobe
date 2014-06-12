@@ -312,8 +312,10 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
         this.setDisabledByStatus(sts);
 
-        this.addQC(maintabpanel, record);
-        this.addGB(maintabpanel);
+        if (sts > 11) {
+            this.addQC(maintabpanel, record);
+            this.addGB(maintabpanel);
+        }
 
         if (sts > 11 && !this.isRNA) {
             var anti = "";
@@ -574,7 +576,11 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                                   if (records[i].data.Y > max)
                                       max = records[i].data.Y;
                               }
-                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
+                              var prc=0,mx=max;
+                              for(;mx<1;prc++)
+                                  mx*=10;
+                              prc+=2;
+                              // = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
                               me.ATDPChart = Ext.create("EMS.view.Experiment.Experiment.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
                               tab.add(me.ATDPChart);
                           }
@@ -647,7 +653,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                                                                  color: 'black'
                                                              },
                                                              formatter: function () {
-                                                                 return '<b> TSS '+ this.series.xAxis.categories[this.point.x] + '</b><br>' +
+                                                                 return '<b> TSS ' + this.series.xAxis.categories[this.point.x] + '</b><br>' +
                                                                         '<b> ' + this.series.yAxis.categories[this.point.y] + '</b><br>' +
                                                                         this.point.value;
                                                              }

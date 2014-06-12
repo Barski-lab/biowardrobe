@@ -6,6 +6,15 @@
 	<false/>
 	<key>EnableGlobbing</key>
 	<true/>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/wardrobe/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+	</dict>
+	<key>GroupName</key>
+	<string>staff</string>
+	<key>InitGroups</key>
+	<true/>
 	<key>Label</key>
 	<string>st.porter.wardrobe.update</string>
 	<key>Program</key>
@@ -20,5 +29,7 @@
 	<integer>3600</integer>
 	<key>Umask</key>
 	<integer>2</integer>
+	<key>UserName</key>
+	<string>porter</string>
 </dict>
 </plist>

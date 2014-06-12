@@ -202,14 +202,19 @@ while True:
     if check_error(d.run_bedgraph(UID, BEDFORMAT, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
-    if check_error(d.run_atp(UID,BIN), UID):
-        continue
-
     a = get_stat(UID)
     if type(a[0]) is str and check_error(a, UID):
         continue
     settings.cursor.execute(
-        "update labdata set libstatustxt='Complete',libstatus=12,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
+        "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
         (a[0], a[1], a[2], UID))
+
+    if check_error(d.run_atp(UID, BIN), UID):
+        continue
+
+    settings.cursor.execute(
+        "update labdata set libstatustxt='Complete',libstatus=12 where uid=%s",
+        (UID,))
+
     settings.conn.commit()
 

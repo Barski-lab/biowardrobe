@@ -6,6 +6,14 @@
 	<false/>
 	<key>EnableGlobbing</key>
 	<true/>
+    <key>KeepAlive</key>
+    <dict>
+        <key>PathState</key>
+        <dict>
+            <key>/Volumes/EXTERNAL01/</key>
+            <false/>
+        </dict>
+    </dict>
 	<key>Label</key>
 	<string>st.porter.wardrobe.mount</string>
 	<key>ProgramArguments</key>
