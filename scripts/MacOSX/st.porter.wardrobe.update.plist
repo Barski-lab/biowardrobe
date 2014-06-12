@@ -18,9 +18,9 @@
 	<key>Label</key>
 	<string>st.porter.wardrobe.update</string>
 	<key>Program</key>
-	<string>/wardrobe/bin/update.sh</string>
+	<string>/usr/local/libexec/update.sh</string>
 	<key>RunAtLoad</key>
-	<false/>
+	<true/>
 	<key>StandardErrorPath</key>
 	<string>/tmp/st.porter.wardrobe.update</string>
 	<key>StandardOutPath</key>

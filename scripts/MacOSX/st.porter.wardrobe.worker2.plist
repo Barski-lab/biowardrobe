@@ -16,15 +16,18 @@
 	<key>InitGroups</key>
 	<true/>
 	<key>Label</key>
-	<string>st.porter.wardrobe.randna</string>
-	<key>Program</key>
-	<string>/wardrobe/bin/RunDNA.py</string>
+	<string>st.porter.wardrobe.worker2</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/libexec/wardrobeworker.sh</string>
+		<string>2</string>
+	</array>
 	<key>RunAtLoad</key>
 	<true/>
 	<key>StandardErrorPath</key>
-	<string>/tmp/st.porter.wardrobe.rundna</string>
+	<string>/tmp/st.porter.wardrobe.worker</string>
 	<key>StandardOutPath</key>
-	<string>/tmp/st.porter.wardrobe.rundna</string>
+	<string>/tmp/st.porter.wardrobe.worker</string>
 	<key>StartInterval</key>
 	<integer>300</integer>
 	<key>Umask</key>
