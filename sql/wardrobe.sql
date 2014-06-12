@@ -612,6 +612,17 @@ LOCK TABLES `laboratory` WRITE;
 insert into `laboratory` values('laborato-ry00-0000-0000-000000000001','admin','Admin\'s labaratory. Can do everything.','','');
 UNLOCK TABLES;
 
+--
+-- Dumping data for table `experimenttype`
+--
+
+LOCK TABLES `experimenttype` WRITE;
+/*!40000 ALTER TABLE `experimenttype` DISABLE KEYS */;
+INSERT INTO `experimenttype` VALUES (1,'DNA-Seq'),(2,'DNA-Seq pair'),(3,'RNA-Seq'),(5,'RNA-Seq dUTP'),(6,'RNA-Seq dUTP pair'),(4,'RNA-Seq pair');
+/*!40000 ALTER TABLE `experimenttype` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
 LOCK TABLES `worker` WRITE;
 /*!40000 ALTER TABLE `worker` DISABLE KEYS */;
 /*admin with pass admin */
