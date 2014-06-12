@@ -51,7 +51,7 @@ WARDROBEROOT = settings.settings['wardrobe']
 PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
 BIN = WARDROBEROOT + '/' + settings.settings['bin']
-UPLOAD = WARDROBEROOT + '/upload'  # + settings.settings['bin']
+UPLOAD = WARDROBEROOT + '/'  + settings.settings['upload']
 
 extension = 'fastq'
 
