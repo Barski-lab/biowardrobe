@@ -208,6 +208,7 @@ while True:
     settings.cursor.execute(
         "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
         (a[0], a[1], a[2], UID))
+    settings.conn.commit()
 
     if check_error(d.run_atp(UID, BIN), UID):
         continue
@@ -215,6 +216,5 @@ while True:
     settings.cursor.execute(
         "update labdata set libstatustxt='Complete',libstatus=12 where uid=%s",
         (UID,))
-
     settings.conn.commit()
 

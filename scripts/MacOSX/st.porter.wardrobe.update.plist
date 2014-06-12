@@ -20,7 +20,7 @@
 	<key>Program</key>
 	<string>/wardrobe/bin/update.sh</string>
 	<key>RunAtLoad</key>
-	<true/>
+	<false/>
 	<key>StandardErrorPath</key>
 	<string>/tmp/st.porter.wardrobe.update</string>
 	<key>StandardOutPath</key>
