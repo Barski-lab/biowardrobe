@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>EnableGlobbing</key>
+	<true/>
+    <key>KeepAlive</key>
+    <dict>
+        <key>PathState</key>
+        <dict>
+            <key>/Volumes/EXTERNAL01/</key>
+            <false/>
+        </dict>
+    </dict>
+	<key>Label</key>
+	<string>st.porter.wardrobe.startupdate</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>launchctl</string>
+		<string>load</string>
+		<string>/Library/LaunchDaemons/st.porter.wardrobe.update.plist</string>
+	</array>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/tmp/st.porter.wardrobe.startupdate</string>
+	<key>StandardOutPath</key>
+	<string>/tmp/st.porter.wardrobe.startupdate</string>
+</dict>
+</plist>

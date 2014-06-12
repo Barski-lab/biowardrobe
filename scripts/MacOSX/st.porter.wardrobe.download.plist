@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>EnableGlobbing</key>
+	<true/>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>PATH</key>
+		<string>/wardrobe/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin</string>
+	</dict>
+	<key>GroupName</key>
+	<string>staff</string>
+	<key>InitGroups</key>
+	<true/>
+	<key>Label</key>
+	<string>st.porter.wardrobe.download</string>
+	<key>Program</key>
+	<string>/wardrobe/bin/DownloadRequests.py</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>StandardErrorPath</key>
+	<string>/tmp/st.porter.wardrobe.download</string>
+	<key>StandardOutPath</key>
+	<string>/tmp/st.porter.wardrobe.download</string>
+	<key>StartInterval</key>
+	<integer>600</integer>
+	<key>Umask</key>
+	<integer>2</integer>
+	<key>UserName</key>
+	<string>porter</string>
+</dict>
+</plist>
