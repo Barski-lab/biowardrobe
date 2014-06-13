@@ -21,7 +21,7 @@
  ****************************************************************************/
 Ext.define('EMS.model.ProjectTree', {
     extend: 'Ext.data.Model',
-    requires: ['EMS.proxy.StandardProxy'],
+    //requires: ['EMS.proxy.StandardProxy'],
 
     fields: [
         { name: 'id', type: 'string'},
@@ -34,13 +34,13 @@ Ext.define('EMS.model.ProjectTree', {
         { name: 'isnew', type: 'int'},
         { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'}
     ],
-    proxy: {
-        type: 'standardproxy',
-        api: {
-            read: 'data/ProjectTree.php',
-            update: 'data/ProjectTreeUp.php',
-            create: '',
-            destroy: ''
-        }
-    }
+//    proxy: {
+//        type: 'standardproxy',
+//        api: {
+//            read: 'data/ProjectTree.php',
+//            update: 'data/ProjectTreeUp.php',
+//            create: '',
+//            destroy: ''
+//        }
+//    }
 });

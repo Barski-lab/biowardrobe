@@ -21,11 +21,24 @@
  ****************************************************************************/
 Ext.define('EMS.store.ProjectTree', {
     extend: 'Ext.data.TreeStore',
-    requires: ['EMS.model.ProjectTree'],
+    requires: ['EMS.model.ProjectTree',
+               'EMS.proxy.StandardProxy'],
 
     storeId: 'ProjectTree',
     model: 'EMS.model.ProjectTree',
+    clearOnLoad: true,
     autoLoad: false,
     autoSync: false,
     singleton: false,
+    defaultRootProperty: 'data',
+    proxy: {
+        type: 'standardproxy',
+        api: {
+            read: 'data/ProjectTree.php',
+            update: 'data/ProjectTreeUp.php',
+            create: 'data/ProjectTreeAdd.php',
+            destroy: 'data/ProjectTreeDel.php'
+        }
+    }
+
 });

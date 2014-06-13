@@ -34,6 +34,7 @@ Ext.define('EMS.util.Util', {
                 d = Math.floor(d / 16);
                 return (c === 'x' ? r : (c=== 'l')?possible.charAt(Math.floor(Math.random() * possible.length)):(r & 0x7 | 0x8)).toString(16);
             });
+            return uuid;
         },
         UUID_OLD: function () {
             var d = new Date().getTime();

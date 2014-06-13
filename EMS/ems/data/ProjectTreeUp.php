@@ -28,21 +28,22 @@ $data = json_decode($_REQUEST['data']);
 
 if (!isset($data))
     $res->print_error("no data");
+if ($worker->isAdmin())
+    $res->print_error("Admins cant add new project!");
 
 $count = 1;
 
 $con = def_connect();
 $con->autocommit(FALSE);
 
-
 function update_insert($val)
 {
-    global $con, $res, $db_name_ems;
+    global $con,$worker;
     check_val($val->id);
 
     if ($val->parentId == "own" && intVal($val->isnew) == 1) {
         execSQL($con, "insert into project2 (id,name,dateadd,worker_id) values(?,?,?,?)",
-            array("sssi", $val->id, $val->text, DateTime::createFromFormat('m/d/Y', $val->dateadd)->format('Y-m-d'), $_SESSION["user_id"]), true);
+            array("sssi", $val->id, $val->text, DateTime::createFromFormat('m/d/Y', $val->dateadd)->format('Y-m-d'), intVal($worker->worker['id'])), true);
     }
     if ($val->parentId == "own" && intVal($val->isnew) == 0) {
         execSQL($con, "update project2 set name=?,description=? where id like ?",

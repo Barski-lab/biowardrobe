@@ -30,9 +30,9 @@ Ext.define('EMS.proxy.StandardProxyRemote', {
         create: 'data/GeneralListAdd.php',
         destroy: 'data/GeneralListDel.php'
     },
-    extraParams: {
-        //tablename:  ''
-    },
+//    extraParams: {
+//        //tablename:  ''
+//    },
     reader: {
         type: 'json',
         root: 'data',

@@ -23,11 +23,12 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
-    stores: ['ProjectLabData', 'Worker','Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart','ATDP', 'TableView'],
-    views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP','Project2.TableViewWindow','Project2.TableView'],
-    requires: [ 'EMS.util.Util'
-            ],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
+    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
+    views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP', 'Project2.TableViewWindow', 'Project2.TableView'],
+    requires: [ 'EMS.util.Util'],
+    worker: {},
+
     init: function () {
         var me = this;
         me.atype = undefined;
@@ -68,9 +69,9 @@ Ext.define('EMS.controller.Project2', {
                        '#project-worker-changed': {
                            select: me.onComboboxWorkerSelect
                        },
-                        'project2genelists #egroups':{
-                            select: me.onComboboxEGroupSelect
-                        },
+                       'project2genelists #egroups': {
+                           select: me.onComboboxEGroupSelect
+                       },
                        '#projectgenelisttree': {
                            edit: me.onGeneListEdit,
                            beforeedit: me.onGeneListBeforeedit,
@@ -82,6 +83,8 @@ Ext.define('EMS.controller.Project2', {
                        }
 
                    });
+        var me = this;
+        this.worker = this.getWorkerStore().getAt(0);
     }, //init
     onProjectDesignerWindowRendered: function (view) {
     },
@@ -105,7 +108,7 @@ Ext.define('EMS.controller.Project2', {
             id: uuid,
             text: name,
             name: name,
-            //worker_id: USER_ID,
+            worker_id: me.worker.data['id'],
             dateadd: Ext.Date.format(new Date(), 'm/d/Y'),
             type: 0,
             isnew: 1,
@@ -114,6 +117,7 @@ Ext.define('EMS.controller.Project2', {
         });
         store.getRootNode().getChildAt(0).appendChild(r);
         store.sync();
+        //console.log("Hi", store.getRootNode(), store.getRootNode().getChildAt(0));
         Ext.getCmp('project2-project-name').setValue(undefined);
     },
 
@@ -699,7 +703,7 @@ Ext.define('EMS.controller.Project2', {
                       }
                   });
     },
-    ongbjump: function(button,panel) {
+    ongbjump: function (button, panel) {
         //console.log('gbjump',button,panel);
         var grid = button.up('panel').down('grid');
         var model = grid.getSelectionModel().getSelection();
@@ -717,14 +721,14 @@ Ext.define('EMS.controller.Project2', {
             end = model[0].data['txEnd'];
         }
         var stor = this.getTableViewStore();
-        var gblink=stor.getProxy().getReader().jsonData.gblink;
+        var gblink = stor.getProxy().getReader().jsonData.gblink;
 
         console.log();
-        console.log('start=',start,' end=',end);
+        console.log('start=', start, ' end=', end);
 
         //var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
         url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
-        window.open(url,gblink);
+        window.open(url, gblink);
 
     }
 });
