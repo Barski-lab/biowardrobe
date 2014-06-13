@@ -63,10 +63,10 @@ function guid()
 {
     $possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     $uuid="";
+    mt_srand((double)microtime() * 10000); //optional for php 4.2.0 and up.
     if (function_exists('com_create_guid')) {
         $uuid=trim(com_create_guid(), '{}');
     } else {
-        mt_srand((double)microtime() * 10000); //optional for php 4.2.0 and up.
         $charid = strtoupper(md5(uniqid(rand(), true)));
         $hyphen = chr(45); // "-"
         $uuid =
@@ -76,7 +76,7 @@ function guid()
             . substr($charid, 16, 4) . $hyphen
             . substr($charid, 20, 12);
     }
-    $uuid[0]=$possible[rand(0,count_chars($possible))];
+    $uuid[0]=$possible{rand(0,strlen($possible))};
     return $uuid;
 }
 
