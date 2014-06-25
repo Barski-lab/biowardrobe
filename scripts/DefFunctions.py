@@ -224,13 +224,19 @@ def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
         return ['Error', str(e)]
 
 
-def run_fence(infile, pair):
+def run_fence(infile, pair, trimmed):
     if len(file_exist('.', infile, 'fence')) == 1:
         return ['Success', 'Fence file exists']
-    if pair:
-        cmd = 'fence.py --in="' + infile + ';' + infile + '_2" >' + infile + '.fence'
+    if trimmed:
+        if pair:
+            cmd = 'fence.py --in="' + infile + '_trimmed;' + infile + '_trimmed_2" >' + infile + '.fence'
+        else:
+            cmd = 'fence.py --in="' + infile + '_trimmed.fastq" >' + infile + '.fence'
     else:
-        cmd = 'fence.py --in="' + infile + '.fastq" >' + infile + '.fence'
+        if pair:
+            cmd = 'fence.py --in="' + infile + ';' + infile + '_2" >' + infile + '.fence'
+        else:
+            cmd = 'fence.py --in="' + infile + '.fastq" >' + infile + '.fence'
     try:
         s.Popen(cmd, shell=True)
         return ['Success', ' Fence backgrounded']
@@ -245,5 +251,18 @@ def run_atp(lid,bin="/wardrobe/bin"):
     try:
         s.check_output(cmd, shell=True)
         return ['Success', ' ATP finished ']
+    except Exception, e:
+        return ['Error', str(e)]
+
+
+def do_trimm(uid, pair, left, right):
+    if pair:
+        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed;'
+        cmd += 'cat ' + uid + '_2.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed_2'
+    else:
+        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed;'
+    try:
+        s.check_output(cmd, shell=True)
+        return ['Success', ' Trimm done ']
     except Exception, e:
         return ['Error', str(e)]

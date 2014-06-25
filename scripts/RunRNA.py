@@ -57,16 +57,22 @@ pidfile = "/tmp/runRNA.pid"
 d.check_running(pidfile)
 
 
-def run_tophat(infile, params, pair, force=False):
+def run_tophat(infile, params, pair, force=False, trimmed=False):
     outdir = 'tophat'
 
     if not force and len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', ' Bam file exists']
 
-    if pair:
-        cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq' + ' ' + infile + '_2.fastq >/dev/null 2>&1'
+    if trimmed:
+        if pair:
+            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '_trimmed.fastq' + ' ' + infile + '_trimmed_2.fastq >/dev/null 2>&1'
+        else:
+            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '_trimmed.fastq >/dev/null 2>&1'
     else:
-        cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq >/dev/null 2>&1'
+        if pair:
+            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq' + ' ' + infile + '_2.fastq >/dev/null 2>&1'
+        else:
+            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq >/dev/null 2>&1'
 
     try:
         s.check_output(cmd, shell=True)
@@ -83,7 +89,7 @@ def run_tophat(infile, params, pair, force=False):
         return ['Error', str(e)]
 
 
-def run_ribosomal(infile, db, pair):
+def run_ribosomal(infile, db, pair, trimmed):
     suffix = ''
     if 'hg' in db:
         suffix = 'human'
@@ -92,10 +98,16 @@ def run_ribosomal(infile, db, pair):
 
     if len(d.file_exist('.', infile, 'ribo')) == 1:
         return ['Success', 'Ribosomal file exist']
-    if pair:
-        cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' -1' + infile + '.fastq -2 ' + infile + '_2.fastq  >/dev/null 2>./' + infile + '.ribo'
+    if trimmed:
+        if pair:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' -1' + infile + '_trimmed.fastq -2 ' + infile + '_trimmed_2.fastq  >/dev/null 2>./' + infile + '.ribo'
+        else:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' ' + infile + '_trimmed.fastq >/dev/null 2>./' + infile + '.ribo'
     else:
-        cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' ' + infile + '.fastq >/dev/null 2>./' + infile + '.ribo'
+        if pair:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' -1' + infile + '.fastq -2 ' + infile + '_2.fastq  >/dev/null 2>./' + infile + '.ribo'
+        else:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + ' ' + infile + '.fastq >/dev/null 2>./' + infile + '.ribo'
 
     try:
         ret = s.Popen(cmd, shell=True)
@@ -173,7 +185,7 @@ settings.cursor.execute(
    )
 
 while True:
-    settings.cursor.execute("select e.etype,l.uid,g.db,g.findex,g.annotation,g.annottable,g.genome,l.forcerun "
+    settings.cursor.execute("select e.etype,l.uid,g.db,g.findex,g.annotation,g.annottable,g.genome,l.forcerun, COALESCE(l.trim5,0), COALESCE(l.trim3,0) "
                             " from labdata l,experimenttype e,genome g "
                             " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'RNA%' and libstatus in (10,1010) "
                             " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 "
@@ -193,6 +205,8 @@ while True:
     ANNOTTABLE = row[5]
     SPIKE = ('spike' in row[6])
     forcerun = (int(row[7]) == 1)
+    left = int(row[8])
+    right = int(row[9])
 
     BEDFORMAT = '4'
     ADD_TOPHAT = " -T "
@@ -215,22 +229,33 @@ while True:
 
     OK = True
 
-    if len(d.file_exist('.', UID, 'fastq')) != 1:
-        OK = False
-    if PAIR and len(d.file_exist('.', UID+"_2", 'fastq')) != 1:
-        OK = False
-    if not OK:
-        settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",(UID,))
-        settings.conn.commit()
-        continue
+    # if len(d.file_exist('.', UID, 'fastq')) != 1:
+    #     OK = False
+    # if PAIR and len(d.file_exist('.', UID+"_2", 'fastq')) != 1:
+    #     OK = False
+    # if not OK:
+    #     settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",(UID,))
+    #     settings.conn.commit()
+    #     continue
 
     settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11 where uid=%s", (UID,))
     settings.conn.commit()
+
+    trimmed = False
+    if left > 0 or right > 0:
+        a = d.do_trimm(UID, PAIR, left, right)
+        trimmed = True
+    if 'Error' in a[0]:
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
+                                (a[0] + ": " + a[1], UID))
+        settings.conn.commit()
+        continue
+
     try:
-        d.run_fence(UID, PAIR)
+        d.run_fence(UID, PAIR, trimmed)
     except:
         pass
-    a = run_ribosomal(UID, DB, PAIR)
+    a = run_ribosomal(UID, DB, PAIR, trimmed)
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
                                 (a[0] + ": " + a[1], UID))
@@ -240,7 +265,7 @@ while True:
     if len(a) == 3:
         PID = a[2].pid
 
-    a = run_tophat(UID, TOPHAT_PARAM, PAIR, forcerun)
+    a = run_tophat(UID, TOPHAT_PARAM, PAIR, forcerun, trimmed)
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
                                 (a[0] + ": " + a[1], UID))

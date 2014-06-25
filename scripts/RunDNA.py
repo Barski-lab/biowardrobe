@@ -54,15 +54,21 @@ pidfile = "/tmp/runDNA.pid"
 d.check_running(pidfile)
 
 
-def run_bowtie(infile, findex, pair):
+def run_bowtie(infile, findex, pair, trimmed):
     if len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', 'Bam file exists']
-
-    if pair:
-        cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + \
-              infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
+    if trimmed:
+        if pair:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' -1 ' + infile + '_trimmed.fastq -2 ' + infile + '_trimmed_2.fastq 2>./' + \
+                  infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
+        else:
+            cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' ' + infile + '_trimmed.fastq 2>./' + infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
     else:
-        cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S '+BOWTIE_INDICES+'/'+findex+' '+infile+'.fastq 2>./'+infile+'.bw | samtools view -Sb - >./'+infile+'.bam 2>/dev/null;'
+        if pair:
+            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + \
+                  infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
+        else:
+            cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' ' + infile + '.fastq 2>./' + infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
 
     cmd += 'samtools sort ' + infile + '.bam ' + infile + '_s 2>/dev/null; mv -f "' + infile + '_s.bam" "' + infile + '.bam"; samtools index "' + infile + '.bam"; '
     cmd += 'bzip2 ' + infile + '*.fastq'
@@ -121,7 +127,7 @@ settings.cursor.execute("update labdata set libstatustxt='ready for process',lib
 
 
 while True:
-    settings.cursor.execute ("select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun "
+    settings.cursor.execute ("select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun, COALESCE(l.trim5,0), COALESCE(l.trim3,0) "
     " from labdata l,experimenttype e,genome g "
     " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'DNA%' and libstatus in (10,1010) "
     " and deleted=0 and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' "
@@ -139,6 +145,8 @@ while True:
     FRAGEXP = int(row[5])
     FRAGFRC = (int(row[6]) == 1)
     forcerun = (int(row[7]) == 1)
+    left = int(row[8])
+    right = int(row[9])
 
     BEDFORMAT = '4'
     FRAGMENT = 0
@@ -151,22 +159,32 @@ while True:
 
     OK = True
 
-    if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID, 'fastq.bz2')) != 1:
-        OK = False
-    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_2", 'fastq.bz2')) != 1:
-        OK = False
-    if not OK:
-        settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
-                                (UID,))
+    # if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID, 'fastq.bz2')) != 1:
+    #     OK = False
+    # if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_2", 'fastq.bz2')) != 1:
+    #     OK = False
+    # if not OK:
+    #     settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
+    #                             (UID,))
+    #     settings.conn.commit()
+    #     continue
+
+    trimmed = False
+    if left > 0 or right > 0:
+        a = d.do_trimm(UID, PAIR, left, right)
+        trimmed = True
+    if 'Error' in a[0]:
+        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
+                                (a[0] + ": " + a[1], UID))
         settings.conn.commit()
         continue
 
     try:
-        d.run_fence(UID, PAIR)
+        d.run_fence(UID, PAIR, trimmed)
     except:
         pass
 
-    if check_error(run_bowtie(UID, FINDEX, PAIR),UID):
+    if check_error(run_bowtie(UID, FINDEX, PAIR, trimmed), UID):
         continue
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
