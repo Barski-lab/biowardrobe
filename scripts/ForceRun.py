@@ -79,10 +79,10 @@ while True:
 
     cmd = ""
     if PAIR:
-        cmd = 'bunzip2 ' + UID + '.fastq.bz2'
-    else:
         cmd = 'bunzip2 ' + UID + '.fastq.bz2;'
         cmd += 'bunzip2 ' + UID + '_2.fastq.bz2;'
+    else:
+        cmd = 'bunzip2 ' + UID + '.fastq.bz2'
 
     try:
         s.check_output(cmd, shell=True)
@@ -134,6 +134,6 @@ while True:
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_genes`;")
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_common_tss`;")
 
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=10,forcerun=0 where uid=%s",
+    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=10,forcerun=0, tagstotal=0,tagsmapped=0,tagsribo=0 where uid=%s",
                             ("Ready to be reanalyzed", UID))
     settings.conn.commit()

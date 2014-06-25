@@ -65,6 +65,8 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'libstatustxt', type: 'string',persist: false  },
                    { name: 'browsershare', type: 'bool' },
                    { name: 'forcerun', type: 'bool' },
+                   { name: 'trim5', type: 'int' },
+                   { name: 'trim3', type: 'int' },
                    { name: 'genome_id', type: 'int' },
                    { name: 'crosslink_id', type: 'int' },
                    { name: 'fragmentation_id', type: 'int' },
