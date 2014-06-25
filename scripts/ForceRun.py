@@ -101,7 +101,7 @@ while True:
     if os.path.isfile(basedir + '/' + UID + '.bam'):
         os.unlink(basedir + '/' + UID + '.bam')
     if os.path.isfile(basedir + '/' + UID + '.bam.bai'):
-        os.unlink(basedir + '/' + UID + '.bam')
+        os.unlink(basedir + '/' + UID + '.bam.bai')
     if os.path.isfile(basedir + '/' + UID + '.log'):
         os.unlink(basedir + '/' + UID + '.log')
     if os.path.isfile(basedir + '/' + UID + '.fence'):
