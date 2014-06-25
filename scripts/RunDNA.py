@@ -157,17 +157,6 @@ while True:
     basedir = PRELIMINARYDATA + '/' + UID
     os.chdir(basedir)
 
-    OK = True
-
-    # if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID, 'fastq.bz2')) != 1:
-    #     OK = False
-    # if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_2", 'fastq.bz2')) != 1:
-    #     OK = False
-    # if not OK:
-    #     settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
-    #                             (UID,))
-    #     settings.conn.commit()
-    #     continue
 
     trimmed = False
     if left > 0 or right > 0:
@@ -176,6 +165,17 @@ while True:
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
                                 (a[0] + ": " + a[1], UID))
+        settings.conn.commit()
+        continue
+
+    OK = True
+    if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
+        OK = False
+    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed_2", 'fastq')) != 1:
+        OK = False
+    if not OK:
+        settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
+                                (UID,))
         settings.conn.commit()
         continue
 

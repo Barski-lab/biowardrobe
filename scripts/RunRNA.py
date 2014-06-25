@@ -24,7 +24,7 @@
 
 ##
 ##
-## Selecting data from MySQL database with respect to status downloading files from website
+## Selecting data from MySQL database with respect to the status applying RNA seq pipeline
 ##
 ##
 
@@ -227,17 +227,6 @@ while True:
 
     os.chdir(PRELIMINARYDATA+'/'+UID)
 
-    OK = True
-
-    # if len(d.file_exist('.', UID, 'fastq')) != 1:
-    #     OK = False
-    # if PAIR and len(d.file_exist('.', UID+"_2", 'fastq')) != 1:
-    #     OK = False
-    # if not OK:
-    #     settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",(UID,))
-    #     settings.conn.commit()
-    #     continue
-
     settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11 where uid=%s", (UID,))
     settings.conn.commit()
 
@@ -251,10 +240,22 @@ while True:
         settings.conn.commit()
         continue
 
+    OK = True
+    if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
+        OK = False
+    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed_2", 'fastq')) != 1:
+        OK = False
+    if not OK:
+        settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
+                                (UID,))
+        settings.conn.commit()
+        continue
+
     try:
         d.run_fence(UID, PAIR, trimmed)
     except:
         pass
+
     a = run_ribosomal(UID, DB, PAIR, trimmed)
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
