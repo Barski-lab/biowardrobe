@@ -255,14 +255,16 @@ def run_atp(lid,bin="/wardrobe/bin"):
         return ['Error', str(e)]
 
 
-def do_trimm(uid, pair, left, right):
+def do_trimm(uid, pair, _left, _right):
+    left = str(_left)
+    right = str(_right)
     if pair:
-        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed;'
-        cmd += 'cat ' + uid + '_2.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed_2'
+        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed.fastq;'
+        cmd += 'cat ' + uid + '_2.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed_2.fastq'
     else:
-        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed;'
+        cmd = 'cat ' + uid + '.fastq | trimmer.py -l' + left + ' -r' + right + '>' + uid + '_trimmed.fastq;'
     try:
         s.check_output(cmd, shell=True)
-        return ['Success', ' Trimm done ']
+        return ['Success', ' Trim is done ']
     except Exception, e:
         return ['Error', str(e)]
