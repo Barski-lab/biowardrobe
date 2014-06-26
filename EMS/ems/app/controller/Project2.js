@@ -140,7 +140,11 @@ Ext.define('EMS.controller.Project2', {
         var detp = Ext.getCmp('project2-details-panel');
 
         if (record.get('type') === 0) {//project
-            var worker = this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
+            var worker = "";
+            if(this.worker.isa || this.worker.isla)
+                worker=this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
+            else
+                worker="unknown";
 
             detp.expand();
             var bd = detp.body;

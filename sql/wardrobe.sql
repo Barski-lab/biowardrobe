@@ -651,6 +651,18 @@ INSERT INTO `worker` VALUES
 /*!40000 ALTER TABLE `worker` ENABLE KEYS */;
 UNLOCK TABLES;
 
+LOCK TABLES `atype` WRITE;
+/*!40000 ALTER TABLE `atype` DISABLE KEYS */;
+INSERT INTO `atype` VALUES 
+(1,'DESeq','To produce differentially expressed gene lists use this function. You can use it to compare groups of treated and untreated\nexperiments and also when you need differences in series of experiments.','/ems/images/index_view_big.png',2,1),
+(2,'PCA','PCA stands for Principle Component Analysis it can help to see similarities between all experimental data.','/ems/images/shopping_cart_big.png',5,0),
+(3,'DESeq2','Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for\ndifferential expression based on a model using the negative binomial distribution.','/ems/images/index_view_big.png',999,1),
+(4,'ATP & filter','ATP is Average Tag Density Profile plot which shows modification level (enrichment) for particular gene list.\nYou can combine all gene list created in \"Genes Lists\" or \"DESeq\" analysis and all DNA-Seq experiments in one plot.','/ems/images/chart_line_big.png',2,1),
+(5,'MANorm','MANorm is a simple and effective method, for quantitative comparison of \nChIP-Seq data sets describing transcription factor binding sites and epigenetic modifications.','/ems/images/documents_preferences_b.png',999,1),
+(6,'Genes Lists','This function allows you to organize and manage genes lists (grouping, filtering) for future analysis. All lists can be saved in excel like format. If you dont know where to start, start from here.','/ems/images/notebook3_big.png',1,1);
+/*!40000 ALTER TABLE `atype` ENABLE KEYS */;
+UNLOCK TABLES;
+
 ALTER TABLE `ems`.`labdata` 
 ADD COLUMN `peaks` VARCHAR(45) NULL DEFAULT NULL AFTER `antibodycode`,
 ADD COLUMN `trim3` INT(5) NULL DEFAULT 0 AFTER `peaks`,
