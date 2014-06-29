@@ -266,6 +266,7 @@ while True:
     UID = row[3]
     url = row[2]
     downloadid = int(row[7])
+    workerid=int(row[8])
     email = row[5]
     forcerun = (int(row[9]) == 1)
     PAIR = ('pair' in row[4])
@@ -298,7 +299,7 @@ while True:
                                 (a[0] + ":" + a[1], UID))
         settings.conn.commit()
         if 'incorrect DNA core credentials' in a[1]:
-            settings.cursor.execute("update worker set dnapass='' where uid = %s", (UID))
+            settings.cursor.execute("update worker set dnapass='' where id = %s", (workerid))
             settings.conn.commit()
         continue
     if 'Warning' in a[0]:
