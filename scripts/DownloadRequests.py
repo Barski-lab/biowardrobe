@@ -298,7 +298,7 @@ while True:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where uid=%s",
                                 (a[0] + ":" + a[1], UID))
         settings.conn.commit()
-        if 'incorrect DNA core credentials' in a[1]:
+        if 'incorrect core credentials' in a[1]:
             settings.cursor.execute("update worker set dnapass='' where id = %s", (workerid))
             settings.conn.commit()
         continue
