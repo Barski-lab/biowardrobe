@@ -234,11 +234,11 @@ while True:
     if left > 0 or right > 0:
         a = d.do_trimm(UID, PAIR, left, right)
         trimmed = True
-    if 'Error' in a[0]:
-        settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
+        if 'Error' in a[0]:
+            settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
                                 (a[0] + ": " + a[1], UID))
-        settings.conn.commit()
-        continue
+            settings.conn.commit()
+            continue
 
     OK = True
     if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
