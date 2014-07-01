@@ -253,7 +253,7 @@ settings.conn.commit()
 while True:
     row = []
     settings.cursor.execute(
-        "SELECT dnalogin,dnapass,l.url,l.uid, etype,w.email,w.notify,l.download_id,w.id,forcerun "
+        "SELECT dnalogin,dnapass,l.url,l.uid, etype,w.email,COALESCE(w.notify,0),l.download_id,COALESCE(w.id,0),forcerun "
         " FROM labdata l, experimenttype e, worker w "
         " WHERE l.worker_id = w.id AND e.id=experimenttype_id "
         " AND (( COALESCE(dnalogin,'') <> '' AND COALESCE(dnapass,'') <> '' AND l.download_id = 1) OR l.download_id > 1 ) "

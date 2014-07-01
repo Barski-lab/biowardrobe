@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="ux/grid/css/GridFilters.css"/>
     <link rel="stylesheet" type="text/css" href="ux/grid/css/RangeMenu.css"/>
 
-<!--    <link rel="stylesheet" type="text/css" href="css/styles.css"/>-->
+    <link rel="stylesheet" type="text/css" href="css/styles.css"/>
     <!--link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all-neptune.css">
     <link rel="stylesheet" type="text/css" href="ext/resources/ext-theme-neptune/ext-theme-neptune-all.css"-->
 </head>
