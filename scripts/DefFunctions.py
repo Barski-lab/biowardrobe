@@ -183,7 +183,7 @@ def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False,
         ADPAR += " --call-summits "
 
     cmd = bin+'/macs callpeak -t ' + infile + '.bam -n ' + infile + '_macs -g ' + G
-    cmd += ' --format ' + format + ' -m 3 60  --verbose 0 --shiftsize=' + str(
+    cmd += ' --format ' + format + ' -m 3 60  --verbose 3 --shiftsize=' + str(
         shiftsize) + ' -q 0.01 --nolambda ' + ADPAR + ' >./' + infile + '_macs.log 2>&1'
 
     try:
