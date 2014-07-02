@@ -1,26 +1,26 @@
 #!/bin/bash
 export PATH=/usr/local/mysql/bin/:/usr/local/bin:$PATH
 
-if [ $# -ne 10 ]
+if [ $# -ne 12 ]
 then
-  echo "Usage: `basename $0` peak1 peak2 read1 read2 bp_shift_1 bp_shift_2 bp_flanked1 bp_flanked2 uuid db"
+  echo "Usage: `basename $0` peak1 peak2 read1 read2 bp_shift_1 bp_shift_2 bp_flanked1 bp_flanked2 uuid db tmp bin"
   exit 
 fi
 
-RS="/srv/ems/htdocs/ems/data/"
+RS=`pwd`  #"/srv/ems/htdocs/ems/data/"
 
-MAINDIR="/data/DATA/MANORM/${9}"
+MAINDIR="${11}/MANORM/${9}"
 
 mkdir "${MAINDIR}"
 cd "$MAINDIR"
 
 exec &>./LOG
 echo $*
-
+echo ${RS}
 echo "StepI: clean input"
 
-mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$7),end+$7 from $1 where chrom not like 'chrM'" ${10} >peak1.bed
-mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$8),end+$8 from $2 where chrom not like 'chrM'" ${10} >peak2.bed
+mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$7),end+$7 from \`$1\` where chrom not like 'chrM'" ${10} >peak1.bed
+mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$8),end+$8 from \`$2\` where chrom not like 'chrM'" ${10} >peak2.bed
 
 bamToBed -i $3 |sed 's/\s$//g' | awk -v var=$5 'BEGIN {OFS="\t"}
      {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/  && $2>0 && $3>0)

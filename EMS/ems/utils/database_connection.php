@@ -79,9 +79,9 @@ function get_operand($o)
 
 function get_table_info($val)
 {
-    $qr = selectSQL("select tableName,name,gblink,rtype_id,upper(worker) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db,ge.annottable as annotation from genelist g
-     left join (labdata l,worker w,experimenttype e,genome ge)
-     on (labdata_id=l.id and worker_id=w.id and l.genome_id=ge.id and l.experimenttype_id=e.id)
+    $qr = selectSQL("select tableName,name,gblink,rtype_id,upper(author) as worker,fragmentsize,etype,COALESCE(ge.db,g.db) as db,ge.annottable as annotation,l.uid as uid from genelist g
+     left join (labdata l,experimenttype e,genome ge)
+     on (labdata_id=l.id and l.genome_id=ge.id and l.experimenttype_id=e.id)
      where g.id like ?", array("s", $val), false);
 
     return $qr;
