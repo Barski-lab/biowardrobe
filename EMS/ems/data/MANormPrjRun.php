@@ -197,10 +197,10 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 //chr<--->start<->end<--->description<--->#raw_read_1<--->#raw_read_2<--->M_value_rescaled<------>A_value_rescaled<------>-log10(p-value)
 //chr1<-->860184<>860719<>unique_peak1<-->18<---->11<---->0.645644203583194<----->3.90778460251275<------>0.769930178837768
 
-    if (($handle = fopen($TMP. "/" . $TNAME . "/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
+    if (($handle = fopen($TMP. "/MANORM/{$TNAME}/MAnorm_result_commonPeak_merged.xls", "r")) !== FALSE) {
 
         execSQL($con,
-            "create table " . $db_name_experiments . ".`" . $TNAME . "` (" .
+            "create table {$EDB}.`{$TNAME}` (" .
             "`chrom` VARCHAR(45) NOT NULL," .
             "`start` INT NULL ," .
             "`end` INT NULL ," .
@@ -222,7 +222,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
 
         while (($data = fgetcsv($handle, 2000, "\t")) !== FALSE) {
             execSQL($con,
-                "insert into " . $EDB . " .`" . $TNAME . "`" .
+                "insert into {$EDB} .`{$TNAME}`" .
                 "(chrom,start,end,description,raw_read1,raw_read2,M_value_rescaled,A_value_rescaled,log10_p_value)" .
                 "values(?,?,?,?,?,?,?,?,?)",
                 array("siisiiddd", $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8]), true);
