@@ -16,7 +16,6 @@ cd "$MAINDIR"
 
 exec &>./LOG
 echo $*
-echo ${RS}
 echo "StepI: clean input"
 
 mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$7),end+$7 from \`$1\` where chrom not like 'chrM'" ${10} >peak1.bed

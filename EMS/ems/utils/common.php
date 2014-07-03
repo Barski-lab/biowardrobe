@@ -205,7 +205,7 @@ abstract class AbstractTableDataProcessing
     protected function add_sql($field, $value)
     {
         $this->SQL_STR .= "{$field},";
-        if ($var == NULL)
+        if ($value == NULL)
             $this->VARIABLES .= "null,";
         else {
             $this->VARIABLES .= "?,";

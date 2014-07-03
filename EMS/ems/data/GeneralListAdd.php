@@ -23,7 +23,7 @@
 require_once('../settings.php');
 
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 if (!$worker->isAdmin() && !$worker->isLocalAdmin()) {
     $response->print_error("Insufficient privileges");

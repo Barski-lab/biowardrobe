@@ -1,26 +1,46 @@
 <?php
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+/****************************************************************************
+ **
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
+require_once('../settings.php');
 
-logmsg(__FILE__);
-logmsg(print_r($_REQUEST,true));
-//logmsg(print_r($data,true));
+
+//logmsg($_REQUEST);
 
 //*****************************************************************
 function delete_data($val)
 {
     $PARAMS[] = "";
     $SQL_STR = "";
-    global $IDFIELD, $IDFIELDTYPE, $con, $tablename, $types,$res,$_SESSION;
+    global $IDFIELD, $IDFIELDTYPE, $settings, $tablename, $types, $res, $_SESSION;
 
-    if(!execSQL($con, "delete from `$tablename` where $IDFIELD=?", array($IDFIELDTYPE,$val->$IDFIELD), true))
+    if (!execSQL($settings->connection, "delete from `$tablename` where $IDFIELD=?", array($IDFIELDTYPE, $val->$IDFIELD), true))
         $res->print_error("Cant delete");
 }
+
 //*****************************************************************
 
-
+if (!$worker->isAdmin() && !$worker->isLocalAdmin()) {
+    $response->print_error("Insufficient privileges");
+}
 
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
@@ -32,54 +52,20 @@ $data = json_decode(stripslashes($_REQUEST['data']));
 if (!isset($data))
     $res->print_error("no data");
 
-$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome",
-    "grp_local");
-//$SpecialTable=array("labdata","grp_local");
+$AllowedTable = array("spikeins", "spikeinslist", "antibody", "crosslink", "experimenttype", "fragmentation", "genome");
 
 $IDFIELD = 'id';
 $IDFIELDTYPE = "i";
+if($tablename=="antibody")
+    $IDFIELDTYPE = "s";
 
 if (!in_array($tablename, $AllowedTable)) {
-        $res->print_error('Table not in the list');
-    } else {
-        switch ($tablename) {
-            case "labdata":
-                $res->print_error('Not implemented yet.');
-//            $workerid=$_SESSION["user_id"];
-//            if(!check_rights('labdata'))
-//                if($where!="")
-//                    $where=$where." and worker_id=$workerid ";
-//                else
-//                    $where=" where worker_id=$workerid ";
-//            $con=def_connect();
-//            $con->select_db($db_name_ems);
-                break;
-            case "grp_local":
-                if (isset($_REQUEST['genomedb'])) {
-                    check_val($_REQUEST['genomedb']);
-                    $gdb = $_REQUEST['genomedb'];
-                } else {
-                    $res->print_error('Not enough required parameters.');
-                }
-
-                $IDFIELD = 'name';
-                $IDFIELDTYPE = "s";
-
-                $con = new mysqli($db_host_gb, $db_user_gb, $db_pass_gb);
-                if ($con->connect_errno)
-                    $res->print_error('Could not connect: ' . $con->connect_error);
-                if (!$con->select_db($gdb)) {
-                    $res->print_error('Could not select db: ' . $con->connect_error);
-                }
-                break;
-            default:
-                $con = def_connect();
-                $con->select_db($db_name_ems);
-                break;
-        }
+    $res->print_error('Table not in the list');
+} else {
+    $con = def_connect();
 }
 $con->autocommit(FALSE);
-$total=-1;
+$total = -1;
 
 if (gettype($data) == "array") {
     foreach ($data as $key => $val) {
@@ -91,7 +77,7 @@ if (gettype($data) == "array") {
 }
 
 if (!$con->commit()) {
-    $res->print_error("Cant update");
+    $res->print_error("Cant delete");
 }
 
 $con->close();

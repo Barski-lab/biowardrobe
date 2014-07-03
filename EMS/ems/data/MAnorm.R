@@ -45,9 +45,9 @@ b<-rlm(M~A)$coefficients
 
 log2_merge_common_peak_count_read1 <- log2(merge_common_peak_count_read1 + 1)
 log2_merge_common_peak_count_read2 <- log2(merge_common_peak_count_read2 + 1)
-log2_merge_common_peak_count_read1_rescaled <- (2-b[2])*log2_merge_common_peak_count_read1/(2+b[2]) - 2*b[1]/(2+b[2]);
-merge_M_rescaled <- (log2_merge_common_peak_count_read1_rescaled - log2_merge_common_peak_count_read2);
-merge_A_rescaled <- (log2_merge_common_peak_count_read1_rescaled + log2_merge_common_peak_count_read2)/2;
+log2_merge_common_peak_count_read1_rescaled <- (2-b[2])*log2_merge_common_peak_count_read1/(2+b[2]) - 2*b[1]/(2+b[2])
+merge_M_rescaled <- (log2_merge_common_peak_count_read1_rescaled - log2_merge_common_peak_count_read2)
+merge_A_rescaled <- (log2_merge_common_peak_count_read1_rescaled + log2_merge_common_peak_count_read2)/2
 
 
 
@@ -56,13 +56,12 @@ merge_A_rescaled <- (log2_merge_common_peak_count_read1_rescaled + log2_merge_co
 # function for calculating pvalue
 pval <- function(x, y){
 	if (x+y<20) { # x + y is small
-		p1<- nChooseK(x+y,x) * 2^-(x+y+1);
-		p2<- nChooseK(x+y,y) * 2^-(x+y+1);
-	}
-	else { # if x+y is large, use approximation
-		log_p1 <- (x+y)*log(x+y) - x*log(x) - y*log(y) - (x+y+1)*log(2);
-		p1<-exp(log_p1);
-		p2<-p1;
+		p1<- nChooseK(x+y,x) * 2^-(x+y+1)
+		p2<- nChooseK(x+y,y) * 2^-(x+y+1)
+	} else { # if x+y is large, use approximation
+		log_p1 <- (x+y)*log(x+y) - x*log(x) - y*log(y) - (x+y+1)*log(2)
+		p1<-exp(log_p1)
+		p2<-p1
 		#log_p2 <- (x+y)*log(x+y) - x*log(x) - y*log(y) - (x+y+1)*log(2);
 		#p2<- exp(log_p2);
 	}
