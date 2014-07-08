@@ -24,27 +24,26 @@
 ignore_user_abort(true);
 set_time_limit(600);
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 
 try {
     $data = json_decode(file_get_contents('php://input'));
 } catch (Exception $e) {
-    $res->print_error("Cant read input" . $e);
+    $response->print_error("Cant read input" . $e);
 }
 //logmsg(print_r($data, true));
 $count = 0;
 
 if (!isset($data->project_id) || !isset($data->atdp) || !isset($data->name)) {
-    $res->print_error("no data");
+    $response->print_error("no data");
 }
 
 check_val($data->project_id);
 $projectid = $data->project_id;
+
+$db_name_experiments = $settings->settings['experimentsdb']['value'];
 
 $NAME = $data->name;
 
@@ -52,52 +51,51 @@ $atdp = $data->atdp;
 $delength = count($atdp);
 
 if ($delength < 1) {
-    $res->print_error("Is it me who post this?");
+    $response->print_error("Is it me who post this?");
 }
 
 $con = def_connect();
-$con->select_db($db_name_ems);
 $con->autocommit(FALSE);
 
 $UUID = guid();
 
 execSQL($con,
-    "insert into " . $db_name_ems . ".genelist (id,name,project_id,db,leaf,`type`) values(?,?,?,?,1,102)",
+    "insert into genelist (id,name,project_id,db,leaf,`type`) values(?,?,?,?,1,102)",
     array("ssss", $UUID, $NAME, $projectid, $db_name_experiments), true);
 
 for ($i = 0; $i < $delength; $i++) {
     check_val($atdp[$i]->tableD);
     check_val($atdp[$i]->tableL);
     execSQL($con,
-        "insert into " . $db_name_ems . ".atdp (genelist_id,tbl1_id,tbl2_id,pltname) values(?,?,?,?)",
+        "insert into atdp (genelist_id,tbl1_id,tbl2_id,pltname) values(?,?,?,?)",
         array("ssss", $UUID, $atdp[$i]->tableD, $atdp[$i]->tableL, $atdp[$i]->pltname), true);
 }
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
-$command="averagedensity -avd_id=$UUID -sql_host=localhost -sql_user=\"$db_user\" -sql_pass=\"$db_pass\" -sql_dbname=\"$db_name_ems\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
+$command="averagedensity -avd_id=$UUID -sql_host=localhost -sql_user=\"$settings->db_user\" -sql_pass=\"$settings->db_pass\" -sql_dbname=\"{$settings->db_name}\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
 //-plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot"
 exec("$command",$output,$retval);
-if($retval!=0)
-    $res->print_error("Cant execute averagedensity command");
-
+if($retval!=0) {
+    $response->print_error("Cant execute averagedensity command");
+}
 execSQL($con,
-    "update " . $db_name_ems . ".genelist set tableName = ? where id like ?",
+    "update genelist set tableName = ? where id like ?",
     array("ss",str_replace("-","",$UUID),$UUID), true);
 
 
 if (!$con->commit()) {
-    $res->print_error("Cant commit");
+    $response->print_error("Cant commit");
 }
 
 $con->close();
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = $tbpairlen;
-//$res->data = $query_array;
-print_r($res->to_json());
+$response->success = true;
+$response->message = "Data loaded";
+$response->total = $tbpairlen;
+//$response->data = $query_array;
+print_r($response->to_json());
 
 ?>
