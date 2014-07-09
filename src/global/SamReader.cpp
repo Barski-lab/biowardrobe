@@ -71,7 +71,7 @@ void SamReader<Storage>::initialize()
     vector<string> fn;
     fn.push_back(inFile.toStdString());
     if ( !reader.Open(fn) ) {
-        qDebug() << "Could not open input BAM files.";
+        qDebug() << "Could not open input BAM files."<<inFile;
         throw "Could not open input BAM files";
     }
 
@@ -204,13 +204,13 @@ void SamReader<Storage>::Load(void)
                 }
             } // TODO:for RNA should join First and Second Mate reads
             if(DUTP) {
-        	if(al.IsMateMapped() && al.IsSecondMate()) {
-        	    if(al.IsReverseStrand()) {// - strand
-            		strnd= QChar('+');
-            	    } else {
-            		strnd= QChar('-');
-            	    }
-            	}    
+                if(al.IsMateMapped() && al.IsSecondMate()) {
+                    if(al.IsReverseStrand()) {// - strand
+                        strnd= QChar('+');
+                    } else {
+                        strnd= QChar('-');
+                    }
+                }
             }
 
             genome::read_representation rp;

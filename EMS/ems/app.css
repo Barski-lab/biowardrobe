@@ -40,6 +40,19 @@
 
 }
 
+.loading {
+    background: url(ext/resources/themes/images/default/grid/loading.gif);
+    color: #555;
+    /*font: bold 13px tahoma, arial, helvetica;*/
+    margin: 0;
+    text-align: center;
+    height: 16px;
+    width: 16px;
+    /*cursor:wait;*/
+    /*border:1px solid #d0d0d0;*/
+    /*background-color:#eee;*/
+}
+
 .x-mask.splashscreen {
     background-color: white;
     opacity: 1;
