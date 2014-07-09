@@ -6,12 +6,15 @@ TEMPLATE = app
 TARGET   = averagedensity
 
 CONFIG   += console warn_on release
+CONFIG   -= app_bundle
+
 QT       -= gui
 QT       += sql
 
 
 DEFINES     += D_USE_BAM \
-               _SQL_
+               _SQL_ \
+               _WARDROBE_
 
 #
 #../global/FileWriter.hpp 
@@ -25,6 +28,7 @@ HEADERS     += ../global/SamReader.hpp \
 
 SOURCES     += ../global/Reads.cpp \
                ../global/Arguments.cpp \
+               ../global/Settings.cpp \
                src/averagedensity.cpp \
                src/main.cpp
 
@@ -51,6 +55,9 @@ LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools
 PRE_TARGETDEPS        = lib_bamtools
+
+INCLUDEPATH += /usr/local/include/
+
 
 }
 

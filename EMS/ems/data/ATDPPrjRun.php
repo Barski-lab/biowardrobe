@@ -75,15 +75,15 @@ if (!$con->commit()) {
     $response->print_error("Cant commit");
 }
 
-$command="averagedensity -avd_id=$UUID -sql_host=localhost -sql_user=\"$settings->db_user\" -sql_pass=\"$settings->db_pass\" -sql_dbname=\"{$settings->db_name}\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
+$command="averagedensity -avd_id=$UUID -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=50 -log=\"/tmp/AverageTagDensity.log\"";
 //-plot_ext="svg" -gnuplot="/usr/local/bin/gnuplot"
 exec("$command",$output,$retval);
 if($retval!=0) {
     $response->print_error("Cant execute averagedensity command");
 }
-execSQL($con,
-    "update genelist set tableName = ? where id like ?",
-    array("ss",str_replace("-","",$UUID),$UUID), true);
+//execSQL($con,
+//    "update genelist set tableName = ? where id like ?",
+//    array("ss",str_replace("-","",$UUID),$UUID), true);
 
 
 if (!$con->commit()) {

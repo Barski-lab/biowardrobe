@@ -375,11 +375,6 @@ void AverageDensity::batchsql() {
 
     QString avd_table_name=gArgs().getArgs("sql_table").toString();
 
-    if(avd_id.length()>0) {
-        avd_table_name=avd_id;
-        avd_table_name=avd_table_name.replace("-","");
-    }
-
     if(avd_lid>0 && avd_id.length()>0) {
         qDebug()<<"Error _pid and _lid can not be greater then 0 together.";
         return;
@@ -467,22 +462,25 @@ void AverageDensity::batchsql() {
             storage<<(avd_raw_data[w]/total)/q.size();
         storage=smooth<double>(storage,gArgs().getArgs("avd_smooth").toInt());
 
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1_atp;"
-                                     "CREATE TABLE experiments.%2_atp ( "
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1.%2_atp;"
+                                     "CREATE TABLE %3.%4_atp ( "
                                      "`X` INT NULL ,"
                                      "`Y` FLOAT NULL ,"
                                      "INDEX X_idx (X) using btree"
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by averagedensity';").
+                             arg(gSettings().getValue("experimentsdb")).
                              arg(filename).
+                             arg(gSettings().getValue("experimentsdb")).
                              arg(filename);
 
         if(!q.exec(CREATE_TABLE)) {
             qDebug()<<"Query error T: "<<q.lastError().text();
         }
 
-        QString SQL_QUERY_BASE=QString("insert into experiments.%1_atp values ").
+        QString SQL_QUERY_BASE=QString("insert into %1.%2_atp values ").
+                               arg(gSettings().getValue("experimentsdb")).
                                arg(filename);
         QString SQL_QUERY="";
 
@@ -504,11 +502,12 @@ void AverageDensity::batchsql() {
     //************************************************************************************
     if(avd_id.length()>0) {
         QMap<QString,DNA_SEQ_DATA> table_to_data;
-        QString BASE_DIR="/data/DATA/FASTQ-DATA";
 
-        q.prepare("select distinct e.etype,l.name4browser,g.db,filename,l.fragmentsize,UPPER(w.worker) as worker,a.tbl1_id "
-                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.worker w , ems.atdp a,ems.genelist ge "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.worker_id=w.id and "
+        QString BASE_DIR=gSettings().getValue("wardrobe")+"/"+gSettings().getValue("preliminary")+"/";
+
+        q.prepare("select distinct e.etype,l.fragmentsize,a.tbl1_id,l.uid "
+                  "from labdata l,experimenttype e, atdp a,genelist ge "
+                  "where e.id=experimenttype_id and "
                   "l.id=ge.labdata_id and a.tbl1_id=ge.id and a.genelist_id like ?;");
         q.bindValue(0, avd_id);
 
@@ -517,24 +516,20 @@ void AverageDensity::batchsql() {
             return;
         }
 
-        int fieldFilename = q.record().indexOf("filename");
         int fieldEtype = q.record().indexOf("etype");
-        int fieldWorker = q.record().indexOf("worker");
         int fieldFsize = q.record().indexOf("fragmentsize");
         int fieldTbl = q.record().indexOf("tbl1_id");
+        int fieldUID = q.record().indexOf("uid");
 
 
         while(q.next()) {
-            QString filename=q.value(fieldFilename).toString();
-            if(filename.contains(';'))
-                filename=filename.split(';').at(0);
+            QString filename=q.value(fieldUID).toString();
             QString EType =q.value(fieldEtype).toString();
-            QString worker=q.value(fieldWorker).toString();
             int fragmentsize =q.value(fieldFsize).toInt();
             QString TBL = q.value(fieldTbl).toString();
             bool pair=(EType.indexOf("pair")!=-1);
 
-            QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
+            QString path=BASE_DIR+"/"+filename+"/";
 
             DNA_SEQ_DATA dsd;
             dsd.fragmentsize=fragmentsize;
@@ -560,16 +555,16 @@ void AverageDensity::batchsql() {
         QList<QList<double> > storages;
 
         QSqlQuery qq;
-        qq.prepare("select tbl1_id,tableName,name from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
+        qq.prepare("select tbl1_id,tableName,name from atdp a, genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
         qq.bindValue(0, avd_id);
         if(!qq.exec()) {
-            qDebug()<<"Query error info: "<<q.lastError().text();
+            qDebug()<<"Query error info: "<<qq.lastError().text();
             return;
         }
         int nplot=0;
         while(qq.next()) {
             QString cur_tbl = qq.value(0).toString();
-            QString sel_table = "experiments.`"+qq.value(1).toString()+"`";
+            QString sel_table =gSettings().getValue("experimentsdb")+".`"+qq.value(1).toString()+"`";
             //QString plt_name=qq.value(2).toString();
 
             QString sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end from "
@@ -621,22 +616,25 @@ void AverageDensity::batchsql() {
             Y+=QString("`Y%1` FLOAT NULL ,").arg(i);
         }
 
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS experiments.%1;"
-                                     "CREATE TABLE experiments.%2( "
+        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS %1.`%2`;"
+                                     "CREATE TABLE %3.`%4`( "
                                      "`X` INT NULL ,"+Y+
                                      "INDEX X_idx (X) using btree"
                                      ")"
                                      "ENGINE = MyISAM "
                                      "COMMENT = 'created by averagedensity';").
-                             arg(avd_table_name).
-                             arg(avd_table_name);
+                             arg(gSettings().getValue("experimentsdb")).
+                             arg(avd_id).
+                             arg(gSettings().getValue("experimentsdb")).
+                             arg(avd_id);
 
         if(!q.exec(CREATE_TABLE)) {
             qDebug()<<"Query error T: "<<q.lastError().text();
         }
 
-        QString SQL_QUERY_BASE=QString("insert into experiments.%1 values ").
-                               arg(avd_table_name);
+        QString SQL_QUERY_BASE=QString("insert into %1.`%2` values ").
+                               arg(gSettings().getValue("experimentsdb")).
+                               arg(avd_id);
         QString SQL_QUERY="";
 
         int rows=storages[0].size();
@@ -656,6 +654,11 @@ void AverageDensity::batchsql() {
         if(!q.exec(SQL_QUERY_BASE+SQL_QUERY+";")) {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
             qDebug()<<"Query error batch up: "<<SQL_QUERY_BASE;
+        }
+        q.prepare("update genelist set tableName = id where id like ? ;");
+        q.bindValue(0, avd_id);
+        if(!q.exec()) {
+            qDebug()<<"Query error info: "<<q.lastError().text();
         }
     }//aid>0
 }
