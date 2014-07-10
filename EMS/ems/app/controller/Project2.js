@@ -141,7 +141,7 @@ Ext.define('EMS.controller.Project2', {
 
         if (record.get('type') === 0) {//project
             var worker = "";
-            if(this.worker.isa || this.worker.isla)
+            if(this.worker.data.isa || this.worker.data.isla)
                 worker=this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
             else
                 worker="unknown";

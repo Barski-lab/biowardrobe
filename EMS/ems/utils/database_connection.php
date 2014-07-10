@@ -101,6 +101,7 @@ function recreate_rna_views($id, $parentid, $add = true)
         execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "_genes`", array(), true);
         execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "_common_tss`", array(), true);
         execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "`", array(), true);
+        execSQL($con, "drop view if exists {$EDB}.`" . $tbname . "_isoforms`", array(), true);
 
         $qr = selectSQL("select * from genelist where parent_id like ?", array("s", $parentid));
         if (!$qr) {
@@ -140,7 +141,7 @@ function recreate_rna_views($id, $parentid, $add = true)
         $AV_R = "(" . $AV_R . ")/" . $c;
         $AV_RP = "(" . $AV_RP . ")/" . $c;
 //Possible _isoforms
-        $SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "` AS " .
+        $SQL = "CREATE VIEW `{$EDB}`.`" . $tbname . "_isoforms` AS " .
             "select a0.refseq_id as refseq_id," .
             "a0.gene_id AS gene_id," .
             "a0.chrom AS chrom," .
@@ -164,7 +165,7 @@ function recreate_rna_views($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from `{$EDB}`.`" . $tbname . "` where strand = '+' " .
+            "from `{$EDB}`.`" . $tbname . "_isoforms` where strand = '+' " .
             "group by chrom,txStart,strand " .
             " union " .
             "select " .
@@ -176,7 +177,7 @@ function recreate_rna_views($id, $parentid, $add = true)
             "strand AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from `{$EDB}`.`" . $tbname . "` where strand = '-' " .
+            "from `{$EDB}`.`" . $tbname . "_isoforms` where strand = '-' " .
             "group by chrom,txEnd,strand ";
         execSQL($con, $SQL, array(), true);
 
@@ -190,7 +191,7 @@ function recreate_rna_views($id, $parentid, $add = true)
             "max(strand) AS strand," .
             "coalesce(sum(TOT_R_0),0) AS TOT_R_0, " .
             "coalesce(sum(RPKM_0),0) AS RPKM_0 " .
-            "from `{$EDB}`.`" . $tbname . "` group by gene_id ";
+            "from `{$EDB}`.`" . $tbname . "_isoforms` group by gene_id ";
         execSQL($con, $SQL, array(), true);
 
         execSQL($con, "update genelist set gblink=?,db=? where id like ?",
