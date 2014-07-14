@@ -69,6 +69,7 @@ $EDB = $settings->settings['experimentsdb']['value'];
 $tablenames = array();
 
 $c = 0;
+$f = 0;
 
 check_val($data->uuid);
 
@@ -115,7 +116,7 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txStart=a" . $c . ".txStart";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".txEnd=a" . $c . ".txEnd";
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
-            $FROM = $FROM . ",`{$EDB}`." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
+            $FROM .= ",`{$EDB}`.`{$tablenames[$val->table]['table']}` " . $tablenames[$val->table]['alias'];
 
             $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . " as `" . $c . $tablenames[$val->table]['RPKM1'] ."`".
                 "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . " as `" . $c . $tablenames[$val->table]['RPKM2'] ."`".
@@ -126,7 +127,7 @@ foreach ($V->conditions as $k2 => $val) {
 
             $gblink = $gblink . "&" . $tn[0]['gblink'];
         } else {
-            $FROM = "`{$EDB}`." . $tablenames[$val->table]['table'] . " " . $tablenames[$val->table]['alias'];
+            $FROM = "`{$EDB}`.`{$tablenames[$val->table]['table']}` " . $tablenames[$val->table]['alias'];
             $FIELDS = $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . "," .
                 $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . "," .
                 $tablenames[$val->table]['alias'] . "." . "LOGR as `LOG2R " . $tablenames[$val->table]['name'] . "`," .
@@ -142,6 +143,10 @@ foreach ($V->conditions as $k2 => $val) {
     $exp = get_expression(intval($val->condition), $field['field'] == "chrom");
     $op = get_operand(intval($val->operand));
 
+    if($f==0)
+        $op.=" (";
+    $f=1;
+
     if ($field['field'] == "chrom") { //chrom
         $WHERE = $WHERE . " $op " . $val->bracketl . $tablenames[$val->table]['alias'] . "." . $field['field'] . " " . $exp['exp'] . " '" . $val->value . "'" . $val->bracketr; //replace potentioal injection !
         $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . $val->value . "$val->bracketr<br>\n";
@@ -156,8 +161,8 @@ foreach ($V->conditions as $k2 => $val) {
 
 }
 
-$WHERE=str_replace('0=0   AND','0=0 AND (',$WHERE);
-$WHERE.=") ";
+$WHERE .= ") ";
+$READABLE .= ") ";
 
 $SQL = "CREATE VIEW `{$EDB}`.`{$tbname}` AS " .
     "select a0.refseq_id as refseq_id," .
@@ -168,8 +173,9 @@ $SQL = "CREATE VIEW `{$EDB}`.`{$tbname}` AS " .
     "a0.strand AS strand," .
     $FIELDS .
     " FROM " . $FROM . " WHERE $WHERE $WHEREC ";
+
+//logmsg($SQL);
 execSQL($con, $SQL, array(), true);
-//logmsg(print_r($SQL,true));
 execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
     array("sssssssi", $UUID, $V->name, $project_id, $DB, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
