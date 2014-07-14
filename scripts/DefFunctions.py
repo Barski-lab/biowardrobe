@@ -62,7 +62,7 @@ def check_pid(pid):
 def check_running(fname):
     if os.path.isfile(fname):
         old_pid = file(fname, 'r').readline()
-        if check_pid(int(old_pid)):
+        if old_pid and check_pid(int(old_pid)):
             sys.exit()
     file(fname, 'w').write(str(os.getpid()))
 
