@@ -62,12 +62,12 @@ for line in sys.stdin:
     elif b == 4:
         l4 = line
         adap = l2[0:left]
-        seq = l2[left+1:len(l2)]
+        seq = l2[left:len(l2)]
         b = 0
         if adap not in data:
             data[adap] = list()
         if seq not in data[adap]:
-            qual = l4[left+1:len(l4)]
+            qual = l4[left:len(l4)]
             data[adap].append(seq)
             print l1
             print seq
