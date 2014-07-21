@@ -115,6 +115,7 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
     urls = urlin.split(';')
 
     for url in urls:
+        url = url.strip()
         if len(url) == 0:
             continue
         urlparsed = urlparse.urlparse(url)
@@ -149,6 +150,7 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
         (cmd, ofname) = decompress(fname, ofname)
 
         for url in urls:
+            url = url.strip()
             urlparsed = urlparse.urlparse(url)
             if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
                 rc = check_auth(url, urlparsed[1])

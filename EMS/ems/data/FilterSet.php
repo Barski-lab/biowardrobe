@@ -21,10 +21,7 @@
 **
 ****************************************************************************/
 
-require("common.php");
-require_once('response.php');
-require_once('def_vars.php');
-require_once('database_connection.php');
+require_once('../settings.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
@@ -36,7 +33,6 @@ if(!isset($_REQUEST["ahead_id"])) {
 $count=0;
 
 $con=def_connect();
-$con->select_db($db_name_ems);
 
 $heads=execSQL($con,"select * from fhead where ahead_id=? and analysis_id is NULL;",array("i",$_REQUEST['ahead_id']),false);
 
