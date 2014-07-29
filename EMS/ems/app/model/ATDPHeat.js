@@ -24,8 +24,9 @@ Ext.define( 'EMS.model.ATDPHeat', {
                extend: 'Ext.data.Model',
 
                fields: [
-                   { name: 'TSS', type: 'int' },
-                   { name: 'Gene', type: 'int' },
-                   { name: 'v', type: 'int' }
+                   { name: 'max', type: 'float' },
+                   { name: 'cols', type: 'auto' },
+                   { name: 'rows', type: 'auto' },
+                   { name: 'array', type: 'auto' }
                ]
            });

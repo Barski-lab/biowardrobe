@@ -41,9 +41,10 @@
 
     <script type="text/javascript" src="HtmlEditor/imageUpload.js"></script>
 
-    <script type="text/javascript" src="jquery.min.js"></script>
-    <script type="text/javascript" src="highcharts/highcharts-all.js"></script>
-    <script type="text/javascript" src="highcharts/modules/heatmap.js"></script>
+<!--    <script type="text/javascript" src="jquery.min.js"></script>-->
+<!--    <script type="text/javascript" src="highcharts/highcharts-all.js"></script>-->
+<!--    <script type="text/javascript" src="highcharts/modules/heatmap.js"></script>-->
+    <script type="text/javascript" src="d3/d3.js"></script>
 
     <script type="text/javascript" src="app.js"></script>
 

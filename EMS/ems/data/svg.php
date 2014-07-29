@@ -26,26 +26,24 @@ require_once('../settings.php');
 //logmsg(__FILE__);
 //logmsg($_REQUEST);
 
-$tablename="";
+$tablename="AverageTagDensity";
 if(isset($_REQUEST['id']))
     $tablename = trim($_REQUEST['id']);
-else
-    $res->print_error('Not enough required parameters.');
+
 $type="";
 if(isset($_REQUEST['type']))
     $type = $_REQUEST['type'];
-else
-    $res->print_error('Not enough required parameters.');
 
 if(!isset($_REQUEST['svg']))
     $res->print_error('Not enough required parameters.');
 
 header("Content-type: image/svg+xml");
-header("Content-Disposition: attachment; filename=$tablename.svg");
+header("Content-Disposition: attachment; filename='{$tablename}.svg'");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-$dom = new DOMDocument;
+
+$dom = new DOMDocument();
 $dom->preserveWhiteSpace = FALSE;
 $dom->loadXML($_REQUEST['svg']);
 $dom->formatOutput = TRUE;
@@ -53,5 +51,5 @@ $dom->formatOutput = TRUE;
 
 $outstream = fopen("php://output", 'w');
 fwrite($outstream,str_replace(", sans-serif","",$dom->saveXml()));
-$outstream->close();
+fclose($outstream);
 ?>

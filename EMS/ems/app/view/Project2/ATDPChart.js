@@ -51,7 +51,7 @@ Ext.define('EMS.view.Project2.ATDPChart', {
                                    text: 'Save Chart',
                                    iconCls: 'svg-logo',
                                    handler: function () {
-                                       Ext.create('Ext.form.Panel', {
+                                       var p = Ext.create('Ext.form.Panel', {
                                            standardSubmit: true,
                                            url: 'data/svg.php',
                                            hidden: true,
@@ -60,7 +60,13 @@ Ext.define('EMS.view.Project2.ATDPChart', {
                                                {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
                                                {xtype: 'hiddenfield', name: 'svg', value: me.chart.save({type: 'image/svg+xml'})}
                                            ]
-                                       }).getForm().submit();
+                                       });
+                                       p.getForm().submit
+                                       ({
+                                            success: function (form, action) {
+                                                p.destroy();
+                                            }
+                                        });
                                    }
                                }
                            ]

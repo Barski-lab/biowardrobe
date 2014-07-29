@@ -22,13 +22,19 @@
  ****************************************************************************/
 require_once('../settings.php');
 
+ignore_user_abort(true);
+set_time_limit(600);
+
 ini_set('memory_limit', '-1');
+/*
 if (isset($_REQUEST['tablename']))
     $tablename = $_REQUEST['tablename'];
 else
     $response->print_error('Not enough required parameters.');
 
 check_val($tablename);
+*/
+$tablename="hDA8381E-4470-8F80-D39D-9AD5130FFF35_atdph";
 
 $DB = $settings->settings['experimentsdb']['value'];
 
@@ -61,10 +67,13 @@ for ($i = -($original_window-$trim); $i < ($original_window-$trim); $i += $windo
 
 $g=0;
 $m=0;
+$ma=0;
 $sums=[];
 $total=0;
 $datag=[];
-logmsg("BD Start",date("m.d h:i:s "));
+$alpha=1/count($query_array);
+
+logmsg("BD Start ",date("m.d h:i:s "));
 
 foreach ($query_array as $record) {
     $heatv = unpack('v*', $record['heat']);
@@ -72,36 +81,39 @@ foreach ($query_array as $record) {
     $r=explode(',',$record['refseq_id'],2);
     $r1=explode(',',$record['gene_id'],2);
     $y[] = "refseq_id: {$r[0]} <br> gene_id: {$r1[0]}";
-    $count = 0;
-    //$gd = [];
     $total=count($heatv);
+
+    $count = 0;
     $sum=0;
+    $m=0;
     $gened=[];
-    for ($i = 0,$c = 0; $i < $total; $i++) {
-        if($i<$trim_steps || $i+$trim_steps>$total)
+    for ($i = 0; $i < $total; $i++) {
+        if($i<$trim_steps)
             continue;
+        if( $i+$trim_steps>$total)
+            break;
+
         $count += $heatv[$i];
         $sum += $heatv[$i];
         if (($i + 1) % $step == 0) {
             $gened[]=$count;
-            //$data[] =array($c,$g,$count);
             $m=max($count,$m);
             $count = 0;
-            $c++;
         }
     }
+    $ma=($m*$alpha)+$ma*(1-$alpha);
     $datag[$g]=$gened;
     $sums[$g]=$sum;
     $g+=1;
-    //$data[] = $gd;
-    //logmsg($t);
 }
-logmsg("BD Stop",date("m.d h:i:s "));
+//$ma=$ma/count($query_array);
+
+logmsg("BD Stop ",date("m.d h:i:s "));
 
 asort($sums);
 $datas=[];
 $ys=[];
-logmsg("Resort",date("m.d h:i:s "));
+logmsg("Resort ",date("m.d h:i:s "));
 
 $top=1000;
 $skip=count($query_array)-$top;
@@ -113,30 +125,45 @@ foreach ($sums as $key => $val) {
 //    }
     $line=$datag[$key];
     $ys[]=$y[$key];
+    $data1=[];
     for($i=0;$i<count($line);$i++) {
-        $data[]=array($i,$c,$datag[$key][$i]);
-        //echo("{$i},{$c},{$datag[$key][$i]}\n");
+        //Highchart
+        //$data[]=array($i,$c,$datag[$key][$i]);
+        //D3
+        $data1[]=array($datag[$key][$i],$c,$i);
     }
+    $data[]=$data1;
     $c++;
 
 }
 
-//"TSS"=>$smps[floor($i/$step)],"Gene"=>$g,"v"=>$count
-//$y["smps"] = $smps;
-//$y["vars"] = $vars;
-//$y["data"] = $data;
-//$z["Symbol"]=$Symbol;
-//$x["Type"]=$Type;
-
-//$response->meta=array( "fields"=>$fields );
 logmsg(date("m.d h:i:s "));
 
 
 $response->success = true;
 $response->message = "Data loaded";
 $response->total = sizeof($data);
-$response->data = array("max"=>$m,"catx"=>$smps,"caty"=>$ys,"index"=>$data);//array("y" => $y);
+//$response->data = array("max"=>$ma,"catx"=>$smps,"caty"=>$ys,"index"=>$data);//array("y" => $y);
+$response->data = array("max"=>$ma,"cols"=>$smps,"rows"=>$ys,"array"=>$data);//array("y" => $y);
+//logmsg($response->to_json());
 print_r($response->to_json());
 
+
+//D3
+/*
+echo("
+var maxData = {$ma};\n
+var cols = ");
+print_r(json_encode($smps));
+echo(";\n
+var rows = ");
+print_r(json_encode($ys));
+echo(";\n
+var data = ");
+print_r(json_encode($data));
+echo(";\n
+var minData = 0;\n
+");
+*/
 ?>
 
