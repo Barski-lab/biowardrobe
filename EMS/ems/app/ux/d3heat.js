@@ -38,6 +38,7 @@ Ext.define("EMS.ux.d3heat", {
     colsName: null,
     colors: ["white", "blue"],
     plotTitle: "",
+    plotmargin: { top: 30, right: 30, bottom: 20, left: 70 },
 
     plot: function () {
         var _this = this;
@@ -48,10 +49,10 @@ Ext.define("EMS.ux.d3heat", {
 
         //generate the heatmap
         var h = this.getHeight();
-        h -= 100;
+        h -= (_this.plotmargin.top + _this.plotmargin.bottom);
         this.heatHeight = h / this.rowsName.length;
 
-//        console.log(this.heatHeight);
+        //        console.log(this.heatHeight);
 
         this.colorScale = d3.scale.linear()
                 .domain([0, this.max])
@@ -69,12 +70,10 @@ Ext.define("EMS.ux.d3heat", {
                 .attr('width', _this.heatWidth)
                 .attr('height', _this.heatHeight)
                 .attr('x', function (d, i, j) {
-                          return (i  * _this.heatWidth) + 25;
-                          //return (d[2] * _this.heatWidth) + 25;
+                          return (i * _this.heatWidth) + _this.plotmargin.left;
                       })
                 .attr('y', function (d, i, j) {
-                          //return (d[1] * _this.heatHeight) + 50;
-                          return (j * _this.heatHeight) + 50;
+                          return (j * _this.heatHeight) + _this.plotmargin.top;
                       })
                 .style('fill', function (d) {
                            return _this.colorScale(d);
@@ -85,23 +84,64 @@ Ext.define("EMS.ux.d3heat", {
                 .data(this.colsName)
                 .enter().append('svg:text')
                 .attr('x', function (d, i) {
-                          return ((i + 0.5) * _this.heatWidth) + 25;
+                          return ((i + 0.5) * _this.heatWidth) + _this.plotmargin.left;
                       })
-                .attr('y', this.getHeight() - 20)
+                .attr('y', this.getHeight() - _this.plotmargin.bottom / 2 + 3)
                 .attr('class', 'label')
                 .style('text-anchor', 'middle')
                 .text(function (d) {
                           return d;
                       });
-        var title = this.chart.selectAll(".title")
-                //.data()
+        var title = this.chart
                 .append('svg:text')
-//                .attr('x', 15)
-//                .attr('y', 10)
-//                .attr('class', 'title')
-//                .style('text-anchor', 'middle')
+                .attr('x', _this.heatWidth * _this.colsName.length / 2 + _this.plotmargin.left - 5)
+                .attr('y', _this.plotmargin.top / 2 + 1)
+                .attr('class', 'label')
+                .style('text-anchor', 'middle')
                 .text(this.plotTitle);
 
-    }
+        //expression value label
+        this.expLab = d3.select(this.el.dom)
+                .append('div')
+                .style('height', 'auto')
+                .style('position', 'absolute')
+                .style('background', '#C3C3CB')
+                .style('opacity', 0.6)
+                .style('top', 0)
+                .style('padding', 10)
+                .style('left', 30)
+                .style('display', 'none');
+        heatmapRow
+                .on('mouseover', function (d, i) {
+                        d3.select(this)
+                                .attr('stroke-width', 1)
+                                .attr('stroke', 'black');
+
+                        output = '<b>' + _this.rowsName[i] + '</b>';
+
+                        _this.expLab
+                                .style('top', (i * _this.heatHeight))
+                                .style('display', 'block')
+                                .html(output);
+                    })
+                .on('mouseout', function (d, i) {
+                        d3.select(this)
+                                .attr('stroke-width', 0)
+                                .attr('stroke', 'none');
+
+                        _this.expLab
+                                .style('display', 'none');
+                    });
+    },
+    destroy: function () {
+        var _this = this;
+        console.log("destroyed heat");
+        if (this.expLab) {
+            this.expLab.remove();
+            delete this.expLab;
+        }
+        this.callParent(arguments);
+    },
+
 
 });

@@ -29,7 +29,7 @@ Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
     bodyPadding: 0,
     border: false,
     frame: false,
-    layout: 'border',
+    layout: 'fit',
     plain: true,
     title: 'Tag Density Heatmap',
     iconCls: 'chart-line',
@@ -73,7 +73,6 @@ Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
         me.callParent(arguments);
     },
     onDestroy: function () {
-        this.chart.destroy();
         this.callParent(arguments);
     },
 })

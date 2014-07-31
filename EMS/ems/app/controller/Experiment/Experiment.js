@@ -427,36 +427,21 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addATDPChartH: function (tab, bn) {
         var me = this;
-        var store =this.getATDPHeatStore();
+        var store = this.getATDPHeatStore();
         store.getProxy().setExtraParam('tablename', this.UID + '_atdph');
-        store.load
-        ({
-             callback: function (records, operation, success) {
-                 if (success) {
-                     me.ATDPHeat = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
-                     tab.add(me.ATDPHeat);
-
-//                     tab.add(
-//                             {
-//                                 bodyPadding: 0,
-//                                 border: false,
-//                                 frame: false,
-//                                 layout: 'border',
-//                                 plain: true,
-//                                 title: 'Tag Density Heatmap',
-//                                 iconCls: 'chart-line',
-//                                 layout: 'fit',
-//                                 items: [
-//                                     {
-//                                         xtype: 'd3heat',
-//                                         store: store
-//                                     }
-//                                 ]
-//                             });
-                 }
-             }
-         }, this);
-
+        me.ATDPHeat = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
+        var tabadded = tab.add(me.ATDPHeat);
+        var icon=me.ATDPHeat.iconCls;
+        tabadded.setDisabled(true);
+        tabadded.setIconCls('loading');
+        store.load({
+                      callback:  function (records, operation, success) {
+                         if (success) {
+                             tabadded.setDisabled(false);
+                             tabadded.setIconCls(icon);
+                         }
+                     }
+                 });
     },
     /***********************************************************************
      ***********************************************************************/

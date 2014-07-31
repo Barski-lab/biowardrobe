@@ -22,7 +22,7 @@
 
 Ext.define("EMS.ux.d3", {
     extend: 'Ext.Component',
-//    alias: ['widget.d3'],
+    //    alias: ['widget.d3'],
 
     /**
      * @cfg {Boolean} resizable
@@ -61,15 +61,16 @@ Ext.define("EMS.ux.d3", {
 
     rowsName: null,
     colsName: null,
+    storeLoaded: false,
 
-    plot: function() {
+    plot: function () {
     },
 
     constructor: function (config) {
         config.listeners && (this.afterChartRendered = config.listeners.afterChartRendered);
-        this.afterChartRendered && (this.afterChartRendered = Ext.bind(this.afterChartRendered, this));
+        //this.afterChartRendered && (this.afterChartRendered = Ext.bind(this.afterChartRendered, this));
         this.callParent(arguments);
-        this.on('show', this.afterRender);
+        this.on('afterrender', this.afterRender);
         Ext.apply(this, config);
     },
 
@@ -78,26 +79,24 @@ Ext.define("EMS.ux.d3", {
         this.callParent(arguments);
         if (this.loadMask !== false) {
             if (this.loadMask === true) {
-                this.loadMask = new Ext.LoadMask({target: this,msg:this.loadMaskMsg});
+                this.loadMask = new Ext.LoadMask({target: this, msg: this.loadMaskMsg});
             }
         }
     },
 
     afterRender: function () {
+        console.log("after render");
         this.store && (this.bindStore(this.store, true));
         this.bindComponent(true);
-
         this.update();
     },
 
     update: function () {
         var _this = this;
 
-        if (this.loadMask !== false && this.rendered) {
+        if (this.loadMask !== false && this.rendered && !this.loadMask.isVisible()) {
             this.loadMask.show();
         }
-
-        if (_this.store && _this.store.isLoading()) return;
 
         var cdelay = 2;
         if (!_this.updateTask) {
@@ -107,16 +106,13 @@ Ext.define("EMS.ux.d3", {
     },
 
     draw: function () {
-        // Sencha Touch uses config to access properties
         var _this = this;
-        console.log("call draw");
 
-        if (!_this.store || _this.store.isLoading()) {
-            console.log("Store still loading");
+        if (this.store && !this.store.lastOptions ) {
             return;
         }
 
-        if (this.loadMask !== false && this.rendered) {
+        if (this.loadMask !== false && this.rendered && !this.loadMask.isVisible()) {
             this.loadMask.show();
         }
 
@@ -127,22 +123,25 @@ Ext.define("EMS.ux.d3", {
         }
 
         this.d3Canvas();
-
-        this.plot();
+        try {
+            this.plot();
+        } catch (err) {
+            console.log(err);
+        }
 
         if (this.loadMask !== false) {
             this.loadMask.hide();
         }
     },
 
-    save: function() {
+    save: function () {
         var svgstr;
         var _this = this;
-        if(!this.chart) return "";
-        if (typeof XMLSerializer != "undefined"){
-            svgstr=(new XMLSerializer()).serializeToString(this.chart[0][0]);
+        if (!this.chart) return "";
+        if (typeof XMLSerializer != "undefined") {
+            svgstr = (new XMLSerializer()).serializeToString(this.chart[0][0]);
         } else {
-            svgstr=$(this.chart).html();
+            svgstr = $(this.chart).html();
         }
         return svgstr;
     },
@@ -150,8 +149,6 @@ Ext.define("EMS.ux.d3", {
     d3Canvas: function () {
         this.chart = d3.select(this.el.dom)
                 .append("svg")
-                //.attr("width", (this.heatWidth * this.colsName.length) + 400)
-                //.attr("height", (this.heatHeight * this.rowsName.length + 100))
                 .attr('xmlns', 'http://www.w3.org/2000/svg')
                 .attr("width", this.getWidth())
                 .attr("height", this.getHeight())
@@ -173,8 +170,8 @@ Ext.define("EMS.ux.d3", {
                 //                this.store.un("datachanged", this.onDataChange, this);
                 this.store.un("load", this.onLoad, this);
                 //                this.store.un("add", this.onAdd, this);
-                //                this.store.un("remove", this.onRemove, this);
-                //                this.store.un("update", this.onUpdate, this);
+                this.store.un("remove", this.onRemove, this);
+                this.store.un("update", this.onUpdate, this);
                 //                this.store.un("clear", this.onClear, this);
             }
         }
@@ -185,8 +182,8 @@ Ext.define("EMS.ux.d3", {
                          load: this.onLoad,
                          //                         datachanged: this.onDataChange,
                          //                         add: this.onAdd,
-                         //                         remove: this.onRemove,
-                         //                         update: this.onUpdate,
+                         remove: this.onRemove,
+                         update: this.onUpdate,
                          //                         clear: this.onClear
                      });
         }
@@ -196,7 +193,6 @@ Ext.define("EMS.ux.d3", {
 
     destroy: function () {
         var _this = this;
-        console.log("destroyed");
         if (this.chart) {
             d3.select(this.el.dom).remove();
             delete this.chart;
@@ -224,10 +220,19 @@ Ext.define("EMS.ux.d3", {
     },
 
     onLoad: function () {
-        // Sencha Touch uses config to access properties
         var _this = this;
+        console.log("d3 on load");
+        this.storeLoaded = true;
         this.update();
     },
 
+    onRemove: function () {
+        console.log("d3 on remove");
+        this.storeLoaded = false;
+    },
+    onUpdate: function () {
+        console.log("d3 on update");
+        this.storeLoaded = false;
+    },
 
 });
