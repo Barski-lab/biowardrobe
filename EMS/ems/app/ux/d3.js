@@ -70,25 +70,24 @@ Ext.define("EMS.ux.d3", {
         config.listeners && (this.afterChartRendered = config.listeners.afterChartRendered);
         //this.afterChartRendered && (this.afterChartRendered = Ext.bind(this.afterChartRendered, this));
         this.callParent(arguments);
-        this.on('afterrender', this.afterRender);
         Ext.apply(this, config);
     },
 
     initComponent: function () {
-        this.store && (this.store = Ext.data.StoreManager.lookup(this.store));
-        this.callParent(arguments);
+        this.store && (this.bindStore(this.store, true));
         if (this.loadMask !== false) {
             if (this.loadMask === true) {
                 this.loadMask = new Ext.LoadMask({target: this, msg: this.loadMaskMsg});
             }
         }
+        this.callParent(arguments);
     },
 
     afterRender: function () {
-        console.log("after render");
         this.store && (this.bindStore(this.store, true));
         this.bindComponent(true);
         this.update();
+        this.callParent(arguments);
     },
 
     update: function () {
@@ -175,7 +174,7 @@ Ext.define("EMS.ux.d3", {
                 //                this.store.un("clear", this.onClear, this);
             }
         }
-        if (store) {
+        if (store && store !== this.store) {
             store = Ext.data.StoreManager.lookup(store);
             store.on({
                          scope: this,
