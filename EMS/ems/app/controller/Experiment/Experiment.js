@@ -21,173 +21,6 @@
  ****************************************************************************/
 
 
-//(function (H) {
-//    var wrap = H.wrap,
-//            seriesTypes = H.seriesTypes;
-//
-//    /**
-//     * Recursively builds a K-D-tree
-//     */
-//    function KDTree(points, depth) {
-//        var axis, median, length = points && points.length;
-//
-//        if (length) {
-//
-//            // alternate between the axis
-//            axis = ['plotX', 'plotY'][depth % 2];
-//
-//            // sort point array
-//            points.sort(function (a, b) {
-//                return a[axis] - b[axis];
-//            });
-//
-//            median = Math.floor(length / 2);
-//
-//            // build and return node
-//            return {
-//                point: points[median],
-//                left: KDTree(points.slice(0, median), depth + 1),
-//                right: KDTree(points.slice(median + 1), depth + 1)
-//            };
-//
-//        }
-//    }
-//
-//    /**
-//     * Recursively searches for the nearest neighbour using the given K-D-tree
-//     */
-//    function nearest(search, tree, depth) {
-//        var point = tree.point,
-//                axis = ['plotX', 'plotY'][depth % 2],
-//                tdist,
-//                sideA,
-//                sideB,
-//                ret = point,
-//                nPoint1,
-//                nPoint2;
-//
-//        // Get distance
-//        point.dist = Math.pow(search.plotX - point.plotX, 2) +
-//                     Math.pow(search.plotY - point.plotY, 2);
-//
-//        // Pick side based on distance to splitting point
-//        tdist = search[axis] - point[axis];
-//        sideA = tdist < 0 ? 'left' : 'right';
-//
-//        // End of tree
-//        if (tree[sideA]) {
-//            nPoint1 = nearest(search, tree[sideA], depth + 1);
-//
-//            ret = (nPoint1.dist < ret.dist ? nPoint1 : point);
-//
-//            sideB = tdist < 0 ? 'right' : 'left';
-//            if (tree[sideB]) {
-//                // compare distance to current best to splitting point to decide wether to check side B or not
-//                if (Math.abs(tdist) < ret.dist) {
-//                    nPoint2 = nearest(search, tree[sideB], depth + 1);
-//                    ret = (nPoint2.dist < ret.dist ? nPoint2 : ret);
-//                }
-//            }
-//        }
-//        return ret;
-//    }
-//
-//    // Extend the heatmap to use the K-D-tree to search for nearest points
-//    H.seriesTypes.heatmap.prototype.setTooltipPoints = function () {
-//        var series = this;
-//
-//        this.tree = null;
-//        setTimeout(function () {
-//            series.tree = KDTree(series.points, 0);
-//        });
-//    };
-//    H.seriesTypes.heatmap.prototype.getNearest = function (search) {
-//        if (this.tree) {
-//            return nearest(search, this.tree, 0);
-//        }
-//    };
-//
-//    H.wrap(H.Pointer.prototype, 'runPointActions', function (proceed, e) {
-//        var chart = this.chart;
-//        proceed.call(this, e);
-//
-//        // Draw independent tooltips
-//        H.each(chart.series, function (series) {
-//            var point;
-//            if (series.getNearest) {
-//                point = series.getNearest({
-//                                              plotX: e.chartX - chart.plotLeft,
-//                                              plotY: e.chartY - chart.plotTop
-//                                          });
-//                if (point) {
-//                    point.onMouseOver(e);
-//                }
-//            }
-//        })
-//    });
-//
-//    /**
-//     * Get the canvas context for a series
-//     */
-//    H.Series.prototype.getContext = function () {
-//        var canvas;
-//        if (!this.ctx) {
-//            canvas = document.createElement('canvas');
-//            canvas.setAttribute('width', this.chart.plotWidth);
-//            canvas.setAttribute('height', this.chart.plotHeight);
-//            canvas.style.position = 'absolute';
-//            canvas.style.left = this.group.translateX + 'px';
-//            canvas.style.top = this.group.translateY + 'px';
-//            canvas.style.zIndex = 0;
-//            canvas.style.cursor = 'crosshair';
-//            this.chart.container.appendChild(canvas);
-//            if (canvas.getContext) {
-//                this.ctx = canvas.getContext('2d');
-//            }
-//        }
-//        return this.ctx;
-//    }
-//
-//    /**
-//     * Wrap the drawPoints method to draw the points in canvas instead of the slower SVG,
-//     * that requires one shape each point.
-//     */
-//    H.wrap(H.seriesTypes.heatmap.prototype, 'drawPoints', function (proceed) {
-//
-//        var ctx;
-//        if (this.chart.renderer.forExport) {
-//            // Run SVG shapes
-//            proceed.call(this);
-//
-//        } else {
-//
-//            if (ctx = this.getContext()) {
-//
-//                // draw the columns
-//                H.each(this.points, function (point) {
-//                    var plotY = point.plotY,
-//                            shapeArgs;
-//
-//                    if (plotY !== undefined && !isNaN(plotY) && point.y !== null) {
-//                        shapeArgs = point.shapeArgs;
-//
-//                        ctx.fillStyle = point.pointAttr[''].fill;
-//                        ctx.fillRect(shapeArgs.x, shapeArgs.y, shapeArgs.width, shapeArgs.height);
-//                    }
-//                });
-//
-//            } else {
-//                this.chart.showLoading("Your browser doesn't support HTML5 canvas, <br>please use a modern browser");
-//
-//                // Uncomment this to provide low-level (slow) support in oldIE. It will cause script errors on
-//                // charts with more than a few thousand points.
-//                //proceed.call(this);
-//            }
-//        }
-//    });
-//}(Highcharts));
-
-
 Ext.define('EMS.controller.Experiment.Experiment', {
     extend: 'Ext.app.Controller',
 
@@ -208,7 +41,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
     requires: [
         'EMS.util.Util',
-        'EMS.ux.d3'
+        'EMS.ux.d3',
+        'EMS.ux.d3heat',
     ],
 
 
@@ -577,10 +411,10 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                                   if (records[i].data.Y > max)
                                       max = records[i].data.Y;
                               }
-                              var prc=0,mx=max;
-                              for(;mx<1;prc++)
-                                  mx*=10;
-                              prc+=2;
+                              var prc = 0, mx = max;
+                              for (; mx < 1; prc++)
+                                  mx *= 10;
+                              prc += 2;
                               // = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
                               me.ATDPChart = Ext.create("EMS.view.Experiment.Experiment.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
                               tab.add(me.ATDPChart);
@@ -593,156 +427,36 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addATDPChartH: function (tab, bn) {
         var me = this;
-        this.getATDPHeatStore().load();
-        tab.add(
-                {
+        var store =this.getATDPHeatStore();
+        store.getProxy().setExtraParam('tablename', this.UID + '_atdph');
+        store.load
+        ({
+             callback: function (records, operation, success) {
+                 if (success) {
+                     me.ATDPHeat = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
+                     tab.add(me.ATDPHeat);
 
-                    bodyPadding: 0,
-                    border: false,
-                    frame: false,
-                    layout: 'border',
-                    plain: true,
-                    title: 'Average Tag Density Heat',
-                    iconCls: 'chart-line',
-                    layout: 'fit',
-                    items: [
-                        {
-                            xtype: 'd3',
-                            store: "ATDPHeat"
-                        }]
-                });
+//                     tab.add(
+//                             {
+//                                 bodyPadding: 0,
+//                                 border: false,
+//                                 frame: false,
+//                                 layout: 'border',
+//                                 plain: true,
+//                                 title: 'Tag Density Heatmap',
+//                                 iconCls: 'chart-line',
+//                                 layout: 'fit',
+//                                 items: [
+//                                     {
+//                                         xtype: 'd3heat',
+//                                         store: store
+//                                     }
+//                                 ]
+//                             });
+                 }
+             }
+         }, this);
 
-        /*
-        Ext.Ajax.request({
-                             url: 'data/ATDPHeat.php',
-                             params: {
-                                 'tablename': me.UID + "_atdph"
-                             },
-                             method: 'GET',
-                             timeout: 600000, //600 sec
-                             success: function (response) {
-                                 var json = Ext.decode(response.responseText);
-                                 tab.add(
-                                         {
-
-                                             bodyPadding: 0,
-                                             border: false,
-                                             frame: false,
-                                             layout: 'border',
-                                             plain: true,
-                                             title: 'Average Tag Density Heat',
-                                             iconCls: 'chart-line',
-                                             layout: 'fit',
-                                             items: [
-                                                 {
-                                                     xtype: 'highchart',
-                                                     animation: false,
-                                                     chartConfig: {
-                                                         alignTicks: false,
-                                                         exporting: {
-                                                             enabled: false
-                                                         },
-                                                         xAxis: {
-                                                             categories: json.data.catx,
-                                                             labels: {
-                                                                 //enabled: false,
-                                                                 //align: 'left',
-                                                                 //x: 5,
-                                                                 //format: '{value:%B}' // long month
-                                                             },
-                                                             //showLastLabel: false,
-                                                             minorTickLength: 0,
-                                                             tickLength: 0,
-                                                             tickPositions: [0, json.data.catx.length - 1],
-                                                             gridLineWidth: 0,
-                                                             minorGridLineWidth: 0,
-                                                             startOnTick: false,
-                                                             endOnTick: false,
-                                                         },
-                                                         tooltip: {
-                                                             backgroundColor: null,
-                                                             borderWidth: 0,
-                                                             //distance: 10,
-                                                             shadow: false,
-                                                             useHTML: true,
-                                                             positioner: function (a, b, c) {
-                                                                 return {x: 10, y: c.plotY + 80};
-                                                             },
-                                                             style: {
-                                                                 padding: 0,
-                                                                 color: 'black'
-                                                             },
-                                                             formatter: function () {
-                                                                 return '<b> TSS ' + this.series.xAxis.categories[this.point.x] + '</b><br>' +
-                                                                        '<b> ' + this.series.yAxis.categories[this.point.y] + '</b><br>' +
-                                                                        this.point.value;
-                                                             }
-
-                                                         },
-                                                         legend: {
-                                                             align: 'right',
-                                                             layout: 'vertical',
-                                                             margin: 0,
-                                                             verticalAlign: 'top',
-                                                             y: 150,
-                                                             symbolHeight: 300
-                                                         },
-                                                         yAxis: {
-                                                             categories: json.data.caty,
-                                                             title: 'Genes',
-                                                             //showLastLabel: false,
-                                                             minorTickLength: 0,
-                                                             tickLength: 0,
-                                                             gridLineWidth: 0,
-                                                             tickInterval: json.data.caty.length - 1,
-                                                             minorGridLineWidth: 0,
-                                                             labels: {
-                                                                 enabled: false,
-                                                             },
-                                                             startOnTick: false,
-                                                             endOnTick: false,
-                                                             //tickLength: 10
-                                                         },
-                                                         chart: {
-                                                             type: 'heatmap',
-                                                             //borderWidth: 1
-                                                             //zoomType: 'y',
-                                                             plotBorderWidth: 1,
-                                                             animation: false,
-                                                             width: 500,
-                                                             margin: [100, 200, 100, 200]
-                                                         },
-                                                         title: {
-                                                             text: bn
-                                                         },
-                                                         colorAxis: {
-                                                             min: 0,
-                                                             max: json.data.max,
-                                                             minColor: '#FFFFFF',
-                                                             maxColor: '#000000'
-                                                         },
-                                                         series: [
-                                                             {
-                                                                 name: 'heat',
-                                                                 borderWidth: 0,
-                                                                 data: json.data.index,
-                                                             }
-                                                         ]
-
-                                                     }
-                                                 }
-                                             ]
-                                         });
-
-                                 //me.ATDPChartH = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {data: json.data});
-                                 //tab.add(me.ATDPChartH);
-                             },
-                             failure: function () {
-                                 EMS.util.Util.Logger.log("Cant run error");
-                             },
-                         });
-
-    */
     },
     /***********************************************************************
      ***********************************************************************/

@@ -22,74 +22,61 @@
 
 Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
     extend: 'Ext.Panel',
+    requires: [
+        'EMS.ux.d3',
+        'EMS.ux.d3heat'
+    ],
     bodyPadding: 0,
     border: false,
     frame: false,
     layout: 'border',
     plain: true,
-    title: 'Average Tag Density Heat',
+    title: 'Tag Density Heatmap',
     iconCls: 'chart-line',
-    layout: 'fit',
-    data: {},
-    items: [
-        {
-            xtype: 'highchart',
-            series: [
-                {
-                    //type: 'heatmap',
-                    xField: 'TSS',
-                    yField: 'Gene',
-                    dataIndex: 'v',
-                    //borderWidth: 0,
-                    //colsize: 24 * 3600000, // one day
-                }
-            ],
-            xField: 'TSS',
-            yField: 'Gene',
-            animation: false,
-            chartConfig: {
-                chart:{
-                    type: 'heatmap',
-                    animation: false,
-                },
-                title : {
-                    text : 'Heatmap'
-                },
-                tooltip: {
-                    headerFormat: 'Temperature<br/>',
-                    pointFormat: '{point.x:%e %b, %Y} {point.y:%e %b} <b>{point.value}</b>'
-                }
 
-            }
-        }
-    ],
-    constructor: function (config) {
-        Ext.apply(this, config);
-        this.callParent(arguments);
-    },
     initComponent: function () {
         var me = this;
+        this.chart = Ext.create('EMS.ux.d3heat', me.initialConfig);
+        this.tbar = [
+            {
+                xtype: 'fieldcontainer',
+                layout: 'hbox',
+                items: [
+                    {
+
+                        xtype: 'button',
+                        text: 'Save Chart',
+                        iconCls: 'svg-logo',
+                        handler: function () {
+                            var p = Ext.create('Ext.form.Panel', {
+                                standardSubmit: true,
+                                url: 'data/svg.php',
+                                hidden: true,
+                                items: [
+                                    {xtype: 'hiddenfield', name: 'id', value: me.initialConfig.plotTitle},
+                                    {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
+                                    {xtype: 'hiddenfield', name: 'svg', value: me.chart.save()}
+                                ]
+                            });
+                            p.getForm().submit
+                            ({
+                                 success: function (form, action) {
+                                     p.destroy();
+                                 }
+                             });
+                        }
+                    }
+                ]
+            }
+        ];
+        me.items = me.chart;
         me.callParent(arguments);
-    }
-});
+    },
+    onDestroy: function () {
+        this.chart.destroy();
+        this.callParent(arguments);
+    },
+})
+;
 
 
-//        me.items = [
-//            {
-//                xtype: 'canvasxpress',
-//                //                        showExampleData: true,
-//                imgDir: '/ems/imagesCanvas/',
-//                options: {
-//                    imageDir: 'imagesCanvas/',
-//                    graphType: 'Heatmap',
-//                    heatmapType: 'white-black',
-//                    varLabelRotate: 45,
-//                    graphOrientation: 'vertical',
-//                    zoom: 0,
-//                    showSmpDendrogram: false,
-//                    showVarDendrogram: false,
-//                    //"maxCols": 600
-//                },
-//                data: me.data
-//            }
-//        ];

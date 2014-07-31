@@ -23,6 +23,7 @@
 
 require_once('../settings.php');
 
+
 //logmsg(__FILE__);
 //logmsg($_REQUEST);
 
@@ -38,7 +39,7 @@ if(!isset($_REQUEST['svg']))
     $res->print_error('Not enough required parameters.');
 
 header("Content-type: image/svg+xml");
-header("Content-Disposition: attachment; filename='{$tablename}.svg'");
+header("Content-Disposition: attachment; filename='{$tablename}'");
 header("Pragma: no-cache");
 header("Expires: 0");
 

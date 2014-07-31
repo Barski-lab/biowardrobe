@@ -131,7 +131,8 @@ def upload_macsdata(conn, infile, dbexp, db):
             continue
         if skip:
             a = line.strip().split('\t')
-            broad = ("pileup" in a[4])
+            if not broad:
+                broad = ("pileup" in a[4])
             skip = False
             continue
         a = line.strip().split('\t')

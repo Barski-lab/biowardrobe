@@ -1,15 +1,28 @@
+/****************************************************************************
+ **
+ ** Copyright (C) 2011-2014 Andrey Kartashov .
+ ** All rights reserved.
+ ** Contact: Andrey Kartashov (porter@porter.st)
+ **
+ ** This file is part of the EMS web interface module of the genome-tools.
+ **
+ ** GNU Lesser General Public License Usage
+ ** This file may be used under the terms of the GNU Lesser General Public
+ ** License version 2.1 as published by the Free Software Foundation and
+ ** appearing in the file LICENSE.LGPL included in the packaging of this
+ ** file. Please review the following information to ensure the GNU Lesser
+ ** General Public License version 2.1 requirements will be met:
+ ** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+ **
+ ** Other Usage
+ ** Alternatively, this file may be used in accordance with the terms and
+ ** conditions contained in a signed written agreement between you and Andrey Kartashov.
+ **
+ ****************************************************************************/
+
 Ext.define("EMS.ux.d3", {
     extend: 'Ext.Component',
-    alias: ['widget.d3'],
-
-    /***
-     * This method is called by other routines within this extension to output debugging log.
-     * This method can be overrided with Ext.emptyFn for product deployment
-     * @param {String} msg debug message to the console
-     */
-    log: function (msg) {
-        (typeof console !== 'undefined' && this.debug) && console.log(msg);
-    },
+//    alias: ['widget.d3'],
 
     /**
      * @cfg {Boolean} resizable
@@ -27,7 +40,7 @@ Ext.define("EMS.ux.d3", {
     /***
      * @cfg {String} loadMaskMsg Message display for loadmask
      */
-    loadMaskMsg: 'Loading ... ',
+    loadMaskMsg: 'Processing ... ',
 
     /**
      * @cfg {Boolean} refreshOnChange
@@ -49,6 +62,9 @@ Ext.define("EMS.ux.d3", {
     rowsName: null,
     colsName: null,
 
+    plot: function() {
+    },
+
     constructor: function (config) {
         config.listeners && (this.afterChartRendered = config.listeners.afterChartRendered);
         this.afterChartRendered && (this.afterChartRendered = Ext.bind(this.afterChartRendered, this));
@@ -62,7 +78,7 @@ Ext.define("EMS.ux.d3", {
         this.callParent(arguments);
         if (this.loadMask !== false) {
             if (this.loadMask === true) {
-                this.loadMask = new Ext.LoadMask({target: this});
+                this.loadMask = new Ext.LoadMask({target: this,msg:this.loadMaskMsg});
             }
         }
     },
@@ -77,18 +93,13 @@ Ext.define("EMS.ux.d3", {
     update: function () {
         var _this = this;
 
-        if (this.loadMask !== false) {
+        if (this.loadMask !== false && this.rendered) {
             this.loadMask.show();
         }
 
         if (_this.store && _this.store.isLoading()) return;
 
-        this.rowsName = this.store.getAt(0).get('rows');
-        this.colsName = this.store.getAt(0).get('cols');
-        this.max = this.store.getAt(0).get('max');
-        this.dataArray = this.store.getAt(0).get('array');
-
-        var cdelay = 0;
+        var cdelay = 2;
         if (!_this.updateTask) {
             _this.updateTask = new Ext.util.DelayedTask(_this.draw, _this);
         }
@@ -105,59 +116,48 @@ Ext.define("EMS.ux.d3", {
             return;
         }
 
-        console.log(this);
+        if (this.loadMask !== false && this.rendered) {
+            this.loadMask.show();
+        }
+
 
         if (_this.chart && _this.rendered) {
-            //_this.chart.destroy();
-            //delete this.chart;
-            //this.chart = new Highcharts.Chart(_this.chartConfig, this.afterChartRendered);
             console.log("drop chart");
-        } else if (_this.rendered) {
-            //this.chart = new Highcharts.Chart(_this.chartConfig, this.afterChartRendered);
-            console.log("creating chart from fresh");
+            d3.select(this.el.dom).remove();
         }
+
         this.d3Canvas();
-        //generate the heatmap
 
-        var heatmapRow = this.chart.selectAll(".heatmap")
-                .data(this.dataArray)
-                .enter().append("g");
-
-        var heatmapRects = heatmapRow
-                .selectAll(".rect")
-                .data(function (d) {
-                          return d;
-                      }).enter().append("svg:rect")
-                .attr('width', _this.heatWidth)
-                .attr('height', _this.heatHeight)
-                .attr('x', function (d) {
-                          return (d[2] * _this.heatWidth) + 25;
-                      })
-                .attr('y', function (d) {
-                          return (d[1] * _this.heatHeight) + 50;
-                      })
-                .style('fill', function (d) {
-                           return _this.colorScale(d[0]);
-                       });
+        this.plot();
 
         if (this.loadMask !== false) {
             this.loadMask.hide();
         }
-        console.log((new XMLSerializer()).serializeToString(this.chart));
+    },
+
+    save: function() {
+        var svgstr;
+        var _this = this;
+        if(!this.chart) return "";
+        if (typeof XMLSerializer != "undefined"){
+            svgstr=(new XMLSerializer()).serializeToString(this.chart[0][0]);
+        } else {
+            svgstr=$(this.chart).html();
+        }
+        return svgstr;
     },
 
     d3Canvas: function () {
         this.chart = d3.select(this.el.dom)
                 .append("svg")
-                .attr("width", (this.heatWidth * this.colsName.length) + 400)
-                .attr("height", (this.heatHeight * this.rowsName.length + 100))
+                //.attr("width", (this.heatWidth * this.colsName.length) + 400)
+                //.attr("height", (this.heatHeight * this.rowsName.length + 100))
+                .attr('xmlns', 'http://www.w3.org/2000/svg')
+                .attr("width", this.getWidth())
+                .attr("height", this.getHeight())
                 .style('position', 'absolute')
                 .style('top', 0)
                 .style('left', 0);
-        this.colorScale = d3.scale.linear()
-                .domain([0, this.max])
-                .range(["white", "blue"]);
-
     },
 
     onMove: function () {
@@ -196,12 +196,13 @@ Ext.define("EMS.ux.d3", {
 
     destroy: function () {
         var _this = this;
-
+        console.log("destroyed");
         if (this.chart) {
-            this.chart.destroy();
+            d3.select(this.el.dom).remove();
             delete this.chart;
         }
-
+        this.bindComponent(null);
+        this.bindStore(null);
         this.callParent(arguments);
     },
 
