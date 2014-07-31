@@ -84,7 +84,6 @@ Ext.define("EMS.ux.d3", {
     },
 
     afterRender: function () {
-        this.store && (this.bindStore(this.store, true));
         this.bindComponent(true);
         this.update();
         this.callParent(arguments);
@@ -107,9 +106,10 @@ Ext.define("EMS.ux.d3", {
     draw: function () {
         var _this = this;
 
-        if (this.store && !this.store.lastOptions ) {
+        if ((this.store && !this.store.lastOptions) || !_this.rendered) {
             return;
         }
+
 
         if (this.loadMask !== false && this.rendered && !this.loadMask.isVisible()) {
             this.loadMask.show();
@@ -162,6 +162,8 @@ Ext.define("EMS.ux.d3", {
 
     bindStore: function (store, initial) {
 
+        store = Ext.data.StoreManager.lookup(store);
+
         if (!initial && this.store) {
             if (store !== this.store && this.store.autoDestroy) {
                 this.store.destroy();
@@ -174,8 +176,8 @@ Ext.define("EMS.ux.d3", {
                 //                this.store.un("clear", this.onClear, this);
             }
         }
-        if (store && store !== this.store) {
-            store = Ext.data.StoreManager.lookup(store);
+
+        if (store) {
             store.on({
                          scope: this,
                          load: this.onLoad,
@@ -220,7 +222,6 @@ Ext.define("EMS.ux.d3", {
 
     onLoad: function () {
         var _this = this;
-        console.log("d3 on load");
         this.storeLoaded = true;
         this.update();
     },
