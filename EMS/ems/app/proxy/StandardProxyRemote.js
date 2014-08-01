@@ -30,6 +30,7 @@ Ext.define('EMS.proxy.StandardProxyRemote', {
         create: 'data/GeneralListAdd.php',
         destroy: 'data/GeneralListDel.php'
     },
+    showMessage: true,
 //    extraParams: {
 //        //tablename:  ''
 //    },
@@ -49,16 +50,18 @@ Ext.define('EMS.proxy.StandardProxyRemote', {
             try {
                 var json = Ext.decode(response.responseText);
                 if (json && !json.success != "success") {
+                    if(this.showMessage)
                     Ext.MessageBox.show({
                                             title: operation.action + ' failed',
                                             msg: json.message,
                                             icon: Ext.MessageBox.ERROR,
                                             buttons: Ext.Msg.OK
                                         });
-//                    Logger.log(operation + ' failedm:' + json.message);
-                    console.log(operation, ' failedm:', json.message, ' data:', json);
+                    EMS.util.Util.Logger.log(operation + ' failedm:' + json.message);
+                    //console.log(operation, ' failedm:', json.message, ' data:', json);
                 } else {
-                    Ext.MessageBox.show({
+                    if(this.showMessage)
+                        Ext.MessageBox.show({
                                             title: operation.action + ' failed',
                                             msg: operation.getError(),
                                             icon: Ext.MessageBox.ERROR,

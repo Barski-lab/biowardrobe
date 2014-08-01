@@ -2,11 +2,6 @@
 <head>
     <title>Wardrobe experiment management system</title>
 
-
-    <!--link rel="stylesheet" type="text/css" href="css/global.css" /-->
-<!--    <link rel="stylesheet" type="text/css" href="css/color-field.css" />-->
-<!--    <link rel="stylesheet" type="text/css" href="css/canvasXpress.css" />-->
-
     <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css">
     <link rel="stylesheet" type="text/css" href="app.css">
     <link rel="stylesheet" type="text/css" href="ux/grid/css/GridFilters.css"/>
@@ -29,15 +24,9 @@
 
 
 
-<!--    <script type="text/javascript" src="canvasXpress.min.js"></script>-->
     <script type="text/javascript" src="ext/ext-all-dev.js"></script>
 <!--script type="text/javascript" src="ext/ext-theme-neptune.js"></script-->
 
-
-
-<!--    <script type="text/javascript" src="Ext.ux.SearchWindow.js"></script>-->
-<!--    <script type="text/javascript" src="color-field.js"></script>-->
-<!--    <script type="text/javascript" src="ext-canvasXpress.js"></script>-->
 
     <script type="text/javascript" src="HtmlEditor/imageUpload.js"></script>
 
@@ -45,7 +34,6 @@
 <!--    <script type="text/javascript" src="highcharts/highcharts-all.js"></script>-->
 <!--    <script type="text/javascript" src="highcharts/modules/heatmap.js"></script>-->
     <script type="text/javascript" src="d3/d3.js"></script>
-
     <script type="text/javascript" src="app.js"></script>
 
 </body>

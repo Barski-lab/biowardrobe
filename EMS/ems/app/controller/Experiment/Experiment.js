@@ -439,6 +439,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                          if (success) {
                              tabadded.setDisabled(false);
                              tabadded.setIconCls(icon);
+                         } else {
+                             tabadded.setIconCls(icon);
+                             tab.remove(tabadded);
                          }
                      }
                  });

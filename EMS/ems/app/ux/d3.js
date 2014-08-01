@@ -162,8 +162,6 @@ Ext.define("EMS.ux.d3", {
 
     bindStore: function (store, initial) {
 
-        store = Ext.data.StoreManager.lookup(store);
-
         if (!initial && this.store) {
             if (store !== this.store && this.store.autoDestroy) {
                 this.store.destroy();
@@ -178,6 +176,7 @@ Ext.define("EMS.ux.d3", {
         }
 
         if (store) {
+            store = Ext.data.StoreManager.lookup(store);
             store.on({
                          scope: this,
                          load: this.onLoad,

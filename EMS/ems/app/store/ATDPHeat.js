@@ -38,6 +38,7 @@ Ext.define('EMS.store.ATDPHeat', {
     },
     proxy: {
         type: 'standardproxyremote',
+        showMessage: false,
         api: {
             read: 'data/ATDPHeat.php',
             update: '',
