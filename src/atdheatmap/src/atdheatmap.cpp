@@ -22,6 +22,7 @@
 
 #include "atdheatmap.hpp"
 
+#include "averagedensity.cpp"
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
@@ -69,11 +70,11 @@ void ATDHeatmap::batchsql() {
 
     if(avd_id.length()>0) {
         QMap<QString,DNA_SEQ_DATA> table_to_data;
-        QString BASE_DIR="/data/DATA/FASTQ-DATA";
+        QString BASE_DIR=gSettings().getValue("wardrobe")+"/"+gSettings().getValue("preliminary");//"/data/DATA/FASTQ-DATA";
 
-        q.prepare("select distinct e.etype,l.name4browser,g.db,filename,l.fragmentsize,UPPER(w.worker) as worker,a.tbl1_id "
-                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.worker w , ems.atdp a,ems.genelist ge "
-                  "where e.id=experimenttype_id and g.id=l.genome_id and l.worker_id=w.id and "
+        q.prepare("select distinct e.etype,l.name4browser,g.db,l.uid,l.fragmentsize,a.tbl1_id "
+                  "from ems.labdata l,ems.experimenttype e,ems.genome g, ems.atdp a,ems.genelist ge "
+                  "where e.id=experimenttype_id and g.id=l.genome_id and "
                   "l.id=ge.labdata_id and a.tbl1_id=ge.id and a.genelist_id like ?;");
         q.bindValue(0, avd_id);
 
@@ -82,24 +83,20 @@ void ATDHeatmap::batchsql() {
             return;
         }
 
-        int fieldFilename = q.record().indexOf("filename");
+        int fieldFilename = q.record().indexOf("uid");
         int fieldEtype = q.record().indexOf("etype");
-        int fieldWorker = q.record().indexOf("worker");
         int fieldFsize = q.record().indexOf("fragmentsize");
         int fieldTbl = q.record().indexOf("tbl1_id");
 
 
         while(q.next()) {
             QString filename=q.value(fieldFilename).toString();
-            if(filename.contains(';'))
-                filename=filename.split(';').at(0);
             QString EType =q.value(fieldEtype).toString();
-            QString worker=q.value(fieldWorker).toString();
             int fragmentsize =q.value(fieldFsize).toInt();
             QString TBL = q.value(fieldTbl).toString();
             bool pair=(EType.indexOf("pair")!=-1);
 
-            QString path=BASE_DIR+"/"+worker+"/"+EType.left(3)+"/";
+            QString path=BASE_DIR+"/"+filename+"/";
 
             DNA_SEQ_DATA dsd;
             dsd.fragmentsize=fragmentsize;
@@ -191,7 +188,7 @@ void ATDHeatmap::batchsql() {
                     }
                     line.chop(1);
                     line+="\n";
-                    outFile.write(line.toAscii());
+                    outFile.write(line.toLocal8Bit());
                 }
                 bool strand=(q.value(fieldStrand).toString().at(0)==QChar('-'));
                 int Start=q.value(fieldStart).toInt();
@@ -201,7 +198,7 @@ void ATDHeatmap::batchsql() {
                 if(gArgs().getArgs("sam_ignorechr").toString().contains(Chrom)) {
                     continue;
                 }
-                AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
+                AverageDensity::AVDS<QVector<double> >(Start/*start*/,End/*end*/,Chrom/*chrom*/,
                                        strand/*bool strand*/,table_to_data[cur_tbl].fragmentsize/2/*shift*/,
                                        table_to_data[cur_tbl].sam_data,avd_raw_data,table_to_data[cur_tbl].pair);
 
@@ -268,7 +265,7 @@ void ATDHeatmap::batchsql() {
                 }
                 line.chop(1);
                 line+="\n";
-                outFile.write(line.toAscii());
+                outFile.write(line.toLocal8Bit());
             }
             outFile.close();
         }

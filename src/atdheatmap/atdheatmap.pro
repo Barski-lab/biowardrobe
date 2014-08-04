@@ -6,12 +6,14 @@ TEMPLATE = app
 TARGET   = atdheatmap
 
 CONFIG   += console warn_on release
+CONFIG   -= app_bundle
+
 QT       -= gui
 QT       += sql
 
 
 DEFINES     += D_USE_BAM \
-               _SQL_
+               _WARDROBE_
 
 #
 #../global/FileWriter.hpp
@@ -20,6 +22,7 @@ DEFINES     += D_USE_BAM \
 HEADERS     += ../global/SamReader.hpp \
                ../global/Arguments.hpp \
                src/atdheatmap.hpp \
+               ../global/Settings.hpp \
     ../averagedensity/src/averagedensity.hpp
 
 #../global/FileWriter.cpp
@@ -28,6 +31,8 @@ SOURCES     += ../global/Reads.cpp \
                ../global/Arguments.cpp \
                src/atdheatmap.cpp \
                src/main.cpp \
+               ../global/Settings.cpp \
+
     ../averagedensity/src/averagedensity.cpp
 
 INCLUDEPATH += . \
@@ -55,6 +60,8 @@ LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8
 QMAKE_EXTRA_TARGETS   = lib_bamtools
 PRE_TARGETDEPS        = lib_bamtools
+
+INCLUDEPATH += /usr/local/include/
 
 }
 
