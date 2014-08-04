@@ -32,7 +32,6 @@ SOURCES     += ../global/Reads.cpp \
                src/atdheatmap.cpp \
                src/main.cpp \
                ../global/Settings.cpp \
-
     ../averagedensity/src/averagedensity.cpp
 
 INCLUDEPATH += . \
