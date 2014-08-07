@@ -129,12 +129,12 @@ settings.cursor.execute("update labdata set libstatustxt='ready for process',lib
 while True:
     settings.cursor.execute(
         "select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun, "
-        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.antibody,'')"
-        "from labdata l"
-        "inner join (experimenttype e,genome g ) ON (e.id=experimenttype_id and g.id=genome_id)"
-        "LEFT JOIN (antibody a) ON (l.antibody_id=a.id)"
-        "where e.etype like 'DNA%' and libstatus in (10,1010)"
-        "and deleted=0 and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> ''"
+        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.antibody,'') "
+        "from labdata l "
+        "inner join (experimenttype e,genome g ) ON (e.id=experimenttype_id and g.id=genome_id) "
+        "LEFT JOIN (antibody a) ON (l.antibody_id=a.id) "
+        "where e.etype like 'DNA%' and libstatus in (10,1010) "
+        "and deleted=0 and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' "
         " order by dateadd limit 1")
     row = settings.cursor.fetchone()
     if not row:
