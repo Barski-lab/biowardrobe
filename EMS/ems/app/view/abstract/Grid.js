@@ -28,7 +28,8 @@ Ext.define('EMS.view.abstract.Grid', {
     columnLines: true,
     remoteSort: true,
 
-//    celledit: false,
+    celledit: true,
+    rownumberer: true,
     hidefields: ['id'],
 
     initComponent: function () {
@@ -38,7 +39,9 @@ Ext.define('EMS.view.abstract.Grid', {
         var store = Ext.getStore(initialConfig.store);
         var fields = store.model.getFields();
 
-        columns.push(Ext.create('Ext.grid.RowNumberer'));
+        if (initialConfig.rownumberer || me.rownumberer) {
+            columns.push(Ext.create('Ext.grid.RowNumberer'));
+        }
 
         for (var i = 0; i < fields.length; i++) {
             var column = {};
@@ -48,11 +51,20 @@ Ext.define('EMS.view.abstract.Grid', {
             column['align'] = 'left';
             column['dataIndex'] = fields[i].name;
 
-            if (fields[i].type.type === 'int') {
-                column['align'] = 'right';
-                column['width'] = 100;
+            if (fields[i].width) {
+                column['width'] = fields[i].width;
             } else {
-                column['flex'] = 1;
+                if (fields[i].type.type === 'int') {
+                    column['width'] = 100;
+                } else {
+                    column['flex'] = 1;
+                }
+            }
+
+            if (fields[i].align) {
+                column['align'] = fields[i].align;
+            } else if (fields[i].type.type === 'int') {
+                column['align'] = 'right';
             }
 
             column['hidden'] = false;
@@ -64,13 +76,22 @@ Ext.define('EMS.view.abstract.Grid', {
             if (fields[i].header) {
                 column['header'] = fields[i].header;
             }
-            if (!column['hidden'] && (initialConfig.celledit || me.celledit) ) {
-                column['editor'] = {
-                    allowBlank: false
-                };
+
+            if (fields[i].renderer) {
+                column['renderer'] = fields[i].renderer;
             }
 
-                columns.push(column);
+            if (!column['hidden'] && (initialConfig.celledit || me.celledit)) {
+                if (fields[i].editor) {
+                    column['editor'] = fields[i].editor;
+                } else {
+                    column['editor'] = {
+                        allowBlank: false
+                    };
+                }
+            }
+
+            columns.push(column);
         }
 
         columns = Ext.Array.merge(columns, me.columns);
@@ -83,8 +104,7 @@ Ext.define('EMS.view.abstract.Grid', {
             })
         ];
 
-        if (initialConfig.celledit || me.celledit)
-        {
+        if (initialConfig.celledit || me.celledit) {
             me.selModel = {
                 selType: 'cellmodel'
             };

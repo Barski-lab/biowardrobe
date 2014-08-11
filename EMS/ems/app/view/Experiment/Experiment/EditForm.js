@@ -497,6 +497,38 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                     layout: 'hbox',
                                     items: [
                                         {
+                                            xtype: 'numberfield',
+                                            name: 'trim3',
+                                            fieldLabel: 'Trim from the left',
+                                            afterLabelTextTpl: EMS.util.Util.required,
+                                            allowBlank: false,
+                                            flex: 2,
+                                            step: 1
+                                        } ,
+                                        {
+                                            xtype: 'splitter'
+                                        } ,
+                                        {
+                                            xtype: 'numberfield',
+                                            name: 'trim5',
+                                            fieldLabel: 'Trim from the right',
+                                            afterLabelTextTpl: EMS.util.Util.required,
+                                            allowBlank: false,
+                                            flex: 2,
+                                            step: 1
+                                        },
+                                        {
+                                            xtype: 'tbspacer',
+                                            flex: 3
+                                        }
+
+                                    ]
+                                },
+                                {
+                                    xtype: 'fieldcontainer',
+                                    layout: 'hbox',
+                                    items: [
+                                        {
                                             xtype: 'checkboxfield',
                                             name: 'forcerun',
                                             labelAlign: 'left',

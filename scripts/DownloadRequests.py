@@ -188,8 +188,8 @@ def get_file_core(USERNAME, PASSWORD, libcode, basedir, filename, pair):
         exec content
         try:
             return get_core(USERNAME, PASSWORD, libcode, basedir, filename, pair)
-        except Exception, e:
-            return ['Warning', 'Core module not supported']
+        except Exception as e:
+            return ['Warning', 'Core module exception:'+str(e)]
     else:
         return ['Warning', 'Core module not supported']
 
