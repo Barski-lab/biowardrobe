@@ -111,7 +111,9 @@ while True:
     if os.path.isfile(basedir + '/' + UID + '.stat'):
         os.unlink(basedir + '/' + UID + '.stat')
     if os.path.isfile(basedir + '/' + UID + '_macs_peaks.xls'):
-        os.unlink(basedir + '/' + UID + '._macs_peaks.xls')
+        os.unlink(basedir + '/' + UID + '_macs_peaks.xls')
+    if os.path.isfile(basedir + '/' + UID + '_macs.log'):
+        os.unlink(basedir + '/' + UID + '_macs.log')
     if os.path.isfile(basedir + '/' + UID + '_macs_model.r'):
         os.unlink(basedir + '/' + UID + '_macs_model.r')
     if os.path.isfile(basedir + '/' + UID + '.ribo'):

@@ -22,8 +22,9 @@
 
 #include "atdheatmap.hpp"
 
+#if __clang__
 #include "averagedensity.cpp"
-
+#endif
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 ATDHeatmap::ATDHeatmap(QObject* parent):
@@ -97,7 +98,6 @@ void ATDHeatmap::batchsql() {
             bool pair=(EType.indexOf("pair")!=-1);
 
             QString path=BASE_DIR+"/"+filename+"/";
-
             DNA_SEQ_DATA dsd;
             dsd.fragmentsize=fragmentsize;
             dsd.pair=pair;
@@ -126,7 +126,7 @@ void ATDHeatmap::batchsql() {
         //QList<QList<double> > storages;
 
         QSqlQuery qq;
-        qq.prepare("select tbl1_id,tableName,pltname,gl.type from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ? order by a.tbl1_id,a.tbl2_id;");
+        qq.prepare("select tbl1_id,tableName,pltname,gl.type from ems.atdp a, ems.genelist gl where a.tbl2_id=gl.id and a.genelist_id like ?");//order by a.tbl1_id,a.tbl2_id;
         qq.bindValue(0, avd_id);
         if(!qq.exec()) {
             qDebug()<<"Query error info: "<<q.lastError().text();
@@ -137,10 +137,10 @@ void ATDHeatmap::batchsql() {
 
         while(qq.next()) {//loop trough all plots and corresponding gene lists
             QString cur_tbl = qq.value(0).toString();
-            QString plt_name = qq.value(2).toString();
+            QString plt_name = QString("%1").arg(nplot,2, 10,QLatin1Char( '0' ))+qq.value(2).toString();
             QString sel_table = "experiments.`"+qq.value(1).toString()+"`";
             QString sql_queryp,sql_querym,sql_query;
-
+qDebug()<<plt_name;
             if(qq.value(3).toInt()<100) {
                 sql_queryp="select chrom,strand,txStart-"+avd_window_str+" as start,txStart+"+avd_window_str+" as end "+columns+special_sort_name+" from "
                         +sel_table+" where strand = '+' ";
@@ -222,7 +222,6 @@ void ATDHeatmap::batchsql() {
             nplot++;
         }//qq.next
 
-
         QList<QString> keys=storage_heatmap.keys();
         int files=keys.size();
 
@@ -248,11 +247,10 @@ void ATDHeatmap::batchsql() {
             qSort(sort.begin(), sort.end());
         }
 
-
         for(int i=0; i<files;i++) {
             QString filename=keys[i];
 
-            outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_")+".raw_data");
+            outFile.setFileName(gArgs().fileInfo("out").path()+"/"+filename.replace(" ","_").replace("/","_")+".raw_data");
             outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
 
             for(int j=0; j<storage_heatmap[keys[i]].size();j++) {
