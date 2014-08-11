@@ -232,6 +232,7 @@ void ATDHeatmap::batchsql() {
         for(int i=0; do_sort && i<files-1;i++) {
             if(storage_heatmap[keys[i]].size() != storage_heatmap[keys[i+1]].size()) {
                 do_sort=false;
+                break;
             }
         }
         if(do_sort && !keys.contains(sort_name)) {
