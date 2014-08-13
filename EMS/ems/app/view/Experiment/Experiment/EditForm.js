@@ -498,7 +498,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                     items: [
                                         {
                                             xtype: 'numberfield',
-                                            name: 'trim3',
+                                            name: 'trim5',
                                             fieldLabel: 'Trim from the left',
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             allowBlank: false,
@@ -510,7 +510,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         } ,
                                         {
                                             xtype: 'numberfield',
-                                            name: 'trim5',
+                                            name: 'trim3',
                                             fieldLabel: 'Trim from the right',
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             allowBlank: false,
