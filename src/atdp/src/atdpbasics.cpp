@@ -58,16 +58,37 @@ void ATDPBasics::getRegions() {
         throw "Error query to DB";
     }
 
-    int fieldChrom = q.record().indexOf("chrom");
-    int fieldStrand = q.record().indexOf("strand");
-    int fieldTxStart= q.record().indexOf("txStart");
-    int fieldTxEnd= q.record().indexOf("txEnd");
-    int fieldRefseq_id= q.record().indexOf("name");
+    QSqlRecord rec=q.record();
+
+    int fieldChrom = rec.indexOf("chrom");
+    int fieldStrand = rec.indexOf("strand");
+    int fieldTxStart= rec.indexOf("txStart");
+    int fieldTxEnd= rec.indexOf("txEnd");
+    int fieldRefseq_id= rec.indexOf("name");
     if(fieldRefseq_id==-1)
-        fieldRefseq_id= q.record().indexOf("refseq_id");
-    int fieldGene_id= q.record().indexOf("name2");
+        fieldRefseq_id= rec.indexOf("refseq_id");
+    int fieldGene_id= rec.indexOf("name2");
     if(fieldGene_id==-1)
-        fieldGene_id= q.record().indexOf("gene_id");
+        fieldGene_id= rec.indexOf("gene_id");
+
+    for(int k=0;k<rec.count();k++) {
+        if(rec.fieldName(k).contains("RPKM")) {
+            int rpkm_idx=rec.fieldName(k).indexOf("RPKM");
+            bool add=true;
+            if(rpkm_idx > 0){
+                QString orig_name=rec.fieldName(k).mid(rpkm_idx);
+                foreach (QJsonValue n, exp_i->rpkmnames) {
+                    if(n.toString().contains(orig_name)) {
+                        add=false;
+                        break;
+                    }
+                }
+            }
+            if(add) {
+                exp_i->rpkmnames.append(rec.fieldName(k));
+            }
+        }
+    }
 
     while(q.next()) {
         QString chr=q.value(fieldChrom).toString();
@@ -120,6 +141,15 @@ void ATDPBasics::getRegions() {
                     QPair<QSharedPointer<REGION>,QVector<quint16> >(
                         QSharedPointer<REGION>(region),QVector<quint16>(qCeil((qreal)avd_whole_region/avd_heat_window),0) ) );
 
+        if(exp_i->rpkmnames.count()>0) {
+            QJsonArray rpkms;
+            foreach (QJsonValue n, exp_i->rpkmnames) {
+                rpkms.append(q.value(rec.indexOf(n.toString())).toDouble());
+            }
+            exp_i->rpkm_matrix.append(
+                        QPair<QSharedPointer<REGION>,QJsonArray >(
+                            QSharedPointer<REGION>(region), rpkms) );
+        }
         exp_i->regions.append(region);
     }
 }

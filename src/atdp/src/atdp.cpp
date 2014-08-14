@@ -84,6 +84,7 @@ void ATDP::start() {
     if(t_pool->activeThreadCount()!=0) {
         qDebug()<<"waiting threads";
         t_pool->waitForDone();
+        qDebug()<<"threads done";
     }
 
     if(preliminary_atdp) {
@@ -180,60 +181,108 @@ void ATDP::start() {
             }
         }
     } else {
+        QFile outFile;
+        QString out;
+        QJsonObject header;
+        //outFile.setFileName(exp_i->plotname.replace("/","_").replace(" ","_")+".matrix");
+        //outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+        outFile.open(stdout,QIODevice::WriteOnly);
+
+        //out=QString("{\"success\":true,\"message\":\"Data populated\",\"total\":%1,\"data\":[").arg(experiment_info.size());
+        header["success"]=true;
+        header["message"]="Data populated";
+        header["total"]=experiment_info.size();
+
+        QJsonArray columns_name;
+        for(int col=-avd_window;col<avd_window;col+=avd_heat_window)
+            columns_name.append(QString(""));
+        columns_name[0]=QString("%1k").arg(avd_window/1000);
+        columns_name[columns_name.count()-1]=QString("+%1k").arg(avd_window/1000);
+        columns_name[columns_name.count()/2]=QString("TSS");
+        header["cols"]=columns_name;
+
+        QJsonArray data_array;
+
+        outFile.write(out.toLocal8Bit());
         foreach(QString key,experiment_info.keys()){
             exp_i=&experiment_info[key];
-            QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
-            /*
-         *  AVD
-         */
-            QFile outFile;
-            outFile.setFileName(key+".csv");
-            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-            QString out;
-            for(int j=0; j<storage.size();j++) {
-                out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
-            }
-            outFile.write(out.toLocal8Bit());
-            outFile.close();
-            out.clear();
+            QJsonObject data;
+            data["tbl1_id"]=exp_i->tbl1_id;
+            data["tbl2_id"]=exp_i->tbl2_id;
+            data["pltname"]=exp_i->plotname;
+            QJsonArray matrix;
+
+            //out=QString("{\"tbl1_id\":\"%1\",\"tbl2_id\":\"%2\",\"pltname\":\"\"").arg(experiment_info.size());
+            //outFile.write(out.toLocal8Bit());
+
+            //            QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
+            //            /*
+            //         *  AVD
+            //         */
+            //            QFile outFile;
+            //            outFile.setFileName(key+".csv");
+            //            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
+            //            for(int j=0; j<storage.size();j++) {
+            //                out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
+            //            }
+            //            outFile.write(out.toLocal8Bit());
+            //            outFile.close();
+            //            out.clear();
             /*
          *  AVD HEAT
          */
-            outFile.setFileName(key+".matrix");
-            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-            QList<QPair<quint64,quint64> > sort;
-            bool do_sort=gArgs().getArgs("avd_sort").toBool();
-            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
-                quint64 sum_line=0;
-                for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-                    sum_line+=exp_i->avd_matrix[j].second[c];
-                    if(!do_sort) {
-                        out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
-                    }
-                }
-                if(do_sort) {
-                    sort.append(qMakePair(sum_line,j));
-                } else {
-                    out.chop(1);
-                    out+=QString("\n");
-                }
-            }
-            if(do_sort){
-                qSort(sort.begin(), sort.end());
-                for(int j=0; j<exp_i->avd_matrix.size();j++) {
-                    for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
-                    }
-                    out.chop(1);
-                    out+=QString("\n");
-                }
-            }//do sort
 
-            outFile.write(out.toLocal8Bit());
-            outFile.close();
-            out.clear();
+            QList<quint64> max;
+            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
+                QJsonArray row;
+                quint64 max_line=0;
+                for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+                    max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);
+                    row.append(exp_i->avd_matrix[j].second[c]);
+                    //out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
+
+                }
+                max<<max_line;
+                matrix.append(row);
+            }
+            data["array"]=matrix;
+            data_array.append(data);
+            //QList<QPair<quint64,quint64> > sort;
+            //bool do_sort=gArgs().getArgs("avd_sort").toBool();
+            //            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
+            //                quint64 sum_line=0;
+            //                for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+            //                    sum_line+=exp_i->avd_matrix[j].second[c];
+            //                    if(!do_sort) {
+            //                        out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
+            //                    }
+            //                }
+            //                if(do_sort) {
+            //                    sort.append(qMakePair(sum_line,j));
+            //                } else {
+            //                    out.chop(1);
+            //                    out+=QString("\n");
+            //                }
+            //            }
+            //            if(do_sort){
+            //                qSort(sort.begin(), sort.end());
+            //                for(int j=0; j<exp_i->avd_matrix.size();j++) {
+            //                    for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
+            //                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
+            //                    }
+            //                    out.chop(1);
+            //                    out+=QString("\n");
+            //                }
+            //            }//do sort
+
+            //            outFile.write(out.toLocal8Bit());
+            //            out.clear();
 
         }//foreach trough experiments
+        header["data"]=data_array;
+        //outFile.write("]}");
+        outFile.write(QJsonDocument(header).toJson(QJsonDocument::Indented));
+        outFile.close();
     }
 
     qDebug()<<"end";
@@ -290,10 +339,13 @@ void ATDP::getRecordsInfo() {
         ei->db=gSettings().getValue("experimentsdb");
         ei->fragmentsize=q.value(3).toInt();
         ei->mapped=q.value(4).toInt();
-        ei->filepath=q.value(6).toString()+".bam";
+        ei->filepath=q.value(6).toString()+"/"+q.value(6).toString()+".bam";
         ei->avd_total.resize(avd_whole_region);
         ei->avd_total.fill(0,avd_whole_region);
-        experiment_info.insert(q.value(0).toString()+"_"+q.value(1).toString()+"_"+q.value(2).toString(),*ei);
+        ei->plotname=q.value(0).toString();
+        ei->tbl1_id=q.value(1).toString();
+        ei->tbl2_id=q.value(2).toString();
+        experiment_info.insert(q.value(2).toString()+"="+q.value(1).toString(),*ei);
     }
 }
 

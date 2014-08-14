@@ -23,7 +23,14 @@ class EXPERIMENT_INFO {
         QString db;
         QString source;
         QString filepath;
+        QString tbl1_id;
+        QString tbl2_id;
+        QString plotname;
+
+        QJsonArray rpkmnames;
+
         QList<QSharedPointer<REGION> > regions;
+
 
         BamReader reader;
         SamHeader header;
@@ -34,6 +41,7 @@ class EXPERIMENT_INFO {
 
         QVector<double> avd_total;
         QVector<QPair<QSharedPointer<REGION>,QVector<quint16> > > avd_matrix;
+        QVector<QPair<QSharedPointer<REGION>,QJsonArray > > rpkm_matrix;
 
 };
 
