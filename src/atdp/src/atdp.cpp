@@ -196,7 +196,7 @@ void ATDP::start() {
         QJsonArray columns_name;
         for(int col=-avd_window;col<avd_window;col+=avd_heat_window)
             columns_name.append(QString(""));
-        columns_name[0]=QString("%1k").arg(avd_window/1000);
+        columns_name[0]=QString("-%1k").arg(avd_window/1000);
         columns_name[columns_name.count()-1]=QString("+%1k").arg(avd_window/1000);
         columns_name[columns_name.count()/2]=QString("TSS");
         header["cols"]=columns_name;
@@ -211,6 +211,8 @@ void ATDP::start() {
             data["tbl2_id"]=exp_i->tbl2_id;
             data["pltname"]=exp_i->plotname;
             QJsonArray matrix;
+            QJsonArray rpkm_matrix;
+            QJsonArray rows;
 
             //out=QString("{\"tbl1_id\":\"%1\",\"tbl2_id\":\"%2\",\"pltname\":\"\"").arg(experiment_info.size());
             //outFile.write(out.toLocal8Bit());
@@ -239,13 +241,20 @@ void ATDP::start() {
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
                     max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);
                     row.append(exp_i->avd_matrix[j].second[c]);
+                    rows.append(exp_i->avd_matrix[j].first->gene_id);
                     //out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
 
                 }
                 max<<max_line;
                 matrix.append(row);
+                rpkm_matrix.append(exp_i->rpkm_matrix[j]);
             }
+            qSort(max);
+            float quan=qCeil(max.size()*0.9);
+            data["max"]=(max.at(quan)+max.at(quan-1))/2;
             data["array"]=matrix;
+            data["rpkmarray"]=rpkm_matrix;
+            data["rpkmcols"]=exp_i->rpkmnames;
             data_array.append(data);
             //QList<QPair<quint64,quint64> > sort;
             //bool do_sort=gArgs().getArgs("avd_sort").toBool();
