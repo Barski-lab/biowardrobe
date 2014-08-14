@@ -241,17 +241,17 @@ void ATDP::start() {
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
                     max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);
                     row.append(exp_i->avd_matrix[j].second[c]);
-                    rows.append(exp_i->avd_matrix[j].first->gene_id);
                     //out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
 
                 }
                 max<<max_line;
                 matrix.append(row);
-                rpkm_matrix.append(exp_i->rpkm_matrix[j]);
+                rows.append(exp_i->rpkm_matrix[j].first->gene_id);
+                rpkm_matrix.append(exp_i->rpkm_matrix[j].second);
             }
             qSort(max);
             float quan=qCeil(max.size()*0.9);
-            data["max"]=(max.at(quan)+max.at(quan-1))/2;
+            data["max"]=(double)(max.at(quan)+max.at(quan-1))/2;
             data["array"]=matrix;
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
