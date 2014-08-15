@@ -129,7 +129,7 @@ settings.cursor.execute("update labdata set libstatustxt='ready for process',lib
 while True:
     settings.cursor.execute(
         "select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun, "
-        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.antibody,'') "
+        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.properties,0) "
         "from labdata l "
         "inner join (experimenttype e,genome g ) ON (e.id=experimenttype_id and g.id=genome_id) "
         "LEFT JOIN (antibody a) ON (l.antibody_id=a.id) "
@@ -151,6 +151,7 @@ while True:
     forcerun = (int(row[7]) == 1)
     left = int(row[8])
     right = int(row[9])
+    broad = (int(row[10]) == 2)
 
     BEDFORMAT = '4'
     FRAGMENT = 0
@@ -193,7 +194,7 @@ while True:
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
     MACSER = False
-    if check_error(d.run_macs(UID, DB, FRAGEXP, FRAGFRC, PAIR, False, forcerun, BIN), UID):
+    if check_error(d.run_macs(UID, DB, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN), UID):
         MACSER = True
         FRAGMENTE = FRAGEXP
         FRAGMENT = FRAGMENTE
@@ -205,7 +206,7 @@ while True:
         FRAGMENT = a[0]
 
     if not MACSER and FRAGMENTE < 80:
-        if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, False, True, BIN),UID):
+        if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN),UID):
             continue
         a = d.macs_data(UID)
         FRAGMENT = FRAGEXP
