@@ -40,7 +40,7 @@ Ext.define('EMS.model.Antibodies', {
                     data: [
                         [0, "N/A"],
                         [1, "narrow"],
-                        [2, "wide"]
+                        [2, "broad"]
                     ],
                 },
                 editable: false,
@@ -52,7 +52,7 @@ Ext.define('EMS.model.Antibodies', {
                 var data = [
                     "N/A",
                     "narrow",
-                    "wide"
+                    "broad"
                 ];
                 return data[value];
             }
