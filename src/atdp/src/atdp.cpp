@@ -199,7 +199,6 @@ void ATDP::start() {
         columns_name[0]=QString("-%1k").arg(avd_window/1000);
         columns_name[columns_name.count()-1]=QString("+%1k").arg(avd_window/1000);
         columns_name[columns_name.count()/2]=QString("TSS");
-        header["cols"]=columns_name;
 
         QJsonArray data_array;
 
@@ -207,6 +206,7 @@ void ATDP::start() {
         foreach(QString key,experiment_info.keys()){
             exp_i=&experiment_info[key];
             QJsonObject data;
+            data["cols"]=columns_name;
             data["tbl1_id"]=exp_i->tbl1_id;
             data["tbl2_id"]=exp_i->tbl2_id;
             data["pltname"]=exp_i->plotname;
@@ -251,6 +251,7 @@ void ATDP::start() {
             }
             qSort(max);
             float quan=qCeil(max.size()*0.9);
+            data["rows"]=rows;
             data["max"]=(double)(max.at(quan)+max.at(quan-1))/2;
             data["array"]=matrix;
             data["rpkmarray"]=rpkm_matrix;
