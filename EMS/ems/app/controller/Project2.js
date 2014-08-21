@@ -23,8 +23,8 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
-    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView','ATDPHeatA'],
+    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView','ATDPHeatA'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP', 'Project2.TableViewWindow', 'Project2.TableView'],
     requires: [ 'EMS.util.Util'],
     worker: {},
@@ -690,6 +690,44 @@ Ext.define('EMS.controller.Project2', {
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
                               var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
                               ATPChart.show();
+                          }
+                      }
+                  });
+    },
+    /*************************************************************
+     *************************************************************/
+    ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var stor = this.getATDPHeatAStore();
+        stor.getProxy().setExtraParam('tablename', record.data['tableName']);
+        stor.load({
+                      callback: function (records, operation, success) {
+                          if (success) {
+                              console.log(stor);
+/*                              var title = [];
+                              for (var c = 0; c < storc.getTotalCount(); c++) {
+                                  title.push(storc.getAt(c).raw['pltname']);
+
+                              }
+                              var cols = 0;
+                              var prop = [];
+                              for (p in records[0].data) {
+                                  if (cols > 0) prop[cols - 1] = p;
+                                  cols++;
+                              }
+                              cols--;
+                              var len = Math.abs(records[0].data.X);
+                              var max = records[0].data[prop[0]];
+                              for (var i = 0; i < records.length; i++) {
+                                  for (var j = 0; j < cols; j++)
+                                      if (records[i].data[prop[j]] > max)
+                                          max = records[i].data[prop[j]];
+                              }
+
+                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
+                              var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
+                              ATPChart.show();
+                              */
+                              Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
                           }
                       }
                   });

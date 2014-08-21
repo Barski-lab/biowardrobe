@@ -124,16 +124,16 @@ Ext.define('EMS.controller.EMSMenu', {
             case "SuppInfo":
                 me.createWindow(menuitem.action, 'EMS.view.Info.Supplemental', {});
                 break;
+            case "Antibodies":
+                me.createWindow(menuitem.action, 'EMS.view.Catalogs.Antibodies', {});
+                break;
+            case "CrossType":
+                me.createWindow(menuitem.action, 'EMS.view.Catalogs.Crosslink', {});
+                break;
             case "":
                 break;
         }
 
-        if (menuitem.action === "Antibodies") {
-            me.createWindow(menuitem.action, 'EMS.view.Antibodies.Antibodies', {});
-        }
-        if (menuitem.action === "CrossType") {
-            me.createWindow(menuitem.action, 'EMS.view.Crosslink.Crosslink', {});
-        }
         if (menuitem.action === "FragmentType") {
             me.createWindow(menuitem.action, 'EMS.view.Fragmentation.Fragmentation', {});
         }

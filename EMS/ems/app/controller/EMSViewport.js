@@ -59,9 +59,10 @@ Ext.define
 
                   this.getController('EMSMenu');
 
-                  this.getController('AntibodiesEdit');
-                  this.getController('CrosslinkEdit');
-                  this.getController('FragmentationEdit');
+                  //this.getController('AntibodiesEdit');
+                  //this.getController('CrosslinkEdit');
+                  //this.getController('FragmentationEdit');
+                  this.getController('Catalogs');
                   this.getController('Spikeins');
 
                   this.getController('GenomeEdit');

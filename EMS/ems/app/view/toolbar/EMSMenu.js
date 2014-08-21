@@ -23,13 +23,9 @@
 Ext.define('EMS.view.toolbar.EMSMenu', {
     extend: 'Ext.toolbar.Toolbar',
     alias: 'widget.EMSMenu',
-
-//    height: 30,
-//    ui: 'footer',
     style: 'border-bottom: 1px solid #4c72a4;',
     items: [
         {
-            //                    xtype: 'button',
             text: 'Data & Analysis',
             tooltip: '',
             menu: [
@@ -54,8 +50,8 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
          ],
          iconCls:'users3'
          }*/,
-        { //xtype: 'button',
-            text: 'Catalogues',
+        {
+            text: 'Catalogs',
             tooltip: '',
             menu: [
                 { text: 'Antibodies', action: 'Antibodies', tooltip: 'List of antibodies', iconCls: 'battery-green'},
@@ -66,7 +62,7 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
             ],
             iconCls: 'folder-document'
         },
-        { //xtype: 'button',
+        {
             text: 'Tools',
             tooltip: '',
             menu: [
@@ -74,7 +70,7 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
             ],
             iconCls: 'wrench'
         },
-        { //xtype: 'button',
+        {
             text: 'Notes for supplemental',
             tooltip: '',
             menu: [
@@ -83,7 +79,7 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
             iconCls: 'notebook-edit'
         },
         '->',
-        { //xtype: 'button',
+        {
             text: 'Help',
             tooltip: '',
             menu: [
