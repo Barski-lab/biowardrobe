@@ -21,84 +21,95 @@
  ****************************************************************************/
 
 Ext.define("EMS.ux.d3", {
-    extend: 'Ext.Component',
+    extend: 'Ext.panel.Panel',
     //    alias: ['widget.d3'],
 
-    /**
-     * @cfg {Boolean} resizable
-     * True to allow resizing, false to disable resizing (defaults to true).
-     */
     resizable: false,
 
-    /**
-     * @cfg {Object} loadMask An {@link Ext.LoadMask} config or true to mask the
-     * chart while
-     * loading. Defaults to false.
-     */
     loadMask: true,
-
-    /***
-     * @cfg {String} loadMaskMsg Message display for loadmask
-     */
     loadMaskMsg: 'Processing ... ',
 
-    /**
-     * @cfg {Boolean} refreshOnChange
-     * chart refresh data when store datachanged event is triggered,
-     * i.e. records are added, removed, or updated.
-     * If your application is just purely showing data from store load,
-     * then you don't need this.
-     */
     refreshOnChange: false,
     refreshOnLoad: false,
-
-    afterChartRendered: null,
-
-    //height of each row in the heatmap
-    heatHeight: 0.03,
-    //width of each column in the heatmap
-    heatWidth: 5,
-
-    rowsName: null,
-    colsName: null,
     storeLoaded: false,
+
+    border: false,
+
+    data: null,
+    store: null,
+    order: null,
+    panelId: null,
+
 
     plot: function () {
     },
+    plotUpdate: function () {
+    },
+    initData: function () {
+    },
 
     constructor: function (config) {
-        config.listeners && (this.afterChartRendered = config.listeners.afterChartRendered);
-        //this.afterChartRendered && (this.afterChartRendered = Ext.bind(this.afterChartRendered, this));
         this.callParent(arguments);
         Ext.apply(this, config);
     },
 
     initComponent: function () {
         this.store && (this.bindStore(this.store, true));
+        this.initMask();
+        this.callParent(arguments);
+    },
+
+    afterRender: function () {
+        this.callParent(arguments);
+        this.panelId = '#' + this.id + '-innerCt';
+        console.log(this, this.id, this.panelId);
+        this.bindComponent(true);
+        this.init();
+    },
+
+    initMask: function () {
         if (this.loadMask !== false) {
             if (this.loadMask === true) {
                 this.loadMask = new Ext.LoadMask({target: this, msg: this.loadMaskMsg});
             }
         }
-        this.callParent(arguments);
     },
-
-    afterRender: function () {
-        this.bindComponent(true);
-        this.update();
-        this.callParent(arguments);
+    showMask: function () {
+        if (this.loadMask !== false && this.loadMask !== true && this.rendered && !this.loadMask.isVisible()) {
+            this.loadMask.show();
+        }
+    },
+    hideMask: function () {
+        if (this.loadMask !== false && this.loadMask !== true && this.rendered && this.loadMask.isVisible()) {
+            this.loadMask.hide();
+        }
     },
 
     update: function () {
+        if (!this.__initialized)
+            return;
+        this.d3CanvasUpdate();
+        try {
+            this.plotUpdate();
+        } catch (err) {
+            console.log(err);
+        }
+    },
+
+    init: function () {
         var _this = this;
 
-        if (this.loadMask !== false && this.rendered && !this.loadMask.isVisible()) {
-            this.loadMask.show();
+        this.showMask();
+
+        try {
+            this.initData();
+        } catch (err) {
+            console.log(err);
         }
 
-        var cdelay = 2;
+        var cdelay = 100;
         if (!_this.updateTask) {
-            _this.updateTask = new Ext.util.DelayedTask(_this.draw, _this);
+            _this.updateTask = new Ext.util.DelayedTask(_this.draw, _this, [], false);
         }
         _this.updateTask.delay(cdelay);
     },
@@ -106,31 +117,26 @@ Ext.define("EMS.ux.d3", {
     draw: function () {
         var _this = this;
 
-        if ((this.store && !this.store.lastOptions) || !_this.rendered) {
+        if (( (this.store && !this.store.lastOptions) && !this.data) || !_this.rendered) {
             return;
         }
+        this.showMask();
 
-
-        if (this.loadMask !== false && this.rendered && !this.loadMask.isVisible()) {
-            this.loadMask.show();
-        }
-
-
-        if (_this.chart && _this.rendered) {
+        if (_this.chart) {
             console.log("drop chart");
-            d3.select(this.el.dom).remove();
+            _this.chart.remove("svg");
+            //d3.select(this.el.dom).remove();
         }
 
-        this.d3Canvas();
+        this.d3CanvasInit();
         try {
             this.plot();
         } catch (err) {
             console.log(err);
         }
 
-        if (this.loadMask !== false) {
-            this.loadMask.hide();
-        }
+        this.hideMask();
+        this.__initialized = true;
     },
 
     save: function () {
@@ -144,13 +150,40 @@ Ext.define("EMS.ux.d3", {
         }
         return svgstr;
     },
+    saveLocal: function () {
+        var html = this.save();
+        var p = Ext.create('Ext.form.Panel', {
+            standardSubmit: true,
+            url: 'data/svg.php',
+            hidden: true,
+            items: [
+                {xtype: 'hiddenfield', name: 'id', value: this.plotTitle},
+                {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
+                {xtype: 'hiddenfield', name: 'svg', value: html}
+            ]
+        });
+        p.getForm().submit
+        ({
+             success: function (form, action) {
+                 p.destroy();
+             }
+         });
+    },
 
-    d3Canvas: function () {
-        this.chart = d3.select(this.el.dom)
-                .append("svg")
+    d3CanvasUpdate: function () {
+        this.chart
+                .attr('width', this.getWidth())
+                .attr('height', this.getHeight());
+    },
+
+    d3CanvasInit: function () {
+        this.chart = d3.select(this.panelId)
+                .append('svg')
                 .attr('xmlns', 'http://www.w3.org/2000/svg')
-                .attr("width", this.getWidth())
-                .attr("height", this.getHeight())
+                .attr('width', this.getWidth())
+                .attr('height', this.getHeight())
+                .attr('title', this.plotTitle)
+                .attr('version', 1.1)
                 .style('position', 'absolute')
                 .style('top', 0)
                 .style('left', 0);
@@ -193,10 +226,7 @@ Ext.define("EMS.ux.d3", {
 
     destroy: function () {
         var _this = this;
-        if (this.chart) {
-            d3.select(this.el.dom).remove();
-            delete this.chart;
-        }
+        d3.select(this.el.dom).remove();
         this.bindComponent(null);
         this.bindStore(null);
         this.callParent(arguments);
@@ -213,10 +243,7 @@ Ext.define("EMS.ux.d3", {
     },
 
     _onResize: function () {
-        if (this.resizable) {
-            console.log("call _onResize");
-            //            this.draw();
-        }
+        this.update();
     },
 
     onLoad: function () {

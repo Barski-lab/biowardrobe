@@ -1,4 +1,4 @@
-﻿Ext.define('EMS.util.MD5',{
+Ext.define('EMS.util.MD5',{
 	
 	statics: {
 		encode: function(s,raw,hexcase,chrsz) {

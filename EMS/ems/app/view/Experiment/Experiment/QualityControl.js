@@ -97,12 +97,6 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                 {
                     xtype: 'chartfence'
                }
-//                ,
-//                {
-//                    xtype: 'canvasxpress',
-//                    showExampleData: true,
-//                    imgDir: './imagesCanvas/'
-//                }
             ]
         }
     ]

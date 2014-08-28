@@ -36,7 +36,7 @@ Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
 
     initComponent: function () {
         var me = this;
-        this.chart = Ext.create('EMS.ux.d3heat', me.initialConfig);
+        this.chart = Ext.create('EMS.ux.d3heatChIP', me.initialConfig);
         this.tbar = [
             {
                 xtype: 'fieldcontainer',
