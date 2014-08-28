@@ -139,7 +139,7 @@ void ATDPBasics::getRegions() {
         region->chrom=chr;
         exp_i->avd_matrix.append(
                     QPair<QSharedPointer<REGION>,QVector<quint16> >(
-                        QSharedPointer<REGION>(region),QVector<quint16>(qCeil((qreal)avd_whole_region/avd_heat_window),0) ) );
+                        QSharedPointer<REGION>(region),QVector<quint16>(avd_whole_region/avd_heat_window,0) ) );
 
         if(exp_i->rpkmnames.count()>0) {
             QJsonArray rpkms;
