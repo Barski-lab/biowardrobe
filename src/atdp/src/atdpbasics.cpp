@@ -52,7 +52,7 @@ void ATDPBasics::getRegions() {
     QSqlQuery q;
 
     q.prepare("select * from `"+exp_i->db+"`.`"+exp_i->source+
-              "` where chrom not like '%\\_%' and chrom not like '%control%' order by chrom,strand,txStart,txEnd");
+              "` where chrom not like '%\\_%' and chrom not like '%control%'");// order by chrom,strand,txStart,txEnd"
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();
         throw "Error query to DB";
