@@ -55,7 +55,7 @@ Ext.define('EMS.controller.Project2', {
                        '#Project2ATDP': {
                            Back: me.onBack,
                            atdp: me.runATDP,
-                           atdpview: me.ATDPview
+                           atdpview: me.ATDPWindow
                        },
                        '#Project2MANorm': {
                            Back: me.onBack,
@@ -658,7 +658,16 @@ Ext.define('EMS.controller.Project2', {
     },
     /*************************************************************
      *************************************************************/
-    ATDPview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+    ATDPWindow: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var tabs=Ext.create("EMS.view.Project2.ATDPWindow");
+
+        this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
+        this.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
+        tabs.show();
+    },
+    /*************************************************************
+     *************************************************************/
+    ATDPview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
         var storc = this.getATDPStore();
         storc.getProxy().setExtraParam('id', record.data['item_id']);
         storc.load();
@@ -670,7 +679,6 @@ Ext.define('EMS.controller.Project2', {
                               var title = [];
                               for (var c = 0; c < storc.getTotalCount(); c++) {
                                   title.push(storc.getAt(c).raw['pltname']);
-
                               }
                               var cols = 0;
                               var prop = [];
@@ -688,46 +696,23 @@ Ext.define('EMS.controller.Project2', {
                               }
 
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
-                              ATPChart.show();
+                              tabs.insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop}));
+                              tabs.setActiveTab(0);
+                              //tabs.add(ATPChart);
+                              //ATPChart.show();
                           }
                       }
                   });
     },
     /*************************************************************
      *************************************************************/
-    ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+    ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
         var stor = this.getATDPHeatAStore();
         stor.getProxy().setExtraParam('tablename', record.data['tableName']);
         stor.load({
                       callback: function (records, operation, success) {
                           if (success) {
-                              console.log(stor);
-/*                              var title = [];
-                              for (var c = 0; c < storc.getTotalCount(); c++) {
-                                  title.push(storc.getAt(c).raw['pltname']);
-
-                              }
-                              var cols = 0;
-                              var prop = [];
-                              for (p in records[0].data) {
-                                  if (cols > 0) prop[cols - 1] = p;
-                                  cols++;
-                              }
-                              cols--;
-                              var len = Math.abs(records[0].data.X);
-                              var max = records[0].data[prop[0]];
-                              for (var i = 0; i < records.length; i++) {
-                                  for (var j = 0; j < cols; j++)
-                                      if (records[i].data[prop[j]] > max)
-                                          max = records[i].data[prop[j]];
-                              }
-
-                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              var ATPChart = Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop});
-                              ATPChart.show();
-                              */
-                              Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
+                              tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));//.show();
                           }
                       }
                   });

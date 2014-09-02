@@ -36,8 +36,8 @@ Ext.define('EMS.store.ATDPHeatA', {
         type: 'standardproxyremote',
         showMessage: false,
         api: {
-            //read: 'data/ATDPHeat.php',
-            read: 'data/jsons/data1.json',
+            read: 'data/ATDPHeatA.php',
+            //read: 'data/jsons/datad.json',
             update: '',
             create: '',
             destroy: ''

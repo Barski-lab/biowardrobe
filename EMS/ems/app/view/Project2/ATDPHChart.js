@@ -21,7 +21,8 @@
  ****************************************************************************/
 
 Ext.define('EMS.view.Project2.ATDPHChart', {
-    extend: 'Ext.window.Window',
+    //extend: 'Ext.window.Window',
+    extend: 'Ext.Panel',
     bodyPadding: 0,
     requires: [
         'EMS.ux.d3',
@@ -34,7 +35,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
     frame: false,
     plain: true,
     title: 'Tag Density Heatmap',
-    iconCls: 'chart-line',
+    iconCls: 'chart-heat',
     maximizable: true,
     closeAction: 'destroy',
     collapsible: false,
@@ -45,86 +46,179 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
     width: 1180,
     layout: 'fit',
 
+    rpkmSort: function (m,c) {
+        if(!c) return;
+        var pb = this.up('button');
+        var gl = this.chart.data.get('tbl2_id');
+        var button = this.original.query('#' + gl + ' button[iconCls=sorted]');
+        //console.log(arguments, this, this.plots.plots);
+
+        if (button.length != 0) {
+            button[0].setIconCls('sort');
+        }
+
+        var adata = this.chart.data.get('rpkmarray');
+
+        var index_sum = [];
+        for (var i = 0; i < adata.length; i++) {
+            var sum = adata[i][this.posid];
+            index_sum.push({'sum': sum, 'index': i});
+        }
+        var neworder = this.original.sortAndTakeOrder(index_sum,this.plots.plots);
+
+        pb.setIconCls('sorted');
+    },
+
+    chipSort: function (b) {
+        if (b.iconCls == 'sorted') return;
+        if (b.menu) return;
+        var gl = b.chart.data.get('tbl2_id');
+        var button = b.original.query('#' + gl + ' button[iconCls=sorted]');
+        if (button.length != 0) {
+            if(button[0].menu){
+                for(var c=0;c<button[0].menu.items.items.length; c++)
+                    button[0].menu.items.items[c].setChecked(false);
+            }
+            button[0].setIconCls('sort');
+        }
+
+        var adata = b.chart.data.get('array');
+        var index_sum = [];
+        for (var i = 0; i < adata.length; i++) {
+            var sum = d3.sum(adata[i]);
+            index_sum.push({'sum': sum, 'index': i});
+        }
+        var neworder = b.original.sortAndTakeOrder(index_sum,this.plots.plots);
+
+        b.setIconCls('sorted');
+    },
+
+    makeColumn: function (heat, window, plots, rmenu) {
+        var dumb = {
+            xtype: 'panel',
+            border: false,
+            flex: 1,
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            items: [
+                {
+
+                    xtype: 'container',
+                    border: false,
+                    height: 20,
+                    width: '100%',
+                    padding: 0,
+                    margin: 0,
+                    layout: {
+                        type: 'hbox',
+                    },
+                    items: [
+                        {
+                            xtype: 'button',
+                            iconCls: 'disk',
+                            margin: '2 0 0 20',
+                            padding: 0,
+                            tooltip: 'Save image as svg',
+                            text: '',
+                            maxHeight: 18,
+                            maxWidth: 18,
+                            chart: heat,
+                            handler: function () {
+                                this.chart.saveLocal();
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            iconCls: 'sort',
+                            arrowCls: '',
+                            margin: '2 0 0 10',
+                            padding: 0,
+                            tooltip: 'Sort groupped data by ...',
+                            text: '',
+                            maxHeight: 18,
+                            maxWidth: 18,
+                            chart: heat,
+                            plots: plots,
+                            original: window,
+                            menu: rmenu,
+                            handler: this.chipSort
+                        }
+                    ]
+                },
+                heat
+            ]
+
+        };
+        return dumb;
+    },
+
+    makeRow: function (cols, itemid) {
+        var dumb = {
+            xtype: 'container',
+            itemId: itemid,
+            border: false,
+            flex: 1,
+            layout: {
+                type: 'hbox',
+                align: 'stretch'
+            },
+            items: cols
+        };
+        return dumb;
+    },
 
     initComponent: function () {
         var me = this;
         var chipcombodata = [];
         var rnacombodata = [];
         this.totalPlots = me.initialConfig.store.getCount();
+        var plots = {};
+
         var chart = [];
         var charts = [];
         for (var i = 0; i < this.totalPlots; i++) {
             var stordata = me.initialConfig.store.getAt(i);
-            chipcombodata.push({"id": i, "name": stordata.get('pltname')});
-            var heat = Ext.create('EMS.ux.d3heatChIP', { data: stordata, flex: 1 })
-            chart.push(heat);
-            charts.push
-            ({
-                 xtype: 'panel',
-                 border: false,
-                 flex: 1,
-                 layout: {
-                     type: 'vbox',
-                     align: 'stretch'
-                 },
-                 items: [
-                     {
-                         xtype: 'button',
-                         iconCls: 'disk',
-                         margin: '5 0 0 20',
-                         padding: 0,
-                         tooltip: 'Save image as svg',
-                         text: '',
-                         maxHeight: 17,
-                         maxWidth: 17,
-                         chart: heat,
-                         handler: function () {
-                             this.chart.saveLocal();
-                         }
-                     },
-                     heat
-                 ]
+            var genelist_id = stordata.get('tbl2_id');
 
-             });
+            if (!plots.hasOwnProperty(genelist_id)) {
+
+                plots[genelist_id] = {items: [], plots: []};
+                if (stordata.get('rpkmarray').length > 0) {
+                    var rpkms = Ext.create('EMS.ux.d3heatRNA', {data: stordata, flex: 1, plotTitle: "Expression"});
+                    plots[genelist_id].plots.push(rpkms);
+                    var menu = [];
+                    for (var j = 0; j < stordata.get('rpkmcols').length; j++) {
+                        menu.push({'posid': j, chart: rpkms, original: this, plots: plots[genelist_id],
+                                      'text': stordata.get('rpkmcols')[j], checkHandler: this.rpkmSort, checked: false,
+                                      group :'itemGroup'+i});
+                    }
+                    plots[genelist_id].items.push(this.makeColumn(rpkms, this, plots[genelist_id], menu));
+                }
+            }
+
+            var heat = Ext.create('EMS.ux.d3heatChIP', { data: stordata, flex: 1 });
+            plots[genelist_id].plots.push(heat);
+            plots[genelist_id].items.push(this.makeColumn(heat, this, plots[genelist_id], null));
         }
 
-        if (me.initialConfig.store.getAt(0).get('rpkmarray').length > 0) {
-            var heat = Ext.create('EMS.ux.d3heatRNA', {data: me.initialConfig.store.getAt(0), flex: 1, plotTitle: "Expression"});
-            chart.push(heat);
-            charts.push
-            ({
-                 xtype: 'panel',
-                 border: false,
-                 flex: 1,
-                 layout: {
-                     type: 'vbox',
-                     align: 'stretch'
-                 },
-                 items: [
-                     {
-                         xtype: 'button',
-                         iconCls: 'disk',
-                         margin: '5 0 0 20',
-                         padding: 0,
-                         tooltip: 'Save image as svg',
-                         text: '',
-                         maxHeight: 17,
-                         maxWidth: 17,
-                         chart: heat,
-                         handler: function () {
-                             this.chart.saveLocal();
-                         }
-                     },
-                     heat
-                 ]
 
-             });
-            this.totalPlots++;
-            for (var j = 0; j < me.initialConfig.store.getAt(0).get('rpkmcols').length; j++)
-                rnacombodata.push({'id': j, 'name': me.initialConfig.store.getAt(0).get('rpkmcols')[j]});
+        for (var key in plots) {
+            charts.push(this.makeRow(plots[key].items, key));
         }
-
-        me.tbar = [
+        me.items =
+        [
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: charts
+            }
+        ];
+        me.tbarr = [
             {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
@@ -153,86 +247,16 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                      });
                      }
                      },*/
-                    {
-                        xtype: 'combo',
-                        width: 300,
-                        margin: '0 0 0 10',
-                        fieldLabel: 'Sort by enrichment',
-                        editable: false,
-                        store: Ext.create('Ext.data.Store', {
-                            fields: ['id', 'name'],
-                            data: chipcombodata
-                        }),
-                        listeners: {
-                            scope: this,
-                            'select': function (combo, records) {
-                                var stordata = me.initialConfig.store.getAt(records[0].data.id);
-                                var enrichment = stordata.get('array');
-                                var index_sum = [];
-                                for (var i = 0; i < enrichment.length; i++) {
-                                    var sum = d3.sum(enrichment[i]);
-                                    index_sum.push({'sum': sum, 'index': i});
-                                }
-                                var neworder = this.sortAndTakeOrder(index_sum);
 
-                                for (var i = 0; i < this.totalPlots; i++) {
-                                    chart[i].reorder(neworder);
-                                }
-                            }
-                        },
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'id'
-                    },
-                    {
-                        xtype: 'combo',
-                        width: 300,
-                        margin: '0 0 0 10',
-                        fieldLabel: 'Sort by expression',
-                        store: Ext.create('Ext.data.Store', {
-                            fields: ['id', 'name'],
-                            data: rnacombodata
-                        }),
-                        listeners: {
-                            scope: this,
-                            'select': function (combo, records) {
-                                var stordata = me.initialConfig.store.getAt(0);
-                                var enrichment = stordata.get('rpkmarray');
-                                var index_sum = [];
-                                for (var i = 0; i < enrichment.length; i++) {
-                                    var sum = enrichment[i][records[0].data.id];
-                                    index_sum.push({'sum': sum, 'index': i});
-                                }
-                                var neworder = this.sortAndTakeOrder(index_sum);
-                                for (var i = 0; i < this.totalPlots; i++) {
-                                    chart[i].reorder(neworder);
-                                }
-                            }
-                        },
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'id'
-                    }
 
                 ]
             }
         ];
-        me.items =
-        [
-            {
-                xtype: 'container',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
-                items: charts
-            }
-        ];//me.chart;
 
         me.callParent(arguments);
     },
 
-    sortAndTakeOrder: function (index_sum) {
+    sortAndTakeOrder: function (index_sum,plots) {
         index_sum.sort(function (a, b) {
             if (a.sum > b.sum)
                 return 1;
@@ -244,6 +268,10 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
 
         for (var i = 0; i < index_sum.length; i++) {
             neworder[index_sum[i].index] = i;
+        }
+
+        for (var i = 0; i < plots.length; i++) {
+            plots[i].reorder(neworder);
         }
         return neworder;
     }

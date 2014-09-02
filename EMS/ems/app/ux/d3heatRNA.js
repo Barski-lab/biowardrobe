@@ -29,30 +29,29 @@ Ext.define("EMS.ux.d3heatRNA", {
         'EMS.ux.d3'
     ],
 
-    //height of each row in the heatmap
-    heatHeight: 1,
-    //width of each column in the heatmap
-    heatWidth: 1,
-    maxHeatWidth: 250,
-    maxHeatHeight: 2000,
-
-    rowsName: null,
-    colsName: null,
     //colors: ["blue", "yellow", "orange", "red"],
-    colors: ["blue", "yellow","red"],
-    plotTitle: "",
+    colors: ["blue", "yellow", "red"],
+    plotTitle: null,
     plotmargin: { top: 30, right: 20, bottom: 20, left: 10 },
     ChIP: false,
 
-    max: 0,
-    min: 0,
+    max: null,
+    min: null,
 
     order: null,
 
     makeColorScale: function () {
-        this.colorScale = d3.scale.log()
-                .domain([1, 10, this.max])
-                .range(this.colors);
+        if (this.min < 0) {
+            this.colorScale = d3.scale.linear()
+                    .domain([this.min, 0, this.max])
+                    .range(this.colors);
+        } else {
+            var inter = 10;
+            if (inter > this.max) inter = this.max / 2;
+            this.colorScale = d3.scale.log()
+                    .domain([this.min, inter, this.max])
+                    .range(this.colors);
+        }
     },
 
     initData: function () {
@@ -67,11 +66,12 @@ Ext.define("EMS.ux.d3heatRNA", {
         if (!this.dataArray) {
             this.dataArray = this.data.get('rpkmarray');
         }
-        if (!this.plotTitle && this.data.get('pltname')) {
+        if (!this.plotTitle && this.data.get('rnapltname')) {
             this.plotTitle = this.data.get('rnapltname');
         }
-        if (!this.max) {
-            var allrpkm = d3.merge(this.dataArray);
+        var allrpkm = [];
+        if (!this.max || !this.min) {
+            allrpkm = d3.merge(this.dataArray);
             allrpkm.sort(function (a, b) {
                 if (a > b)
                     return 1;
@@ -79,8 +79,13 @@ Ext.define("EMS.ux.d3heatRNA", {
                     return -1;
                 return 0
             });
-            this.max = d3.quantile(allrpkm, 0.95);
         }
+        if (!this.min)
+            this.min = d3.quantile(allrpkm, 0.05);
+        if(this.min==0)
+            this.min=0.1;
+        if (!this.max)
+            this.max = d3.quantile(allrpkm, 0.95);
     },
 
 

@@ -35,19 +35,22 @@ Ext.define("EMS.ux.d3heat", {
     heatHeight: 1,
     //width of each column in the heatmap
     heatWidth: 1,
-    maxHeatWidth: 250,
+    padding: 3,
+    maxHeatWidth: 350,
     maxHeatHeight: 2000,
 
     rowsName: null,
     colsName: null,
     colors: ["white", "blue"],
     plotTitle: "",
-    plotmargin: { top: 30, right: 20, bottom: 20, left: 10 },
+    plotmargin: { top: 30, right: 30, bottom: 20, left: 10 },
 
     max: 0,
     min: 0,
 
     order: null,
+
+    skip: null,
 
     makeColorScale: function () {
         this.colorScale = d3.scale.linear()
@@ -73,6 +76,7 @@ Ext.define("EMS.ux.d3heat", {
         if (!this.plotTitle && this.data.get('pltname')) {
             this.plotTitle = this.data.get('pltname');
         }
+
     },
 
     estimateSize: function () {
@@ -81,6 +85,13 @@ Ext.define("EMS.ux.d3heat", {
         var h = this.getHeight();
         h -= (this.plotmargin.top + this.plotmargin.bottom);
         this.heatHeight = h / this.rowsName.length;
+
+        if (this.heatHeight < 0.3) {
+            this.skip = Math.floor(0.5 / this.heatHeight);
+            this.heatHeight = h / (this.rowsName.length / this.skip);
+        } else {
+            this.skip = 1;
+        }
 
         var w = (this.getWidth() > this.maxHeatWidth) ? this.maxHeatWidth : this.getWidth();
         w -= (this.plotmargin.right + this.plotmargin.left);
@@ -91,133 +102,104 @@ Ext.define("EMS.ux.d3heat", {
     },
 
     plotUpdate: function () {
-        var _this = this;
-        this.estimateSize();
-
-        _this.heatmapRow
-                .selectAll("rect")
-            //.attr("class", "cell")
-                .attr('width', _this.heatWidth)
-                .attr('height', _this.heatHeight)
-                .attr('x', function (d, i, j) {
-                          return (i * _this.heatWidth) + _this.plotmargin.left;
-                      })
-                .attr('y', function (d, i, l) {
-                          var j = l;
-                          if (_this.order) {
-                              j = _this.order[l];
-                          }
-                          return (j * _this.heatHeight) + _this.plotmargin.top;
-                      })
-                .style('fill', function (d) {
-                           return _this.colorScale(d);
-                       });
-        this.addColumnLabels();
-        this.addLegend();
+        this.plot();
     },
 
+    _newOrder: function () {
+        var rArray = this.dataArray;
+        if (this.order) {
+            rArray = new Array(this.dataArray.length);
+            for (var i = 0; i < this.dataArray.length; i++) {
+                rArray[this.order[i]] = this.dataArray[i];
+            }
+        }
+        return rArray;
+    },
+    _makeArrays: function () {
+        var _this = this;
+        if (this.skip == 1) {
+            this._dataArray = this._newOrder();
+        } else {
+            this._dataArray = this._newOrder().filter(
+                    function (d, i) {
+                        return (i % _this.skip) == 0;
+                    });
+        }
+    },
+
+    _makeHeatmapPlot: function () {
+        if (this.heatmapRow)
+            this.heatmapRow.remove();
+        this.heatmapRow = this.chart.selectAll(".heatmaprow")
+                .data(this._dataArray)
+                .enter().append("g")
+                .attr("class", "heatmaprow");
+    },
     plot: function () {
         var _this = this;
 
         this.makeColorScale();
         this.estimateSize();
-        //generate the heatmap
-
-        var w = this.pictureWidth;
-        var h = this.pictureHight;
-
-        this.expLab = d3.select(this.panelId)
-                .append('div')
-                .style('height', 'auto')
-                .style('position', 'absolute')
-                .style('background', '#C3C3CB')
-                .style('opacity', 0.6)
-                .style('top', 0)
-                .style('padding', 5)
-                .style('left', this.plotmargin.left - this.plotmargin.left / 2)
-                .style('display', 'none');
-
-        _this.heatmapRow = this.chart.selectAll("heatmap")
-                .data(this.dataArray)
-                .enter().append("g");
+        this._makeArrays();
+        this._makeHeatmapPlot();
 
         _this.heatmapRow
                 .selectAll("rect")
                 .data(function (d) {
                           return d;
-                      }).enter().
-                append("svg:rect")
-            //.attr("class", "cell")
+                      }).enter()
+                .append("svg:rect")
                 .attr('width', _this.heatWidth)
                 .attr('height', _this.heatHeight)
                 .attr('x', function (d, i, j) {
                           return (i * _this.heatWidth) + _this.plotmargin.left;
                       })
-                .attr('y', function (d, i, l) {
-                          var j = l;
-                          if (_this.order) {
-                              j = _this.order[l];
-                          }
+                .attr('y', function (d, i, j) {
                           return (j * _this.heatHeight) + _this.plotmargin.top;
                       })
                 .style('fill', function (d) {
                            return _this.colorScale(d);
                        });
 
-        _this.heatmapRow
-                .on('mouseover', function (d, l) {
-                        d3.select(this)
-                                .attr('stroke-width', 1)
-                                .attr('stroke', 'black');
-                        var i = l;
-                        if (_this.order) {
-                            i = _this.order[l];
-                        }
-                        output = '<b>' + _this.rowsName[i] + '</b>';
-                        if (!_this.ChIP) {
-                            output += '<br>';
-                            for (var j = 0; j < d.length; j++)
-                                output += d[j].toFixed(1) + '; '
-                        }
-
-                        _this.expLab
-                                .style('top', (i * _this.heatHeight-8))
-                                .style('display', 'block')
-                                .html(output);
-                    })
-                .on('mouseout', function (d, i) {
-                        d3.select(this)
-                                .attr('stroke-width', 0)
-                                .attr('stroke', 'none');
-
-                        _this.expLab
-                                .style('display', 'none');
-                    });
+        //        _this.heatmapRow
+        //                .on('mouseover', function (d, l) {
+        //                        d3.select(this)
+        //                                .attr('stroke-width', 1)
+        //                                .attr('stroke', 'black');
+        //                        var i = l;
+        //                        if (_this.order) {
+        //                            i = _this.order[l];
+        //                        }
+        //                        output = '<b>' + _this.rowsName[i] + '</b>';
+        //                        if (!_this.ChIP) {
+        //                            output += '<br>';
+        //                            for (var j = 0; j < d.length; j++)
+        //                                output += d[j].toFixed(1) + '; '
+        //                        }
+        //
+        //                        _this.expLab
+        //                                .style('top', (i * _this.heatHeight - 10))
+        //                                .style('display', 'block')
+        //                                .html(output);
+        //                    })
+        //                .on('mouseout', function (d, i) {
+        //                        d3.select(this)
+        //                                .attr('stroke-width', 0)
+        //                                .attr('stroke', 'none');
+        //
+        //                        _this.expLab
+        //                                .style('display', 'none');
+        //                    });
 
         this.addColumnLabels();
         this.addTitle();
         this.addLegend();
     },
 
-    destroy: function () {
-        var _this = this;
-        console.log("destroyed heat");
-        if (this.expLab) {
-            this.expLab.remove();
-            //delete this.expLab;
-        }
-        this.callParent(arguments);
-    },
-
     addColumnLabels: function () {
         //label columns
         var _this = this;
         var w = this.pictureWidth;
-        var colfontsize = 12;
-        if (!this.ChIP) {
-            colfontsize = (w / (this.colsName.length * 20)) * (4.5);
-            if (colfontsize > 12) colfontsize = 12;
-        }
 
         if (this.columnLabel)
             this.chart.selectAll('.collabel').remove();
@@ -229,10 +211,31 @@ Ext.define("EMS.ux.d3heat", {
                       })
                 .attr('y', this.getHeight() - _this.plotmargin.bottom / 2 + 3)
                 .attr('class', 'collabel')
-                .attr('font-size', colfontsize)
+                .attr('font-size', function (d, i) {
+                          var wcl = w / _this.colsName.length;
+                          wcl = wcl / d.length;
+                          if (wcl < 6)
+                              wcl = 10;
+                          if (!_this.ChIP) {
+                              return wcl;
+                          } else return 11;
+
+                      })
                 .style('text-anchor', 'middle')
                 .text(function (d) {
-                          return d;
+                          var wcl = w / _this.colsName.length;
+                          wcl = wcl / d.length;
+                          var vlen = 15;
+                          if (wcl < 6) {
+                              wcl = 10;
+                          }
+                          vlen = (w / _this.colsName.length) / 6.4;
+
+                          if (d.length > vlen+2 && _this.colsName.length != 1 && !_this.ChIP) {
+                              return d.substring(0, vlen) + "...";
+                          } else {
+                              return d;
+                          }
                       });
     },
 
@@ -241,7 +244,9 @@ Ext.define("EMS.ux.d3heat", {
         var w = this.pictureWidth;
         var fontsize = (w / this.plotTitle.length) * (2.2);
         if (fontsize > 20) fontsize = 20;
-        var title = this.chart
+        if (this.__title)
+            this.__title.remove();
+        this.__title = this.chart
                 .append('svg:text')
                 .attr('x', _this.pictureWidth / 2 + _this.plotmargin.left)
                 .attr('y', _this.plotmargin.top / 2 + 1)
@@ -263,8 +268,9 @@ Ext.define("EMS.ux.d3heat", {
         var w = (this.getWidth() > this.maxHeatWidth) ? this.maxHeatWidth : this.getWidth();
 
         var cellHeight = this.pictureHight / grad;
+        var leglen = this.max - this.min;//==0?0.1:this.min;
 
-        for (var i = 0.1; i < (this.max); i += (this.max / grad)) {
+        for (var i = this.min; i < this.max; i += leglen / grad) {
             legdata.push(i);
         }
 
@@ -273,57 +279,43 @@ Ext.define("EMS.ux.d3heat", {
 
 
         if (this.legend) {
-            console.log(this.legend[0]);
-            this.legend
-                    .selectAll(".legend")
-                    .attr('class', 'legend')
-                    .attr('width', legendElementWidth)
-                    .attr('height', cellHeight)
-                    .attr('x', function (d, i, j) {
-                              return w + legendElementWidth;
-                          })
-                    .attr('y', function (d, i, j) {
-                              return h - cellHeight * (i + 1);
-                          })
-                    .style('fill', function (d) {
-                               return _this.colorScale(d);
-                           });
-        } else {
-            this.legend = this.chart.append("g");
-            this.legend
-                    .selectAll(".legend")
-                    .data(legdata)
-                    .enter().append("svg:rect")
-                    .attr('class', 'legend')
-                    .attr('width', legendElementWidth)
-                    .attr('height', cellHeight)
-                    .attr('x', function (d, i, j) {
-                              return w + legendElementWidth;
-                          })
-                    .attr('y', function (d, i, j) {
-                              return h - cellHeight * (i + 1);
-                          })
-                    .style('fill', function (d) {
-                               return _this.colorScale(d);
-                           });
+            this.legend.remove();
         }
-        if (this.legendLabel)
-            this.chart.selectAll('.legendlabel').remove();
-        this.legendLabel = this.chart.selectAll('.legendlabel')
-                .data([this.min,this.max])
-                .enter().append('svg:text')
+        this.legend = this.chart.append("g");
+        this.legend
+                .selectAll(".legend")
+                .data(legdata)
+                .enter().append("svg:rect")
+                .attr('class', 'legend')
+                .attr('width', legendElementWidth)
+                .attr('height', cellHeight)
                 .attr('x', function (d, i, j) {
-                          return w + legendElementWidth+6;
+                          return w + legendElementWidth;
                       })
                 .attr('y', function (d, i, j) {
-                                                     console.log(arguments);
-                          return h - cellHeight *d ;
+                          return h - cellHeight * (i + 1);
+                      })
+                .style('fill', function (d) {
+                           return _this.colorScale(d);
+                       });
+
+        if (this.legendLabel) {
+            this.chart.selectAll('.legendlabel').remove();
+        }
+        this.legendLabel = this.chart.selectAll('.legendlabel')
+                .data([this.min, this.max])
+                .enter().append('svg:text')
+                .attr('x', function (d, i, j) {
+                          return w + legendElementWidth * 3.5;
+                      })
+                .attr('y', function (d, i, j) {
+                          return h - i * (cellHeight * grad - 10);
                       })
                 .attr('class', 'legendlabel')
-                .attr('font-size', 12)
+                .attr('font-size', 10)
                 .style('text-anchor', 'middle')
                 .text(function (d) {
-                          return d;
+                          return d.toFixed(0);
                       });
 
     },
@@ -331,20 +323,7 @@ Ext.define("EMS.ux.d3heat", {
     reorder: function (indices) {//to reset post null
         var _this = this;
         this.order = indices;
-        if (indices) {
-            _this.heatmapRow
-                    .selectAll("rect")
-                    .attr("y", function (d, i, j) {
-                              return (indices[j] * _this.heatHeight) + _this.plotmargin.top;
-                          });
-        } else {
-            _this.heatmapRow
-                    .selectAll("rect")
-                    .attr("y", function (d, i, j) {
-                              return (j * _this.heatHeight) + _this.plotmargin.top;
-                          });
-        }
-
+        this.plot();
     }
 
 

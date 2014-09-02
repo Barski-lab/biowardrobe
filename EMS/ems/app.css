@@ -17,7 +17,7 @@
     background-repeat: no-repeat;
     background-color: transparent;
     background-position: center;
-    top center;
+    /*top: center;*/
 }
 
 #loading {
@@ -419,6 +419,12 @@
     height: 16px;
 }
 
+.chart-heat {
+    background-image: url(images/heat_chart.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .check {
     background-image: url(images/check.png) !important;
     width: 16px;
@@ -760,6 +766,20 @@
     max-width: 16px;
     max-height: 16px;
 }
+
+.sort {
+    background-image: url(images/sort_up_down.png) !important;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+.sorted {
+    background-image: url(images/sort_ascending.png) !important;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+
 
 .groupstopic {
     padding: 2px 0 0 20px;

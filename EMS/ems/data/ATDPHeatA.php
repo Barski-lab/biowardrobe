@@ -1,3 +1,4 @@
+<?php
 /****************************************************************************
  **
  ** Copyright (C) 2011-2014 Andrey Kartashov .
@@ -19,20 +20,24 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
+require_once('../settings.php');
+
+ignore_user_abort(true);
+set_time_limit(600);
+
+ini_set('memory_limit', '-1');
 
 
-Ext.define("EMS.ux.d3heatChIP", {
-    extend: 'EMS.ux.d3heat',
-    alias: ['widget.d3heatchip'],
+$window = 400;
 
-    requires: [
-        'EMS.ux.d3',
-        'EMS.ux.d3heat'
-    ],
 
-    colors: ["white", "blue"],
-    plotTitle: null,
-    plotmargin: { top: 30, right: 20, bottom: 20, left: 10 },
-    ChIP: true
 
-});
+$response->success = true;
+$response->message = "Data loaded";
+//$response->total = sizeof($data);
+//$response->data = array("max" => $max, "cols" => $cols, "rows" => $rows, "array" => $data); //array("y" => $y);
+//logmsg($response->to_json());
+print_r($response->to_json());
+
+?>
+

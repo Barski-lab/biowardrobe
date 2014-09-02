@@ -62,7 +62,6 @@ Ext.define("EMS.ux.d3", {
     afterRender: function () {
         this.callParent(arguments);
         this.panelId = '#' + this.id + '-innerCt';
-        console.log(this, this.id, this.panelId);
         this.bindComponent(true);
         this.init();
     },
@@ -125,7 +124,6 @@ Ext.define("EMS.ux.d3", {
         if (_this.chart) {
             console.log("drop chart");
             _this.chart.remove("svg");
-            //d3.select(this.el.dom).remove();
         }
 
         this.d3CanvasInit();
@@ -187,6 +185,18 @@ Ext.define("EMS.ux.d3", {
                 .style('position', 'absolute')
                 .style('top', 0)
                 .style('left', 0);
+
+        this.expLab = d3.select(this.panelId)
+                .append('div')
+                .style('height', 'auto')
+                .style('position', 'absolute')
+                .style('background', '#C3C3CB')
+                .style('opacity', 0.6)
+                .style('top', 0)
+                .style('padding', 2)
+                .style('left', this.plotmargin.left - this.plotmargin.left / 2)
+                .style('display', 'none');
+
     },
 
     onMove: function () {
@@ -226,7 +236,12 @@ Ext.define("EMS.ux.d3", {
 
     destroy: function () {
         var _this = this;
+
+        if (this.expLab) {
+            this.expLab.remove();
+        }
         d3.select(this.el.dom).remove();
+
         this.bindComponent(null);
         this.bindStore(null);
         this.callParent(arguments);
