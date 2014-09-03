@@ -217,7 +217,7 @@ Ext.define("EMS.ux.d3heat", {
                 .attr('font-size', function (d, i) {
                           var wcl = w / _this.colsName.length;
                           wcl = wcl / d.length;
-                          if (wcl < 8)
+                          if (wcl < 6 || wcl > 10)
                               wcl = 9;
                           if (!_this.ChIP) {
                               return wcl;
@@ -227,11 +227,10 @@ Ext.define("EMS.ux.d3heat", {
                 .text(function (d) {
                           var wcl = w / _this.colsName.length;
                           wcl = wcl / d.length;
-                          var vlen = 15;
-                          if (wcl < 8) {
+                          if (wcl < 6) {
                               wcl = 9;
                           }
-                          vlen = (w / _this.colsName.length) / 6.4;
+                          var vlen = (w / _this.colsName.length) / 6.4;
 
                           if (d.length > vlen + 2 && _this.colsName.length != 1 && !_this.ChIP) {
                               return d.substring(0, vlen) + "...";
@@ -266,7 +265,7 @@ Ext.define("EMS.ux.d3heat", {
         var legdata = [];
         var legendElementWidth = 5;
 
-        var    grad = 25;
+        var grad = 25;
 
         var cellHeight = this.pictureHight / grad;
         var leglen = this.max - this.min;

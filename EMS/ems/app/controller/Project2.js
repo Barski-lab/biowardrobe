@@ -661,8 +661,8 @@ Ext.define('EMS.controller.Project2', {
     ATDPWindow: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var tabs=Ext.create("EMS.view.Project2.ATDPWindow");
 
-        this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
-        tabs.show();
+        this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs);
+        this.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
     },
     /*************************************************************
      *************************************************************/
@@ -696,10 +696,9 @@ Ext.define('EMS.controller.Project2', {
                               }
 
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              tabs.insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop}));
-                              tabs.setActiveTab(0);
-                              me.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs);
-
+                              tabs.items.items[0].insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop}));
+                              tabs.items.items[0].setActiveTab(0);
+                              tabs.show();
                           }
                       }
                   });
@@ -709,10 +708,16 @@ Ext.define('EMS.controller.Project2', {
     ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
         var stor = this.getATDPHeatAStore();
         stor.getProxy().setExtraParam('id', record.data['item_id']);
+        var tabadded=tabs.add({xtype:'panel',title: 'Tag Density Heatmap'});
+        tabadded.setDisabled(true);
+        tabadded.setIconCls('loading');
+
         stor.load({
                       callback: function (records, operation, success) {
                           if (success) {
+                              tabs.remove(tabadded);
                               tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));
+
                           }
                       }
                   });
