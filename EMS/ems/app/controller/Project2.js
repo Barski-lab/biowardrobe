@@ -662,12 +662,12 @@ Ext.define('EMS.controller.Project2', {
         var tabs=Ext.create("EMS.view.Project2.ATDPWindow");
 
         this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
-        this.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
         tabs.show();
     },
     /*************************************************************
      *************************************************************/
     ATDPview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
+        var me=this;
         var storc = this.getATDPStore();
         storc.getProxy().setExtraParam('id', record.data['item_id']);
         storc.load();
@@ -698,8 +698,8 @@ Ext.define('EMS.controller.Project2', {
                               var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
                               tabs.insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop}));
                               tabs.setActiveTab(0);
-                              //tabs.add(ATPChart);
-                              //ATPChart.show();
+                              me.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs);
+
                           }
                       }
                   });
@@ -708,11 +708,11 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
         var stor = this.getATDPHeatAStore();
-        stor.getProxy().setExtraParam('tablename', record.data['tableName']);
+        stor.getProxy().setExtraParam('id', record.data['item_id']);
         stor.load({
                       callback: function (records, operation, success) {
                           if (success) {
-                              tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));//.show();
+                              tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));
                           }
                       }
                   });

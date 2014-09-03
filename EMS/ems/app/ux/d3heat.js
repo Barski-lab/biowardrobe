@@ -43,7 +43,7 @@ Ext.define("EMS.ux.d3heat", {
     colsName: null,
     colors: ["white", "blue"],
     plotTitle: "",
-    plotmargin: { top: 30, right: 30, bottom: 20, left: 10 },
+    plotmargin: { top: 30, right: 35, bottom: 20, left: 10 },
 
     max: 0,
     min: 0,
@@ -86,8 +86,8 @@ Ext.define("EMS.ux.d3heat", {
         h -= (this.plotmargin.top + this.plotmargin.bottom);
         this.heatHeight = h / this.rowsName.length;
 
-        if (this.heatHeight < 0.3) {
-            this.skip = Math.floor(0.5 / this.heatHeight);
+        if (this.heatHeight < 0.6) {
+            this.skip = Math.floor(0.7 / this.heatHeight);
             this.heatHeight = h / (this.rowsName.length / this.skip);
         } else {
             this.skip = 1;
@@ -135,11 +135,14 @@ Ext.define("EMS.ux.d3heat", {
                 .enter().append("g")
                 .attr("class", "heatmaprow");
     },
+
     plot: function () {
         var _this = this;
 
         this.makeColorScale();
         this.estimateSize();
+        if (this.pictureWidth < 0 || this.pictureHight < 0)
+            return;
         this._makeArrays();
         this._makeHeatmapPlot();
 
@@ -214,24 +217,23 @@ Ext.define("EMS.ux.d3heat", {
                 .attr('font-size', function (d, i) {
                           var wcl = w / _this.colsName.length;
                           wcl = wcl / d.length;
-                          if (wcl < 6)
-                              wcl = 10;
+                          if (wcl < 8)
+                              wcl = 9;
                           if (!_this.ChIP) {
                               return wcl;
                           } else return 11;
-
                       })
                 .style('text-anchor', 'middle')
                 .text(function (d) {
                           var wcl = w / _this.colsName.length;
                           wcl = wcl / d.length;
                           var vlen = 15;
-                          if (wcl < 6) {
-                              wcl = 10;
+                          if (wcl < 8) {
+                              wcl = 9;
                           }
                           vlen = (w / _this.colsName.length) / 6.4;
 
-                          if (d.length > vlen+2 && _this.colsName.length != 1 && !_this.ChIP) {
+                          if (d.length > vlen + 2 && _this.colsName.length != 1 && !_this.ChIP) {
                               return d.substring(0, vlen) + "...";
                           } else {
                               return d;
@@ -241,11 +243,14 @@ Ext.define("EMS.ux.d3heat", {
 
     addTitle: function () {
         var _this = this;
-        var w = this.pictureWidth;
-        var fontsize = (w / this.plotTitle.length) * (2.2);
-        if (fontsize > 20) fontsize = 20;
+        var fontsize = (this.pictureWidth / this.plotTitle.length) * (2);
+        if (fontsize > 18) fontsize = 18;
+
+        console.log(fontsize);
+
         if (this.__title)
             this.__title.remove();
+
         this.__title = this.chart
                 .append('svg:text')
                 .attr('x', _this.pictureWidth / 2 + _this.plotmargin.left)
@@ -260,22 +265,18 @@ Ext.define("EMS.ux.d3heat", {
         var _this = this;
         var legdata = [];
         var legendElementWidth = 5;
-        var legendElementHight = 5;
-        var grad = 50;
-        if (this.ChIP)
-            grad = 20;
-        var h = this.getHeight();
-        var w = (this.getWidth() > this.maxHeatWidth) ? this.maxHeatWidth : this.getWidth();
+
+        var    grad = 25;
 
         var cellHeight = this.pictureHight / grad;
-        var leglen = this.max - this.min;//==0?0.1:this.min;
+        var leglen = this.max - this.min;
 
-        for (var i = this.min; i < this.max; i += leglen / grad) {
+        for (var i = this.min; i < this.max && legdata.length < grad; i += leglen / grad) {
             legdata.push(i);
         }
 
-        h -= this.plotmargin.bottom; // either -cellHeight or (i+1)
-        w -= this.plotmargin.right;
+        var h = this.pictureHight + this.plotmargin.top; // either -cellHeight or (i+1)
+        var w = this.pictureWidth + this.plotmargin.left;
 
 
         if (this.legend) {
@@ -306,7 +307,7 @@ Ext.define("EMS.ux.d3heat", {
                 .data([this.min, this.max])
                 .enter().append('svg:text')
                 .attr('x', function (d, i, j) {
-                          return w + legendElementWidth * 3.5;
+                          return w + legendElementWidth * 3.6;
                       })
                 .attr('y', function (d, i, j) {
                           return h - i * (cellHeight * grad - 10);
@@ -315,7 +316,12 @@ Ext.define("EMS.ux.d3heat", {
                 .attr('font-size', 10)
                 .style('text-anchor', 'middle')
                 .text(function (d) {
-                          return d.toFixed(0);
+                          var post = "";
+                          if (d > 1000) {
+                              d = d / 1000;
+                              post = "k";
+                          }
+                          return d.toFixed(0) + post;
                       });
 
     },

@@ -30,25 +30,26 @@ Ext.define('EMS.view.Project2.ATDPWindow', {
     ],
 
     title: 'Average Tag Density and Tag Density Heatmap',
-    layout: 'fit',
-    iconCls: 'chart-line',
-    buttonAlign: 'center',
+
     maximizable: true,
     constrain: true,
     maximized: true,
     plain: true,
-    height: 800,
-    width: 1100,
     border: false,
     focusOnToFront: true,
 
     bodyPadding: 0,
     frame: false,
-    //layout: 'border',
     collapsible: false,
+
     minHeight: 350,
     minWidth: 300,
+    height: 800,
+    width: 1100,
 
+    layout: 'fit',
+    iconCls: 'chart-line',
+    buttonAlign: 'center',
 
     items: [
         {
@@ -56,19 +57,9 @@ Ext.define('EMS.view.Project2.ATDPWindow', {
             itemId: 'atdpmainwindowtabpanel',
             frame: false,
             border: false,
+            bodyPadding: 0,
             plain: true,
-            activeTab: 0,
-            items: [
-//                {
-//                    xtype: 'atdpchart',
-//                    frame: false,
-//                    plain: true,
-//                    border: false,
-//                    title: 'Experiment form',
-//                    layout: 'fit',
-//                    iconCls: 'form-blue-edit'
-//                }
-    ]
+            activeTab: 0
         }
     ]
 });

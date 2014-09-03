@@ -27,17 +27,22 @@ set_time_limit(600);
 
 ini_set('memory_limit', '-1');
 
+if (isset($_REQUEST['id']))
+    $uid = $_REQUEST['id'];
+else
+    $res->print_error('Not enough required parameters.');
+check_val($uid);
 
-$window = 400;
+$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
+$BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
 
 
+$command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd_heat_window=\"400\" -sam_twicechr=\"chrX chrY\"
+-sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=200";
 
-$response->success = true;
-$response->message = "Data loaded";
-//$response->total = sizeof($data);
-//$response->data = array("max" => $max, "cols" => $cols, "rows" => $rows, "array" => $data); //array("y" => $y);
-//logmsg($response->to_json());
-print_r($response->to_json());
+$output=shell_exec("$command 2>{$TMP}/atdpheatERROR.log");
+
+print_r($output);
 
 ?>
 

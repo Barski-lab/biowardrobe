@@ -32,7 +32,6 @@ Ext.define("EMS.ux.d3heatChIP", {
 
     colors: ["white", "blue"],
     plotTitle: null,
-    plotmargin: { top: 30, right: 20, bottom: 20, left: 10 },
     ChIP: true
 
 });

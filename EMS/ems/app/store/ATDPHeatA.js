@@ -37,7 +37,6 @@ Ext.define('EMS.store.ATDPHeatA', {
         showMessage: false,
         api: {
             read: 'data/ATDPHeatA.php',
-            //read: 'data/jsons/datad.json',
             update: '',
             create: '',
             destroy: ''
