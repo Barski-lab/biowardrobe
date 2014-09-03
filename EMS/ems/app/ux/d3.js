@@ -240,7 +240,9 @@ Ext.define("EMS.ux.d3", {
         if (this.expLab) {
             this.expLab.remove();
         }
-        d3.select(this.el.dom).remove();
+        if(this.__initialized || this.chart) {
+            d3.select(this.el.dom).remove();
+        }
 
         this.bindComponent(null);
         this.bindStore(null);
