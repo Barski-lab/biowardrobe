@@ -42,7 +42,7 @@ $command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd
 $output=shell_exec("$command 2>{$TMP}/atdpheatERROR.log");
 
 if(strlen($output)==0)
-    $output=shell_exec("cat ./jsons/data1.json 2>{$TMP}/atdpheatERROR.log");
+    $output=shell_exec("cat ./jsons/datad.json 2>{$TMP}/atdpheatERROR.log");
 
 print_r($output);
 

@@ -241,7 +241,7 @@ Ext.define("EMS.ux.d3", {
             this.expLab.remove();
         }
         if(this.__initialized || this.chart) {
-            d3.select(this.el.dom).remove();
+            d3.select(this.panelId).remove();
         }
 
         this.bindComponent(null);

@@ -36,37 +36,42 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
     plain: true,
     title: 'Tag Density Heatmap',
     iconCls: 'chart-heat',
-//    maximizable: true,
-//    closeAction: 'destroy',
-//    collapsible: false,
-//    constrain: true,
-//    minHeight: 350,
-//    minWidth: 300,
-//    height: 900,
-//    width: 1180,
+    //    maximizable: true,
+    //    closeAction: 'destroy',
+    //    collapsible: false,
+    //    constrain: true,
+    //    minHeight: 350,
+    //    minWidth: 300,
+    //    height: 900,
+    //    width: 1180,
     layout: 'fit',
 
-    rpkmSort: function (m,c) {
-        if(!c) return;
+    rpkmSort: function (m, c) {
+        if (!c) return;
+        if (this.posid == 1) return;
+
         var pb = this.up('button');
         var gl = this.chart.data.get('tbl2_id');
         var button = this.original.query('#' + gl + ' button[iconCls=sorted]');
-        //console.log(arguments, this, this.plots.plots);
 
         if (button.length != 0) {
             button[0].setIconCls('sort');
         }
 
         var adata = this.chart.data.get('rpkmarray');
-
-        var index_sum = [];
-        for (var i = 0; i < adata.length; i++) {
-            var sum = adata[i][this.posid];
-            index_sum.push({'sum': sum, 'index': i});
+        if (this.posid > 1) {
+            var index_sum = [];
+            for (var i = 0; i < adata.length; i++) {
+                var sum = adata[i][this.posid - 2];
+                index_sum.push({'sum': sum, 'index': i});
+            }
+            var neworder = this.original.sortAndTakeOrder(index_sum, this.plots.plots);
+            pb.setIconCls('sorted');
+        } else {
+            for (var i = 0; i < this.plots.plots.length; i++) {
+                this.plots.plots[i].reorder(null);
+            }
         }
-        var neworder = this.original.sortAndTakeOrder(index_sum,this.plots.plots);
-
-        pb.setIconCls('sorted');
     },
 
     chipSort: function (b) {
@@ -75,8 +80,8 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
         var gl = b.chart.data.get('tbl2_id');
         var button = b.original.query('#' + gl + ' button[iconCls=sorted]');
         if (button.length != 0) {
-            if(button[0].menu){
-                for(var c=0;c<button[0].menu.items.items.length; c++)
+            if (button[0].menu) {
+                for (var c = 0; c < button[0].menu.items.items.length; c++)
                     button[0].menu.items.items[c].setChecked(false);
             }
             button[0].setIconCls('sort');
@@ -88,12 +93,12 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
             var sum = d3.sum(adata[i]);
             index_sum.push({'sum': sum, 'index': i});
         }
-        var neworder = b.original.sortAndTakeOrder(index_sum,this.plots.plots);
+        var neworder = b.original.sortAndTakeOrder(index_sum, this.plots.plots);
 
         b.setIconCls('sorted');
     },
 
-    makeColumn: function (heat, window, plots, rmenu) {
+    makeColumn: function (heat, window, plots, rmenu, total) {
         var dumb = {
             xtype: 'panel',
             border: false,
@@ -112,13 +117,13 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                     padding: 0,
                     margin: 0,
                     layout: {
-                        type: 'hbox',
+                        type: 'hbox'
                     },
                     items: [
                         {
                             xtype: 'button',
                             iconCls: 'disk',
-                            margin: '2 0 0 20',
+                            margin: '2 0 0 15',
                             padding: 0,
                             tooltip: 'Save image as svg',
                             text: '',
@@ -144,6 +149,13 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                             original: window,
                             menu: rmenu,
                             handler: this.chipSort
+                        },
+                        {
+                            xtype: 'label',
+                            margin: '4 0 0 15',
+                            text: total,
+                            maxHeight: 18,
+                            //maxWidth:
                         }
                     ]
                 },
@@ -171,14 +183,9 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
 
     initComponent: function () {
         var me = this;
-        var chipcombodata = [];
-        var rnacombodata = [];
-        this.totalPlots = me.initialConfig.store.getCount();
-        var plots = {};
 
-        var chart = [];
-        var charts = [];
-        for (var i = 0; i < this.totalPlots; i++) {
+        var plots = {};
+        for (var i = 0; i < me.initialConfig.store.getCount(); i++) {
             var stordata = me.initialConfig.store.getAt(i);
             var genelist_id = stordata.get('tbl2_id');
 
@@ -189,12 +196,18 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                     var rpkms = Ext.create('EMS.ux.d3heatRNA', {data: stordata, flex: 1, plotTitle: "Expression"});
                     plots[genelist_id].plots.push(rpkms);
                     var menu = [];
+                    menu.push({'posid': 0, chart: rpkms, original: this, plots: plots[genelist_id],
+                                  'text': 'reset', checkHandler: this.rpkmSort, checked: false,
+                                  group: 'itemGroup' + i});
+                    menu.push({'posid': 1, chart: rpkms, original: this, plots: plots[genelist_id],
+                                  'text': 'cluster', checkHandler: this.rpkmSort, checked: false,
+                                  group: 'itemGroup' + i});
                     for (var j = 0; j < stordata.get('rpkmcols').length; j++) {
-                        menu.push({'posid': j, chart: rpkms, original: this, plots: plots[genelist_id],
+                        menu.push({'posid': j + 2, chart: rpkms, original: this, plots: plots[genelist_id],
                                       'text': stordata.get('rpkmcols')[j], checkHandler: this.rpkmSort, checked: false,
-                                      group :'itemGroup'+i});
+                                      group: 'itemGroup' + i});
                     }
-                    plots[genelist_id].items.push(this.makeColumn(rpkms, this, plots[genelist_id], menu));
+                    plots[genelist_id].items.push(this.makeColumn(rpkms, this, plots[genelist_id], menu, 'Genes #: ' + stordata.get('rpkmarray').length));
                 }
             }
 
@@ -203,7 +216,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
             plots[genelist_id].items.push(this.makeColumn(heat, this, plots[genelist_id], null));
         }
 
-
+        var charts = [];
         for (var key in plots) {
             charts.push(this.makeRow(plots[key].items, key));
         }
@@ -218,11 +231,40 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                 items: charts
             }
         ];
-        me.tbarr = [
+        me.tbar = [
             {
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
                 items: [
+                    {
+                        xtype: 'checkbox',
+                        boxLabel: 'Unified expression lvl?',
+                        margin: '0 0 0 20',
+                        labelAlign: 'left',
+                        boxLabelAlign: 'before',
+                        checked: false,
+                        oldmax: {},
+                        handler: function (c, v) {
+
+                            if (v) {
+                                var mx = 0;
+                                for (var key in plots) {
+                                    this.oldmax[key]=plots[key].plots[0].max;
+                                    if (mx < plots[key].plots[0].max)
+                                        mx = plots[key].plots[0].max;
+                                }
+                                for (var key in plots) {
+                                    plots[key].plots[0].max=mx;
+                                    plots[key].plots[0].plot();
+                                }
+                            } else {
+                                for (var key in plots) {
+                                    plots[key].plots[0].max=this.oldmax[key];
+                                    plots[key].plots[0].plot();
+                                }
+                            }
+                        }
+                    }
                     /*
                      {
                      xtype: 'button',
@@ -247,8 +289,6 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                      });
                      }
                      },*/
-
-
                 ]
             }
         ];
@@ -256,7 +296,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
         me.callParent(arguments);
     },
 
-    sortAndTakeOrder: function (index_sum,plots) {
+    sortAndTakeOrder: function (index_sum, plots) {
         index_sum.sort(function (a, b) {
             if (a.sum > b.sum)
                 return 1;

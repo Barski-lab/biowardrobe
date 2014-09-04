@@ -245,8 +245,6 @@ Ext.define("EMS.ux.d3heat", {
         var fontsize = (this.pictureWidth / this.plotTitle.length) * (2);
         if (fontsize > 18) fontsize = 18;
 
-        console.log(fontsize);
-
         if (this.__title)
             this.__title.remove();
 
@@ -306,7 +304,7 @@ Ext.define("EMS.ux.d3heat", {
                 .data([this.min, this.max])
                 .enter().append('svg:text')
                 .attr('x', function (d, i, j) {
-                          return w + legendElementWidth * 3.6;
+                          return w + legendElementWidth * 3.7;
                       })
                 .attr('y', function (d, i, j) {
                           return h - i * (cellHeight * grad - 10);

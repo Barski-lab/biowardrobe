@@ -717,7 +717,6 @@ Ext.define('EMS.controller.Project2', {
                           if (success) {
                               tabs.remove(tabadded);
                               tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));
-
                           }
                       }
                   });
