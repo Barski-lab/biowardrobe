@@ -101,6 +101,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                 {   header: "URL", sortable: true, width: 60, dataIndex: 'url', hidden: true,
                     renderer: function (value, metaData, record) {
                         metaData.css = 'multilineColumn';
+                        return value;
                     }
                 },
 
