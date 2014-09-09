@@ -180,15 +180,14 @@ void ATDP::start() {
                 throw "Error query to DB";
             }
         }
-    } else {
+
+    } else { // Advanced Analyses
+
         QFile outFile;
         QString out;
         QJsonObject header;
-        //outFile.setFileName(exp_i->plotname.replace("/","_").replace(" ","_")+".matrix");
-        //outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
         outFile.open(stdout,QIODevice::WriteOnly);
 
-        //out=QString("{\"success\":true,\"message\":\"Data populated\",\"total\":%1,\"data\":[").arg(experiment_info.size());
         header["success"]=true;
         header["message"]="Data populated";
         header["total"]=experiment_info.size();
@@ -209,104 +208,53 @@ void ATDP::start() {
             data["cols"]=columns_name;
             data["tbl1_id"]=exp_i->tbl1_id;
             data["tbl2_id"]=exp_i->tbl2_id;
+            data["tbl1_name"]=exp_i->tbl1_name;
+            data["tbl2_name"]=exp_i->tbl2_name;
             data["pltname"]=exp_i->plotname;
             QJsonArray matrix;
             QJsonArray rpkm_matrix;
             QJsonArray rows;
 
-            //out=QString("{\"tbl1_id\":\"%1\",\"tbl2_id\":\"%2\",\"pltname\":\"\"").arg(experiment_info.size());
-            //outFile.write(out.toLocal8Bit());
-
-            //            QVector<double> storage=Math::smooth<double>(exp_i->avd_total,gArgs().getArgs("avd_smooth").toInt());
-            //            /*
-            //         *  AVD
-            //         */
-            //            QFile outFile;
-            //            outFile.setFileName(key+".csv");
-            //            outFile.open(QIODevice::WriteOnly|QIODevice::Truncate);
-            //            for(int j=0; j<storage.size();j++) {
-            //                out+=QString("%1,%2\n").arg(j).arg(storage.at(j));
-            //            }
-            //            outFile.write(out.toLocal8Bit());
-            //            outFile.close();
-            //            out.clear();
             /*
-         *  AVD HEAT
-         */
+            *  AVD HEAT
+            */
 
             QList<quint64> max;
-            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
+            for(int j=0; j<exp_i->avd_matrix.size();j++) {
                 QJsonArray row;
                 quint64 max_line=0;
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-                    max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);
+                    max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);//maximum value in a row
                     row.append(exp_i->avd_matrix[j].second[c]);
                     //out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
-
                 }
+
                 max<<max_line;
                 matrix.append(row);
                 rows.append(exp_i->rpkm_matrix[j].first->gene_id);
                 rpkm_matrix.append(exp_i->rpkm_matrix[j].second);
             }
+
             qSort(max);
             float quan=qCeil(max.size()*0.9);
             data["rows"]=rows;
-            data["max"]=(double)(max.at(quan)+max.at(quan-1))/2;
+            double maxx=(double)max.at(quan);
+            if(quan>1) {
+                maxx+=max.at(quan-1);
+                maxx/=2;
+            }
+            data["max"]=maxx;
             data["array"]=matrix;
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
             data_array.append(data);
-            //QList<QPair<quint64,quint64> > sort;
-            //bool do_sort=gArgs().getArgs("avd_sort").toBool();
-            //            for(quint64 j=0; j<exp_i->avd_matrix.size();j++) {
-            //                quint64 sum_line=0;
-            //                for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-            //                    sum_line+=exp_i->avd_matrix[j].second[c];
-            //                    if(!do_sort) {
-            //                        out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
-            //                    }
-            //                }
-            //                if(do_sort) {
-            //                    sort.append(qMakePair(sum_line,j));
-            //                } else {
-            //                    out.chop(1);
-            //                    out+=QString("\n");
-            //                }
-            //            }
-            //            if(do_sort){
-            //                qSort(sort.begin(), sort.end());
-            //                for(int j=0; j<exp_i->avd_matrix.size();j++) {
-            //                    for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
-            //                        out+=QString("%1 ").arg(exp_i->avd_matrix[sort[j].second].second[c]);
-            //                    }
-            //                    out.chop(1);
-            //                    out+=QString("\n");
-            //                }
-            //            }//do sort
-
-            //            outFile.write(out.toLocal8Bit());
-            //            out.clear();
-
         }//foreach trough experiments
         header["data"]=data_array;
-        //outFile.write("]}");
         outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//QJsonDocument::Indented));
         outFile.close();
     }
 
     qDebug()<<"end";
-
-    /*
-
-    QSqlQuery q;
-    q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands`");
-    if(!q.exec()) {
-        qDebug()<<"Cant describe "<<q.lastError().text();
-        throw "Error describe";
-    }
-    q.next();
-*/
 
     emit finished();
 }
@@ -335,7 +283,7 @@ void ATDP::getRecordInfo() {
 void ATDP::getRecordsInfo() {
     QSqlQuery q;
 
-    q.prepare("select a.pltname,tbl1_id,tbl2_id,l.fragmentsize,l.tagsmapped,g2.tableName,g.tableName "
+    q.prepare("select a.pltname,tbl1_id,tbl2_id,l.fragmentsize,l.tagsmapped,g2.tableName,g.tableName,g2.name,g.name "
               " from atdp a,genelist g, genelist g2, labdata l where a.genelist_id=? "
               " and g.labdata_id=l.id and a.tbl1_id=g.id and a.tbl2_id=g2.id");
     q.bindValue(0, gArgs().getArgs("avd_guid").toString());
@@ -355,6 +303,8 @@ void ATDP::getRecordsInfo() {
         ei->plotname=q.value(0).toString();
         ei->tbl1_id=q.value(1).toString();
         ei->tbl2_id=q.value(2).toString();
+        ei->tbl1_name=q.value(7).toString();
+        ei->tbl2_name=q.value(8).toString();
         experiment_info.insert(q.value(2).toString()+"="+q.value(1).toString(),*ei);
     }
 }

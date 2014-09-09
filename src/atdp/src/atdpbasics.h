@@ -15,8 +15,7 @@ struct REGION {
         qint64 txEnd;
 };
 
-class EXPERIMENT_INFO {
-    public:
+struct EXPERIMENT_INFO {
         int fragmentsize;
         int mapped;
         bool pair;
@@ -26,6 +25,8 @@ class EXPERIMENT_INFO {
         QString tbl1_id;
         QString tbl2_id;
         QString plotname;
+        QString tbl1_name;
+        QString tbl2_name;
 
         QJsonArray rpkmnames;
 
