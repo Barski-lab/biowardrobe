@@ -27,8 +27,8 @@ Ext.define
          'EMS.util.SessionMonitor',
          'EMS.util.Util'
      ],
-     models: ['Worker','Laboratory','Preferences'],
-     stores: ['Worker','Laboratories','Preferences'],
+     models: ['Worker', 'Laboratory', 'Preferences'],
+     stores: ['Worker', 'Laboratories', 'Preferences'],
      views: ['EMSViewport', 'toolbar.EMSMenu'],
      worker: {},
      init: function () {
@@ -66,10 +66,10 @@ Ext.define
                   this.getController('Spikeins');
 
                   this.getController('GenomeEdit');
+                  this.getController('ExperimentTypeEdit');
                   this.getController('SequenceCutter');
                   this.getController('Info');
 
-                  //                  this.getController('ExperimentTypeEdit');
                   this.getController('Experiment.LabData');
                   this.getController('Experiment.Experiment');
                   this.getController('Experiment.EGroup');
@@ -82,10 +82,10 @@ Ext.define
                                       })
                   );
 
-                  if(this.worker.data.isa) {
+                  if (this.worker.data.isa) {
                       this.getController('Preferences');
                   }
-                  if(this.worker.data.isa || this.worker.data.isla) {
+                  if (this.worker.data.isa || this.worker.data.isla) {
                       this.getController('User.UsersGroups');
                   }
                   this.getController('User.Preferences');

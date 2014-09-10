@@ -193,7 +193,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
 
                 plots[genelist_id] = {items: [], plots: []};
                 if (stordata.get('rpkmarray').length > 0) {
-                    var rpkms = Ext.create('EMS.ux.d3heatRNA', {data: stordata, flex: 1, plotTitle: "Expression"});
+                    var rpkms = Ext.create('EMS.ux.d3heatRNA', {data: stordata, flex: 1, plotTitle: stordata.get('tbl2_name')});
                     plots[genelist_id].plots.push(rpkms);
                     var menu = [];
                     menu.push({'posid': 0, chart: rpkms, original: this, plots: plots[genelist_id],
@@ -244,22 +244,31 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                         boxLabelAlign: 'before',
                         checked: false,
                         oldmax: {},
+                        oldmin: {},
                         handler: function (c, v) {
 
                             if (v) {
                                 var mx = 0;
+                                var mn = 0.01;
                                 for (var key in plots) {
                                     this.oldmax[key]=plots[key].plots[0].max;
-                                    if (mx < plots[key].plots[0].max)
+                                    this.oldmin[key]=plots[key].plots[0].min;
+                                    if (mx < plots[key].plots[0].max) {
                                         mx = plots[key].plots[0].max;
+                                    }
+                                    if (mn > plots[key].plots[0].min) {
+                                        mn = plots[key].plots[0].min;
+                                    }
                                 }
                                 for (var key in plots) {
                                     plots[key].plots[0].max=mx;
+                                    plots[key].plots[0].min=mn;
                                     plots[key].plots[0].plot();
                                 }
                             } else {
                                 for (var key in plots) {
                                     plots[key].plots[0].max=this.oldmax[key];
+                                    plots[key].plots[0].min=this.oldmin[key];
                                     plots[key].plots[0].plot();
                                 }
                             }

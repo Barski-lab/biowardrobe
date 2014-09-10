@@ -31,6 +31,8 @@ Ext.define( 'EMS.model.ATDPHeatA', {
                    { name: 'pltname', type: 'string' },
                    { name: 'tbl1_id', type: 'string' },
                    { name: 'tbl2_id', type: 'string' },
+                   { name: 'tbl1_name', type: 'string' },
+                   { name: 'tbl2_name', type: 'string' },
                    { name: 'rpkmarray', type: 'auto' },
                    { name: 'rpkmcols', type: 'auto' }
                ]

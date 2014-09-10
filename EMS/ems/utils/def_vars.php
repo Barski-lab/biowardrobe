@@ -74,6 +74,18 @@ if (isset($filter)) {
                 $where = $where . " and $val->field = $val->value ";
             }
         }
+        if ($val->type == 'list') {
+            //check_val($val->value);
+            $value = intVal($val->value);
+            if (strstr($val->value, ',')) {
+                $fi = explode(',', $val->value);
+                for ($q=0;$q<count($fi);$q++){
+                    $fi[$q] = intVal($fi[$q]);
+                }
+                $value = implode(',', $fi);
+            }
+            $where .= " AND " . $val->field . " IN (" . $value . ")";
+        }
         //logmsg($where);
     }
 }

@@ -34,8 +34,10 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
     iconCls: 'table2',
     layout: 'fit',
     requires: [
+        '*',
+        'Ext.ux.grid.menu.ListMenu',
         'Ext.ux.grid.FiltersFeature',
-        'EMS.util.ComponentColumn'
+        'EMS.util.ComponentColumn',
     ],
     items: [
         {
@@ -64,13 +66,25 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                         return value;
                     }
                 },
-                {   header: "Genome", sortable: true, width: 80, dataIndex: 'genome_id',
+                {   header: "Genome", sortable: true, width: 80, dataIndex: 'genome_id', filterable: true,
+                    filter: {
+                        type: 'list',
+                        labelField: 'genome',
+                        phpMode: true,
+                        store: Ext.getStore('Genome'),
+                    },
                     renderer: function (value, meta, record) {
                         var rec = Ext.getStore('Genome').findRecord('id', value, 0, false, false, true);
                         return rec ? rec.data.genome : '';
                     }
                 },
                 {   header: "Type", sortable: true, width: 90, dataIndex: 'experimenttype_id', filterable: true,
+                    filter: {
+                        type: 'list',
+                        phpMode: true,
+                        labelField: 'etype',
+                        store: Ext.getStore('ExperimentType')
+                    },
                     renderer: function (value, meta, record) {
                         var rec = Ext.getStore('ExperimentType').findRecord('id', value, 0, false, false, true);
                         return rec ? rec.data.etype : '';
@@ -93,12 +107,18 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     }
                 },
                 {   header: "Alias", sortable: true, width: 160, dataIndex: 'name4browser', filterable: true,
+                    filter: {
+                        type: 'string'
+                    },
                     renderer: function (value, metaData, record) {
                         metaData.css = 'multilineColumn';
                         return value;
                     }
                 },
-                {   header: "URL", sortable: true, width: 60, dataIndex: 'url', hidden: true,
+                {   header: "URL", sortable: true, width: 60, dataIndex: 'url', hidden: true, filterable: true,
+                    filter: {
+                        type: 'string'
+                    },
                     renderer: function (value, metaData, record) {
                         metaData.css = 'multilineColumn';
                         return value;
@@ -264,7 +284,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                             tooltip: 'Delete record',
                             isDisabled: function (view, rowIndex, colIndex, item, record) {
                                 if (Ext.getStore('Worker').getAt(0).data['isa']) return false;
-                                if (Ext.getStore('Worker').getAt(0).data['laboratory_id']!=
+                                if (Ext.getStore('Worker').getAt(0).data['laboratory_id'] !=
                                     record.get('laboratory_id')) return true;
                                 if (Ext.getStore('Worker').getAt(0).data['isla']) return false;
                                 if (view.getStore().getAt(rowIndex).data['libstatus'] > 0) return true;

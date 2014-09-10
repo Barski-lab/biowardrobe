@@ -23,6 +23,8 @@
 
 require_once('../settings.php');
 
+//logmsg($_REQUEST);
+
 $SQL_QUERY = "";
 $lab_id = "";
 $egroup_id = "";

@@ -46,9 +46,10 @@ Ext.define("EMS.ux.d3heatRNA", {
                     .range(this.colors);
         } else {
             var inter = 10;
-            if (inter > this.max) inter = this.max / 2;
+            var max = 10;
+            if (inter < this.max) max=this.max;
             this.colorScale = d3.scale.log()
-                    .domain([this.min, inter, this.max])
+                    .domain([this.min, inter, max])
                     .range(this.colors);
         }
     },

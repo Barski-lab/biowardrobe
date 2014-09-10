@@ -20,11 +20,11 @@
  **
  ****************************************************************************/
 
+
 Ext.define('EMS.store.ExperimentType', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.ExperimentType',
-               'EMS.proxy.StandardProxy'],
+    requires: ['EMS.model.ExperimentType'],
     storeId: 'ExperimentType',
     model: 'EMS.model.ExperimentType',
     autoLoad: false,
@@ -37,7 +37,8 @@ Ext.define('EMS.store.ExperimentType', {
         type: 'standardproxy',
         extraParams: {
             tablename: 'experimenttype'
-        }
+        },
+        sortParam: "sort"
     }
 });
 
