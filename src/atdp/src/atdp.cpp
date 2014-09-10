@@ -303,8 +303,8 @@ void ATDP::getRecordsInfo() {
         ei->plotname=q.value(0).toString();
         ei->tbl1_id=q.value(1).toString();
         ei->tbl2_id=q.value(2).toString();
-        ei->tbl1_name=q.value(7).toString();
-        ei->tbl2_name=q.value(8).toString();
+        ei->tbl1_name=q.value(8).toString();
+        ei->tbl2_name=q.value(7).toString();
         experiment_info.insert(q.value(2).toString()+"="+q.value(1).toString(),*ei);
     }
 }
