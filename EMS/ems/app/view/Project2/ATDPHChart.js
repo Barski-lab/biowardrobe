@@ -185,6 +185,8 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
         var me = this;
 
         var plots = {};
+        var chips = {};
+
         for (var i = 0; i < me.initialConfig.store.getCount(); i++) {
             var stordata = me.initialConfig.store.getAt(i);
             var genelist_id = stordata.get('tbl2_id');
@@ -210,8 +212,11 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                     plots[genelist_id].items.push(this.makeColumn(rpkms, this, plots[genelist_id], menu, 'Genes #: ' + stordata.get('rpkmarray').length));
                 }
             }
-
+            if (!chips.hasOwnProperty(stordata.get('tbl1_id'))) {
+                chips[stordata.get('tbl1_id')]=[];
+            }
             var heat = Ext.create('EMS.ux.d3heatChIP', { data: stordata, flex: 1 });
+            chips[stordata.get('tbl1_id')].push(heat);
             plots[genelist_id].plots.push(heat);
             plots[genelist_id].items.push(this.makeColumn(heat, this, plots[genelist_id], null));
         }
@@ -251,8 +256,8 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                                 var mx = 0;
                                 var mn = 0.01;
                                 for (var key in plots) {
-                                    this.oldmax[key]=plots[key].plots[0].max;
-                                    this.oldmin[key]=plots[key].plots[0].min;
+                                    this.oldmax[key] = plots[key].plots[0].max;
+                                    this.oldmin[key] = plots[key].plots[0].min;
                                     if (mx < plots[key].plots[0].max) {
                                         mx = plots[key].plots[0].max;
                                     }
@@ -261,19 +266,54 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                                     }
                                 }
                                 for (var key in plots) {
-                                    plots[key].plots[0].max=mx;
-                                    plots[key].plots[0].min=mn;
+                                    plots[key].plots[0].max = mx;
+                                    plots[key].plots[0].min = mn;
                                     plots[key].plots[0].plot();
                                 }
                             } else {
                                 for (var key in plots) {
-                                    plots[key].plots[0].max=this.oldmax[key];
-                                    plots[key].plots[0].min=this.oldmin[key];
+                                    plots[key].plots[0].max = this.oldmax[key];
+                                    plots[key].plots[0].min = this.oldmin[key];
                                     plots[key].plots[0].plot();
                                 }
                             }
                         }
+                    },
+                    {
+                        xtype: 'checkbox',
+                        boxLabel: 'Unified enrichment lvl?',
+                        margin: '0 0 0 20',
+                        labelAlign: 'left',
+                        boxLabelAlign: 'before',
+                        checked: false,
+                        oldmax: {},
+                        oldmin: {},
+                        handler: function (c, v) {
+                            if (v) {
+                                for (var key in chips) {
+                                    var mx = 0;
+                                    for (var i = 0; i < chips[key].length; i++) {
+                                        if (mx < chips[key][i].max) {
+                                            mx = chips[key][i].max;
+                                        }
+                                    }
+                                    for (var i = 0; i < chips[key].length; i++) {
+                                        chips[key][i].oldmax=chips[key][i].max;
+                                        chips[key][i].max=mx;
+                                        chips[key][i].plot();
+                                    }
+                                }
+                            } else {
+                                for (var key in chips) {
+                                    for (var i = 0; i < chips[key].length; i++) {
+                                        chips[key][i].max=chips[key][i].oldmax;
+                                        chips[key][i].plot();
+                                    }
+                                }
+                            }
+                        }
                     }
+
                     /*
                      {
                      xtype: 'button',
