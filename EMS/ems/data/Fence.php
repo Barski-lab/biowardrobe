@@ -27,33 +27,47 @@ require_once("../settings.php");
 $recordid = $_REQUEST['recordid'];
 check_val($recordid);
 $path=$settings->settings['wardrobe']['value'].$settings->settings['preliminary']['value'];
-$file=$path.'/'.$recordid.'/'.$recordid.'.fence';
+$file=$path.'/'.$recordid.'/'.$recordid.'.fastxstat';
 
 if(file_exists($file))
     $handle = fopen($file, "r");
 else
     $handle = fopen("./fence.dat", "r");
 
-if ($handle) {
-    $line = fgets($handle); #header
-    $A = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #A
-    $C = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #C
-    $T = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #T
-    $G = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #G
-    $N = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #N
-}
+$head = fgetcsv($handle, 2000, "\t");
 
 $data=array();
-for($i =2;$i<count($A)-1;$i++) {
+while (($line = fgetcsv($handle, 2000, "\t")) !== FALSE) {
     $data[]=array(
-        'id' => $i-2,
-        'A' => $A[$i],
-        'C' => $C[$i],
-        'T' => $T[$i],
-        'G' => $G[$i],
-        'N' => $N[$i]
+        'id' => $line[0],
+        'A' => $line[12],
+        'C' => $line[13],
+        'G' => $line[14],
+        'T' => $line[15],
+        'N' => $line[16]
     );
 }
+
+//if ($handle) {
+//    $line = fgets($handle); #header
+//    $A = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #A
+//    $C = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #C
+//    $T = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #T
+//    $G = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #G
+//    $N = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #N
+//}
+//
+//$data=array();
+//for($i =2;$i<count($A)-1;$i++) {
+//    $data[]=array(
+//        'id' => $i-2,
+//        'A' => $A[$i],
+//        'C' => $C[$i],
+//        'T' => $T[$i],
+//        'G' => $G[$i],
+//        'N' => $N[$i]
+//    );
+//}
 
 $response->success = true;
 $response->message = "Data loaded";
