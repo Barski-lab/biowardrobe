@@ -85,19 +85,19 @@ foreach ($query_array as $record) {
     $sum = 0;
     $gened = [];
 
-    for ($i = 0; $i < $total; $i++) {
+    foreach ($heatv as $k => $val) { //($i = 0; $i < $total; $i++) {
 
-        if ($i < $trim_steps)
-            continue;
-        if ($i + $trim_steps > $total)
-            break;
+//        if ($i < $trim_steps)
+//            continue;
+//        if ($i + $trim_steps > $total)
+//            break;
 
-        if(isset($heatv[$i])) {
-            $count += $heatv[$i];
-            $sum += $heatv[$i];
-        }
+//        if(isset($heatv[$i])) {
+            $count += $val;//$heatv[$i];
+            $sum += $val;//$heatv[$i];
+//        }
 
-        if (($i + 1) % $step == 0) {
+        if (($k + 1) % $step == 0) {
             $gened[] = $count;
             $count = 0;
         }
@@ -131,11 +131,12 @@ foreach ($sums as $key => $val) {
     $gy .= "{$generows[$key]} ";
 
     if ($groupby > 1) {
-        foreach ($datag[$key] as $k => $v)
-            if ( !isset($dataaver[$k]) ) {
-                $dataaver[$k]=0;
+        foreach ($datag[$key] as $k => $v) {
+            if (!isset($dataaver[$k])) {
+                $dataaver[$k] = 0;
             }
-            $dataaver[$k] += $v/$groupby;
+            $dataaver[$k] += $v / $groupby;
+        }
     } else {
         $dataaver=$datag[$key];
     }
