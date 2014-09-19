@@ -48,6 +48,8 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'spikeins_id', type: 'int' },
                    { name: 'tagstotal', type: 'int', persist: false  },
                    { name: 'tagsmapped', type: 'int', persist: false  },
+                   { name: 'tagssuppressed', type: 'int', persist: false  },
+                   { name: 'tagsused', type: 'int', persist: false  },
                    { name: 'tagsribo', type: 'int', persist: false  },
                    { name: 'fragmentsize', type: 'int', persist: false  },
                    { name: 'fragmentsizeexp', type: 'int'  },
@@ -61,10 +63,12 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'name4browser', type: 'string' },
                    { name: 'browsergrp', type: 'string' },
                    { name: 'dateadd', type: 'date', dateFormat: 'm/d/Y'},
+                   { name: 'datedel', type: 'date', dateFormat: 'm/d/Y'},
                    { name: 'libstatus', type: 'int', persist: false },
                    { name: 'libstatustxt', type: 'string',persist: false  },
                    { name: 'browsershare', type: 'bool' },
                    { name: 'forcerun', type: 'bool' },
+                   { name: 'rmdup', type: 'bool' },
                    { name: 'trim5', type: 'int' },
                    { name: 'trim3', type: 'int' },
                    { name: 'genome_id', type: 'int' },
@@ -77,6 +81,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'experimenttype_id', type: 'int' },
                    { name: 'laboratory_id', type: 'string' },
                    { name: 'egroup_id', type: 'string' },
+
                    { name: 'tagspercent', mapping: null, type: 'double', persist: false,
                        convert: function(value, record) {
                            var mapped = record.get('tagsmapped');

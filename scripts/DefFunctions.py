@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 # #/****************************************************************************
-##**
-##** Copyright (C) 2011 Andrey Kartashov .
+# #**
+# #** Copyright (C) 2011 Andrey Kartashov .
 ##** All rights reserved.
 ##** Contact: Andrey Kartashov (porter@porter.st)
 ##**
@@ -31,7 +31,7 @@ import subprocess as s
 import time
 import re
 import random
-import MySQLdb 
+import MySQLdb
 import warnings
 import string
 
@@ -183,7 +183,7 @@ def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False,
     else:
         ADPAR += " --call-summits "
 
-    cmd = bin+'/macs callpeak -t ' + infile + '.bam -n ' + infile + '_macs -g ' + G
+    cmd = bin + '/macs callpeak -t ' + infile + '.bam -n ' + infile + '_macs -g ' + G
     cmd += ' --format ' + format + ' -m 3 60  --verbose 3 --shiftsize=' + str(
         shiftsize) + ' -q 0.01 --nolambda ' + ADPAR + ' >./' + infile + '_macs.log 2>&1'
 
@@ -203,7 +203,8 @@ def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
     if len(file_exist('.', infile, 'log')) == 1:
         return ['Success', ' Bedgraph uploaded']
 
-    cmd = 'bam2bedgraph -sql_table="\`' + db + '\`.\`' + string.replace(infile, "-", "_") + '_wtrack\`" -in="' + infile + '.bam" -out="'
+    cmd = 'bam2bedgraph -sql_table="\`' + db + '\`.\`' + string.replace(infile, "-",
+                                                                        "_") + '_wtrack\`" -in="' + infile + '.bam" -out="'
     cmd += infile + '.out" -log="' + infile + '.log"' + ' -bed_format=' + bedformat + ' -no-bed-file '
 
     if isRNA == 1:
@@ -225,7 +226,7 @@ def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
         return ['Error', str(e)]
 
 
-def run_fence(infile, pair, trimmed):
+def run_fence_old(infile, pair, trimmed):
     if len(file_exist('.', infile, 'fence')) == 1:
         return ['Success', 'Fence file exists']
     if trimmed:
@@ -245,8 +246,53 @@ def run_fence(infile, pair, trimmed):
         return ['Error', str(e)]
 
 
-def run_atp(lid,bin="/wardrobe/bin"):
-    cmd = bin+'/atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
+def run_fence(infile, pair, bzip=False, force=False):
+    ext = 'fastxstat'
+    fl = file_exist('.', infile, ext)
+
+    if force and len(fl) == 1:
+        os.unlink(fl[0])
+
+    if len(fl) == 1 and not force:
+        return ['Success', 'Fastx stat file exists']
+
+    cmd = ''
+
+    def outp(inf):
+        return ' -o "' + inf + '.' + ext+'"'
+
+    def bzipped(inf):
+        return 'bzcat "' + inf + '.fastq.bz2"| fastx_quality_stats ' + outp(inf)
+
+    def common(inf):
+        return 'fastx_quality_stats -i "' + inf + '.fastq" ' + outp(inf)
+
+    if pair:
+        if bzip:
+            cmd = bzipped(infile)+';'+bzipped(infile+'_2')
+        else:
+            cmd = common(infile)+';'+common(infile+'_2')
+    else:
+        if bzip:
+            cmd = bzipped(infile)
+        else:
+            cmd = common(infile)
+    print cmd
+    # if trimmed:
+    #     if pair:
+    #         cmd = 'fastx_quality_stats -i "' + infile + '_trimmed;' + infile + '_trimmed_2" >' + infile + '.fence'
+    #     else:
+    #         cmd = 'fastx_quality_stats -i "' + infile + '_trimmed.fastq" >' + infile + '.fence'
+
+    try:
+        s.Popen(cmd, shell=True)
+        return ['Success', ' Fence backgrounded']
+    except Exception, e:
+        return ['Error', str(e)]
+
+
+def run_atp(lid, bin="/wardrobe/bin"):
+    cmd = bin + '/atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
     cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=5 '
 
     try:

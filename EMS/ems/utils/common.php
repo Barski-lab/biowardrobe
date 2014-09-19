@@ -126,8 +126,10 @@ function execSQL($mysqli, $sql, $params, $affectedrows, $round = 3)
                         $x[$key] = $val;
                         break;
                     case 10:
-                        $date = DateTime::createFromFormat('Y-m-d', $val);
-                        $x[$key] = $date->format('m/d/Y');
+                        if($val) {
+                            $date = DateTime::createFromFormat('Y-m-d', $val);
+                            $x[$key] = $date->format('m/d/Y');
+                        }
                         break;
                     default:
                         $x[$key] = $val;
@@ -295,16 +297,20 @@ abstract class AbstractTableDataProcessing
                 continue;
             }
 
-            $this->SQL_STR .= " $f=?,";
 
             if ($this->types[$f] == "dd") {
-                $date = DateTime::createFromFormat('m/d/Y', $d);
-                $this->PARAMS[] = $date->format('Y-m-d');
-                $this->PARAMS[0] .= "s";
+                if($d) {
+                    $date = DateTime::createFromFormat('m/d/Y', $d);
+                    $this->PARAMS[] = $date->format('Y-m-d');
+                    $this->PARAMS[0] .= "s";
+                } else {
+                    continue;
+                }
             } else {
                 $this->PARAMS[] = $d;
                 $this->PARAMS[0] .= $this->types[$f];
             }
+            $this->SQL_STR .= " $f=?,";
         }
 
 

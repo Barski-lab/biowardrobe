@@ -30,18 +30,18 @@ require_once('utils/common.php');
 require_once('utils/Users.php');
 
 $response = new Response();
-$res = & $response;
+$res = &$response;
 
 Class Settings
 {
-    public  $settings, $connection;
+    public $settings, $connection;
     private $fields, $response;
-    public  $db_host, $db_user, $db_pass, $db_name;
+    public $db_host, $db_user, $db_pass, $db_name;
 
     function __construct()
     {
         global $response, $DATABSE_CONNECTION_FILE;
-        $this->response = & $response;
+        $this->response = &$response;
         $handle = fopen($DATABSE_CONNECTION_FILE, "r");
         if ($handle) {
             $this->db_host = "";
@@ -95,6 +95,7 @@ Class Settings
         foreach ($query as $val) {
             $this->settings[$val[$this->fields[0]]] = array();
             for ($i = 1; $i < count($this->fields); $i++) {
+                if(!isset($val[$this->fields[$i]])) continue;
                 $this->settings[$val[$this->fields[0]]][$this->fields[$i]] = $val[$this->fields[$i]];
             }
         }
@@ -119,8 +120,8 @@ Class Settings
     }
 
 }
-
-session_start();
+if(session_status() !== PHP_SESSION_ACTIVE)
+    session_start();
 require_once('utils/attempt.php');
 $settings = new Settings();
 //FIXME:remove this function later

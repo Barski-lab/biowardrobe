@@ -2,7 +2,7 @@
 
 # /****************************************************************************
 # **
-#  ** Copyright (C) 2011-2014 Andrey Kartashov .
+# ** Copyright (C) 2011-2014 Andrey Kartashov .
 #  ** All rights reserved.
 #  ** Contact: Andrey Kartashov (porter@porter.st)
 #  **
@@ -32,7 +32,7 @@ import os
 import DefFunctions as d
 import re
 import random
-import MySQLdb 
+import MySQLdb
 import glob
 import subprocess as s
 import Settings
@@ -54,29 +54,46 @@ pidfile = "/tmp/runDNA.pid"
 d.check_running(pidfile)
 
 
-def run_bowtie(infile, findex, pair, trimmed):
+def run_bowtie(infile, findex, pair, left=0, right=0):
     if len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', 'Bam file exists']
-    if trimmed:
-        if pair:
-            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' -1 ' + infile + '_trimmed.fastq -2 ' + infile + '_trimmed_2.fastq 2>./' + \
-                  infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
-        else:
-            cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' ' + infile + '_trimmed.fastq 2>./' + infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
-    else:
-        if pair:
-            cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + \
-                  infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
-        else:
-            cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + ' ' + infile + '.fastq 2>./' + infile + '.bw | samtools view -Sb - >./' + infile + '.bam 2>/dev/null;'
+    if pair:
+        cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
+              ' -5 ' + str(left) + ' -3 ' + str(right) + \
+              ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + infile + '.bw '
 
-    cmd += 'samtools sort ' + infile + '.bam ' + infile + '_s 2>/dev/null; mv -f "' + infile + '_s.bam" "' + infile + '.bam"; samtools index "' + infile + '.bam"; '
+    else:
+        cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
+              ' -5 ' + str(left) + ' -3 ' + str(right) + infile + '.fastq 2>./' + infile + '.bw '
+
+    cmd += '| samtools view -Sb - | samtools sort - ' + infile + ' 2>/dev/null;'
+    cmd += 'samtools index "' + infile + '.bam"; '
     cmd += 'bzip2 ' + infile + '*.fastq'
 
     try:
         s.check_output(cmd, shell=True)
         return ['Success', ' Bowtie done']
-    except Exception,e:
+    except Exception, e:
+        return ['Error', str(e)]
+
+
+def run_rmdup(infile,pair):
+    if len(d.file_exist('.', infile, 'bam')) != 1:
+        return ['Error', 'Bam file does not exist']
+
+    if pair:
+        cmd = 'samtools rmdup '+infile+'.bam '+infile+'.r.bam >'+infile+'.rmdup 2>&1;'
+    else:
+        cmd = 'samtools rmdup -s '+infile+'.bam '+infile+'.r.bam >'+infile+'.rmdup 2>&1;'
+
+    cmd += 'rm -f "' + infile + '.bam";rm -f "' + infile + '.bam.bai";'
+    cmd += 'samtools sort '+infile+'.r.bam ' + infile + ' 2>/dev/null;'
+    cmd += 'samtools index "' + infile + '.bam"; rm -f "' + infile + '.r.bam"'
+
+    try:
+        s.check_output(cmd, shell=True)
+        return ['Success', ' Rmdup done']
+    except Exception, e:
         return ['Error', str(e)]
 
 
@@ -89,10 +106,11 @@ def run_island_intersect(infile, promoter=1000):
         return ['Error', str(e)]
 
 
-def get_stat(infile):
+def get_stat(infile, rmdup=False):
     TOTAL = 100
     ALIGNED = 80
     SUPRESSED = 0
+    USED = 0
 
     if len(d.file_exist('.', infile, 'bw')) == 1:
         for line in open(infile + '.bw'):
@@ -102,13 +120,21 @@ def get_stat(infile):
                 ALIGNED = int(line.split('alignment:')[1].split()[0])
             if 'due to -m:' in line:
                 SUPRESSED = int(line.split('due to -m:')[1].split()[0])
-
-        fp = open('./' + infile + '.stat', 'w+')
-        fp.write(str((TOTAL, ALIGNED, SUPRESSED)))
-        fp.close()
-        return (TOTAL, ALIGNED, SUPRESSED)
     else:
         return ['Error', 'Cant read bowtie output']
+
+    USED = ALIGNED
+
+    if rmdup and len(d.file_exist('.', infile, 'rmdup')) == 1:
+        for line in open(infile + '.rmdup'):
+            splt = line.split('/')
+            USED = int((splt[1].split('='))[0].strip())-int((splt[0].split(']'))[1].strip())
+
+    fp = open('./' + infile + '.stat', 'w+')
+    fp.write(str((TOTAL, ALIGNED, SUPRESSED, USED)))
+    fp.close()
+
+    return (TOTAL, ALIGNED, SUPRESSED, USED)
 
 
 def check_error(a, UID):
@@ -122,14 +148,14 @@ def check_error(a, UID):
 ######################################################
 ######################################################
 
-settings.cursor.execute("update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'DNA%') "
-" and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 ")
-
+settings.cursor.execute(
+    "update labdata set libstatustxt='ready for process',libstatus=10 where libstatus=2 and experimenttype_id in (select id from experimenttype where etype like 'DNA%') "
+    " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 ")
 
 while True:
     settings.cursor.execute(
         "select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun, "
-        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.properties,0) "
+        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.properties,0), COALESCE(l.rmdup,0) "
         "from labdata l "
         "inner join (experimenttype e,genome g ) ON (e.id=experimenttype_id and g.id=genome_id) "
         "LEFT JOIN (antibody a) ON (l.antibody_id=a.id) "
@@ -152,32 +178,25 @@ while True:
     left = int(row[8])
     right = int(row[9])
     broad = (int(row[10]) == 2)
+    rmdup = (int(row[11]) == 1)
 
     BEDFORMAT = '4'
     FRAGMENT = 0
 
-    settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11,forcerun=0 where uid=%s",(UID,))
+    settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11,forcerun=0 where uid=%s", (UID,))
     settings.conn.commit()
 
     basedir = PRELIMINARYDATA + '/' + UID
     os.chdir(basedir)
 
-
-    trimmed = False
-    if left > 0 or right > 0:
-        a = d.do_trimm(UID, PAIR, left, right)
-        trimmed = True
-        if 'Error' in a[0]:
-            settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
-                                (a[0] + ": " + a[1], UID))
-            settings.conn.commit()
-            continue
-
     OK = True
-    if len(d.file_exist('.', UID, 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
+    if len(d.file_exist('.', UID, 'fastq')) != 1:  # and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
         OK = False
-    if PAIR and len(d.file_exist('.', UID + "_2", 'fastq')) != 1 and len(d.file_exist('.', UID+"_trimmed_2", 'fastq')) != 1:
+
+    if PAIR and len(
+            d.file_exist('.', UID + "_2", 'fastq')) != 1:  # and len(d.file_exist('.', UID+"_trimmed_2", 'fastq')) != 1:
         OK = False
+
     if not OK:
         settings.cursor.execute("update labdata set libstatustxt='Files do not exists',libstatus=2010 where uid=%s",
                                 (UID,))
@@ -185,11 +204,14 @@ while True:
         continue
 
     try:
-        d.run_fence(UID, PAIR, trimmed)
+        d.run_fence(UID, PAIR, False, forcerun)
     except:
         pass
 
-    if check_error(run_bowtie(UID, FINDEX, PAIR, trimmed), UID):
+    if check_error(run_bowtie(UID, FINDEX, PAIR, left, right), UID):
+        continue
+
+    if check_error(run_rmdup(UID, FINDEX, PAIR, left, right), UID):
         continue
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
@@ -206,7 +228,7 @@ while True:
         FRAGMENT = a[0]
 
     if not MACSER and FRAGMENTE < 80:
-        if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN),UID):
+        if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN), UID):
             continue
         a = d.macs_data(UID)
         FRAGMENT = FRAGEXP
@@ -217,7 +239,7 @@ while True:
     settings.conn.commit()
 
     if not MACSER:
-        if check_error(d.upload_macsdata(settings.conn, UID, EDB, DB),UID):
+        if check_error(d.upload_macsdata(settings.conn, UID, EDB, DB), UID):
             continue
         if check_error(run_island_intersect(UID), UID):
             continue
@@ -228,9 +250,10 @@ while True:
     a = get_stat(UID)
     if type(a[0]) is str and check_error(a, UID):
         continue
+
     settings.cursor.execute(
-        "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s where uid=%s",
-        (a[0], a[1], a[2], UID))
+            "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s,tagssuppressed=%s,tagsused=%s where uid=%s",
+        (a[0], a[1], a[2], a[2], a[3], UID))
     settings.conn.commit()
 
     if check_error(d.run_atp(UID, BIN), UID):

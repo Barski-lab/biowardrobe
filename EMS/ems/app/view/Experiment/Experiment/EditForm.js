@@ -90,11 +90,11 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                             title: 'Experiment description',
                             collapsible: true,
                             margin: '5 5 5 5',
-                            defaults: { labelWidth: 120, labelAlign: 'top' },
+                            defaults: {labelWidth: 120, labelAlign: 'top'},
                             items: [
                                 {
                                     xtype: 'fieldcontainer',
-                                    defaults: { labelWidth: 120, labelAlign: 'top' },
+                                    defaults: {labelWidth: 120, labelAlign: 'top'},
                                     layout: 'hbox',
                                     items: [
                                         {
@@ -104,10 +104,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             allowBlank: false,
                                             flex: 3
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'textfield',
                                             name: 'conditions',
@@ -115,10 +115,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             allowBlank: false,
                                             flex: 3
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'textfield',
                                             name: 'groupping',
@@ -126,11 +126,11 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             flex: 1
                                         }
                                     ]
-                                } ,
+                                },
                                 {
                                     xtype: 'fieldcontainer',
                                     layout: 'hbox',
-                                    defaults: { labelWidth: 120, labelAlign: 'top', margin: '10 0 0 0' },
+                                    defaults: {labelWidth: 120, labelAlign: 'top', margin: '10 0 0 0'},
                                     items: [
                                         {
                                             xtype: 'combobox',
@@ -144,10 +144,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             triggerAction: 'all',
                                             queryMode: 'local',
                                             flex: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'combobox',
                                             fieldLabel: 'Experiment Type',
@@ -160,10 +160,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             triggerAction: 'all',
                                             queryMode: 'local',
                                             flex: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'combobox',
                                             fieldLabel: 'Fragmentation',
@@ -202,10 +202,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             triggerAction: 'all',
                                             queryMode: 'local',
                                             flex: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'combobox',
                                             name: 'antibody_id',
@@ -221,7 +221,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'textfield',
                                             name: 'antibodycode',
@@ -247,10 +247,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             name: 'spikeinspool',
                                             fieldLabel: 'Spikeins pool',
                                             flex: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'combobox',
                                             displayField: 'spikeins',
@@ -263,17 +263,17 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             triggerAction: 'all',
                                             queryMode: 'local',
                                             flex: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'label',
                                             html: '',
                                             flex: 1
                                         }
                                     ]
-                                } ,//spike
+                                },//spike
 
                                 {
                                     xtype: 'fieldcontainer',
@@ -294,7 +294,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'label',
                                             html: '',
@@ -305,7 +305,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
 
                             ] // field set experiment description
 
-                        } ,
+                        },
                         {
                             xtype: 'fieldset',
                             title: 'Experiment arrangement',
@@ -329,10 +329,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             afterLabelTextTpl: EMS.util.Util.required,
                                             flex: 1,
                                             allowBlank: false
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'fieldcontainer',
                                             layout: 'hbox',
@@ -354,19 +354,19 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                                     forceSelection: true,
                                                     editable: false
                                                 } /*,
-                                                {
-                                                    xtype: 'button',
-                                                    text: '',
-                                                    itemId: 'egrp-show',
-                                                    submitValue: false,
-                                                    iconCls: 'element-edit',
-                                                    margin: '18 0 0 8'
-                                                }*/
+                                                 {
+                                                 xtype: 'button',
+                                                 text: '',
+                                                 itemId: 'egrp-show',
+                                                 submitValue: false,
+                                                 iconCls: 'element-edit',
+                                                 margin: '18 0 0 8'
+                                                 }*/
                                             ]
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'checkboxfield',
                                             name: 'browsershare',
@@ -380,7 +380,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                     ]
                                 }
                             ] //genome browser
-                        } ,
+                        },
                         {
                             xtype: 'fieldset',
                             title: 'Experiment data downloading',
@@ -389,7 +389,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                             items: [
                                 {
                                     xtype: 'fieldcontainer',
-                                    defaults: { labelWidth: 120, labelAlign: 'top' },
+                                    defaults: {labelWidth: 120, labelAlign: 'top'},
                                     layout: 'hbox',
                                     items: [
                                         {
@@ -398,10 +398,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             fieldLabel: 'Download URL',
                                             flex: 4,
                                             allowBlank: true
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'combobox',
                                             name: 'download_id',
@@ -419,7 +419,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                             ]
                         }//download
                     ]
-                } ,
+                },
                 {
                     title: 'Protocol',
                     itemId: 'protocol',
@@ -431,7 +431,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                     frame: false,
                     padding: 0,
                     margin: 0
-                } ,
+                },
                 {
                     title: 'Notes',
                     itemId: 'notes',
@@ -456,44 +456,81 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                             title: 'Experiment additional info',
                             collapsible: true,
                             margin: '5 5 5 5',
-                            defaults: { labelWidth: 220, labelAlign: 'top' },
+                            defaults: {labelWidth: 220, labelAlign: 'top'},
                             items: [
                                 {
-                                    xtype: 'fieldcontainer',
-                                    layout: 'hbox',
+                                    xtype: 'fieldset',
+                                    title: 'ChIP-seq specific',
+                                    margin: '5 5 5 5',
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+
                                     items: [
+
+
                                         {
-                                            xtype: 'numberfield',
-                                            name: 'fragmentsizeexp',
-                                            fieldLabel: 'Expected Fragment Size',
-                                            afterLabelTextTpl: EMS.util.Util.required,
-                                            allowBlank: false,
-                                            flex: 2,
-                                            step: 1
-                                        } ,
+                                            xtype: 'fieldcontainer',
+                                            layout: 'hbox',
+                                            flex: 1,
+                                            items: [
+                                                {
+                                                    xtype: 'numberfield',
+                                                    name: 'fragmentsizeexp',
+                                                    fieldLabel: 'Expected Fragment Size',
+                                                    afterLabelTextTpl: EMS.util.Util.required,
+                                                    allowBlank: false,
+                                                    flex: 2,
+                                                    step: 1
+                                                },
+                                                {
+                                                    xtype: 'splitter'
+                                                },
+                                                {
+                                                    xtype: 'checkboxfield',
+                                                    name: 'fragmentsizeforceuse',
+                                                    labelAlign: 'left',
+                                                    boxLabelAlign: 'before',
+                                                    inputValue: true,
+                                                    labelWidth: 180,
+                                                    fieldLabel: 'Force to use this fragment size?',
+                                                    margin: '18 0 0 10',
+                                                    flex: 2
+                                                },
+                                                {
+                                                    xtype: 'tbspacer',
+                                                    flex: 3
+                                                }
+
+
+                                            ]
+                                        },
                                         {
-                                            xtype: 'splitter'
-                                        } ,
-                                        {
-                                            xtype: 'checkboxfield',
-                                            name: 'fragmentsizeforceuse',
-                                            labelAlign: 'left',
-                                            boxLabelAlign: 'before',
-                                            inputValue: true,
-                                            labelWidth: 180,
-                                            fieldLabel: 'Force to use this fragment size?',
-                                            margin: '18 0 0 10',
-                                            flex: 2
-                                        } ,
-                                        {
-                                            xtype: 'tbspacer',
-                                            flex: 3
+                                            xtype: 'fieldcontainer',
+                                            layout: 'hbox',
+                                            flex: 1,
+                                            items: [
+                                                {
+                                                    xtype: 'checkboxfield',
+                                                    name: 'rmdup',
+                                                    labelAlign: 'left',
+                                                    boxLabelAlign: 'before',
+                                                    inputValue: true,
+                                                    labelWidth: 120,
+                                                    fieldLabel: 'Remove dublicates?',
+                                                    //margin: '18 0 0 10',
+                                                    //flex: 2
+                                                }
+                                            ]
                                         }
 
                                     ]
                                 },
                                 {
                                     xtype: 'fieldcontainer',
+                                    margin: '5 5 5 5',
+
                                     layout: 'hbox',
                                     items: [
                                         {
@@ -504,10 +541,10 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                             allowBlank: false,
                                             flex: 2,
                                             step: 1
-                                        } ,
+                                        },
                                         {
                                             xtype: 'splitter'
-                                        } ,
+                                        },
                                         {
                                             xtype: 'numberfield',
                                             name: 'trim3',
@@ -526,6 +563,8 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                 },
                                 {
                                     xtype: 'fieldcontainer',
+                                    margin: '5 5 5 5',
+
                                     layout: 'hbox',
                                     items: [
                                         {

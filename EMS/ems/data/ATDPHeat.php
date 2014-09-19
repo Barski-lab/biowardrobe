@@ -92,8 +92,10 @@ foreach ($query_array as $record) {
         if ($i + $trim_steps > $total)
             break;
 
-        $count += $heatv[$i];
-        $sum += $heatv[$i];
+        if(isset($heatv[$i])) {
+            $count += $heatv[$i];
+            $sum += $heatv[$i];
+        }
 
         if (($i + 1) % $step == 0) {
             $gened[] = $count;
@@ -130,6 +132,9 @@ foreach ($sums as $key => $val) {
 
     if ($groupby > 1) {
         foreach ($datag[$key] as $k => $v)
+            if ( !isset($dataaver[$k]) ) {
+                $dataaver[$k]=0;
+            }
             $dataaver[$k] += $v/$groupby;
     } else {
         $dataaver=$datag[$key];

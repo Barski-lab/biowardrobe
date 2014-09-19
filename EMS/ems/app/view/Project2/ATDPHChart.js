@@ -254,7 +254,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
 
                             if (v) {
                                 var mx = 0;
-                                var mn = 0.01;
+                                var mn = 0.1;
                                 for (var key in plots) {
                                     this.oldmax[key] = plots[key].plots[0].max;
                                     this.oldmin[key] = plots[key].plots[0].min;
