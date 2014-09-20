@@ -100,7 +100,7 @@ def run_star(infile, db, pair, left=0, right=0, force=False):
 
     cmd = 'STAR --runThreadN 24 --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 '
     cmd += '--alignSJDBoverhangMin 1 --seedSearchStartLmax 15 --outStd SAM --outSAMmode Full '
-    cmd += '--clip3pNbases ' + str(left) + ' --clip5pNbases' + str(right) + ' '
+    cmd += '--clip3pNbases ' + str(left) + ' --clip5pNbases ' + str(right) + ' '
     cmd += '--genomeDir ' + BOWTIE_INDICES + '/STAR/' + db + ' --readFilesIn "' + infile + '.fastq" '
 
     if pair:
@@ -248,7 +248,7 @@ while True:
         " from labdata l,experimenttype e,genome g "
         " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'RNA%' and libstatus in (10,1010) "
         " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 "
-        " order by dateadd limit 1")
+        " and l.id=857 order by dateadd limit 1")
 
     row = settings.cursor.fetchone()
     if not row:
