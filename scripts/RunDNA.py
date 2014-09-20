@@ -55,16 +55,17 @@ d.check_running(pidfile)
 
 
 def run_bowtie(infile, findex, pair, left=0, right=0):
+
     if len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', 'Bam file exists']
-    if pair:
-        cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
-              ' -5 ' + str(left) + ' -3 ' + str(right) + \
-              ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + infile + '.bw '
 
+    cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
+          ' -5 ' + str(left) + ' -3 ' + str(right)
+
+    if pair:
+        cmd += ' -1 ' + infile + '.fastq -2 ' + infile + '_2.fastq 2>./' + infile + '.bw '
     else:
-        cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
-              ' -5 ' + str(left) + ' -3 ' + str(right) + ' ' + infile + '.fastq 2>./' + infile + '.bw '
+        cmd += ' ' + infile + '.fastq 2>./' + infile + '.bw '
 
     cmd += '| samtools view -Sb - | samtools sort - ' + infile + ' 2>/dev/null;'
     cmd += 'samtools index "' + infile + '.bam"; '
@@ -77,7 +78,7 @@ def run_bowtie(infile, findex, pair, left=0, right=0):
         return ['Error', str(e)]
 
 
-def run_rmdup(infile,pair):
+def run_rmdup(infile, pair):
     if len(d.file_exist('.', infile, 'bam')) != 1:
         return ['Error', 'Bam file does not exist']
 

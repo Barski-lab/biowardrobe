@@ -59,6 +59,9 @@ def error_update(str, uid):
 
 
 ######################################################
+def safe_del(file):
+    if os.path.isfile(file):
+        os.unlink(file)
 
 while True:
     settings.cursor.execute("SELECT e.etype,g.db,l.uid "
@@ -78,50 +81,36 @@ while True:
     os.chdir(basedir)
 
     cmd = ""
-    if PAIR:
-        cmd = 'bunzip2 ' + UID + '.fastq.bz2;'
-        cmd += 'bunzip2 ' + UID + '_2.fastq.bz2;'
-    else:
-        cmd = 'bunzip2 ' + UID + '.fastq.bz2'
 
-    try:
-        s.check_output(cmd, shell=True)
-    except Exception, e:
-        error_update(str(e), UID)
-        continue
+    if not isRNA:
+        if PAIR:
+            cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
+        else:
+            cmd = 'bunzip2 ' + UID + '.fastq.bz2'
 
-    if os.path.isfile(basedir + '/' + UID + '_trimmed.fastq'):
-        os.unlink(basedir + '/' + UID + '_trimmed.fastq')
-    if os.path.isfile(basedir + '/' + UID + '_trimmed_2.fastq'):
-        os.unlink(basedir + '/' + UID + '_trimmed_2.fastq')
-    if os.path.isfile(basedir + '/' + UID + '_trimmed.fastq.bz2'):
-        os.unlink(basedir + '/' + UID + '_trimmed.fastq.bz2')
-    if os.path.isfile(basedir + '/' + UID + '_trimmed_2.fastq.bz2'):
-        os.unlink(basedir + '/' + UID + '_trimmed_2.fastq.bz2')
-    if os.path.isfile(basedir + '/' + UID + '.bam'):
-        os.unlink(basedir + '/' + UID + '.bam')
-    if os.path.isfile(basedir + '/' + UID + '.bam.bai'):
-        os.unlink(basedir + '/' + UID + '.bam.bai')
-    if os.path.isfile(basedir + '/' + UID + '.log'):
-        os.unlink(basedir + '/' + UID + '.log')
-    if os.path.isfile(basedir + '/' + UID + '.fence'):
-        os.unlink(basedir + '/' + UID + '.fence')
-    if os.path.isfile(basedir + '/' + UID + '.bw'):
-        os.unlink(basedir + '/' + UID + '.bw')
-    if os.path.isfile(basedir + '/' + UID + '.stat'):
-        os.unlink(basedir + '/' + UID + '.stat')
-    if os.path.isfile(basedir + '/' + UID + '_macs_peaks.xls'):
-        os.unlink(basedir + '/' + UID + '_macs_peaks.xls')
-    if os.path.isfile(basedir + '/' + UID + '_macs.log'):
-        os.unlink(basedir + '/' + UID + '_macs.log')
-    if os.path.isfile(basedir + '/' + UID + '_macs_model.r'):
-        os.unlink(basedir + '/' + UID + '_macs_model.r')
-    if os.path.isfile(basedir + '/' + UID + '.ribo'):
-        os.unlink(basedir + '/' + UID + '.ribo')
-    if os.path.isfile(basedir + '/' + UID + '_rpkm.log'):
-        os.unlink(basedir + '/' + UID + '_rpkm.log')
-    if os.path.isfile(basedir + '/' + UID + '_rpkm_error.log'):
-        os.unlink(basedir + '/' + UID + '_rpkm_error.log')
+        try:
+            s.check_output(cmd, shell=True)
+        except Exception, e:
+            error_update(str(e), UID)
+            continue
+
+    safe_del(basedir + '/' + UID + '_trimmed.fastq')
+    safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
+    safe_del(basedir + '/' + UID + '_trimmed.fastq.bz2')
+    safe_del(basedir + '/' + UID + '_trimmed_2.fastq.bz2')
+    safe_del(basedir + '/' + UID + '.bam')
+    safe_del(basedir + '/' + UID + '.bam.bai')
+    safe_del(basedir + '/' + UID + '.log')
+    safe_del(basedir + '/' + UID + '.fence')
+    safe_del(basedir + '/' + UID + '.fastxstat')
+    safe_del(basedir + '/' + UID + '.bw')
+    safe_del(basedir + '/' + UID + '.stat')
+    safe_del(basedir + '/' + UID + '_macs_peaks.xls')
+    safe_del(basedir + '/' + UID + '_macs.log')
+    safe_del(basedir + '/' + UID + '_macs_model.r')
+    safe_del(basedir + '/' + UID + '.ribo')
+    safe_del(basedir + '/' + UID + '_rpkm.log')
+    safe_del(basedir + '/' + UID + '_rpkm_error.log')
     shutil.rmtree(basedir + '/tophat', True)
 
     settings.cursor.execute("SELECT DISTINCT db FROM genome;")
@@ -136,6 +125,6 @@ while True:
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_genes`;")
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_common_tss`;")
 
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=10,forcerun=0, tagstotal=0,tagsmapped=0,tagsribo=0 where uid=%s",
+    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=10,forcerun=0, tagstotal=0,tagsmapped=0,tagsribo=0,tagsused=0,tagssuppressed=0 where uid=%s",
                             ("Ready to be reanalyzed", UID))
     settings.conn.commit()

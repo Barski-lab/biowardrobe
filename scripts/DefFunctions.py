@@ -277,16 +277,9 @@ def run_fence(infile, pair, bzip=False, force=False):
             cmd = bzipped(infile)
         else:
             cmd = common(infile)
-    print cmd
-    # if trimmed:
-    #     if pair:
-    #         cmd = 'fastx_quality_stats -i "' + infile + '_trimmed;' + infile + '_trimmed_2" >' + infile + '.fence'
-    #     else:
-    #         cmd = 'fastx_quality_stats -i "' + infile + '_trimmed.fastq" >' + infile + '.fence'
-
     try:
         s.Popen(cmd, shell=True)
-        return ['Success', ' Fence backgrounded']
+        return ['Success', ' Fastx backgrounded']
     except Exception, e:
         return ['Error', str(e)]
 
