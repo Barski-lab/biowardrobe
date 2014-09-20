@@ -248,7 +248,7 @@ while True:
     if check_error(d.run_bedgraph(UID, BEDFORMAT, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
-    a = get_stat(UID)
+    a = get_stat(UID,rmdup)
     if type(a[0]) is str and check_error(a, UID):
         continue
 
