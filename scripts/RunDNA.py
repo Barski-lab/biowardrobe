@@ -64,7 +64,7 @@ def run_bowtie(infile, findex, pair, left=0, right=0):
 
     else:
         cmd = 'bowtie -q -v 2 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
-              ' -5 ' + str(left) + ' -3 ' + str(right) + infile + '.fastq 2>./' + infile + '.bw '
+              ' -5 ' + str(left) + ' -3 ' + str(right) + ' ' + infile + '.fastq 2>./' + infile + '.bw '
 
     cmd += '| samtools view -Sb - | samtools sort - ' + infile + ' 2>/dev/null;'
     cmd += 'samtools index "' + infile + '.bam"; '
@@ -211,7 +211,7 @@ while True:
     if check_error(run_bowtie(UID, FINDEX, PAIR, left, right), UID):
         continue
 
-    if check_error(run_rmdup(UID, FINDEX, PAIR, left, right), UID):
+    if rmdup and check_error(run_rmdup(UID, PAIR), UID):
         continue
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
