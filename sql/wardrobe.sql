@@ -667,3 +667,5 @@ ALTER TABLE `ems`.`labdata`
 ADD COLUMN `peaks` VARCHAR(45) NULL DEFAULT NULL AFTER `antibodycode`,
 ADD COLUMN `trim3` INT(5) NULL DEFAULT 0 AFTER `peaks`,
 ADD COLUMN `trim5` INT(5) NULL DEFAULT 0 AFTER `trim3`;
+
+INSERT INTO `ems`.`rtype` VALUES (1,'RPKM isoforms'),(2,'RPKM genes'),(3,'RPKM common tss'),(4,'CHIP islands');

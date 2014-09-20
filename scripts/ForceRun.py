@@ -82,17 +82,16 @@ while True:
 
     cmd = ""
 
-    if not isRNA:
-        if PAIR:
-            cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
-        else:
-            cmd = 'bunzip2 ' + UID + '.fastq.bz2'
+    if PAIR:
+        cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
+    else:
+        cmd = 'bunzip2 ' + UID + '.fastq.bz2'
 
-        try:
-            s.check_output(cmd, shell=True)
-        except Exception, e:
-            error_update(str(e), UID)
-            continue
+    try:
+        s.check_output(cmd, shell=True)
+    except Exception, e:
+        error_update(str(e), UID)
+        continue
 
     safe_del(basedir + '/' + UID + '_trimmed.fastq')
     safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
