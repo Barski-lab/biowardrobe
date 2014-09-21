@@ -39,7 +39,7 @@ Ext.define("EMS.ux.d3", {
     store: null,
     order: null,
     panelId: null,
-
+    popupstyle: {'background': '#C3C3CB', 'opacity': 0.6, 'padding': 2 },
 
     plot: function () {
     },
@@ -48,15 +48,14 @@ Ext.define("EMS.ux.d3", {
     initData: function () {
     },
 
-    constructor: function (config) {
-        this.callParent(arguments);
-        Ext.apply(this, config);
-        this.store && (this.bindStore(this.store, true));
-    },
+    //constructor: function (config) {
+    //    this.callParent(arguments);
+    //},
 
     initComponent: function () {
         this.callParent(arguments);
         this.initMask();
+        Ext.apply(this, this.initialConfig);
         this.store && (this.bindStore(this.store, true));
     },
 
@@ -100,7 +99,6 @@ Ext.define("EMS.ux.d3", {
         var _this = this;
 
         this.showMask();
-
         try {
             this.initData();
         } catch (err) {
@@ -193,10 +191,8 @@ Ext.define("EMS.ux.d3", {
                 .append('div')
                 .style('height', 'auto')
                 .style('position', 'absolute')
-                .style('background', '#C3C3CB')
-                .style('opacity', 0.6)
+                .style(this.popupstyle)
                 .style('top', 0)
-                .style('padding', 2)
                 .style('left', this.plotmargin.left - this.plotmargin.left / 2)
                 .style('display', 'none');
 
@@ -222,13 +218,14 @@ Ext.define("EMS.ux.d3", {
         }
         if (store) {
             store = Ext.data.StoreManager.lookup(store);
+            this.initialConfig.store=store;
             store.on({
                          scope: this,
                          load: this.onLoad,
-                         //                         datachanged: this.onDataChange,
-                         //                         add: this.onAdd,
                          remove: this.onRemove,
                          update: this.onUpdate,
+                         //                         datachanged: this.onDataChange,
+                         //                         add: this.onAdd,
                          //                         clear: this.onClear
                      });
         }

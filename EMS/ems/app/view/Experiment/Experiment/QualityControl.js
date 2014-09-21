@@ -101,7 +101,9 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                },
                 {
                     xtype: 'qcboxplot',
-                    store: 'Fence'
+                    store: 'Fence',
+                    xAxisName: 'Nucleotide position',
+                    yAxisName: 'Quality score',
                 },
             ]
         }

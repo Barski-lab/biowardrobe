@@ -33,8 +33,8 @@ Ext.define("EMS.ux.d3boxplot", {
 
     padding: 3,
 
-    rowsName: null,
-    colsName: null,
+    xAxisName: "",
+    yAxisName: "",
     colors: ["white", "blue"],
     plotTitle: "",
     plotmargin: {top: 30, right: 50, bottom: 80, left: 50},
@@ -45,6 +45,8 @@ Ext.define("EMS.ux.d3boxplot", {
     duration: 2000,
     showLabels: false,
 
+    popupstyle: {'background': '#D7E1F1', 'opacity': 0.9,'border': '1px solid', 'border-radius': '25px', 'padding': 6},
+
     constructor: function (config) {
         this.callParent(arguments);
         Ext.apply(this, config);
@@ -53,10 +55,15 @@ Ext.define("EMS.ux.d3boxplot", {
         d3.box = function () {
             var width = 1,
                     height = 1,
-                    duration = 1000,//config.duration,
-                    showLabels = false,//config.showLabels,
+                    duration = 1000,
+                    showLabels = false,
+                    xscale = function () {
+                        return 1;
+                    },
                     numBars = 4,
                     curBar = 1,
+                    domain = null,
+                    value = Number,
                     tickFormat = null;
 
             // For each small multiple…
@@ -71,7 +78,7 @@ Ext.define("EMS.ux.d3boxplot", {
 
                     // Compute the new x-scale.
                     var x1 = d3.scale.linear()
-                            .domain([min, max])
+                            .domain(domain && domain.call(this, d, i) || [min, max])
                             .range([height + me.plotmargin.top, me.plotmargin.top]);
 
                     // Retrieve the old x-scale, if this is an update.
@@ -171,6 +178,28 @@ Ext.define("EMS.ux.d3boxplot", {
                                       return x1(d.Q1) - x1(d.Q3);
                                   });
 
+                    box.on('mouseover', function (d, l) {
+                        output = '<i>'+me.xAxisName+' No:</i> <b>' + d.id + '</b><br>';
+                        output += '<i>Observations:</i><br>';
+                        output += '&nbsp;<i>Maximum: </i><b>' + d.max + '</b><br>';
+                        output += '&nbsp;<i>Upper quartile: </i><b>' + d.Q3 + '</b><br>';
+                        output += '&nbsp;<i>Median: </i><b>' + d.med + '</b><br>';
+                        output += '&nbsp;<i>Mean: </i><b>' + d.mean + '</b><br>';
+                        output += '&nbsp;<i>Lower quartile: </i><b>' + d.Q1 + '</b><br>';
+                        output += '&nbsp;<i>Minimum: </i><b>' + d.min + '</b><br>';
+
+                        me.expLab
+                                .style('top', x1(d.Q1))
+                                .style('left', xscale(d.id)-me.plotmargin.left)
+                                .style('display', 'block')
+                                .html(output);
+                    });
+                    box.on('mouseout', function (d, i) {
+                        me.expLab
+                                .style('display', 'none');
+                    });
+
+
                     // Update median line.
                     var medianLine = g.selectAll("line.median")
                             .data([d.data.med]);
@@ -257,9 +286,9 @@ Ext.define("EMS.ux.d3boxplot", {
                     var format = tickFormat || x1.tickFormat(8);
 
                     // Update box ticks.
-                    var boxTick = g.selectAll("text.d3box")
-                            .data(quartileData);
                     if (showLabels == true) {
+                        var boxTick = g.selectAll("text.d3box")
+                                .data(quartileData);
                         boxTick.enter().append("text")
                                 .attr("class", "d3box")
                                 .attr("dy", ".3em")
@@ -275,22 +304,21 @@ Ext.define("EMS.ux.d3boxplot", {
                                 .transition()
                                 .duration(duration)
                                 .attr("y", x1);
+                        boxTick.transition()
+                                .duration(duration)
+                                .text(format)
+                                .attr("y", x1);
                     }
 
-                    boxTick.transition()
-                            .duration(duration)
-                            .text(format)
-                            .attr("y", x1);
 
                     // Update whisker ticks. These are handled separately from the box
                     // ticks because they may or may not exist, and we want don't want
                     // to join box ticks pre-transition with whisker ticks post-.
-                    var whiskerTick = g.selectAll("text.whisker")
-                            .data(whiskerData || []);
                     if (showLabels == true) {
+                        var whiskerTick = g.selectAll("text.whisker")
+                                .data(whiskerData || []);
                         whiskerTick.enter().append("text")
                                 .attr("class", "whisker")
-                            //.attr("dy", ".3em")
                                 .attr("dx", -1)
                                 .attr("x", width)
                                 .attr("y", x0)
@@ -300,18 +328,18 @@ Ext.define("EMS.ux.d3boxplot", {
                                 .duration(duration)
                                 .attr("y", x1)
                                 .style("opacity", 1);
-                    }
-                    whiskerTick.transition()
-                            .duration(duration)
-                            .text(format)
-                            .attr("y", x1)
-                            .style("opacity", 1);
+                        whiskerTick.transition()
+                                .duration(duration)
+                                .text(format)
+                                .attr("y", x1)
+                                .style("opacity", 1);
 
-                    whiskerTick.exit().transition()
-                            .duration(duration)
-                            .attr("y", x1)
-                            .style("opacity", 1e-6)
-                            .remove();
+                        whiskerTick.exit().transition()
+                                .duration(duration)
+                                .attr("y", x1)
+                                .style("opacity", 1e-6)
+                                .remove();
+                    }
                 });
                 d3.timer.flush();
             }
@@ -334,6 +362,11 @@ Ext.define("EMS.ux.d3boxplot", {
                 return box;
             };
 
+            box.xscale = function (x) {
+                if (!arguments.length) return xscale;
+                xscale = x;
+                return box;
+            };
             box.duration = function (x) {
                 if (!arguments.length) return duration;
                 duration = x;
@@ -343,6 +376,12 @@ Ext.define("EMS.ux.d3boxplot", {
             box.showLabels = function (x) {
                 if (!arguments.length) return showLabels;
                 showLabels = x;
+                return box;
+            };
+
+            box.domain = function (x) {
+                if (!arguments.length) return domain;
+                domain = x == null ? x : d3.functor(x);
                 return box;
             };
 
@@ -379,20 +418,14 @@ Ext.define("EMS.ux.d3boxplot", {
 
     plot: function () {
         var _this = this;
+
         this.estimateSize();
 
-        console.log(this);
+        this.chart.selectAll("*").remove();
 
         this.chart
                 .attr('class', 'd3box')
                 .style('font', '10px Helvetica Neue');
-        //.append("g")
-        //        .attr("transform", "translate(" + this.plotmargin.left + "," + this.plotmargin.top + ")");
-
-
-        var chart = d3.box()
-                .height(this.pictureHight)
-                .showLabels(this.showLabels);
 
 
         var min = Infinity, max = -Infinity;
@@ -407,34 +440,35 @@ Ext.define("EMS.ux.d3boxplot", {
                         }))
                 .rangeRoundBands([this.plotmargin.left, this.pictureWidth + this.plotmargin.left], 0.6, 0.1);
 
-        var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom");
-
         var y = d3.scale.linear()
                 .domain([min, max])
                 .range([this.pictureHight + this.plotmargin.top, this.plotmargin.top]);
 
-        var yAxis = d3.svg.axis()
-                .scale(y)
-                .orient("left");
+        var chart = d3.box()
+                .height(this.pictureHight)
+                .domain([min, max])
+                .xscale(x)
+                .duration(this.duration)
+                .showLabels(this.showLabels);
 
-        var svg = _this.chart;
-        // draw the boxplots
-        svg.selectAll("*").remove();
-        svg.selectAll(".d3box")
+        this.chart.selectAll(".d3box")
                 .data(this.store.data.items)
                 .enter().append("g")
                 .attr("transform", function (d) {
                           return "translate(" + x(d.data.id) + "," + 0 + ")";
                       })
                 .call(chart.width(x.rangeBand()));
-        svg.append("g")
+
+        var xAxis = d3.svg.axis()
+                .scale(x)
+                .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+                .scale(y)
+                .orient("left");
+
+        this.chart.append("g")
                 .attr("class", "x axis")
-                .style("fill", "none")
-                .style("stroke", "#000")
-                //.style("shape-rendering", "crispEdges")
-                .style("font", "10px Helvetica Neue")
                 .attr("transform", "translate(0," + (this.pictureHight + this.plotmargin.top + 5) + ")")
                 .call(xAxis)
                 .append("text")             // text label for the x axis
@@ -443,29 +477,26 @@ Ext.define("EMS.ux.d3boxplot", {
                 .attr("dy", ".71em")
                 .style("text-anchor", "middle")
                 .style("font-size", "16px")
-                .text("Nucleotide position");
+                .text(this.xAxisName);
 
         // draw y axis
-        svg.append("g")
+        this.chart.append("g")
                 .attr("class", "y axis")
-                .style("fill", "none")
-                .style("stroke", "#000")
-                //.style("shape-rendering", "crispEdges")
-                .style("font", "10px Helvetica Neue")
-                .style("font-weight","none")
                 .attr("transform", "translate(" + this.plotmargin.left + "," + 0 + ")")
-                .call(yAxis);
-        //.append("text") // and text1
-        //.attr("y", -0)
-        ////.attr("dy", ".71em")
-        //.attr("x", -0)
-        //.attr("transform", "rotate(-90)")
-        //.style("text-anchor", "end")
-        //.style("font-size", "16px")
-        //.text("Quality");
+                .call(yAxis)
+                .append("text")
+                .attr("y", -35)
+                .attr("x", -this.pictureHight / 2)
+                .attr("transform", "rotate(-90)")
+                .style("text-anchor", "end")
+                .style("font-size", "16px")
+                .text(this.yAxisName);
+
+        this.chart.selectAll('.axis line, .axis path')
+                .style({'stroke': '#000', 'fill': 'none', 'stroke-width': '1px', 'shape-rendering': 'crispEdges'});
 
         //	// add a title
-        ////	svg.append("text")
+        ////	_this.chart.append("text")
         ////        .attr("x", (width / 2))
         ////        .attr("y", 0 + (margin.top / 2))
         ////        .attr("text-anchor", "middle")
