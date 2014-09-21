@@ -56,6 +56,7 @@ Ext.define("EMS.ux.d3", {
         this.callParent(arguments);
         this.initMask();
         Ext.apply(this, this.initialConfig);
+        this.title="";
         this.store && (this.bindStore(this.store, true));
     },
 

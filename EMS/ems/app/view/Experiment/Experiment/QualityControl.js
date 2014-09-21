@@ -104,7 +104,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                     store: 'Fence',
                     xAxisName: 'Nucleotide position',
                     yAxisName: 'Quality score',
-                },
+                }
             ]
         }
     ]

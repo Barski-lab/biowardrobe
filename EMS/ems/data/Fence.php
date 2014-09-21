@@ -23,11 +23,16 @@
 
 require_once("../settings.php");
 
+if (isset($_REQUEST['recordid'])) {
+    $recordid = $_REQUEST['recordid'];
+    check_val($recordid);
+} else {
+    die();
+}
 
-$recordid = $_REQUEST['recordid'];
-check_val($recordid);
-
-$pair = $_REQUEST['pair'];
+$pair=false;
+if (isset($_REQUEST['pair']))
+    $pair = $_REQUEST['pair'];
 
 $path = $settings->settings['wardrobe']['value'] . $settings->settings['preliminary']['value'];
 $file = "";

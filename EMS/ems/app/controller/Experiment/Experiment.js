@@ -70,8 +70,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
              'experimenteditform combobox[name=genome_id]': {
                  select: this.onGenomeChange
              },
-             'experimenteditform': {
-             }
+             'experimenteditform': {}
          });
         this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
         this.EGroupsStore.load();
@@ -126,8 +125,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var maintabpanel = Ext.ComponentQuery.query('experimentmainwindow > tabpanel')[0];
         Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].setValue(record.data['egroup_id']);
 
-
-        this.isRNA = ((Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue().indexOf('RNA') !== -1);
+        var tmp = (Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue();
+        this.isRNA = (tmp.indexOf('RNA') !== -1);
+        this.isPAIR = (tmp.indexOf('pair') !== -1);
 
         if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa)
             this.readOnlyAll(form);
@@ -217,7 +217,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                  callback: function () {
                      me.getLabDataStore().load();
                      Ext.ComponentQuery.query('experimentmainwindow')[0].close();
-                 }});
+                 }
+             });
         } else {
             Ext.ComponentQuery.query('experimentmainwindow')[0].close();
         }
@@ -305,12 +306,32 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     /***********************************************************************
      ***********************************************************************/
     addQC: function (tab, record) {
-        this.getFenceStore().load({ params: { recordid: record.get('uid') } });
+        this.getFenceStore().load({params: {recordid: record.get('uid')}});
 
-        tab.add({
-                    xtype: 'experimentqualitycontrol',
-                    iconCls: 'chart'
-                });
+        var atab=tab.add({
+                             xtype: 'experimentqualitycontrol',
+                             iconCls: 'chart',
+                         });
+
+        if (this.isPAIR) {
+            var store = Ext.create('EMS.store.Fence', {storeId: Ext.id()});//, autoDestroy: true
+            store.load({params: {recordid: record.get('uid'),pair: true}});
+            var qctabs=atab.down('#experimentqcwindowtabpanel');
+
+            qctabs.add({
+                           title: 'Base frequency plot Pair',
+                           xtype: 'chartfence',
+                           store: store
+                       });
+            qctabs.add({
+                           xtype: 'qcboxplot',
+                           title: 'QC Pair',
+                           store: store,
+                           xAxisName: 'Nucleotide position',
+                           yAxisName: 'Quality score',
+                       });
+        }
+
         var panelD = Ext.ComponentQuery.query('experimentqualitycontrol panel#experiment-description')[0];
         panelD.on('afterrender', function () {
             var basename = EMS.util.Util.Settings('preliminary') + '/' + this.UID;
@@ -320,7 +341,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
             var store = Ext.create('Ext.data.ArrayStore', {
                 autoDestroy: true,
                 fields: [
-                    {name: 'name', },
+                    {name: 'name',},
                     {name: 'percent', type: 'float'}
                 ],
                 data: [
@@ -416,7 +437,12 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                                   mx *= 10;
                               prc += 2;
                               // = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              me.ATDPChart = Ext.create("EMS.view.Experiment.Experiment.ATPChart", {LEN: len, MAX: max, PRC: prc, BNAME: bn});
+                              me.ATDPChart = Ext.create("EMS.view.Experiment.Experiment.ATPChart", {
+                                  LEN: len,
+                                  MAX: max,
+                                  PRC: prc,
+                                  BNAME: bn
+                              });
                               tab.add(me.ATDPChart);
                           }
                       }
@@ -431,20 +457,20 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         store.getProxy().setExtraParam('tablename', this.UID + '_atdph');
         me.ATDPHeat = Ext.create("EMS.view.Experiment.Experiment.ATPHeat", {store: store, plotTitle: bn});
         var tabadded = tab.add(me.ATDPHeat);
-        var icon=me.ATDPHeat.iconCls;
+        var icon = me.ATDPHeat.iconCls;
         tabadded.setDisabled(true);
         tabadded.setIconCls('loading');
         store.load({
-                      callback:  function (records, operation, success) {
-                         if (success) {
-                             tabadded.setDisabled(false);
-                             tabadded.setIconCls(icon);
-                         } else {
-                             tabadded.setIconCls(icon);
-                             tab.remove(tabadded);
-                         }
-                     }
-                 });
+                       callback: function (records, operation, success) {
+                           if (success) {
+                               tabadded.setDisabled(false);
+                               tabadded.setIconCls(icon);
+                           } else {
+                               tabadded.setIconCls(icon);
+                               tab.remove(tabadded);
+                           }
+                       }
+                   });
     },
     /***********************************************************************
      ***********************************************************************/
@@ -495,7 +521,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                                   height: 30,
                                   x: 180, //the sprite x position
                                   y: 23  //the sprite y position
-                              } ,
+                              },
                               {
                                   type: 'text',
                                   text: 'R = ' + records[0].data.R.toFixed(3),
@@ -523,7 +549,6 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                       }
                   });
     }
-
 
 
 });//Ext.define

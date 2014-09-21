@@ -42,14 +42,14 @@ Ext.define("EMS.ux.d3boxplot", {
     max: 0,
     min: 0,
 
-    duration: 2000,
+    duration: 1000,
     showLabels: false,
 
-    popupstyle: {'background': '#D7E1F1', 'opacity': 0.9,'border': '1px solid', 'border-radius': '25px', 'padding': 6},
+    popupstyle: {'background': '#D7E1F1', 'opacity': 0.9,'border': '1px solid', 'border-radius': '25px', 'padding': 9},
 
     constructor: function (config) {
         this.callParent(arguments);
-        Ext.apply(this, config);
+        //Ext.apply(this, config);
         var me = this;
 
         d3.box = function () {

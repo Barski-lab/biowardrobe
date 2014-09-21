@@ -27,7 +27,7 @@ Ext.define('EMS.store.Fence', {
     storeId: 'Fence',
     model: 'EMS.model.Fence',
     autoLoad: false,
-    singleton: true,
+    singleton: false,
     proxy: {
         type: 'standardproxy',
         api: {
