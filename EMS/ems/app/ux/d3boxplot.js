@@ -92,6 +92,10 @@ Ext.define("EMS.ux.d3boxplot", {
                     //vertical line
                     center.enter().insert("line", "rect")
                             .attr("class", "center")
+                            .style("fill", "steelblue")
+                            .style("stroke", "#000")
+                            .style("stroke-width", "1px")
+                            .style("stroke-dasharray", "3,3")
                             .attr("x1", width / 2)
                             .attr("y1", function (d) {
                                       return x0(d.lW);
@@ -138,6 +142,9 @@ Ext.define("EMS.ux.d3boxplot", {
 
                     box.enter().append("rect")
                             .attr("class", "d3box")
+                            .style("fill", "steelblue")
+                            .style("stroke", "#000")
+                            .style("stroke-width", "1px")
                             .attr("x", 0)
                             .attr("y", function (d) {
                                       return x0(d.Q3);
@@ -170,6 +177,9 @@ Ext.define("EMS.ux.d3boxplot", {
 
                     medianLine.enter().append("line")
                             .attr("class", "median")
+                            .style("fill", "steelblue")
+                            .style("stroke", "#000")
+                            .style("stroke-width", "1px")
                             .attr("x1", 0)
                             .attr("y1", x0)
                             .attr("x2", width)
@@ -190,6 +200,9 @@ Ext.define("EMS.ux.d3boxplot", {
 
                     whisker.enter().insert("line", "circle, text")
                             .attr("class", "whisker")
+                            .style("fill", "steelblue")
+                            .style("stroke", "#000")
+                            .style("stroke-width", "1px")
                             .attr("x1", 0)
                             .attr("y1", x0)
                             .attr("x2", 0 + width)
@@ -371,7 +384,8 @@ Ext.define("EMS.ux.d3boxplot", {
         console.log(this);
 
         this.chart
-                .attr('class', 'd3box');
+                .attr('class', 'd3box')
+                .style('font', '10px Helvetica Neue');
         //.append("g")
         //        .attr("transform", "translate(" + this.plotmargin.left + "," + this.plotmargin.top + ")");
 
@@ -380,23 +394,23 @@ Ext.define("EMS.ux.d3boxplot", {
                 .height(this.pictureHight)
                 .showLabels(this.showLabels);
 
-        var x = d3.scale.ordinal()
-                .domain(this.store.data.items.map(function (d) {
-                            return d.data.id
-                        }))
-                .rangeRoundBands([this.plotmargin.left, this.pictureWidth + this.plotmargin.left], 0.6, 0.1);
-
 
         var min = Infinity, max = -Infinity;
         this.store.data.items.forEach(function (d) {
             if (d.data.min < min) min = d.data.min;
             if (d.data.max > max) max = d.data.max;
         });
+
+        var x = d3.scale.ordinal()
+                .domain(this.store.data.items.map(function (d) {
+                            return d.data.id
+                        }))
+                .rangeRoundBands([this.plotmargin.left, this.pictureWidth + this.plotmargin.left], 0.6, 0.1);
+
         var xAxis = d3.svg.axis()
                 .scale(x)
                 .orient("bottom");
 
-        // the y-axis
         var y = d3.scale.linear()
                 .domain([min, max])
                 .range([this.pictureHight + this.plotmargin.top, this.plotmargin.top]);
@@ -404,8 +418,10 @@ Ext.define("EMS.ux.d3boxplot", {
         var yAxis = d3.svg.axis()
                 .scale(y)
                 .orient("left");
+
         var svg = _this.chart;
         // draw the boxplots
+        svg.selectAll("*").remove();
         svg.selectAll(".d3box")
                 .data(this.store.data.items)
                 .enter().append("g")
@@ -415,6 +431,10 @@ Ext.define("EMS.ux.d3boxplot", {
                 .call(chart.width(x.rangeBand()));
         svg.append("g")
                 .attr("class", "x axis")
+                .style("fill", "none")
+                .style("stroke", "#000")
+                .style("shape-rendering", "crispEdges")
+                .style("font", "10px Helvetica Neue")
                 .attr("transform", "translate(0," + (this.pictureHight + this.plotmargin.top + 5) + ")")
                 .call(xAxis)
                 .append("text")             // text label for the x axis
@@ -428,16 +448,21 @@ Ext.define("EMS.ux.d3boxplot", {
         // draw y axis
         svg.append("g")
                 .attr("class", "y axis")
-                .attr("transform", "translate("+this.plotmargin.left+"," + 0 + ")")
+                .style("fill", "none")
+                .style("stroke", "#000")
+                .style("shape-rendering", "crispEdges")
+                .style("font", "10px Helvetica Neue")
+                .style("font-weight","none")
+                .attr("transform", "translate(" + this.plotmargin.left + "," + 0 + ")")
                 .call(yAxis);
-                //.append("text") // and text1
-                //.attr("y", -0)
-                ////.attr("dy", ".71em")
-                //.attr("x", -0)
-                //.attr("transform", "rotate(-90)")
-                //.style("text-anchor", "end")
-                //.style("font-size", "16px")
-                //.text("Quality");
+        //.append("text") // and text1
+        //.attr("y", -0)
+        ////.attr("dy", ".71em")
+        //.attr("x", -0)
+        //.attr("transform", "rotate(-90)")
+        //.style("text-anchor", "end")
+        //.style("font-size", "16px")
+        //.text("Quality");
 
         //	// add a title
         ////	svg.append("text")
