@@ -26,20 +26,37 @@ require_once("../settings.php");
 
 $recordid = $_REQUEST['recordid'];
 check_val($recordid);
-$path=$settings->settings['wardrobe']['value'].$settings->settings['preliminary']['value'];
-$file=$path.'/'.$recordid.'/'.$recordid.'.fastxstat';
 
-if(file_exists($file))
+$pair = $_REQUEST['pair'];
+
+$path = $settings->settings['wardrobe']['value'] . $settings->settings['preliminary']['value'];
+$file = "";
+if ($pair) {
+    $file = $path . '/' . $recordid . '/' . $recordid . '_2.fastxstat';
+} else {
+    $file = $path . '/' . $recordid . '/' . $recordid . '.fastxstat';
+}
+if (file_exists($file))
     $handle = fopen($file, "r");
 else
     $handle = fopen("./fence.dat", "r");
 
 $head = fgetcsv($handle, 2000, "\t");
 
-$data=array();
+//$data=array();
+$data = array();
 while (($line = fgetcsv($handle, 2000, "\t")) !== FALSE) {
-    $data[]=array(
+    $data[] = array(
         'id' => $line[0],
+        'min' => $line[2],
+        'max' => $line[3],
+        'mean' => $line[5],
+        'Q1' => $line[6],
+        'med' => $line[7],
+        'Q3' => $line[8],
+        'IQR' => $line[9],
+        'lW' => $line[10],
+        'rW' => $line[11],
         'A' => $line[12],
         'C' => $line[13],
         'G' => $line[14],
@@ -47,27 +64,6 @@ while (($line = fgetcsv($handle, 2000, "\t")) !== FALSE) {
         'N' => $line[16]
     );
 }
-
-//if ($handle) {
-//    $line = fgets($handle); #header
-//    $A = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #A
-//    $C = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #C
-//    $T = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #T
-//    $G = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #G
-//    $N = explode(" ", preg_replace('/\s+/', ' ', fgets($handle))); #N
-//}
-//
-//$data=array();
-//for($i =2;$i<count($A)-1;$i++) {
-//    $data[]=array(
-//        'id' => $i-2,
-//        'A' => $A[$i],
-//        'C' => $C[$i],
-//        'T' => $T[$i],
-//        'G' => $G[$i],
-//        'N' => $N[$i]
-//    );
-//}
 
 $response->success = true;
 $response->message = "Data loaded";

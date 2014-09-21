@@ -27,7 +27,8 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
     alias: 'widget.experimentqualitycontrol',
 
     requires: [
-        'EMS.view.charts.Fence'
+        'EMS.view.charts.Fence',
+        'EMS.view.charts.QCboxplot'
     ],
     bodyPadding: 5,
     border: false,
@@ -86,17 +87,22 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             )
         } ,
         {
-            xtype: 'panel',
+            xtype: 'tabpanel',
+            itemId: 'experimentqcwindowtabpanel',
             frame: false,
             border: true,
             region: 'center',
             collapsible: false,
-            title: 'Base frequency plot',
             layout: 'fit',
             items: [
                 {
+                    title: 'Base frequency plot',
                     xtype: 'chartfence'
-               }
+               },
+                {
+                    xtype: 'qcboxplot',
+                    store: 'Fence'
+                },
             ]
         }
     ]

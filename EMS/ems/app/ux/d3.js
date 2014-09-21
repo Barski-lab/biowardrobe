@@ -54,9 +54,8 @@ Ext.define("EMS.ux.d3", {
     },
 
     initComponent: function () {
-        this.store && (this.bindStore(this.store, true));
-        this.initMask();
         this.callParent(arguments);
+        this.initMask();
     },
 
     afterRender: function () {
@@ -97,6 +96,7 @@ Ext.define("EMS.ux.d3", {
 
     init: function () {
         var _this = this;
+        this.store && (this.bindStore(this.store, true));
 
         this.showMask();
 
@@ -148,6 +148,7 @@ Ext.define("EMS.ux.d3", {
         }
         return svgstr;
     },
+
     saveLocal: function () {
         var html = this.save();
         var p = Ext.create('Ext.form.Panel', {
@@ -186,6 +187,7 @@ Ext.define("EMS.ux.d3", {
                 .style('top', 0)
                 .style('left', 0);
 
+
         this.expLab = d3.select(this.panelId)
                 .append('div')
                 .style('height', 'auto')
@@ -217,7 +219,6 @@ Ext.define("EMS.ux.d3", {
                 //                this.store.un("clear", this.onClear, this);
             }
         }
-
         if (store) {
             store = Ext.data.StoreManager.lookup(store);
             store.on({

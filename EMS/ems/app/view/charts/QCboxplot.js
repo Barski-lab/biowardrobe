@@ -20,23 +20,26 @@
  **
  ****************************************************************************/
 
-Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
+
+Ext.define('EMS.view.charts.QCboxplot', {
     extend: 'Ext.Panel',
+    alias: 'widget.qcboxplot',
     requires: [
         'EMS.ux.d3',
-        'EMS.ux.d3heat'
+        'EMS.ux.d3boxplot'
     ],
     bodyPadding: 0,
     border: false,
     frame: false,
     layout: 'fit',
     plain: true,
-    title: 'Tag Density Heatmap',
-    iconCls: 'chart-line',
+    title: 'QC',
+    //iconCls: 'chart-line',
+    //store: 'Fence',
 
     initComponent: function () {
         var me = this;
-        this.chart = Ext.create('EMS.ux.d3heatChIP', me.initialConfig);
+        this.chart = Ext.create('EMS.ux.d3boxplot', me.initialConfig);
         this.tbar = [
             {
                 xtype: 'fieldcontainer',
@@ -76,5 +79,3 @@ Ext.define('EMS.view.Experiment.Experiment.ATPHeat', {
         this.callParent(arguments);
     }
 });
-
-
