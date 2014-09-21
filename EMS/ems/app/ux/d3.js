@@ -51,11 +51,13 @@ Ext.define("EMS.ux.d3", {
     constructor: function (config) {
         this.callParent(arguments);
         Ext.apply(this, config);
+        this.store && (this.bindStore(this.store, true));
     },
 
     initComponent: function () {
         this.callParent(arguments);
         this.initMask();
+        this.store && (this.bindStore(this.store, true));
     },
 
     afterRender: function () {
@@ -96,7 +98,6 @@ Ext.define("EMS.ux.d3", {
 
     init: function () {
         var _this = this;
-        this.store && (this.bindStore(this.store, true));
 
         this.showMask();
 
@@ -211,12 +212,12 @@ Ext.define("EMS.ux.d3", {
             if (store !== this.store && this.store.autoDestroy) {
                 this.store.destroy();
             } else {
-                //                this.store.un("datachanged", this.onDataChange, this);
-                this.store.un("load", this.onLoad, this);
-                //                this.store.un("add", this.onAdd, this);
-                this.store.un("remove", this.onRemove, this);
-                this.store.un("update", this.onUpdate, this);
-                //                this.store.un("clear", this.onClear, this);
+                ////                this.store.un("datachanged", this.onDataChange, this);
+                //this.store.un("load", this.onLoad, this);
+                ////                this.store.un("add", this.onAdd, this);
+                //this.store.un("remove", this.onRemove, this);
+                //this.store.un("update", this.onUpdate, this);
+                ////                this.store.un("clear", this.onClear, this);
             }
         }
         if (store) {
