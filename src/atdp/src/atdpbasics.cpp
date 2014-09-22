@@ -241,7 +241,7 @@ void ATDPBasics::RegionsProcessing () {
                     exp_i->mapped++;
                 }
 
-                if(b>=0 && b<=avd_whole_region) {
+                if(b>=0 && b<avd_whole_region) {
                     if(exp_i->regions[i]->strand){
                         exp_i->avd_total[b]+=d;
                         exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
@@ -257,21 +257,25 @@ void ATDPBasics::RegionsProcessing () {
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
                 double val=d;
+
                 if(_s <=avd_window) {
                     _idx=(_s)/r_w_b;
                     val/=r_w_b;
                 }
+
                 if(_s > avd_window && _s <= gene_len+avd_window ) {
                     _s -= avd_window;
                     double rat=(double)gene_len/(double)avd_bodysize;
-                    _idx=_s/(int)(rat)+avd_bodysize;
-                    val/=rat;
+                    _idx = _s/rat+avd_bodysize;
+                    val /= rat;
                 }
+
                 if(_s >gene_len+avd_window && _s <= gene_len+avd_window*2 ) {
                     _s -= (gene_len+avd_window);
-                    _idx=(_s)/r_w_b;
-                    val/=r_w_b;
+                    _idx = _s/r_w_b+avd_bodysize*2;
+                    val /= r_w_b;
                 }
+                //qDebug()<<exp_i->plotname<<_idx<<val;
 
                 if(exp_i->regions[i]->strand){
                     exp_i->avd_body[_idx]+=val;

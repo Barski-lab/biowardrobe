@@ -263,7 +263,7 @@ void ATDP::start() {
             data_array.append(data);
         }//foreach trough experiments
         header["data"]=data_array;
-        outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//QJsonDocument::Indented));
+        outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
         outFile.close();
     }
 
