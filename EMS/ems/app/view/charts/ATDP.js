@@ -71,7 +71,7 @@ Ext.define('EMS.view.charts.ATDP',
                    }
 
                    var MAX = me.initialConfig.MAX;
-                   var dec = Math.floor(-Math.log10(Math.abs(MAX) > 1 ? 0.1 : Math.abs(MAX))) + 1;
+                   var dec = Math.floor(-Math.log(Math.abs(MAX) > 1 ? 0.1 : Math.abs(MAX))/Math.LN10) + 1;
                    var power = Math.pow(10, dec);
                    var entire = Math.floor(MAX * power) + 1;
                    MAX = entire / power;
