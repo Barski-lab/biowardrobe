@@ -34,6 +34,7 @@ Ext.define( 'EMS.model.ATDPHeatA', {
                    { name: 'tbl1_name', type: 'string' },
                    { name: 'tbl2_name', type: 'string' },
                    { name: 'rpkmarray', type: 'auto' },
-                   { name: 'rpkmcols', type: 'auto' }
+                   { name: 'rpkmcols', type: 'auto' },
+                   { name: 'genebody', type: 'auto' }
                ]
            });
