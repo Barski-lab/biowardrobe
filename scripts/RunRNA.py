@@ -125,11 +125,11 @@ def run_bzip(infile):
 
 
 def run_ribosomal(infile, db, pair, left=0, right=0, forcerun=False):
-    suffix = ''
-    if 'hg' in db:
-        suffix = 'human'
-    if 'mm' in db:
-        suffix = 'mouse'
+    suffix = db
+    # if 'hg' in db:
+    #     suffix = 'human'
+    # if 'mm' in db:
+    #     suffix = 'mouse'
 
     if not forcerun and len(d.file_exist('.', infile, 'ribo')) == 1:
         return ['Success', 'Ribosomal file exist']
