@@ -278,7 +278,6 @@ void ATDPBasics::RegionsProcessing () {
                 } else {
                     continue;
                 }
-                //qDebug()<<exp_i->plotname<<_idx<<val;
 
                 if(exp_i->regions[i]->strand){
                     exp_i->avd_body[_idx]+=val;

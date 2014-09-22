@@ -224,7 +224,7 @@ void ATDP::start() {
             QVector<double> storage;
             for(int w=0; w < exp_i->avd_body.size(); w++)
                 storage<<(exp_i->avd_body.at(w)/exp_i->mapped)/exp_i->regions.size();
-            storage=Math::smooth<double>(storage,5);
+            storage=Math::smooth<double>(storage,gArgs().getArgs("avd_bsmooth").toInt());
             for(int w=0; w<storage.size(); w++)
                 gene_body.append(storage.at(w));
             /*

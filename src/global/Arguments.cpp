@@ -266,6 +266,7 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_window","avd_window","AVD/WINDOW",QVariant::Int,"Average tag density window",5000);
     Arguments::addArg("avd_heat_window","avd_heat_window","",QVariant::Int,"Average tag density window for heatmap",10);
     Arguments::addArg("avd_smooth","avd_smooth","AVD/SMOOTH",QVariant::Int,"Average smooth window (odd)",0);
+    Arguments::addArg("avd_smooth","avd_bsmooth","AVD/BSMOOTH",QVariant::Int,"Average smooth window for gene body",20);
     Arguments::addArg("avd_rawdata","avd_rawdata","AVD/RAWDATA",QVariant::Bool,"Output of raw data",false);
     Arguments::addArg("avd_wilc_region","avd_wilc_region","AVD/WILCREG",QVariant::String,"Which region dump with raw data -avd_wilc_region=\"-100:-5\"",QString(""));
     Arguments::addArg("avd_luid","avd_luid","",QVariant::String,"Labdata uid",QString(""));
