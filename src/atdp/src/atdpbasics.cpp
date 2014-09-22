@@ -252,7 +252,7 @@ void ATDPBasics::RegionsProcessing () {
                 }
 
                 ///////GENE BODY
-                int _s=b1-exp_i->regions[i]->txStart-avd_window;
+                int _s=b1-(exp_i->regions[i]->txStart-avd_window);
                 if(_s<0) continue;
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
