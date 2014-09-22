@@ -62,40 +62,30 @@ Ext.define('EMS.view.charts.ATDPB',
                    var MAX=-Infinity;
 
                    for(var j=0; j<genebody[0].length;j++) {
-                       var row=[];
-                       row.push(j+1);
+                       var row={};
+                       row['X']=j;
+                       //row.push(j+1);
                        for (var i = 0; i < genebody.length; i++) {
                            if(MAX<genebody[i][j])
                             MAX=genebody[i][j];
                            //row['Y'+i]=genebody[i][j];
                            if(genebody[i][j]) {
-                               row.push(genebody[i][j]);
+                               row['Y'+i]=genebody[i][j];
+                               //row.push(genebody[i][j]);
                            } else {
-                               row.push(0);
+                               row['Y'+i]=0;
+                               //row.push(0);
                            }
                        }
                        data.push(row);
                    }
-                   var store = Ext.create('Ext.data.ArrayStore', {
+                   var store = Ext.create('Ext.data.Store', {
                        fields: ['X'].concat(fields),
                        data: data
                    });
                    this.store=store;
+                   me.initialConfig.store=store;
                    console.log(MAX,store);
-                   //var store = Ext.create('Ext.data.JsonStore', {
-                   //    fields: ,
-                   //    data: data
-                   //    //        [
-                   //    //    { 'name': 'metric one',   'data1': 10, 'data2': 12, 'data3': 14, 'data4': 8,  'data5': 13 },
-                   //    //    { 'name': 'metric two',   'data1': 7,  'data2': 8,  'data3': 16, 'data4': 10, 'data5': 3  },
-                   //    //    { 'name': 'metric three', 'data1': 5,  'data2': 2,  'data3': 14, 'data4': 12, 'data5': 7  },
-                   //    //    { 'name': 'metric four',  'data1': 2,  'data2': 14, 'data3': 6,  'data4': 1,  'data5': 23 },
-                   //    //    { 'name': 'metric five',  'data1': 4,  'data2': 4,  'data3': 36, 'data4': 13, 'data5': 33 }
-                   //    //]
-                   //});
-
-
-                   //}
 
                    Ext.applyIf(me, {
                                    //store: store,
@@ -106,24 +96,24 @@ Ext.define('EMS.view.charts.ATDPB',
                                            minimum: 0,
                                            maximum: MAX,
                                            adjustMaximumByMajorUnit: 1,
-                   //                        decimals: me.initialConfig.PRC,
+                                           decimals: Math.floor(-Math.log(Math.abs(MAX)))+1,//me.initialConfig.PRC,
                                            position: 'left',
                                            fields: fields,
                                            title: 'Gene Body Average Tag Density',
                                            minorTickSteps: 3,
                                            majorTickSteps: 3,
-                                           grid: true
+                                           //grid: true
                                        } , {
                                            type: 'Numeric',
                                            position: 'bottom',
-                   //                        minimum: me.initialConfig.LEN*-1,
-                   //                        maximum: me.initialConfig.LEN,
+                                           minimum: 0,//me.initialConfig.LEN*-1,
+                                           maximum: 3000,//me.initialConfig.LEN,
                    //
                                            fields: ['X'],
                    //                        title: 'distance from TSS (bases)',
                                            grid: true,
-                                           minorTickSteps: 3,
-                                           majorTickSteps: 3
+                                           //minorTickSteps: 3,
+                                           majorTickSteps: 2
                                        }],
                                    series: series
                                });
