@@ -37,7 +37,7 @@ $TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp'][
 $BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
 
 
-$command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd_heat_window=\"400\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_smooth=200";
+$command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd_heat_window=\"400\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_bsmooth=40 -avd_smooth=200 ";
 
 $output=shell_exec("$command 2>{$TMP}/atdpheatERROR.log");
 
