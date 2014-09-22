@@ -695,8 +695,8 @@ Ext.define('EMS.controller.Project2', {
                                           max = records[i].data[prop[j]];
                               }
 
-                              var prc = Math.abs(parseInt(max.toString().split('e')[1])) + 2;
-                              tabs.items.items[0].insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, PRC: prc, BNAME: title, COLS: cols, COLSN: prop}));
+
+                              tabs.items.items[0].insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, BNAME: title, COLS: cols, COLSN: prop}));
                               tabs.items.items[0].setActiveTab(0);
                               tabs.show();
                           }
@@ -716,8 +716,8 @@ Ext.define('EMS.controller.Project2', {
                       callback: function (records, operation, success) {
                           if (success) {
                               tabs.remove(tabadded);
+                              tabs.add(Ext.create("EMS.view.Project2.ATDPBChart", {store: stor}));
                               tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));
-                              tabs.add(Ext.create("EMS.view.Project2.ATDPBChart", {stor: stor}));
                           }
                       }
                   });

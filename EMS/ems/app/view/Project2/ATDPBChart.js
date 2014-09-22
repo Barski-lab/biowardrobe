@@ -58,7 +58,7 @@ Ext.define('EMS.view.Project2.ATDPBChart', {
                                 url: 'data/svg.php',
                                 hidden: true,
                                 items: [
-                                    {xtype: 'hiddenfield', name: 'id', value: me.initialConfig.BNAME},
+                                    {xtype: 'hiddenfield', name: 'id', value: 'GeneBody'},//me.initialConfig.BNAME},
                                     {xtype: 'hiddenfield', name: 'type', value: "image/svg+xml"},
                                     {xtype: 'hiddenfield', name: 'svg', value: me.chart.save({type: 'image/svg+xml'})}
                                 ]

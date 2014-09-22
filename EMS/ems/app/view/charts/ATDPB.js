@@ -31,19 +31,20 @@ Ext.define('EMS.view.charts.ATDPB',
                animate: false,
                border: 0,
                shadow: false,
+               theme: 'Category1',
 
                initComponent: function () {
-
                    var me = this;
+
                    var genebody = [],
                            series = [],
-                           fields =[],
-                           data=[];
+                           fields = [],
+                           data = [];
 
                    me.legend = {position: 'right'};
 
-                   for (var i = 0; i < me.initialConfig.stor.getCount(); i++) {
-                       var stordata = me.initialConfig.stor.getAt(i);
+                   for (var i = 0; i < me.initialConfig.store.getCount(); i++) {
+                       var stordata = me.initialConfig.store.getAt(i);
                        genebody.push(stordata.get('genebody'));
                        fields.push('Y' + i);
                        series.push({
@@ -57,23 +58,22 @@ Ext.define('EMS.view.charts.ATDPB',
                                            'stroke-width': 2
                                        }
                                    });
-                       console.log(stordata);
                    }
-                   var MAX=-Infinity;
 
-                   for(var j=0; j<genebody[0].length;j++) {
-                       var row={};
-                       row['X']=j;
+                   var MAX = -Infinity;
+                   for (var j = 0; j < genebody[0].length; j++) {
+                       var row = {};
+                       row['X'] = j;
                        //row.push(j+1);
                        for (var i = 0; i < genebody.length; i++) {
-                           if(MAX<genebody[i][j])
-                            MAX=genebody[i][j];
+                           if (MAX < genebody[i][j])
+                               MAX = genebody[i][j];
                            //row['Y'+i]=genebody[i][j];
-                           if(genebody[i][j]) {
-                               row['Y'+i]=genebody[i][j];
+                           if (genebody[i][j]) {
+                               row['Y' + i] = genebody[i][j];
                                //row.push(genebody[i][j]);
                            } else {
-                               row['Y'+i]=0;
+                               row['Y' + i] = 0;
                                //row.push(0);
                            }
                        }
@@ -83,41 +83,63 @@ Ext.define('EMS.view.charts.ATDPB',
                        fields: ['X'].concat(fields),
                        data: data
                    });
-                   this.store=store;
-                   me.initialConfig.store=store;
-                   console.log(MAX,store);
+
+                   this.store = store;
+                   me.initialConfig.store = store;
+
+                   console.log(MAX, store);
+
+                   var dec = Math.floor(-Math.log10(Math.abs(MAX) > 1 ? 0.1 : Math.abs(MAX))) + 1;
+                   var power = Math.pow(10, dec);
+                   var entire = Math.floor(MAX * power) + 1;
+                   MAX = entire / power;
 
                    Ext.applyIf(me, {
-                                   //store: store,
-                                   shadow: false,
-                                   theme: 'Category1',
-                                   axes: [{
-                                           type: 'Numeric',
-                                           minimum: 0,
-                                           maximum: MAX,
-                                           adjustMaximumByMajorUnit: 1,
-                                           decimals: Math.floor(-Math.log(Math.abs(MAX)))+1,//me.initialConfig.PRC,
-                                           position: 'left',
-                                           fields: fields,
-                                           title: 'Gene Body Average Tag Density',
-                                           minorTickSteps: 3,
-                                           majorTickSteps: 3,
-                                           //grid: true
-                                       } , {
-                                           type: 'Numeric',
-                                           position: 'bottom',
-                                           minimum: 0,//me.initialConfig.LEN*-1,
-                                           maximum: 3000,//me.initialConfig.LEN,
-                   //
-                                           fields: ['X'],
-                   //                        title: 'distance from TSS (bases)',
-                                           grid: true,
-                                           //minorTickSteps: 3,
-                                           majorTickSteps: 2
-                                       }],
-                                   series: series
-                               });
-                   //
+                       //store: store,
+                       axes: [{
+                                  type: 'Numeric',
+                                  minimum: 0,
+                                  maximum: MAX,
+                                  adjustMaximumByMajorUnit: 1,
+                                  decimals: dec+1,//me.initialConfig.PRC,
+                                  position: 'left',
+                                  fields: fields,
+                                  title: 'Gene Body Average Tag Density',
+                                  minorTickSteps: 3,
+                                  majorTickSteps: 3,
+                                  //grid: true
+                              }, {
+                                  type: 'Numeric',
+                                  position: 'bottom',
+                                  minimum: 0,
+                                  maximum: genebody[0].length,
+                                  fields: ['X'],
+                                  //                        title: 'distance from TSS (bases)',
+                                  grid: true,
+                                  //minorTickSteps: 3,
+                                  majorTickSteps: 2,
+                                  label: {
+                                      renderer: function (value, label, storeItem, item, i, display, animate, index) {
+                                          //label.setAttributes({fill:'#080'});
+                                          //value = "+" + value;
+                                          if (value == 0) {
+                                              return '-5k';
+                                          }
+                                          if (value == 1000) {
+                                              return 'TSS';
+                                          }
+                                          if (value == 2000) {
+                                              return 'TES';
+                                          }
+                                          if (value == 3000) {
+                                              return '+5k';
+                                          }
+                                          return value;
+                                      }
+                                  }
+                              }],
+                       series: series
+                   });
                    me.callParent(arguments);
                }
            });
