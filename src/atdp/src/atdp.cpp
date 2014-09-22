@@ -217,10 +217,19 @@ void ATDP::start() {
             QJsonArray matrix;
             QJsonArray rpkm_matrix;
             QJsonArray rows;
-
+            QJsonArray gene_body;
             /*
-            *  AVD HEAT
-            */
+             * Avd gene body
+             */
+            QVector<double> storage;
+            for(int w=0; w < exp_i->avd_body.size(); w++)
+                storage<<(exp_i->avd_body.at(w)/exp_i->mapped)/exp_i->regions.size();
+            storage=Math::smooth<double>(storage,5);
+            for(int w=0; w<storage.size(); w++)
+                gene_body.append(storage.at(w));
+            /*
+             *  AVD HEAT
+             */
 
             QList<quint64> max;
             for(int j=0; j<exp_i->avd_matrix.size();j++) {
@@ -250,6 +259,7 @@ void ATDP::start() {
             data["array"]=matrix;
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
+            data["genebody"]=gene_body;
             data_array.append(data);
         }//foreach trough experiments
         header["data"]=data_array;
