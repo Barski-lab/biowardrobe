@@ -41,6 +41,7 @@ struct EXPERIMENT_INFO {
         QSet<int> i_tids;//Reads from this chromosome (ids) should be ignored
 
         QVector<double> avd_total;
+        QVector<double> avd_body;
         QVector<QPair<QSharedPointer<REGION>,QVector<quint16> > > avd_matrix;
         QVector<QPair<QSharedPointer<REGION>,QJsonArray > > rpkm_matrix;
 
@@ -53,6 +54,7 @@ class ATDPBasics
         int avd_window;
         int avd_whole_region;
         int avd_heat_window;
+        int avd_bodysize;
         QString twicechr;
         QString ignorechr;
 

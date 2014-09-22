@@ -6,9 +6,9 @@ ATDPBasics::ATDPBasics(EXPERIMENT_INFO* e)
     avd_window=gArgs().getArgs("avd_window").toInt();
     avd_whole_region=avd_window*2+1;
     avd_heat_window=gArgs().getArgs("avd_heat_window").toInt();
-    twicechr=gArgs().getArgs("sam_twicechr").toString();
-    ignorechr=gArgs().getArgs("sam_ignorechr").toString();
-
+    twicechr=gArgs().getArgs("sam_twicechr").toString().toLower();
+    ignorechr=gArgs().getArgs("sam_ignorechr").toString().toLower();
+    avd_bodysize=1000;
 
     /* Open bam files preparing EXPERIMENT_INFO class
      */
@@ -25,11 +25,11 @@ ATDPBasics::ATDPBasics(EXPERIMENT_INFO* e)
     /* Organazing chrom ids
      */
     for(int RefID=0;RefID < (int)exp_i->references.size();RefID++) {
-        if(ignorechr.contains(exp_i->references[RefID].RefName.c_str())) {
+        if(ignorechr.contains(QString(exp_i->references[RefID].RefName.c_str()).toLower())) {
             exp_i->i_tids<<RefID;
             continue;
         }
-        if(twicechr.contains(exp_i->references[RefID].RefName.c_str())) {
+        if(twicechr.contains(QString(exp_i->references[RefID].RefName.c_str()).toLower())) {
             exp_i->tids<<RefID;
         }
         exp_i->ref_map.insert(
@@ -104,34 +104,38 @@ void ATDPBasics::getRegions() {
         QSharedPointer<REGION> region(new REGION());
 
         if(strand=='+'){
-            qint64 start=txStart-avd_window-exp_i->fragmentsize/2;
+            qint64 start=txStart-avd_window;//-exp_i->fragmentsize/2;
             if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
                 if(!exp_i->regions.last()->gene_id.contains(gene_id))
                     exp_i->regions.last()->gene_id.append(","+gene_id);
                 if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
                     exp_i->regions.last()->refseq_id.append(","+refseq_id);
+                if(exp_i->regions.last()->txEnd<txEnd)
+                    exp_i->regions.last()->txEnd=txEnd;
                 region.clear();
                 continue;
             }
             region->txStart=txStart;
             region->txEnd=txEnd;
             region->start=start;
-            region->end=txStart+avd_window+exp_i->fragmentsize/2;
+            region->end=txStart+avd_window;//+exp_i->fragmentsize/2;
             region->strand=true;
         } else {
-            qint64 start=txEnd-avd_window-exp_i->fragmentsize/2;
+            qint64 start=txEnd-avd_window;//-exp_i->fragmentsize/2;
             if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
                 if(!exp_i->regions.last()->gene_id.contains(gene_id))
                     exp_i->regions.last()->gene_id.append(","+gene_id);
                 if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
                     exp_i->regions.last()->refseq_id.append(","+refseq_id);
+                if(exp_i->regions.last()->txStart>txStart)
+                    exp_i->regions.last()->txStart=txStart;
                 region.clear();
                 continue;
             }
             region->txStart=txStart;
             region->txEnd=txEnd;
             region->start=start;
-            region->end=txEnd+avd_window+exp_i->fragmentsize/2;
+            region->end=txEnd+avd_window;//+exp_i->fragmentsize/2;
             region->strand=false;
         }
         region->gene_id=gene_id;
@@ -158,22 +162,25 @@ void ATDPBasics::RegionsProcessing () {
     /*
      *  Work with all regions
      */
+    double r_w_b=(double)avd_window/(double)avd_bodysize;
+
     for(int i=0;i<exp_i->regions.size();i++) {
         if(!exp_i->reader.SetRegion(
                exp_i->ref_map[exp_i->regions[i]->chrom].first,
-               exp_i->regions[i]->start,
+               exp_i->regions[i]->txStart-avd_window,
                exp_i->ref_map[exp_i->regions[i]->chrom].first,
-               exp_i->regions[i]->end
+               exp_i->regions[i]->txEnd+avd_window
                )){
             qDebug()<<"Cant set region:"
                    <<exp_i->regions[i]->chrom
                   <<exp_i->regions[i]->start
                  <<exp_i->regions[i]->end;
-            throw "Cant set region.";
+            continue;
+            //throw "Cant set region.";
         } else {
             BamAlignment al;
             int shift=exp_i->fragmentsize/2;
-            qint64 left=exp_i->regions[i]->start+shift;
+            qint64 left=exp_i->regions[i]->start;//+shift;
 
             while ( exp_i->reader.GetNextAlignmentCore(al) ) {
 
@@ -212,30 +219,66 @@ void ATDPBasics::RegionsProcessing () {
                 }
 
                 int b;
+                int b1;
                 if(al.IsPaired()) {
                     b=position_b-left+length/2;
+                    b1=position_b+length/2;
                 } else {
                     if(al.IsReverseStrand()) {// - strand
                         b=position_e-shift-left;
+                        b1=position_e-shift;
                     } else {
                         b=position_b+shift-left;
+                        b1=position_b+shift;
                     }
                 }
-                if(b<0) continue;
-                if(b>=avd_whole_region) break;
+                //if(b<0) continue;
+                //if(b>=avd_whole_region) break;
 
                 quint16 d=1;
                 if(exp_i->tids.contains(al.RefID)) {
                     d=2;
                     exp_i->mapped++;
                 }
-                if(exp_i->regions[i]->strand){
-                    exp_i->avd_total[b]+=d;
-                    exp_i->avd_matrix[i].second[b/avd_heat_window]+=1;
-                } else {
-                    exp_i->avd_total[avd_whole_region-b-1]+=d;
-                    exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=1;
+
+                if(b>=0 && b<=avd_whole_region) {
+                    if(exp_i->regions[i]->strand){
+                        exp_i->avd_total[b]+=d;
+                        exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
+                    } else {
+                        exp_i->avd_total[avd_whole_region-b-1]+=d;
+                        exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=d;
+                    }
                 }
+
+                ///////GENE BODY
+                int _s=b1-exp_i->regions[i]->txStart;
+                if(_s<0) continue;
+                int _idx=0;
+                int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
+                double val=d;
+                if(_s <=avd_window) {
+                    _idx=(_s)/r_w_b;
+                    val/=r_w_b;
+                }
+                if(_s > avd_window && _s <= gene_len+avd_window ) {
+                    _s -= avd_window;
+                    double rat=(double)gene_len/(double)avd_bodysize;
+                    _idx=_s/(int)(rat)+avd_bodysize;
+                    val/=rat;
+                }
+                if(_s >gene_len+avd_window && _s <= gene_len+avd_window*2 ) {
+                    _s -= (gene_len+avd_window);
+                    _idx=(_s)/r_w_b;
+                    val/=r_w_b;
+                }
+
+                if(exp_i->regions[i]->strand){
+                    exp_i->avd_body[_idx]+=val;
+                } else {
+                    exp_i->avd_body[avd_bodysize*3-_idx-1]+=val;
+                }
+
             }//trough bam reads while
 
         }

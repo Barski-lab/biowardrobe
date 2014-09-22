@@ -46,6 +46,7 @@ class ATDP: public QObject
         int avd_window;
         int avd_whole_region;
         int avd_heat_window;
+        int avd_bodysize;
         QString twicechr;
         QString ignorechr;
 

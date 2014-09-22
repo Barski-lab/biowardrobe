@@ -52,7 +52,7 @@ ATDP::ATDP(QObject* parent):
     avd_heat_window=gArgs().getArgs("avd_heat_window").toInt();
     twicechr=gArgs().getArgs("sam_twicechr").toString();
     ignorechr=gArgs().getArgs("sam_ignorechr").toString();
-
+    avd_bodysize=1000;
 }
 
 void ATDP::start() {
@@ -132,9 +132,11 @@ void ATDP::start() {
             qDebug()<<"Query error batch up: "<<q.lastError().text();
         }
 
+
         /*
          * Second part heatmap prepared data
          */
+        /*
         CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_atdph`;"
                              "CREATE TABLE `%3`.`%4_atdph` ( "
                              "`refseq_id` VARCHAR(500) NULL,"
@@ -180,6 +182,7 @@ void ATDP::start() {
                 throw "Error query to DB";
             }
         }
+        */
 
     } else { // Advanced Analyses
 
@@ -277,9 +280,14 @@ void ATDP::getRecordInfo() {
     ei->filepath=q.value(4).toString()+"/"+q.value(4).toString()+".bam";
     ei->avd_total.resize(avd_whole_region);
     ei->avd_total.fill(0,avd_whole_region);
+    ei->avd_body.resize(avd_bodysize*3);
+    ei->avd_body.fill(0,avd_bodysize*3);
     experiment_info.insert(gArgs().getArgs("avd_luid").toString(),*ei);
 }
 
+/*
+ * designed for atdp advanced analysis takes list pairs <tbl1_id, tbl2_id> (<chip,rna>)
+ */
 void ATDP::getRecordsInfo() {
     QSqlQuery q;
 
@@ -300,6 +308,8 @@ void ATDP::getRecordsInfo() {
         ei->filepath=q.value(6).toString()+"/"+q.value(6).toString()+".bam";
         ei->avd_total.resize(avd_whole_region);
         ei->avd_total.fill(0,avd_whole_region);
+        ei->avd_body.resize(avd_bodysize*3);
+        ei->avd_body.fill(0,avd_bodysize*3);
         ei->plotname=q.value(0).toString();
         ei->tbl1_id=q.value(1).toString();
         ei->tbl2_id=q.value(2).toString();

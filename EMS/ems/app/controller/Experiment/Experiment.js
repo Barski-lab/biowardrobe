@@ -159,7 +159,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
             this.addIslandsList(maintabpanel);
             this.addATDPChart(maintabpanel, record.data.name4browser + " " + anti);
-            this.addATDPChartH(maintabpanel, record.data.name4browser + " " + anti);
+            //this.addATDPChartH(maintabpanel, record.data.name4browser + " " + anti);
         }//>11 and not RNA
 
         if (sts > 11 && this.isRNA) {
