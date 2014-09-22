@@ -256,24 +256,27 @@ void ATDPBasics::RegionsProcessing () {
                 if(_s<0) continue;
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
+                if(gene_len<avd_bodysize) continue;
                 double val=d;
 
-                if(_s <=avd_window) {
-                    _idx=(_s)/r_w_b;
+                if(_s >= 0 && _s < avd_window) {
+                    _idx=_s/r_w_b;
                     val/=r_w_b;
-                }
+                } else
 
-                if(_s > avd_window && _s <= gene_len+avd_window ) {
+                if(_s >= avd_window && _s < gene_len+avd_window ) {
                     _s -= avd_window;
                     double rat=(double)gene_len/(double)avd_bodysize;
                     _idx = _s/rat+avd_bodysize;
                     val /= rat;
-                }
+                } else
 
-                if(_s >gene_len+avd_window && _s <= gene_len+avd_window*2 ) {
+                if(_s >=gene_len+avd_window && _s < gene_len+avd_window*2 ) {
                     _s -= (gene_len+avd_window);
                     _idx = _s/r_w_b+avd_bodysize*2;
                     val /= r_w_b;
+                } else {
+                    continue;
                 }
                 //qDebug()<<exp_i->plotname<<_idx<<val;
 
