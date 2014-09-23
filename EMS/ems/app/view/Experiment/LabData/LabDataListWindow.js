@@ -158,10 +158,10 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                                 {name: 'percent', type: 'float'}
                             ],
                             data: [
-                                [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
+                                [isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
                                 ['Suppressed', record.data['tagsspercent']],
                                 ['Unmapped', record.data['tagsupercent']],
-                                [this.isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
+                                [isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
                             ]
                         });
 
