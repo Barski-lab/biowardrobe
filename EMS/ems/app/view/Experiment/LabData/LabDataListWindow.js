@@ -129,7 +129,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     xtype: 'componentcolumn',
                     text: 'Mapping statistics',
                     width: 70,
-                    dataIndex: 'tagspercent',
+                    dataIndex: 'tagstotal',
                     align: 'center',
                     items: function (value, record, rowIndex) {
                         if (value == 0) return {};
