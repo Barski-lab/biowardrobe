@@ -137,18 +137,34 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                         var etype = Ext.getStore('ExperimentType').findRecord('id', record.data['experimenttype_id'], 0, false, false, true).data.etype;
                         var isRNA = (etype.indexOf('RNA') !== -1);
 
+                        //var colors = ['rgb(47, 162, 223)',//BLUE
+                        //              'rgb(60, 133, 46)',//green
+                        //              'rgb(234, 102, 17)',//orange
+                        //              'rgb(154, 176, 213)',//light blue
+                        //              'rgb(186, 10, 25)',//red
+                        //              'rgb(40, 40, 40)'];//black
+                        //
+                        //Ext.chart.theme.Statistics = Ext.extend(Ext.chart.theme.Base, {
+                        //    constructor: function(config) {
+                        //        Ext.chart.theme.Base.prototype.constructor.call(this, Ext.apply({
+                        //                                                                            colors: colors
+                        //                                                                        }, config));
+                        //    }
+                        //});
                         var store = Ext.create('Ext.data.ArrayStore', {
                             autoDestroy: true,
                             fields: [
-                                {name: 'name', },
+                                {name: 'name',},
                                 {name: 'percent', type: 'float'}
                             ],
                             data: [
-                                ['Mapped', record.data['tagspercent']],
-                                [isRNA ? 'Ribosomal' : 'Suppresed', record.data['tagsribopercent']],
-                                ['Mismatch', (100.0 - record.data['tagspercent'] - record.data['tagsribopercent']).toFixed(1)]
+                                [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
+                                [this.isRNA ? 'Genome' : 'rmdup', record.data['tagsexpercent']],
+                                ['Unmapped', record.data['tagsupercent']],
+                                ['Suppressed', record.data['tagsspercent']],
                             ]
                         });
+
                         return {
                             xtype: 'chart',
                             animate: false,

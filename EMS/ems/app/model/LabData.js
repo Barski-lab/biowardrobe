@@ -82,9 +82,54 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'laboratory_id', type: 'string' },
                    { name: 'egroup_id', type: 'string' },
 
-                   { name: 'tagspercent', mapping: null, type: 'double', persist: false,
+                   { name: 'tagsunmapped', mapping: null, type: 'int', persist: false,
                        convert: function(value, record) {
-                           var mapped = record.get('tagsmapped');
+                           return (record.get('tagstotal')-record.get('tagsmapped')-record.get('tagssuppressed'));
+                       }
+                   },
+                   { name: 'tagsex', mapping: null, type: 'int', persist: false,
+                       convert: function(value, record) {
+                           return (record.get('tagsmapped')-record.get('tagsused'));
+                       }
+                   },
+
+
+                   { name: 'tagsupercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagsunmapped');
+                           var total = record.get('tagstotal');
+                           if( total !== 0){
+                               return ((mapped/total)*100.0).toFixed(2);
+                           } else {
+                               return 0;
+                           }
+                       }
+                   },
+                   { name: 'tagsspercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagssuppressed');
+                           var total = record.get('tagstotal');
+                           if( total !== 0){
+                               return ((mapped/total)*100.0).toFixed(2);
+                           } else {
+                               return 0;
+                           }
+                       }
+                   },
+                   { name: 'tagsuniqpercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagsused');
+                           var total = record.get('tagstotal');
+                           if( total !== 0){
+                               return ((mapped/total)*100.0).toFixed(2);
+                           } else {
+                               return 0;
+                           }
+                       }
+                   },
+                   { name: 'tagsexpercent', mapping: null, type: 'double', persist: false,
+                       convert: function(value, record) {
+                           var mapped = record.get('tagsex');
                            var total = record.get('tagstotal');
                            if( total !== 0){
                                return ((mapped/total)*100.0).toFixed(2);

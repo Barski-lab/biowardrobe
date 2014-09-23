@@ -41,7 +41,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             xtype: 'panel',
             frame: false,
             border: true,
-            height: 270,
+            height: 300,
             layout: 'fit',
             region: 'north',
             itemId: 'experiment-description',
@@ -52,23 +52,25 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                             '<tr><td class="experiment-descr-1">Conditions:</td><td colspan=2 class="experiment-descr-2">{conditions}</td></tr>',
                             '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{[this.numformat(values.tagstotal)]}</td>',
                             '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3"><div id="experiment-qc-chart"></div></td></tr>',
-                            '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{[this.numformat(values.tagsmapped)]}</td></tr>',
-                            '<tr><td class="experiment-descr-1">Tags mapped percent:</td><td class="experiment-descr-2">{tagspercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{[this.numformat(values.tagsused)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Tags mapped %:</td><td class="experiment-descr-2">{tagsuniqpercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagssuppressed)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Suppressed reads %:</td><td class="experiment-descr-2">{tagsspercent}</td></tr>',
                             '<tpl if="isRNA">',
-                            '<tr><td class="experiment-descr-1">Ribosomal reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
-                            '<tr><td class="experiment-descr-1">Ribosomal reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">DNA contamination:</td><td class="experiment-descr-2">{[this.numformat(values.tagsex)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">DNA contamination %:</td><td class="experiment-descr-2">{tagsexpercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Ribosomal contamination:</td><td colspan=2 class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Ribosomal contamination %:</td><td colspan=2 class="experiment-descr-2">{tagsribopercent}</td></tr>',
                             '<tpl else>',
-                            '<tr><td class="experiment-descr-1">Suppressed reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagsribo)]}</td></tr>',
-                            '<tr><td class="experiment-descr-1">Suppressed reads percent:</td><td class="experiment-descr-2">{tagsribopercent}</td></tr>',
-                            '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td class="experiment-descr-2">{fragmentsize}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Mapped duplicates:</td><td class="experiment-descr-2">{[this.numformat(values.tagsex)]}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Mapped duplicates %:</td><td class="experiment-descr-2">{tagsexpercent}</td></tr>',
+                            '<tr><td class="experiment-descr-1">Estimated fragment size:</td><td colspan=2 class="experiment-descr-2">{fragmentsize}</td></tr>',
                             '</tpl>',
                             '<tr><td class="experiment-descr-1">File link:</td>',
                             '<td colspan=2 class="experiment-descr-2">{[this.filename(values.basename,values.uid)]}</td></tr>',
                             '</table>', {
                         rowspan: function (values) {
-                            if (values > 0)
-                                return 5;
-                            return 3;
+                            return 7;
                         },
                         filename: function (basename, uid) {
                             return '<a href="' + basename + '/' + uid + '.bam">' + uid + ".bam</a>";

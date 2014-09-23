@@ -31,6 +31,16 @@ Ext.define('EMS.view.charts.ATDP',
                animate: false,
                border: 0,
                shadow: false,
+               mask: 'vertical',
+               listeners: {
+                   select: {
+                       fn: function(me, selection) {
+                           //me.setZoom(selection);
+                           //me.mask.hide();
+                           console.log(me,selection);
+                       }
+                   }
+               },
 
                initComponent: function () {
                    var me = this;

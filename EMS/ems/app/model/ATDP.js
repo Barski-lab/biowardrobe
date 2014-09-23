@@ -27,6 +27,7 @@ Ext.define( 'EMS.model.ATDP', {
                    { name: 'genelist_id', type: 'string' },
                    { name: 'tbl1_id', type: 'string' },
                    { name: 'tbl2_id', type: 'string' },
+                   { name: 'pltname', type: 'string' },
                    { name: 'name', type: 'string' }
                ]
            });

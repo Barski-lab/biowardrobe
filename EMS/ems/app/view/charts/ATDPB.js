@@ -32,7 +32,6 @@ Ext.define('EMS.view.charts.ATDPB',
                border: 0,
                shadow: false,
                theme: 'Category1',
-
                initComponent: function () {
                    var me = this;
 

@@ -345,20 +345,22 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     {name: 'percent', type: 'float'}
                 ],
                 data: [
-                    ['Mapped', record.data['tagspercent']],
-                    [this.isRNA ? 'Ribosomal' : 'Suppresed', record.data['tagsribopercent']],
-                    ['Mismatch', (100.0 - record.data['tagspercent'] - record.data['tagsribopercent']).toFixed(1)]
+                    [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
+                    [this.isRNA ? 'Genome' : 'rmdup', record.data['tagsexpercent']],
+                    ['Unmapped', record.data['tagsupercent']],
+                    ['Suppressed', record.data['tagsspercent']],
                 ]
             });
+            console.log(store);
             this.piechart = Ext.create('Ext.chart.Chart', {
                 animate: false,
                 renderTo: 'experiment-qc-chart',
-                height: 120,
-                width: 120,
+                height: 170,
+                width: 170,
                 padding: 0,
                 margin: 0,
                 store: store,
-                shadow: false,
+                shadow: true,
                 border: false,
                 plain: true,
                 //                            layout: 'fit',
@@ -370,8 +372,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                         field: 'percent',
                         tips: {
                             trackMouse: true,
-                            width: 120,
-                            height: 28,
+                            width: 130,
+                            height: 30,
                             font: '9px Arial',
                             renderer: function (storeItem, item) {
                                 this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');
@@ -381,7 +383,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                             field: 'percent',
                             display: 'rotate',
                             contrast: true,
-                            font: '7px Arial'
+                            font: '10px Arial'
                         }
                     }
                 ]

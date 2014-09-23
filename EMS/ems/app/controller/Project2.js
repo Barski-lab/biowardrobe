@@ -678,7 +678,7 @@ Ext.define('EMS.controller.Project2', {
                           if (success) {
                               var title = [];
                               for (var c = 0; c < storc.getTotalCount(); c++) {
-                                  title.push(storc.getAt(c).raw['pltname']);
+                                  title.push(storc.getAt(c).get('pltname'));
                               }
                               var cols = 0;
                               var prop = [];
