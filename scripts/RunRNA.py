@@ -380,10 +380,14 @@ while True:
                                 (a[0] + ": " + a[1], UID))
         settings.conn.commit()
         continue
-
-    settings.cursor.execute(
-        "update labdata set tagsused=(select sum(TOT_R_0) from `" + EDB + "`.`" + UID + "_isoforms`) where uid = %s",
-        (UID,))
+    if PAIR:
+        settings.cursor.execute(
+            "update labdata set tagsused=(select sum(TOT_R_0)/2 from `" + EDB + "`.`" + UID + "_isoforms`) where uid = %s",
+            (UID,))
+    else:
+        settings.cursor.execute(
+            "update labdata set tagsused=(select sum(TOT_R_0) from `" + EDB + "`.`" + UID + "_isoforms`) where uid = %s",
+            (UID,))
     settings.cursor.execute("update labdata set libstatustxt='Complete',libstatus=12 where uid=%s", (UID,))
     settings.conn.commit()
 

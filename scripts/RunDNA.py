@@ -228,12 +228,13 @@ while True:
         ISLANDS = a[1]
         FRAGMENT = a[0]
 
-    if not MACSER and FRAGMENTE < 80:
+    if MACSER or FRAGMENTE < 80:
         if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN), UID):
-            continue
-        a = d.macs_data(UID)
-        FRAGMENT = FRAGEXP
-        ISLANDS = a[1]
+            MACSER = True
+        else:
+            a = d.macs_data(UID)
+            FRAGMENT = FRAGEXP
+            ISLANDS = a[1]
 
     settings.cursor.execute("update labdata set fragmentsize=%s,fragmentsizeest=%s,islandcount=%s where uid=%s",
                             (FRAGMENT, FRAGMENTE, ISLANDS, UID))
