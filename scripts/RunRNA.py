@@ -248,7 +248,7 @@ while True:
         " from labdata l,experimenttype e,genome g "
         " where e.id=experimenttype_id and g.id=genome_id and e.etype like 'RNA%' and libstatus in (10,1010) "
         " and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' and deleted=0 "
-        " and l.id=857 order by dateadd limit 1")
+        " order by dateadd limit 1")
 
     row = settings.cursor.fetchone()
     if not row:
