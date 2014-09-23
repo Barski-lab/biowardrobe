@@ -346,17 +346,17 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                 ],
                 data: [
                     [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
-                    [this.isRNA ? 'Genome' : 'rmdup', record.data['tagsexpercent']],
-                    ['Unmapped', record.data['tagsupercent']],
                     ['Suppressed', record.data['tagsspercent']],
+                    ['Unmapped', record.data['tagsupercent']],
+                    [this.isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
                 ]
             });
             console.log(store);
             this.piechart = Ext.create('Ext.chart.Chart', {
                 animate: false,
                 renderTo: 'experiment-qc-chart',
-                height: 170,
-                width: 170,
+                height: 160,
+                width: 160,
                 padding: 0,
                 margin: 0,
                 store: store,
@@ -383,7 +383,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                             field: 'percent',
                             display: 'rotate',
                             contrast: true,
-                            font: '10px Arial'
+                            font: '12px Arial'
                         }
                     }
                 ]

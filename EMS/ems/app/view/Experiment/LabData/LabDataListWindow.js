@@ -159,9 +159,9 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                             ],
                             data: [
                                 [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
-                                [this.isRNA ? 'Genome' : 'rmdup', record.data['tagsexpercent']],
-                                ['Unmapped', record.data['tagsupercent']],
                                 ['Suppressed', record.data['tagsspercent']],
+                                ['Unmapped', record.data['tagsupercent']],
+                                [this.isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
                             ]
                         });
 
