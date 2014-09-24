@@ -228,7 +228,7 @@ while True:
         ISLANDS = a[1]
         FRAGMENT = a[0]
 
-    if MACSER or FRAGMENTE < 80:
+    if MACSER or (FRAGMENTE < 80 and not FRAGFRC):
         if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN), UID):
             MACSER = True
         else:

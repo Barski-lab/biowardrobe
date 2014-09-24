@@ -250,17 +250,20 @@ abstract class AbstractTableDataProcessing
                 continue;
             }
 
-            $this->SQL_STR .= " $f,";
-            $this->VARIABLES .= "?,";
-
             if ($this->types[$f] == "dd") {
-                $date = DateTime::createFromFormat('m/d/Y', $d);
-                $this->PARAMS[] = $date->format('Y-m-d');
-                $this->PARAMS[0] .= "s";
+                if($d) {
+                    $date = DateTime::createFromFormat('m/d/Y', $d);
+                    $this->PARAMS[] = $date->format('Y-m-d');
+                    $this->PARAMS[0] .= "s";
+                } else {
+                    continue;
+                }
             } else {
                 $this->PARAMS[] = $d;
                 $this->PARAMS[0] .= $this->types[$f];
             }
+            $this->SQL_STR .= " $f,";
+            $this->VARIABLES .= "?,";
         }
 
         $this->SQL_STR = substr_replace($this->SQL_STR, "", -1);

@@ -41,7 +41,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             xtype: 'panel',
             frame: false,
             border: true,
-            height: 300,
+            height: 320,
             layout: 'fit',
             region: 'north',
             itemId: 'experiment-description',

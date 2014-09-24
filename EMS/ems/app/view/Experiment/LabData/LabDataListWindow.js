@@ -185,8 +185,8 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                                     field: 'percent',
                                     tips: {
                                         trackMouse: true,
-                                        width: 120,
-                                        height: 28,
+                                        width: 150,
+                                        height: 30,
                                         font: '9px Arial',
                                         renderer: function (storeItem, item) {
                                             this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');
