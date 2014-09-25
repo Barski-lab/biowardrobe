@@ -87,10 +87,16 @@ while True:
     else:
         cmd = 'bunzip2 ' + UID + '.fastq.bz2'
 
+    unziperror = False
     try:
         s.check_output(cmd, shell=True)
     except Exception, e:
         error_update(str(e), UID)
+        unziperror = True
+
+    if unziperror and not os.path.isfile(UID + '.fastq'):
+        continue
+    if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
         continue
 
     safe_del(basedir + '/' + UID + '.Log.out')
