@@ -201,6 +201,8 @@ Ext.define('EMS.view.user.Users', {
                             items: [
                                 {
                                     fieldLabel: 'Email Address',
+                                    afterLabelTextTpl: EMS.util.Util.required,
+                                    alloBlank: false,
                                     name: 'email',
                                     vtype: 'email',
                                     flex: 1
@@ -225,19 +227,19 @@ Ext.define('EMS.view.user.Users', {
                             items: [
                                 {
                                     name: 'dnalogin',
-                                    fieldLabel: 'Remote login',
+                                    fieldLabel: 'Core login',
                                     flex: 1,
-                                    emptyText: 'Remote login',
+                                    emptyText: 'Core login',
                                     minLength: 3,
                                     vtype: 'alphanum'
                                 },
                                 {
                                     name: 'dnapass',
-                                    fieldLabel: 'Remote password',
+                                    fieldLabel: 'Core password',
                                     minLength: 3,
                                     margins: '0 0 0 6',
                                     flex: 1,
-                                    emptyText: 'Remote password',
+                                    emptyText: 'Core password',
                                     inputType: 'password'
                                 }
                             ]

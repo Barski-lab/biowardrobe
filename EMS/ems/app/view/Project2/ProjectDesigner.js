@@ -177,7 +177,8 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
                                             {
                                                 flex: 1,
                                                 xtype: 'label',
-                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' + 'To add a new project type project name in a textfield, which is in the left top conner of the window and then press enter. New project name (with folder icon) will be shown ' + ' in a panel under the textfield. Select it by mouse click and available analysis will appear. ' + ' At first you have to create lists with which you will working it can be done by "Genes Lists" or "DESeq" analysis, to do it just click on the corresponded panel. </div>'
+                                                html: '<div class="panel-text">' + '<img src="images/about_big.png" width=40 height=40 align=left>&nbsp;&nbsp;&nbsp;&nbsp;' +
+'To add a new project, type project name in a field, which is in the top left corner of the window and press enter. New project name will be shown in the left panel. Select it  and available analyses will appear. </div>'
                                             }
                                         ]
                                     }

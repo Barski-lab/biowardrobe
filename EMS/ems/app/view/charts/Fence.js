@@ -41,7 +41,7 @@ Ext.define('EMS.view.charts.Fence',
                        minimum: 0,
                        position: 'left',
                        fields: ['A', 'C', 'T', 'G','N'],
-                       title: 'Number of Hits',
+                       title: 'Frequency',
                        minorTickSteps: 1,
                        grid: true
                    },

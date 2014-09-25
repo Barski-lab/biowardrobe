@@ -225,7 +225,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         {
                                             xtype: 'textfield',
                                             name: 'antibodycode',
-                                            fieldLabel: 'Catalouge #',
+                                            fieldLabel: 'Catalog #',
                                             flex: 1
                                         }
                                     ]
@@ -346,6 +346,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                                     minWidth: 300,
                                                     displayField: 'name',
                                                     fieldLabel: 'Folders/Genome Browser folders',
+                                                    afterLabelTextTpl: EMS.util.Util.required,
                                                     valueField: 'id',
                                                     //store: 'EGroups',
                                                     triggerAction: 'all',
@@ -383,7 +384,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                         },
                         {
                             xtype: 'fieldset',
-                            title: 'Experiment data downloading',
+                            title: 'Data source',
                             margin: '25 5 5 5',
                             collapsible: true,
                             items: [
@@ -518,7 +519,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                                     boxLabelAlign: 'before',
                                                     inputValue: true,
                                                     labelWidth: 120,
-                                                    fieldLabel: 'Remove dublicates?',
+                                                    fieldLabel: 'Remove duplicates?',
                                                     //margin: '18 0 0 10',
                                                     //flex: 2
                                                 }

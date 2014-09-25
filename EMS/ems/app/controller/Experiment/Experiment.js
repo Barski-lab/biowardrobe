@@ -346,9 +346,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                 ],
                 data: [
                     [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
-                    ['Suppressed', record.data['tagsspercent']],
+                    ['Multi-mapped', record.data['tagsspercent']],
                     ['Unmapped', record.data['tagsupercent']],
-                    [this.isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
+                    [this.isRNA ? 'DNA Cont.' : 'Duplicates', record.data['tagsexpercent']],
                 ]
             });
             console.log(store);

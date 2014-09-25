@@ -59,7 +59,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                 enableTextSelection: false
             },
             columns: [
-                {   header: "#", sortable: true, width: 60, dataIndex: 'id'                                   },
+                {   header: "#", sortable: true, width: 60, dataIndex: 'id', filterable: true },
                 {   header: "Author", sortable: true, width: 85, dataIndex: 'author', hidden: false, filterable: true,
                     renderer: function (value, metaData, record) {
                         metaData.css = 'multilineColumn';
@@ -159,9 +159,9 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                             ],
                             data: [
                                 [isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
-                                ['Suppressed', record.data['tagsspercent']],
+                                ['Multi-mapped', record.data['tagsspercent']],
                                 ['Unmapped', record.data['tagsupercent']],
-                                [isRNA ? 'DNA Cont.' : 'Dublicates', record.data['tagsexpercent']],
+                                [isRNA ? 'DNA Cont.' : 'Duplicates', record.data['tagsexpercent']],
                             ]
                         });
 

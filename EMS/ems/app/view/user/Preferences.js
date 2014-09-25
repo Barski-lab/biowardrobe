@@ -188,14 +188,14 @@ Ext.define('EMS.view.user.Preferences', {
                             margin: '5 0 5 0',
                             items: [
                                 {
-                                    fieldLabel: 'Remote Login',
+                                    fieldLabel: 'Login',
                                     name: 'dnalogin',
                                     flex: 4,
                                     emptyText: 'Login name to the core web site'
                                 } ,
                                 {
                                     name: 'dnapass',
-                                    fieldLabel: 'Remote Password',
+                                    fieldLabel: 'Password',
                                     inputType: 'password',
                                     flex: 4,
                                     margins: '0 0 0 6',
