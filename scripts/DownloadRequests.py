@@ -323,6 +323,9 @@ while True:
     except:
         pass
 
+    basedir = PRELIMINARYDATA + '/' + UID
+    os.chdir(basedir)
+
     a = list()
 
     settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1 where uid=%s",
