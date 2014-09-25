@@ -83,21 +83,41 @@ def check_auth(url, auth):
 
 
 ######################################################################
-def decompress(fname, ofname):
+def ftype(fname):
+    if re.search("\.gz$", fname):
+        return "gz"
+    elif re.search("\.bz2$", fname):
+        return "bz2"
+    elif re.search("\.zip$", fname):
+        return "zip"
+    elif re.search("\.sra$", fname):
+        return "sra"
+    elif re.search("\.fastq$", fname):
+        return "fastq"
+    else:
+        return "unknown"
+
+
+######################################################################
+def decompress(fname, ofname, pair=False):
     ofname = string.replace(ofname, "//", "/")
     cmd = ""
-    if re.search("\.gz$", fname):
+    ft = ftype(fname)
+    if ft == 'gz':
         cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
         ofname += '.gz'
-    elif re.search("\.bz2$", fname):
+    elif ft == "bz2":
         cmd = 'bzcat "' + ofname + '.bz2" >>' + ofname + '; rm -f ' + ofname + '.bz2'
         ofname += '.bz2'
-    elif re.search("\.zip$", fname):
+    elif ft == "zip":
         cmd = 'unzip -p "' + ofname + '.zip" >>' + ofname + '; rm -f ' + ofname + '.zip'
         ofname += '.zip'
-    elif re.search("\.sra$", fname):
+    elif ft == "sra":
         cmd = 'fastq-dump -Z -B "' + ofname + '.sra" >>' + ofname + ' && rm -f ' + ofname + '.sra'
         ofname += '.sra'
+    elif ft == "fastq":
+        cmd = 'cat "' + ofname + '.part" >>' + ofname + '; rm -f ' + ofname + '.part'
+        ofname += '.part'
     else:
         cmd = 'cat "' + ofname + '.part" >>' + ofname + '; rm -f ' + ofname + '.part'
         ofname += '.part'
@@ -138,17 +158,13 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
         else:
             fname = os.path.basename(urlparse.urlparse(r.url)[2])
 
+        if 'fastq' not in fname and 'sra' not in fname and 'fastq' not in url and 'sra' not in url:
+            return ['Warning', 'Sra or fastq files only']
+
         if len(fname) == 0:
             fname = "default_fastq"
 
-        if 'fastq' not in fname and 'sra' not in fname:
-            return ['Warning', 'Sra or fastq files only']
-
-    if not pair:
-        ofname = basedir + '/' + filename + '.' + extension
-
-        (cmd, ofname) = decompress(fname, ofname)
-
+    def fdownload():
         for url in urls:
             url = url.strip()
             urlparsed = urlparse.urlparse(url)
@@ -172,8 +188,31 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
                 s.check_output(cmd, shell=True)
             except Exception, e:
                 return ['Warning', 'Cant uncompress ' + ofname]
+        return ['', '']
+
+    if not pair:
+        ofname = basedir + '/' + filename + '.' + extension
+        (cmd, ofname) = decompress(fname, ofname)
+        ret = fdownload()
+        if 'Warning' in ret[0]:
+            return ret
         flist.append(filename)
         return flist
+    else:
+        if ftype(fname) != "sra":
+            return ['Warning', 'For pair end reads Wardrobe accepts SRA files only']
+
+        # && rm -f ' + ofname + '.sra'
+        cmd = 'fastq-dump -B --split-files "' + filename + '.sra" && mv '+filename+'_1.fastq '+filename+'.fastq'
+        ofname = basedir + '/' + filename + '.sra'
+        ofname = string.replace(ofname, "//", "/")
+
+        ret = fdownload()
+        if 'Warning' in ret[0]:
+            return ret
+        flist.append(filename)
+        return flist
+
 
     return ['Warning', 'Cant find file']
 
@@ -197,6 +236,7 @@ def get_file_core(USERNAME, PASSWORD, libcode, basedir, filename, pair):
 ######################################################################
 def local_file(downloaddir, basedir, libcode, filename, pair):
     fl = glob.glob(downloaddir + '/' + libcode)
+
     if len(fl) == 0:
         fl = glob.glob(downloaddir + '/*' + libcode + '*.fastq*')
 
@@ -227,7 +267,7 @@ def local_file(downloaddir, basedir, libcode, filename, pair):
             s.check_output(cmd, shell=True)
         except Exception, e:
             return ['Warning', 'Cant uncompress ' + ofname]
-    if len(fl)!=len(flist):
+    if len(fl) != len(flist):
         return ['Error', 'incorrect number of files']
     else:
         return ['Success', 'Successfully downloaded']
