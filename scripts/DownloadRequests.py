@@ -203,7 +203,8 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
             return ['Warning', 'For pair end reads Wardrobe accepts SRA files only']
 
         # && rm -f ' + ofname + '.sra'
-        cmd = 'fastq-dump -B --split-files "' + filename + '.sra" && mv '+filename+'_1.fastq '+filename+'.fastq'
+        cmd = 'fastq-dump -B --split-files "' + filename + '.sra" && mv '+filename+'_1.fastq '+filename+'.fastq '
+        cmd += ' && rm -f "' + filename + '.sra"'
         ofname = basedir + '/' + filename + '.sra'
         ofname = string.replace(ofname, "//", "/")
 
