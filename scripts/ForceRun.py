@@ -93,6 +93,11 @@ while True:
         error_update(str(e), UID)
         continue
 
+    safe_del(basedir + '/' + UID + '.Log.out')
+    safe_del(basedir + '/' + UID + '.Log.progress.out')
+    safe_del(basedir + '/' + UID + '.Log.std.out')
+    safe_del(basedir + '/' + UID + '.Log.final.out')
+    safe_del(basedir + '/' + UID + '.SJ.out.tab')
     safe_del(basedir + '/' + UID + '_trimmed.fastq')
     safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
     safe_del(basedir + '/' + UID + '_trimmed.fastq.bz2')
