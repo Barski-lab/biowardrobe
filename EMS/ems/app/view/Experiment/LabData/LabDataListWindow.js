@@ -161,7 +161,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                                 [isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
                                 ['Multi-mapped', record.data['tagsspercent']],
                                 ['Unmapped', record.data['tagsupercent']],
-                                [isRNA ? 'DNA Cont.' : 'Duplicates', record.data['tagsexpercent']],
+                                [isRNA ? 'Outside annotation' : 'Duplicates', record.data['tagsexpercent']],
                             ]
                         });
 
@@ -186,7 +186,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                                     tips: {
                                         trackMouse: true,
                                         width: 150,
-                                        height: 30,
+                                        height: 50,
                                         font: '9px Arial',
                                         renderer: function (storeItem, item) {
                                             this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');

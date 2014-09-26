@@ -348,7 +348,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     [this.isRNA ? 'Transcriptome' : 'Mapped', record.data['tagsuniqpercent']],
                     ['Multi-mapped', record.data['tagsspercent']],
                     ['Unmapped', record.data['tagsupercent']],
-                    [this.isRNA ? 'DNA Cont.' : 'Duplicates', record.data['tagsexpercent']],
+                    [this.isRNA ? 'Outside annotation' : 'Duplicates', record.data['tagsexpercent']],
                 ]
             });
             console.log(store);
@@ -372,8 +372,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                         field: 'percent',
                         tips: {
                             trackMouse: true,
-                            width: 130,
-                            height: 30,
+                            width: 150,
+                            height: 50,
                             font: '9px Arial',
                             renderer: function (storeItem, item) {
                                 this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');
