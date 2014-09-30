@@ -214,6 +214,8 @@ void ATDP::start() {
             data["tbl1_name"]=exp_i->tbl1_name;
             data["tbl2_name"]=exp_i->tbl2_name;
             data["pltname"]=exp_i->plotname;
+            data["mapped"]=exp_i->mapped;
+
             QJsonArray matrix;
             QJsonArray rpkm_matrix;
             QJsonArray rows;
