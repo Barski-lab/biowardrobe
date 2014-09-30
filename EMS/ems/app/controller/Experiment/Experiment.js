@@ -351,7 +351,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     [this.isRNA ? 'Outside annotation' : 'Duplicates', record.data['tagsexpercent']],
                 ]
             });
-            console.log(store);
+
             this.piechart = Ext.create('Ext.chart.Chart', {
                 animate: false,
                 renderTo: 'experiment-qc-chart',
@@ -372,8 +372,6 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                         field: 'percent',
                         tips: {
                             trackMouse: true,
-                            width: 150,
-                            height: 50,
                             font: '9px Arial',
                             renderer: function (storeItem, item) {
                                 this.setTitle(storeItem.get('name') + ': ' + storeItem.get('percent') + '%');

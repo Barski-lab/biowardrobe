@@ -63,17 +63,13 @@ Ext.define('EMS.view.charts.ATDPB',
                    for (var j = 0; j < genebody[0].length; j++) {
                        var row = {};
                        row['X'] = j;
-                       //row.push(j+1);
                        for (var i = 0; i < genebody.length; i++) {
                            if (MAX < genebody[i][j])
                                MAX = genebody[i][j];
-                           //row['Y'+i]=genebody[i][j];
                            if (genebody[i][j]) {
                                row['Y' + i] = genebody[i][j];
-                               //row.push(genebody[i][j]);
                            } else {
                                row['Y' + i] = 0;
-                               //row.push(0);
                            }
                        }
                        data.push(row);
@@ -86,7 +82,6 @@ Ext.define('EMS.view.charts.ATDPB',
                    this.store = store;
                    me.initialConfig.store = store;
 
-                   console.log(MAX, store);
 
                    var dec = Math.floor(-Math.log(Math.abs(MAX) > 1 ? 0.1 : Math.abs(MAX))/Math.LN10) + 1;
                    var power = Math.pow(10, dec);

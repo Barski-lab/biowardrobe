@@ -31,17 +31,6 @@ Ext.define('EMS.view.charts.ATDP',
                animate: false,
                border: 0,
                shadow: false,
-               mask: 'vertical',
-               listeners: {
-                   select: {
-                       fn: function(me, selection) {
-                           //me.setZoom(selection);
-                           //me.mask.hide();
-                           console.log(me,selection);
-                       }
-                   }
-               },
-
                initComponent: function () {
                    var me = this;
                    var fields = ['Y'];
@@ -111,7 +100,7 @@ Ext.define('EMS.view.charts.ATDP',
                                   fields: ['X'],
                                   title: 'distance from TSS (bases)',
                                   grid: true,
-                                  minorTickSteps: 3,
+                                  minorTickSteps: 4,
                                   majorTickSteps: 3,
                                   label: {
                                       renderer: function (value, label, storeItem, item, i, display, animate, index) {

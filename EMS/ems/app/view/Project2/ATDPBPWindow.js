@@ -1,4 +1,3 @@
-<?php
 /****************************************************************************
  **
  ** Copyright (C) 2011-2014 Andrey Kartashov .
@@ -20,31 +19,38 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-require_once('../settings.php');
 
-ignore_user_abort(true);
-set_time_limit(600);
+//ATDB Box Plot Window
 
-ini_set('memory_limit', '-1');
-
-if (isset($_REQUEST['id']))
-    $uid = $_REQUEST['id'];
-else
-    $res->print_error('Not enough required parameters.');
-check_val($uid);
-
-$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
-$BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
+Ext.define('EMS.view.Project2.ATDPBPWindow', {
+    extend: 'Ext.window.Window',
+    alias: 'widget.atdpbpwindow',
 
 
-$command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd_heat_window=\"200\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_bsmooth=40 -avd_smooth=200 ";
+    title: 'Average Tag Density Box Plots',
 
-$output=shell_exec("$command 2>{$TMP}/atdpheatERROR.log");
+    maximizable: true,
+    constrain: true,
+    maximized: false,
+    modal: true,
+    plain: true,
+    border: false,
+    focusOnToFront: true,
 
-if(strlen($output)==0)
-    $output=shell_exec("cat ./jsons/datad.json 2>{$TMP}/atdpheatERROR.log");
+    bodyPadding: 0,
+    frame: false,
+    collapsible: false,
 
-print_r($output);
+    minHeight: 350,
+    minWidth: 300,
+    height: 800,
+    width: 1100,
 
-?>
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
+    iconCls: 'chart-line',
+    buttonAlign: 'center'
+});
 

@@ -23,10 +23,10 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView','ATDPHeatA'],
-    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView','ATDPHeatA'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA'],
+    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP', 'Project2.TableViewWindow', 'Project2.TableView'],
-    requires: [ 'EMS.util.Util'],
+    requires: ['EMS.util.Util'],
     worker: {},
 
     init: function () {
@@ -141,10 +141,10 @@ Ext.define('EMS.controller.Project2', {
 
         if (record.get('type') === 0) {//project
             var worker = "";
-            if(this.worker.data.isa || this.worker.data.isla)
-                worker=this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
+            if (this.worker.data.isa || this.worker.data.isla)
+                worker = this.getWorkersStore().findRecord('id', record.get('worker_id'), 0, false, false, true).data.fullname;
             else
-                worker="unknown";
+                worker = "unknown";
 
             detp.expand();
             var bd = detp.body;
@@ -164,7 +164,8 @@ Ext.define('EMS.controller.Project2', {
                                       if (success) {
                                           me.UpdateAddAnalysis(records, record);
                                       }
-                                  }});
+                                  }
+                              });
             } else {
                 me.UpdateAddAnalysis(me.atype.data.items, record);
             }
@@ -659,15 +660,16 @@ Ext.define('EMS.controller.Project2', {
     /*************************************************************
      *************************************************************/
     ATDPWindow: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
-        var tabs=Ext.create("EMS.view.Project2.ATDPWindow");
+        var tabs = Ext.create("EMS.view.Project2.ATDPWindow");
 
-        this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs);
-        this.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs.items.items[0]);
+        this.ATDPview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs);
+        this.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs.items.items[0]);
     },
     /*************************************************************
      *************************************************************/
-    ATDPview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
-        var me=this;
+    ATDPview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs) {
+        console.log(arguments, record.data);
+        var me = this;
         var storc = this.getATDPStore();
         storc.getProxy().setExtraParam('id', record.data['item_id']);
         storc.load();
@@ -696,19 +698,392 @@ Ext.define('EMS.controller.Project2', {
                               }
 
 
-                              tabs.items.items[0].insert(0,Ext.create("EMS.view.Project2.ATDPChart", {LEN: len, MAX: max, BNAME: title, COLS: cols, COLSN: prop}));
+                              tabs.items.items[0].insert(0, Ext.create("EMS.view.Project2.ATDPChart",
+                                                                       {
+                                                                           LEN: len,
+                                                                           MAX: max,
+                                                                           BNAME: title,
+                                                                           COLS: cols,
+                                                                           COLSN: prop,
+                                                                           mask: 'horizontal',
+                                                                           listeners: {
+                                                                               select: {
+                                                                                   scope: me,
+                                                                                   fn: me.doWilcoxonMB
+                                                                               }
+                                                                           },
+                                                                       }));
                               tabs.items.items[0].setActiveTab(0);
                               tabs.show();
+                              //me.ATDPHview(grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs.items.items[0]);
                           }
                       }
                   });
     },
     /*************************************************************
+     *  Making Wilcoxon test
      *************************************************************/
-    ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid,tabs) {
+    doWilcoxonMB: function (chart, selection) {
+        var me = this;
+        if (!this.getATDPHeatAStore().lastOptions) {
+            chart.mask.hide();
+            return;
+        }
+
+        var w = chart.getWidth() * 0.906;
+        var k = 10000 / w;
+        var step = 200;
+        var l = Math.floor(selection.x * k - 5000);
+        var m = Math.abs(l) % step;
+        if (l < 0 && m < 100) {
+            l = l + m;
+        } else if (l < 0 && m >= 100) {
+            l = l - (step - m);
+        } else if (l >= 0 && m < 100) {
+            l = l - m;
+        } else if (l >= 0 && m >= 100) {
+            l = l + (step - m);
+        }
+
+        var r = Math.floor(selection.width * k);
+        m = Math.abs(r) % step;
+        if (m < 100)
+            r = l + r - m;
+        else
+            r = l + r + (step - m);
+
+        if (r > 5000)
+            r = 5000;
+        if (r < -5000)
+            r = -5000;
+        if (l > 5000)
+            l = 5000;
+        if (l < -5000)
+            l = -5000;
+
+        Ext.create('EMS.util.MessageBox',
+                   {
+                       title: 'Adjust region',
+                       msg: 'Please adjust the region for Wilcoxon rank-sum test (200bp window)',
+                       fields: [
+                           {
+                               xtype: 'fieldcontainer',
+                               layout: 'hbox',
+                               padding: 4,
+                               items: [
+                                   {
+                                       xtype: 'numberfield',
+                                       name: 'left',
+                                       padding: 2,
+                                       labelWidth: 120,
+                                       labelAlign: 'top',
+                                       fieldLabel: 'Position begins',
+                                       afterLabelTextTpl: EMS.util.Util.required,
+                                       allowBlank: false,
+                                       allowDecimals: false,
+                                       flex: 1,
+                                       value: l,
+                                       step: 200,
+                                       minValue: -5000,
+                                       maxValue: 5000,
+                                       //listeners: {
+                                       //    change: function(field, value) {
+                                       //        value = parseInt(value, 10);
+                                       //        field.setValue(value + (step-value % step));
+                                       //    }
+                                       //}
+                                   },
+                                   {
+                                       xtype: 'numberfield',
+                                       name: 'right',
+                                       padding: 2,
+                                       labelWidth: 120,
+                                       labelAlign: 'top',
+                                       fieldLabel: 'Position ends',
+                                       afterLabelTextTpl: EMS.util.Util.required,
+                                       allowBlank: false,
+                                       allowDecimals: false,
+                                       flex: 1,
+                                       value: r,
+                                       step: 200,
+                                       minValue: -5000,
+                                       maxValue: 5000,
+                                       //listeners: {
+                                       //    change: function(field, value) {
+                                       //        value = parseInt(value, 10);
+                                       //        field.setValue(value + (step-value % step));
+                                       //    }
+                                       //}
+
+                                   }
+                               ]
+                           }
+                       ],
+                       fn: function (btn, cbox, mbox) {
+                           if (btn == 'yes') {
+                               var l = mbox.down('[name=left]').getValue();
+                               var r = mbox.down('[name=right]').getValue();
+                               //this.store.lastOptions
+                               me.doWilcoxonSet(l, r);
+                               //console.log(chart, selection, btn, cbox, mbox);
+                           }
+                           chart.mask.hide();
+                           return true;
+                       }
+                   }).show();
+
+    },
+    /*************************************************************
+     *  Making Wilcoxon test
+     *************************************************************/
+    iqr: function (k, d, q1, q3, min, max) {
+        var iq = (q3 - q1) * k
+        var lW = q1 * 1 - iq;
+        var rW = q3 * 1 + iq;
+        if (lW < min) lW = min;
+        if (rW > max) rW = max;
+        return [lW * 1, rW * 1];
+    },
+
+    doWilcoxonSet: function (l, r) {
+        var store = this.getATDPHeatAStore();
+        var window = 10000 / store.getAt(0).get('array')[0].length;
+        var nl = Math.floor((l + 5000) / window), nr = Math.floor((r + 5000) / window);
+        var darray = [];
+        //var min = Infinity, max = -Infinity;
+        for (var i = 0; i < store.getCount(); i++) {
+            var stordata = store.getAt(i);
+            var marray = stordata.get('array');
+
+            var mapped = stordata.get('mapped');
+            var k=1;
+            var kdiv=1000000.0;
+
+            if (!mapped || mapped==0)
+                mapped=kdiv;
+            k=mapped/kdiv;
+
+            var sarray = marray.map(function (d) {
+                var s = 0.0;
+                for (var i = nl; i < nr; i++)
+                    s += d[i];
+                return s / k;
+            }).sort(d3.ascending);
+
+            var id = stordata.get('pltname');
+            var rarray = {};
+            var precis = this.doPrecision(sarray[sarray.length - 1]/kdiv);
+            console.log(precis);
+
+            rarray['id'] = id;
+            rarray['raw'] = sarray;
+            rarray['k'] = k;
+            rarray['Q1'] = (d3.quantile(sarray, 0.25)/kdiv).toFixed(precis[1]);
+            rarray['Q3'] = (d3.quantile(sarray, 0.75)/kdiv).toFixed(precis[1]);
+            rarray['med'] = (d3.median(sarray)/kdiv).toFixed(precis[1]);
+            rarray['mean'] = (d3.mean(sarray)/kdiv).toFixed(precis[1]);
+            rarray['min'] = (sarray[0]/kdiv).toFixed(precis[1]);
+            rarray['max'] = (sarray[sarray.length - 1]/kdiv).toFixed(precis[1]);
+            var iq = this.iqr(1.5, sarray, rarray['Q1'], rarray['Q3'], rarray['min'], rarray['max']);
+            rarray['lW'] = iq[0];
+            rarray['rW'] = iq[1];
+            //if (min > rarray[id]['min']) min = rarray[id]['min'];
+            //if (max < rarray[id]['max']) max = rarray[id]['max'];
+            darray.push(rarray);
+        }
+
+        var store = Ext.create('Ext.data.Store', {
+            fields: [
+                {name: 'id', type: 'string'},
+                {name: 'min', type: 'float'},
+                {name: 'max', type: 'float'},
+                {name: 'mean', type: 'float'},
+                {name: 'Q1', type: 'float'},
+                {name: 'med', type: 'float'},
+                {name: 'Q3', type: 'float'},
+                {name: 'lW', type: 'float'},
+                {name: 'rW', type: 'float'}
+            ],
+            data: darray
+        });
+        var html = this.pairwise(darray);
+
+        var win = Ext.create("EMS.view.Project2.ATDPBPWindow");
+        win.add({
+                    xtype: 'qcboxplot',
+                    title: '',
+                    store: store,
+                    xAxisName: '',
+                    yAxisName: 'Reads Density',
+                    flex: 4
+                });
+        win.add({
+                    xtype: 'splitter'
+                });
+        win.add({
+                    xtype: 'panel',
+                    title: '',
+                    collapsible: true,
+                    collapsed: false,
+                    border: false,
+                    minWidth: 50,
+                    minHeight: 50,
+                    margin: 0,
+                    //layout: {
+                    //    type: 'fit'
+                    //},
+                    flex: 1,
+                    //bodyStyle: 'padding-bottom:15px;background:#eee;',
+                    autoScroll: true,
+                    //xtype: 'label',
+                    html: html
+                });
+
+        win.show();
+
+    },
+
+    pairwise: function (data, func) {
+        var html = "";
+        var head = "<tr><td>&nbsp;</td>";
+        for (var i = 0; i < data.length - 1; i++) {
+            html += "<tr><td>" + data[i]['id'] + "</td>";
+            for (var c = 0; c < i; c++) {
+                html += "<td>&nbsp;</td>";
+            }
+            for (var j = i + 1; j < data.length; j++) {
+                if (i == 0) head += "<td>" + data[j]['id'] + "</td>";
+
+                var w = this.wilcoxon(data[i]['raw'], data[j]['raw']);
+                //var pr=this.doPrecision(w[0]);
+                html += "<td>" + w[0].toExponential(2) + "</td>";
+
+                console.log(data[i]['id'] + ' vs ' + data[j]['id'], w);
+            }
+            html += "</tr>";
+        }
+        html = '<table border="0" class="panel-text">' + head + "</tr>" + html + "</table>";
+        return html;
+    },
+
+    wilcoxon: function (seta, setb) {
+        var alen = seta.length;
+        var blen = setb.length;
+        var i = 0, j = 0;
+        var ranka = 0, rankb = 0;
+
+        while ((i < seta.length) && (j < setb.length)) {
+            if (seta[i] < setb[j]) {
+                i++;
+                ranka += (i + j);
+            } else if (seta[i] > setb[j]) {
+                j++;
+                rankb += (j + i);
+            } else if (seta[i] == setb[j]) {
+                var dev = 2;
+                var startra = i, startrb = j;
+                var rank = (i + j + 1);
+                var sumrank = rank * 2 + 1;
+                ++rank;
+                var val = seta[i];
+                while (++i < seta.length && seta[i] == val) {
+                    dev++;
+                    sumrank += (++rank);
+                }
+                while (++j < setb.length && setb[j] == val) {
+                    dev++;
+                    sumrank += (++rank);
+                }
+                var averrank = sumrank / dev;
+                ranka += (averrank * (i - startra));
+                rankb += (averrank * (j - startrb));
+            }
+        }
+        while (i < seta.length) {
+            i++;
+            ranka += (i + j);
+        }
+        while (j < setb.length) {
+            j++;
+            rankb += (i + j);
+        }
+
+        var totrank = (alen + blen) * (alen + blen + 1) / 2;
+
+        var gu = alen * blen;
+        var Ua = gu + alen * (alen + 1) / 2 - ranka;
+        var Ub = gu + blen * (blen + 1) / 2 - rankb;
+        var mu = gu / 2;
+        var sigma = Math.sqrt(gu * (alen + blen + 1) / 12);
+        var Za = (Ua - mu) / sigma;
+        var Zb = (Ub - mu) / sigma;
+        //var Pa = this.gaussian_tail_weight(Za);
+        //var Pb = this.gaussian_tail_weight(Zb);
+        var Pa = this.pnorm(Za);
+        var Pb = this.pnorm(Zb);
+        var P = 0;
+        if (Za >= 0) P = Pa;
+        if (Zb >= 0) P = Pb;
+
+        return [P, Za, Zb, Pa, Pb];
+
+    },
+    /*************************************************************
+     *************************************************************/
+    doPrecision: function (MAX) {
+        var dec = Math.floor(-Math.log(Math.abs(MAX) > 1 ? 0.1 : Math.abs(MAX)) / Math.LN10) + 1;
+        var power = Math.pow(10, dec);
+        var entire = Math.floor(MAX * power) + 1;
+        return [entire / power, dec + 1, power];
+
+    },
+    n: function (x) {
+
+        var A = 1.0 / Math.sqrt(2.0 * Math.PI);
+        return A * Math.exp(-x * x * 0.5);
+
+    },
+
+    gaussian_tail_weight: function (x) {
+
+        // Zelen and Severo (1964):
+        // Φ(x) ≈ 1 − (0.4361836t − 0.1201676t2 + 0.9372980t3)*sqrt(1/2π)*exp( (−x^2)/2)
+        // where t = (1 + 0.33267x)−1.
+
+        var a1 = 0.4361836;
+        var a2 = -0.1201676;
+        var a3 = 0.9372980;
+
+        x = Math.abs(x);
+        var k = 1.0 / (1.0 + (0.33267 * x));
+
+        return this.n(x) * (a1 * k + (a2 * k * k) + (a3 * k * k * k));
+    },
+
+    log_gaussian_tail_weight: function (xi) {
+        var a1 = 0.4361836;
+        var x = Math.abs(xi);
+        if (x >= 3) {
+            //return lognx + log(a1) + log(k);
+            return (-0.5 * Math.log(2.0 * 3.1415) - x * x * 0.5 ) + Math.log(a1) - Math.log(1.0 + 0.33267 * x);
+        }
+        return Math.log(this.gaussian_tail_weight(x));
+    },
+
+    pnorm: function (x) {
+        //Byrc (2001B):
+        var A = (x * x + 5.575192695 * x + 12.77436324) / (x * x * x * Math.sqrt(2 * Math.PI) + 14.38718147 * x * x + 31.53531977 * x + 25.548726);
+        A = A * Math.exp(-x * x * 0.5);
+        return A;
+
+    },
+
+    /*************************************************************
+     *************************************************************/
+    ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs) {
         var stor = this.getATDPHeatAStore();
         stor.getProxy().setExtraParam('id', record.data['item_id']);
-        var tabadded=tabs.add({xtype:'panel',title: 'Tag Density Heatmap'});
+        var tabadded = tabs.add({xtype: 'panel', title: 'Tag Density Heatmap'});
         tabadded.setDisabled(true);
         tabadded.setIconCls('loading');
 
@@ -722,19 +1097,22 @@ Ext.define('EMS.controller.Project2', {
                       }
                   });
     },
+
+
     TableView: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var stor = this.getTableViewStore();
         stor.getProxy().setExtraParam('id', record.data['item_id']);
         stor.load({
                       callback: function (records, operation, success) {
-                          //console.log(arguments,stor);
                           if (success) {
-                              var window = Ext.create("EMS.view.Project2.TableViewWindow", {store: stor });
+                              var window = Ext.create("EMS.view.Project2.TableViewWindow", {store: stor});
                               window.show();
                           }
                       }
                   });
     },
+
+
     ongbjump: function (button, panel) {
         //console.log('gbjump',button,panel);
         var grid = button.up('panel').down('grid');
@@ -755,13 +1133,12 @@ Ext.define('EMS.controller.Project2', {
         var stor = this.getTableViewStore();
         var gblink = stor.getProxy().getReader().jsonData.gblink;
 
-        console.log();
+        console.log(gblink);
         console.log('start=', start, ' end=', end);
 
         //var url = GENOME_BROWSER_IP+'/cgi-bin/hgTracks?pix=1050&refGene=full&' + gblink;
-        url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
-        window.open(url, gblink);
-
+        //url = url + '&position=' + model[0].data['chrom'] + ':' + start + "-" + end;
+        //window.open(url, gblink);
     }
 });
 

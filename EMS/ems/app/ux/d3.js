@@ -39,7 +39,10 @@ Ext.define("EMS.ux.d3", {
     store: null,
     order: null,
     panelId: null,
-    popupstyle: {'background': '#C3C3CB', 'opacity': 0.6, 'padding': 2 },
+    chart: null,
+    expLab: null,
+
+    popupstyle: {'background': '#C3C3CB', 'opacity': 0.6, 'padding': 2},
 
     plot: function () {
     },
@@ -56,7 +59,7 @@ Ext.define("EMS.ux.d3", {
         this.callParent(arguments);
         this.initMask();
         Ext.apply(this, this.initialConfig);
-        this.title="";
+        this.title = "";
         this.store && (this.bindStore(this.store, true));
     },
 
@@ -176,8 +179,10 @@ Ext.define("EMS.ux.d3", {
     },
 
     d3CanvasInit: function () {
+
         this.chart = d3.select(this.panelId)
                 .append('svg')
+                .attr('id','#' + this.id + '-svg')
                 .attr('xmlns', 'http://www.w3.org/2000/svg')
                 .attr('width', this.getWidth())
                 .attr('height', this.getHeight())
@@ -186,19 +191,73 @@ Ext.define("EMS.ux.d3", {
                 .style('position', 'absolute')
                 .style('top', 0)
                 .style('left', 0);
-
-
-        this.expLab = d3.select(this.panelId)
-                .append('div')
-                .style('height', 'auto')
-                .style('position', 'absolute')
-                .style(this.popupstyle)
-                .style('top', 0)
-                .style('left', this.plotmargin.left - this.plotmargin.left / 2)
-                .style('display', 'none');
-
     },
 
+    tooltiphide: function () {
+        this.chart.selectAll('.d3svg-tooltip').remove();
+        //svg.selectAll('polygon').remove();
+    },
+    tooltipmove: function (x, y) {
+
+        this.chart
+                .selectAll('.d3svg-tooltip')
+                .attr({
+                          'x': this.tooltipX(x),
+                          'y': this.tooltipY(y)
+                      });
+    },
+    tooltipY: function (y) {
+        var height=290;
+        if(this.foHeight)
+            height=this.foHeight;
+        if(y+height > this.getHeight()) {
+            return y-height;
+        }
+        return y;
+    },
+    tooltipX: function (x) {
+        var width=290;
+        if(this.foWidth)
+            width=this.foWidth;
+        if(x+width > this.getWidth()) {
+            return x-width;
+        }
+        return x;
+    },
+    tooltip: function (x, y, html, foWidth) {
+        if (!foWidth)
+            foWidth = 160;
+        this.foWidth=foWidth;
+        var fo = this.chart.append('foreignObject')
+                .attr({
+                          'x': this.tooltipX(x),
+                          'y': this.tooltipY(y),
+                          'width': foWidth,
+                          'class': 'd3svg-tooltip'
+                      });
+        var div = fo.append('xhtml:div')
+                .style(this.popupstyle)
+                .style('height', 'auto')
+                .attr({
+                          'class': 'd3tooltip'
+                      });
+        div.html(html);
+        var foHeight = div[0][0].getBoundingClientRect().height;
+        fo.attr({
+                    'height': foHeight
+                });
+        this.foHeight=foHeight;
+
+        //this.chart.insert('polygon', '.d3svg-tooltip')
+        //        .attr({
+        //                  'points': "0,0 0," + foHeight + " " + foWidth + "," + foHeight + " " + foWidth + ",0 " + (t) + ",0 " + tip.w + "," + (-tip.h) + " " + (t/2) + ",0",
+        //                  'height': foHeight + tip.h,
+        //                  'width': foWidth,
+        //                  'fill': '#D8D8D8',
+        //                  'opacity': 0.75,
+        //                  'transform': 'translate(' + (anchor.w - tip.w) + ',' + (anchor.h + tip.h) + ')'
+        //              });
+    },
     onMove: function () {
 
     },
@@ -219,7 +278,7 @@ Ext.define("EMS.ux.d3", {
         }
         if (store) {
             store = Ext.data.StoreManager.lookup(store);
-            this.initialConfig.store=store;
+            this.initialConfig.store = store;
             store.on({
                          scope: this,
                          load: this.onLoad,
@@ -240,7 +299,7 @@ Ext.define("EMS.ux.d3", {
         if (this.expLab) {
             this.expLab.remove();
         }
-        if(this.__initialized || this.chart) {
+        if (this.__initialized || this.chart) {
             d3.select(this.panelId).remove();
         }
 

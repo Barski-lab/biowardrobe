@@ -30,9 +30,9 @@ Ext.define('EMS.util.MessageBox', {
     modal: true,
     minWidth: 200,
     minHeight: 100,
-//    defaults: {
-//        padding: 5,
-//    },
+    //    defaults: {
+    //        padding: 5,
+    //    },
     layout: {
         type: 'vbox',
         align: 'stretch'
@@ -42,9 +42,11 @@ Ext.define('EMS.util.MessageBox', {
     ],
 
     config: {
-        combobox: {},
+        combobox: null,
+        fields: null,
         msg: "",
-        fn: function(){}
+        fn: function () {
+        }
     },
 
     constructor: function (config) {
@@ -52,75 +54,77 @@ Ext.define('EMS.util.MessageBox', {
 
         this.superclass.constructor.call(this, config);
 
-        this.field = {};
+        var me = this;
+        var components = [];
+        components = components.concat(
+                [{
+                     xtype: 'displayfield',
+                     cls: Ext.baseCSSPrefix + 'message-box-text',
+                     padding: 4,
+                     value: this.getMsg(),
+                     flex: 1
+                 }]
+        );
+        if (this.getFields()) {
+            components = components.concat(this.getFields());
+        }
         if (this.getCombobox()) {
             this.field = Ext.create('Ext.form.ComboBox', this.getCombobox());
+            components = components.concat([this.field]);
         }
-        var me=this;
+        components = components.concat(
+                [{
+                     xtype: 'fieldcontainer',
+                     minHeight: 15,
+                     margin: 5,
+                     padding: 5,
+                     layout: {
+                         type: 'hbox',
+                         pack: 'center'
+                     },
+                     items: [
+                         {
+                             xtype: 'button',
+                             text: 'Yes',
+                             itemId: 'yes',
+                             minWidth: 75,
+                             scope: me,
+                             handler: me.callBack
+                         },
+                         {
+                             xtype: 'tbfill',
+                             width: 10,
+                             maxWidth: 20
+                         },
+                         {
+                             xtype: 'button',
+                             text: 'Cancel',
+                             itemId: 'cancel',
+                             minWidth: 75,
+                             scope: me,
+                             handler: me.callBack
+                         }
+                     ]
+                 }]);
 
         this.add(
-                    [
-                        {
-                            xtype: 'displayfield',
-                            cls: Ext.baseCSSPrefix + 'message-box-text',
-                            value: this.getMsg(),
-                            flex: 1
-                        },
-                        this.field
-                        ,
-                        {
-                            xtype: 'fieldcontainer',
-                            minHeight: 15,
-                            margin: 5,
-                            padding: 5,
-                            layout: {
-                                type: 'hbox',
-                                pack: 'center'
-                            },
-                            items: [
-                                {
-                                    xtype: 'button',
-                                    text: 'Yes',
-                                    itemId: 'yes',
-                                    minWidth: 75,
-                                    scope: me,
-                                    handler: me.callBack
-                                } ,
-                                {
-                                    xtype: 'tbfill',
-                                    width: 10,
-                                    maxWidth: 20
-                                }
-                                ,
-                                {
-                                    xtype: 'button',
-                                    text: 'Cancel',
-                                    itemId: 'cancel',
-                                    minWidth: 75,
-                                    scope: me,
-                                    handler: me.callBack
-                                }
-                            ]
-                        }
-                    ]
+                components
         );
 
         return this;
     },
     onDestroy: function () {
-        this.field.destroy();
+        if (this.field)
+            this.field.destroy();
         this.callParent(arguments);
     },
-    callBack: function(btn) {
-        if(btn.itemId!='cancel') {
-            var userCallback = Ext.Function.bind(this.getFn());
-            if(userCallback(btn.itemId,this.field)!=false) {
-                this.close();
-            }
-        } else {
-            this.close();
+    callBack: function (btn) {
+        var me = this;
+        var userCallback = Ext.Function.bind(this.getFn());
+        if (userCallback(btn.itemId, this.field, me) == false) {
+            return;
         }
-        return;
+        this.close();
     }
 
 });

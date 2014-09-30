@@ -37,7 +37,7 @@ Ext.define("EMS.ux.d3boxplot", {
     yAxisName: "",
     colors: ["white", "blue"],
     plotTitle: "",
-    plotmargin: {top: 30, right: 50, bottom: 80, left: 50},
+    plotmargin: {top: 30, right: 50, bottom: 80, left: 70},
 
     max: 0,
     min: 0,
@@ -45,7 +45,7 @@ Ext.define("EMS.ux.d3boxplot", {
     duration: 1000,
     showLabels: false,
 
-    popupstyle: {'background': '#D7E1F1', 'opacity': 0.9,'border': '1px solid', 'border-radius': '25px', 'padding': 9},
+    popupstyle: {'background': '#D7E1F1', 'opacity': 0.9, 'border': '1px solid', 'border-radius': '25px', 'padding': 9},
 
     constructor: function (config) {
         this.callParent(arguments);
@@ -179,7 +179,7 @@ Ext.define("EMS.ux.d3boxplot", {
                                   });
 
                     box.on('mouseover', function (d, l) {
-                        output = '<i>'+me.xAxisName+' No:</i> <b>' + d.id + '</b><br>';
+                        var output = '<i>' + me.xAxisName + ' No:</i> <b>' + d.id + '</b><br>';
                         output += '<i>Observations:</i><br>';
                         output += '&nbsp;<i>Maximum: </i><b>' + d.max + '</b><br>';
                         output += '&nbsp;<i>Upper quartile: </i><b>' + d.Q3 + '</b><br>';
@@ -188,15 +188,14 @@ Ext.define("EMS.ux.d3boxplot", {
                         output += '&nbsp;<i>Lower quartile: </i><b>' + d.Q1 + '</b><br>';
                         output += '&nbsp;<i>Minimum: </i><b>' + d.min + '</b><br>';
 
-                        me.expLab
-                                .style('top', x1(d.Q1))
-                                .style('left', xscale(d.id)-me.plotmargin.left)
-                                .style('display', 'block')
-                                .html(output);
+                        //me.tooltip(xscale(d.id)-me.plotmargin.left,x1(d.Q1),output);
+                        me.tooltip(xscale(d.id) - me.plotmargin.left, d3.event.pageY-me.getY(), output);
+                    });
+                    box.on('mousemove', function (d, l) {
+                        me.tooltipmove(d3.event.pageX-me.getX(), d3.event.pageY-me.getY());
                     });
                     box.on('mouseout', function (d, i) {
-                        me.expLab
-                                .style('display', 'none');
+                        me.tooltiphide();
                     });
 
 
@@ -463,8 +462,18 @@ Ext.define("EMS.ux.d3boxplot", {
                 .scale(x)
                 .orient("bottom");
 
+        //function (d, i) {
+        //    console.log('',arguments);
+        //    //if(d)
+        //    return x1[i];
+        //}
+
+        this.txtformat=",";
+        if(max<=1)
+            this.txtformat=".1e";
         var yAxis = d3.svg.axis()
                 .scale(y)
+                .tickFormat(d3.format(this.txtformat))
                 .orient("left");
 
         this.chart.append("g")
@@ -485,7 +494,7 @@ Ext.define("EMS.ux.d3boxplot", {
                 .attr("transform", "translate(" + this.plotmargin.left + "," + 0 + ")")
                 .call(yAxis)
                 .append("text")
-                .attr("y", -35)
+                .attr("y", -this.plotmargin.left/1.5)
                 .attr("x", -this.pictureHight / 2)
                 .attr("transform", "rotate(-90)")
                 .style("text-anchor", "end")

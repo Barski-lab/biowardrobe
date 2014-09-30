@@ -247,14 +247,14 @@ Ext.define('EMS.controller.Experiment.EGroup', {
             Ext.create('EMS.util.MessageBox',
                        {
                            title: 'DELETE',
-                           msg: 'Do you want to delete laboratory name "' + rec.data['name'] + '"?<br>You have to choose new group for the experiments!.',
+                           msg: 'Do you want to delete folder with name "' + rec.data['name'] + '"?<br>You have to choose new group for the experiments!.',
                            fn: function (buttonId, combo) {
                                //console.log("fn", combo.getValue());
                                if (combo.getValue() === rec.data['id']) {
                                    return false;
                                }
-                               var mvid = combo.getValue();
                                if (buttonId === "yes") {
+                                   var mvid = combo.getValue();
                                    me.egroupForm.getForm().reset();
                                    me.makeEGroupSelection();
                                    store.remove(rec);
@@ -276,7 +276,7 @@ Ext.define('EMS.controller.Experiment.EGroup', {
                                               });
                                }
                            },
-                           combobox: {
+                           combobox:{
                                xtype: 'combobox',
                                tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {description}</div></div></tpl>',
                                labelWidth: 70,
