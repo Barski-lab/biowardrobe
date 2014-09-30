@@ -856,12 +856,13 @@ Ext.define('EMS.controller.Project2', {
             var marray = stordata.get('array');
 
             var mapped = stordata.get('mapped');
-            var k=1;
-            var kdiv=1000000.0;
-
-            if (!mapped || mapped==0)
-                mapped=kdiv;
-            k=mapped/kdiv;
+            var k = 1;
+            var kdiv = 1000000.0;
+            console.log(mapped);
+            if (!mapped || mapped == 0)
+                mapped = kdiv;
+            k = mapped / kdiv;
+            console.log(k, mapped);
 
             var sarray = marray.map(function (d) {
                 var s = 0.0;
@@ -872,18 +873,18 @@ Ext.define('EMS.controller.Project2', {
 
             var id = stordata.get('pltname');
             var rarray = {};
-            var precis = this.doPrecision(sarray[sarray.length - 1]/kdiv);
+            var precis = this.doPrecision(sarray[sarray.length - 1] / kdiv);
             console.log(precis);
 
             rarray['id'] = id;
             rarray['raw'] = sarray;
             rarray['k'] = k;
-            rarray['Q1'] = (d3.quantile(sarray, 0.25)/kdiv).toFixed(precis[1]);
-            rarray['Q3'] = (d3.quantile(sarray, 0.75)/kdiv).toFixed(precis[1]);
-            rarray['med'] = (d3.median(sarray)/kdiv).toFixed(precis[1]);
-            rarray['mean'] = (d3.mean(sarray)/kdiv).toFixed(precis[1]);
-            rarray['min'] = (sarray[0]/kdiv).toFixed(precis[1]);
-            rarray['max'] = (sarray[sarray.length - 1]/kdiv).toFixed(precis[1]);
+            rarray['Q1'] = (d3.quantile(sarray, 0.25) / kdiv).toFixed(precis[1]);
+            rarray['Q3'] = (d3.quantile(sarray, 0.75) / kdiv).toFixed(precis[1]);
+            rarray['med'] = (d3.median(sarray) / kdiv).toFixed(precis[1]);
+            rarray['mean'] = (d3.mean(sarray) / kdiv).toFixed(precis[1]);
+            rarray['min'] = (sarray[0] / kdiv).toFixed(precis[1]);
+            rarray['max'] = (sarray[sarray.length - 1] / kdiv).toFixed(precis[1]);
             var iq = this.iqr(1.5, sarray, rarray['Q1'], rarray['Q3'], rarray['min'], rarray['max']);
             rarray['lW'] = iq[0];
             rarray['rW'] = iq[1];
@@ -971,6 +972,7 @@ Ext.define('EMS.controller.Project2', {
         var blen = setb.length;
         var i = 0, j = 0;
         var ranka = 0, rankb = 0;
+        var tiecorr = 0;
 
         while ((i < seta.length) && (j < setb.length)) {
             if (seta[i] < setb[j]) {
@@ -997,6 +999,7 @@ Ext.define('EMS.controller.Project2', {
                 var averrank = sumrank / dev;
                 ranka += (averrank * (i - startra));
                 rankb += (averrank * (j - startrb));
+                tiecorr += (dev * dev * dev - dev);
             }
         }
         while (i < seta.length) {
@@ -1011,22 +1014,57 @@ Ext.define('EMS.controller.Project2', {
         var totrank = (alen + blen) * (alen + blen + 1) / 2;
 
         var gu = alen * blen;
+        var tlen=alen+blen;
         var Ua = gu + alen * (alen + 1) / 2 - ranka;
         var Ub = gu + blen * (blen + 1) / 2 - rankb;
+        var U = 0;
         var mu = gu / 2;
-        var sigma = Math.sqrt(gu * (alen + blen + 1) / 12);
+        var Z = 0;
+        if (Ua < Ub) {
+            U=Ub;
+        } else {
+            U=Ua;
+        }
+        var sigma=0;
+
+        if(tiecorr==0) {
+            sigma = Math.sqrt(gu * (tlen + 1) / 12);
+            Z = (U - mu) / sigma;
+        } else {
+
+            sigma = Math.sqrt(gu * (tlen + 1) / 12  - gu*tiecorr/(12*(tlen*(tlen-1))));
+            Z = (U - mu) / sigma;
+        }
+
+        sigma = Math.sqrt(gu * (tlen + 1) / 12);
+        var Zc1 = (U - mu) / sigma;
+
+        sigma = Math.sqrt(gu * (tlen + 1) / 12  - gu*tiecorr/(12*(tlen*(tlen-1))));
+        var Zc2 = (U - mu) / sigma;
+
         var Za = (Ua - mu) / sigma;
         var Zb = (Ub - mu) / sigma;
         //var Pa = this.gaussian_tail_weight(Za);
         //var Pb = this.gaussian_tail_weight(Zb);
         var Pa = this.pnorm(Za);
         var Pb = this.pnorm(Zb);
-        var P = 0;
-        if (Za >= 0) P = Pa;
-        if (Zb >= 0) P = Pb;
-
-        return [P, Za, Zb, Pa, Pb];
-
+        var P = this.pnorm(Z);
+        console.log('wilc debug', {
+            'Ua': Ua,
+            'Ub': Ub,
+            'Z': Z,
+            'Za': Za,
+            'Zb': Zb,
+            'P': P,
+            'Zc1':Zc1,
+            'Zc2':Zc2,
+            'tiecorr': tiecorr,
+            'n1': alen,
+            'n2': blen,
+            'seta': seta.join(),
+            'setb': setb.join()
+        });
+        return [P * 2];
     },
     /*************************************************************
      *************************************************************/
@@ -1043,7 +1081,6 @@ Ext.define('EMS.controller.Project2', {
         return A * Math.exp(-x * x * 0.5);
 
     },
-
     gaussian_tail_weight: function (x) {
 
         // Zelen and Severo (1964):
