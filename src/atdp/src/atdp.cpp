@@ -217,6 +217,7 @@ void ATDP::start() {
             data["mapped"]=exp_i->mapped;
 
             QJsonArray matrix;
+            QJsonArray body_matrix;
             QJsonArray rpkm_matrix;
             QJsonArray rows;
             QJsonArray gene_body;
@@ -230,9 +231,18 @@ void ATDP::start() {
             for(int w=0; w<storage.size(); w++)
                 gene_body.append(storage.at(w));
             /*
+             * Gene body matrix
+             */
+            for(int j=0; j<exp_i->body_matrix.size();j++) {
+                body_matrix.append(exp_i->body_matrix[j].second);
+            }
+
+
+
+
+            /*
              *  AVD HEAT
              */
-
             QList<quint64> max;
             for(int j=0; j<exp_i->avd_matrix.size();j++) {
                 QJsonArray row;
@@ -259,6 +269,7 @@ void ATDP::start() {
             }
             data["max"]=maxx;
             data["array"]=matrix;
+            data["bodyarray"]=body_matrix;
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
             data["genebody"]=gene_body;

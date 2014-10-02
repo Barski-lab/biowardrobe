@@ -144,6 +144,12 @@ void ATDPBasics::getRegions() {
         exp_i->avd_matrix.append(
                     QPair<QSharedPointer<REGION>,QVector<quint16> >(
                         QSharedPointer<REGION>(region),QVector<quint16>(avd_whole_region/avd_heat_window,0) ) );
+        QJsonArray body;
+        for(int c=0;c<300;c++)
+            body<<0.0;
+        exp_i->body_matrix.append(
+                    QPair<QSharedPointer<REGION>,QJsonArray >(
+                        QSharedPointer<REGION>(region), body) );
 
         if(exp_i->rpkmnames.count()>0) {
             QJsonArray rpkms;
@@ -218,8 +224,8 @@ void ATDPBasics::RegionsProcessing () {
                     continue;
                 }
 
-                int b;
-                int b1;
+                int b;//Most left position for Average tag density
+                int b1;//Current read position shifted to fragment size for Average Gene Body
                 if(al.IsPaired()) {
                     b=position_b-left+length/2;
                     b1=position_b+length/2;
@@ -232,17 +238,17 @@ void ATDPBasics::RegionsProcessing () {
                         b1=position_b+shift;
                     }
                 }
-                //if(b<0) continue;
-                //if(b>=avd_whole_region) break;
 
+                // Doubles requested chromosomes
                 quint16 d=1;
                 if(exp_i->tids.contains(al.RefID)) {
                     d=2;
                     exp_i->mapped++;
                 }
 
+                //////// HEAT MAP and ATDPes
                 if(b>=0 && b<avd_whole_region) {
-                    if(exp_i->regions[i]->strand){
+                    if(exp_i->regions[i]->strand) {
                         exp_i->avd_total[b]+=d;
                         exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
                     } else {
@@ -252,24 +258,24 @@ void ATDPBasics::RegionsProcessing () {
                 }
 
                 ///////GENE BODY
-                int _s=b1-(exp_i->regions[i]->txStart-avd_window);
+                int _s=b1-(exp_i->regions[i]->txStart-avd_window);//
                 if(_s<0) continue;
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
                 if(gene_len<avd_bodysize) continue;
                 double val=d;
 
-                if(_s >= 0 && _s < avd_window) {
+                if(_s >= 0 && _s < avd_window) { //1
                     _idx=_s/r_w_b;
                     val/=r_w_b;
-                } else
+                } else                          //2
 
                 if(_s >= avd_window && _s < gene_len+avd_window ) {
                     _s -= avd_window;
                     double rat=(double)gene_len/(double)avd_bodysize;
                     _idx = _s/rat+avd_bodysize;
                     val /= rat;
-                } else
+                } else                           //3
 
                 if(_s >=gene_len+avd_window && _s < gene_len+avd_window*2 ) {
                     _s -= (gene_len+avd_window);
@@ -279,9 +285,12 @@ void ATDPBasics::RegionsProcessing () {
                     continue;
                 }
 
-                if(exp_i->regions[i]->strand){
+                if(exp_i->regions[i]->strand) {
+                    exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+val/(avd_window*2+gene_len);
                     exp_i->avd_body[_idx]+=val;
                 } else {
+                    exp_i->body_matrix[i].second[300-_idx/10-1]=exp_i->body_matrix[i].second.at(300-_idx/10-1).toDouble()+val/(avd_window*2+gene_len);
+                    //exp_i->body_matrix[i].second[300-_idx/10-1]+=(val/(avd_window*2+gene_len));
                     exp_i->avd_body[avd_bodysize*3-_idx-1]+=val;
                 }
 
