@@ -258,7 +258,7 @@ void ATDPBasics::RegionsProcessing () {
                 if(_s<0) continue;
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
-                if(gene_len<avd_bodysize) continue;
+                if(gene_len<1) continue;
                 double val=d;
                 double bval=d;
 
