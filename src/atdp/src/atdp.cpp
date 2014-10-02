@@ -257,7 +257,7 @@ void ATDP::start() {
                 max<<max_line;
                 matrix.append(row);
                 rows.append(exp_i->rpkm_matrix[j].first->gene_id);
-                glength.append(exp_i->rpkm_matrix[j].first->txEnd-exp_i->rpkm_matrix[j].first->txEnd);
+                glength.append(exp_i->rpkm_matrix[j].first->txEnd-exp_i->rpkm_matrix[j].first->txStart);
                 rpkm_matrix.append(exp_i->rpkm_matrix[j].second);
             }
 
