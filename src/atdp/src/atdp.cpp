@@ -220,6 +220,7 @@ void ATDP::start() {
             QJsonArray body_matrix;
             QJsonArray rpkm_matrix;
             QJsonArray rows;
+            QJsonArray glength;
             QJsonArray gene_body;
             /*
              * Avd gene body
@@ -256,12 +257,14 @@ void ATDP::start() {
                 max<<max_line;
                 matrix.append(row);
                 rows.append(exp_i->rpkm_matrix[j].first->gene_id);
+                glength.append(exp_i->rpkm_matrix[j].first->txEnd-exp_i->rpkm_matrix[j].first->txEnd);
                 rpkm_matrix.append(exp_i->rpkm_matrix[j].second);
             }
 
             qSort(max);
             float quan=qCeil(max.size()*0.9);
             data["rows"]=rows;
+            data["glengths"]=glength;
             double maxx=(double)max.at(quan);
             if(quan>1) {
                 maxx+=max.at(quan-1);

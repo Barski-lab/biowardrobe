@@ -45,7 +45,6 @@ struct EXPERIMENT_INFO {
         QVector<QPair<QSharedPointer<REGION>,QVector<quint16> > > avd_matrix;
         QVector<QPair<QSharedPointer<REGION>,QJsonArray > > rpkm_matrix;
         QVector<QPair<QSharedPointer<REGION>,QJsonArray > > body_matrix;
-
 };
 
 class ATDPBasics

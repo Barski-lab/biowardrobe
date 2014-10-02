@@ -211,10 +211,6 @@ void ATDPBasics::RegionsProcessing () {
                         prn_debug("Name3:",al);
                         continue;
                     }
-                    //                        if( (u||l)>0 && (!(l<=length && length<=u)) ) { //fragment length filter, for pair ends
-                    //                            output->notAligned+=num;
-                    //                            continue;
-                    //                        }
                     if(al.IsReverseStrand()) {
                         position_b= position_e-length+1;
                     } else {
@@ -264,6 +260,7 @@ void ATDPBasics::RegionsProcessing () {
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
                 if(gene_len<avd_bodysize) continue;
                 double val=d;
+                double bval=d;
 
                 if(_s >= 0 && _s < avd_window) { //1
                     _idx=_s/r_w_b;
@@ -284,13 +281,11 @@ void ATDPBasics::RegionsProcessing () {
                 } else {
                     continue;
                 }
-
                 if(exp_i->regions[i]->strand) {
-                    exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+val*10;
+                    exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+bval;
                     exp_i->avd_body[_idx]+=val;
                 } else {
-                    exp_i->body_matrix[i].second[300-_idx/10-1]=exp_i->body_matrix[i].second.at(300-_idx/10-1).toDouble()+val*10;
-                    //exp_i->body_matrix[i].second[300-_idx/10-1]+=(val/(avd_window*2+gene_len));
+                    exp_i->body_matrix[i].second[300-_idx/10-1]=exp_i->body_matrix[i].second.at(300-_idx/10-1).toDouble()+bval;
                     exp_i->avd_body[avd_bodysize*3-_idx-1]+=val;
                 }
 
