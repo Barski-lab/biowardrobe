@@ -286,10 +286,10 @@ void ATDPBasics::RegionsProcessing () {
                 }
 
                 if(exp_i->regions[i]->strand) {
-                    exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+val/(avd_window*2+gene_len);
+                    exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+val*10;
                     exp_i->avd_body[_idx]+=val;
                 } else {
-                    exp_i->body_matrix[i].second[300-_idx/10-1]=exp_i->body_matrix[i].second.at(300-_idx/10-1).toDouble()+val/(avd_window*2+gene_len);
+                    exp_i->body_matrix[i].second[300-_idx/10-1]=exp_i->body_matrix[i].second.at(300-_idx/10-1).toDouble()+val*10;
                     //exp_i->body_matrix[i].second[300-_idx/10-1]+=(val/(avd_window*2+gene_len));
                     exp_i->avd_body[avd_bodysize*3-_idx-1]+=val;
                 }
