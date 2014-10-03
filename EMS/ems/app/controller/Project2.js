@@ -711,7 +711,7 @@ Ext.define('EMS.controller.Project2', {
                                                                                    scope: me,
                                                                                    fn: me.doWilcoxonMB
                                                                                }
-                                                                           },
+                                                                           }
                                                                        }));
                               tabs.items.items[0].setActiveTab(0);
                               tabs.show();
@@ -730,41 +730,64 @@ Ext.define('EMS.controller.Project2', {
             return;
         }
 
-        var w = chart.getWidth() * 0.906;
-        var k = 10000 / w;
+        var w = chart.surface.width;//getWidth() * 0.906;
+        console.log('widths:', w, chart.getWidth(), 'chart', chart);
         var step = 200;
-        var l = Math.floor(selection.x * k - 5000);
-        var m = Math.abs(l) % step;
-        if (l < 0 && m < 100) {
-            l = l + m;
-        } else if (l < 0 && m >= 100) {
-            l = l - (step - m);
-        } else if (l >= 0 && m < 100) {
-            l = l - m;
-        } else if (l >= 0 && m >= 100) {
-            l = l + (step - m);
+        var msg = "";
+        var type = 1;
+        var l = 0, r = 0;
+        if (chart.BNAME) {
+            var k = 10000 / w;
+            l = Math.floor(selection.x * k - 5000);
+            var m = Math.abs(l) % step;
+            if (l < 0 && m < 100) {
+                l = l + m;
+            } else if (l < 0 && m >= 100) {
+                l = l - (step - m);
+            } else if (l >= 0 && m < 100) {
+                l = l - m;
+            } else if (l >= 0 && m >= 100) {
+                l = l + (step - m);
+            }
+
+            r = Math.floor(selection.width * k);
+            m = Math.abs(r) % step;
+            if (m < 100)
+                r = l + r - m;
+            else
+                r = l + r + (step - m);
+
+            if (r > 5000)
+                r = 5000;
+            if (r < -5000)
+                r = -5000;
+            if (l > 5000)
+                l = 5000;
+            if (l < -5000)
+                l = -5000;
+            msg = 'Please adjust the region for Wilcoxon rank-sum test (step is 200bp window)';
+        } else {
+            type = 2;
+            step = 1;
+            var k = 300 / w;
+            l = Math.floor(selection.x * k);
+            r = l + Math.floor(selection.width * k);
+
+
+            if (r > 300)
+                r = 300;
+            if (r < 1)
+                r = 1;
+            if (l > 300)
+                l = 300;
+            if (l < 1)
+                l = 1;
+            msg = 'Please adjust the region for Wilcoxon rank-sum test. <br>There are 3 regions each one has 100 points.<br> First region from 1 to 100, second from 101 to 200 etc.';
         }
-
-        var r = Math.floor(selection.width * k);
-        m = Math.abs(r) % step;
-        if (m < 100)
-            r = l + r - m;
-        else
-            r = l + r + (step - m);
-
-        if (r > 5000)
-            r = 5000;
-        if (r < -5000)
-            r = -5000;
-        if (l > 5000)
-            l = 5000;
-        if (l < -5000)
-            l = -5000;
-
         Ext.create('EMS.util.MessageBox',
                    {
                        title: 'Adjust region',
-                       msg: 'Please adjust the region for Wilcoxon rank-sum test (200bp window)',
+                       msg: msg,
                        fields: [
                            {
                                xtype: 'fieldcontainer',
@@ -783,7 +806,7 @@ Ext.define('EMS.controller.Project2', {
                                        allowDecimals: false,
                                        flex: 1,
                                        value: l,
-                                       step: 200,
+                                       step: step,
                                        minValue: -5000,
                                        maxValue: 5000,
                                        //listeners: {
@@ -805,7 +828,7 @@ Ext.define('EMS.controller.Project2', {
                                        allowDecimals: false,
                                        flex: 1,
                                        value: r,
-                                       step: 200,
+                                       step: step,
                                        minValue: -5000,
                                        maxValue: 5000,
                                        //listeners: {
@@ -823,10 +846,9 @@ Ext.define('EMS.controller.Project2', {
                            if (btn == 'yes') {
                                var l = mbox.down('[name=left]').getValue();
                                var r = mbox.down('[name=right]').getValue();
-                               //this.store.lastOptions
-                               me.doWilcoxonSet(l, r);
-                               //console.log(chart, selection, btn, cbox, mbox);
+                               me.doWilcoxonSet(l, r, type);
                            }
+                           console.log('mask=', chart.mask);
                            chart.mask.hide();
                            return true;
                        }
@@ -845,36 +867,96 @@ Ext.define('EMS.controller.Project2', {
         return [lW * 1, rW * 1];
     },
 
-    doWilcoxonSet: function (l, r) {
+    doWilcoxonSet: function (l, r, type) {
         var store = this.getATDPHeatAStore();
-        var window = 10000 / store.getAt(0).get('array')[0].length;
-        var nl = Math.floor((l + 5000) / window), nr = Math.floor((r + 5000) / window);
+        if (!store.lastOptions) return;
+
+        if (type == 1) {
+            if (r > 5000)
+                r = 5000;
+            if (r < -5000)
+                r = -5000;
+            if (l > 5000)
+                l = 5000;
+            if (l < -5000)
+                l = -5000;
+
+            var window = 10000 / store.getAt(0).get('array')[0].length;
+            var nl = Math.floor((l + 5000) / window), nr = Math.floor((r + 5000) / window);
+        } else if (type == 2) {
+            nl = l - 1;
+            nr = r;
+        }
         var darray = [];
         //var min = Infinity, max = -Infinity;
         for (var i = 0; i < store.getCount(); i++) {
             var stordata = store.getAt(i);
-            var marray = stordata.get('array');
 
             var mapped = stordata.get('mapped');
             var k = 1;
             var kdiv = 1000000.0;
-            console.log(mapped);
+
             if (!mapped || mapped == 0)
                 mapped = kdiv;
             k = mapped / kdiv;
-            console.log(k, mapped);
 
-            var sarray = marray.map(function (d) {
-                var s = 0.0;
-                for (var i = nl; i < nr; i++)
-                    s += d[i];
-                return s / k;
-            }).sort(d3.ascending);
+            var marray = [];
+            var sarray=[];
+            if (type == 1) {
+                marray = stordata.get('array');
+                sarray = marray.map(function (d) {
+                    var s = 0.0;
+                    for (var i = nl; i < nr; i++)
+                        s += d[i];
+                    return s / k;
+                }).sort(d3.ascending);
+            } else if (type == 2) {
+                marray = stordata.get('bodyarray');
+                var glengths = stordata.get('glengths');
+                var rg=[100,200,300];
+                var seg=[l,r];
+                var mer=[];
+                var body_segments=[];
+                var rgl= 0,segl=0;
+                var current_gene_length=0;
+                var current_gene_coeff=0;
+
+                while(rgl<rg.length && segl<seg.length) {
+                    if(rg[rgl]<seg[segl]) {
+                        mer.push(rg[rgl]);
+                        rgl++;
+                    } else if (seg[segl]<rg[rgl]) {
+                        mer.push(seg[segl]);
+                        segl++;
+                    } else {
+                        mer.push(seg[segl]);
+                        segl++;rgl++;
+                    }
+                    if(mer.length>1) {
+                        var d=mer[mer.length-1]-mer[mer.length-2];
+                        if(mer.length-1 == 2) {
+                            current_gene_coeff=d/100;
+                        } else {
+                            current_gene_length+=(50*d);
+                        }
+                        //body_segments.push({'i':mer.length-1,'l':mer[mer.length-2],'r':mer[mer.length-1]});
+                    }
+                }
+                console.log('coeff & len=',current_gene_coeff,current_gene_length);
+
+                sarray = marray.map(function (d,j) {
+                    var s = 0.0;
+                    var r=0;
+                    for (var i = nl; i < nr; i++)
+                        s += d[i];
+                    return (s/k )/(current_gene_length+glengths[j]*current_gene_coeff);
+                }).sort(d3.ascending);
+                //continue;
+            }
 
             var id = stordata.get('pltname');
             var rarray = {};
             var precis = this.doPrecision(sarray[sarray.length - 1] / kdiv);
-            console.log(precis);
 
             rarray['id'] = id;
             rarray['raw'] = sarray;
@@ -953,11 +1035,11 @@ Ext.define('EMS.controller.Project2', {
                 html += "<td>&nbsp;</td>";
             }
             for (var j = i + 1; j < data.length; j++) {
-                if (i == 0) head += "<td>" + data[j]['id'] + "</td>";
+                if (i == 0) head += '<td>' + data[j]['id'] + "</td>";
 
                 var w = this.wilcoxon(data[i]['raw'], data[j]['raw']);
                 //var pr=this.doPrecision(w[0]);
-                html += "<td>" + w[0].toExponential(2) + "</td>";
+                html += '<td align="right">' + w[0].toExponential(2) + "</td>";
 
                 console.log(data[i]['id'] + ' vs ' + data[j]['id'], w);
             }
@@ -1014,50 +1096,38 @@ Ext.define('EMS.controller.Project2', {
         var totrank = (alen + blen) * (alen + blen + 1) / 2;
 
         var gu = alen * blen;
-        var tlen=alen+blen;
+        var tlen = alen + blen;
         var Ua = gu + alen * (alen + 1) / 2 - ranka;
         var Ub = gu + blen * (blen + 1) / 2 - rankb;
         var U = 0;
         var mu = gu / 2;
         var Z = 0;
         if (Ua < Ub) {
-            U=Ub;
+            U = Ub;
         } else {
-            U=Ua;
+            U = Ua;
         }
-        var sigma=0;
+        var sigma = 0;
 
-        if(tiecorr==0) {
+        if (tiecorr == 0) {
             sigma = Math.sqrt(gu * (tlen + 1) / 12);
             Z = (U - mu) / sigma;
         } else {
 
-            sigma = Math.sqrt(gu * (tlen + 1) / 12  - gu*tiecorr/(12*(tlen*(tlen-1))));
+            sigma = Math.sqrt(gu * (tlen + 1) / 12 - gu * tiecorr / (12 * (tlen * (tlen - 1))));
             Z = (U - mu) / sigma;
         }
 
-        sigma = Math.sqrt(gu * (tlen + 1) / 12);
-        var Zc1 = (U - mu) / sigma;
-
-        sigma = Math.sqrt(gu * (tlen + 1) / 12  - gu*tiecorr/(12*(tlen*(tlen-1))));
-        var Zc2 = (U - mu) / sigma;
-
-        var Za = (Ua - mu) / sigma;
-        var Zb = (Ub - mu) / sigma;
         //var Pa = this.gaussian_tail_weight(Za);
         //var Pb = this.gaussian_tail_weight(Zb);
-        var Pa = this.pnorm(Za);
-        var Pb = this.pnorm(Zb);
+        //var Pa = this.pnorm(Za);
+        //var Pb = this.pnorm(Zb);
+
         var P = this.pnorm(Z);
         console.log('wilc debug', {
-            'Ua': Ua,
-            'Ub': Ub,
+            'U': U,
             'Z': Z,
-            'Za': Za,
-            'Zb': Zb,
             'P': P,
-            'Zc1':Zc1,
-            'Zc2':Zc2,
             'tiecorr': tiecorr,
             'n1': alen,
             'n2': blen,
@@ -1118,6 +1188,7 @@ Ext.define('EMS.controller.Project2', {
     /*************************************************************
      *************************************************************/
     ATDPHview: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid, tabs) {
+        var me = this;
         var stor = this.getATDPHeatAStore();
         stor.getProxy().setExtraParam('id', record.data['item_id']);
         var tabadded = tabs.add({xtype: 'panel', title: 'Tag Density Heatmap'});
@@ -1128,7 +1199,18 @@ Ext.define('EMS.controller.Project2', {
                       callback: function (records, operation, success) {
                           if (success) {
                               tabs.remove(tabadded);
-                              tabs.add(Ext.create("EMS.view.Project2.ATDPBChart", {store: stor}));
+                              tabs.add(Ext.create("EMS.view.Project2.ATDPBChart",
+                                                  {
+                                                      store: stor,
+                                                      mask: 'horizontal',
+                                                      listeners: {
+                                                          select: {
+                                                              scope: me,
+                                                              fn: me.doWilcoxonMB
+                                                          }
+                                                      }
+
+                                                  }));
                               tabs.add(Ext.create("EMS.view.Project2.ATDPHChart", {store: stor}));
                           }
                       }
