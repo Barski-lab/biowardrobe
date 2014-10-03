@@ -730,8 +730,8 @@ Ext.define('EMS.controller.Project2', {
             return;
         }
 
-        var w = chart.surface.width;//getWidth() * 0.906;
-        console.log('widths:', w, chart.getWidth(), 'chart', chart);
+        var w = chart.getWidth() - 250;
+        console.log('widths:', w, chart.getWidth(), 'chart', chart,'sel=',selection);
         var step = 200;
         var msg = "";
         var type = 1;
@@ -922,6 +922,12 @@ Ext.define('EMS.controller.Project2', {
                 var current_gene_coeff=0;
 
                 while(rgl<rg.length && segl<seg.length) {
+
+                    if(rg[rgl]<seg[segl] && segl==0) {
+                        rgl++;
+                        continue;
+                    }
+
                     if(rg[rgl]<seg[segl]) {
                         mer.push(rg[rgl]);
                         rgl++;
@@ -934,7 +940,7 @@ Ext.define('EMS.controller.Project2', {
                     }
                     if(mer.length>1) {
                         var d=mer[mer.length-1]-mer[mer.length-2];
-                        if(mer.length-1 == 2) {
+                        if(mer[mer.length-1]>100 && mer[mer.length-1]<201) {
                             current_gene_coeff=d/100;
                         } else {
                             current_gene_length+=(50*d);
@@ -942,7 +948,7 @@ Ext.define('EMS.controller.Project2', {
                         //body_segments.push({'i':mer.length-1,'l':mer[mer.length-2],'r':mer[mer.length-1]});
                     }
                 }
-                console.log('coeff & len=',current_gene_coeff,current_gene_length);
+                console.log('coeff & len=',current_gene_coeff,current_gene_length,'mer=',mer);
 
                 sarray = marray.map(function (d,j) {
                     var s = 0.0;
