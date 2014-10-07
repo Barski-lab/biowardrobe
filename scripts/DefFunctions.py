@@ -286,7 +286,7 @@ def run_fence(infile, pair, bzip=False, force=False):
 
 def run_atp(lid, bin="/wardrobe/bin"):
     cmd = bin + '/atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
-    cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=5 '
+    cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=200 '
 
     try:
         s.check_output(cmd, shell=True)
