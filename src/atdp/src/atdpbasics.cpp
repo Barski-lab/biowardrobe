@@ -102,42 +102,45 @@ void ATDPBasics::getRegions() {
         }
 
         QSharedPointer<REGION> region(new REGION());
+        qint64 start=0,end=0;
 
         if(strand=='+'){
-            qint64 start=txStart-avd_window;//-exp_i->fragmentsize/2;
-            if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
-                if(!exp_i->regions.last()->gene_id.contains(gene_id))
-                    exp_i->regions.last()->gene_id.append(","+gene_id);
-                if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
-                    exp_i->regions.last()->refseq_id.append(","+refseq_id);
-                if(exp_i->regions.last()->txEnd<txEnd)
-                    exp_i->regions.last()->txEnd=txEnd;
-                region.clear();
-                continue;
-            }
-            region->txStart=txStart;
-            region->txEnd=txEnd;
-            region->start=start;
-            region->end=txStart+avd_window;//+exp_i->fragmentsize/2;
+            start=txStart-avd_window;//-exp_i->fragmentsize/2;
+            end=txStart+avd_window;
             region->strand=true;
         } else {
-            qint64 start=txEnd-avd_window;//-exp_i->fragmentsize/2;
-            if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
-                if(!exp_i->regions.last()->gene_id.contains(gene_id))
-                    exp_i->regions.last()->gene_id.append(","+gene_id);
-                if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
-                    exp_i->regions.last()->refseq_id.append(","+refseq_id);
-                if(exp_i->regions.last()->txStart>txStart)
-                    exp_i->regions.last()->txStart=txStart;
-                region.clear();
-                continue;
-            }
-            region->txStart=txStart;
-            region->txEnd=txEnd;
-            region->start=start;
-            region->end=txEnd+avd_window;//+exp_i->fragmentsize/2;
+            start=txEnd-avd_window;//-exp_i->fragmentsize/2;
+            end=txEnd+avd_window;
+            //            if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
+            //                if(!exp_i->regions.last()->gene_id.contains(gene_id))
+            //                    exp_i->regions.last()->gene_id.append(","+gene_id);
+            //                if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
+            //                    exp_i->regions.last()->refseq_id.append(","+refseq_id);
+            //                if(exp_i->regions.last()->txStart>txStart)
+            //                    exp_i->regions.last()->txStart=txStart;
+            //                region.clear();
+            //                continue;
+            //            }
             region->strand=false;
         }
+
+        if(!exp_i->regions.isEmpty() && exp_i->regions.last()->start==start) {
+            if(!exp_i->regions.last()->gene_id.contains(gene_id))
+                exp_i->regions.last()->gene_id.append(","+gene_id);
+            if(!exp_i->regions.last()->refseq_id.contains(refseq_id))
+                exp_i->regions.last()->refseq_id.append(","+refseq_id);
+            //            if(exp_i->regions.last()->txEnd<txEnd)
+            //                exp_i->regions.last()->txEnd=txEnd;
+            region.clear();
+            continue;
+        }
+
+        region->txStart=txStart;
+        region->txEnd=txEnd;
+
+        region->start=start;
+        region->end=end;//+exp_i->fragmentsize/2;
+
         region->gene_id=gene_id;
         region->refseq_id=refseq_id;
         region->chrom=chr;
@@ -246,10 +249,12 @@ void ATDPBasics::RegionsProcessing () {
                 if(b>=0 && b<avd_whole_region) {
                     if(exp_i->regions[i]->strand) {
                         exp_i->avd_total[b]+=d;
-                        exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
+                        if(b/avd_heat_window < exp_i->avd_matrix[i].second.size())
+                            exp_i->avd_matrix[i].second[b/avd_heat_window]+=d;
                     } else {
                         exp_i->avd_total[avd_whole_region-b-1]+=d;
-                        exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=d;
+                        if((avd_whole_region-b-1)/avd_heat_window < exp_i->avd_matrix[i].second.size())
+                            exp_i->avd_matrix[i].second[(avd_whole_region-b-1)/avd_heat_window]+=d;
                     }
                 }
 
@@ -258,7 +263,7 @@ void ATDPBasics::RegionsProcessing () {
                 if(_s<0) continue;
                 int _idx=0;
                 int gene_len=(exp_i->regions[i]->txEnd-exp_i->regions[i]->txStart);
-                if(gene_len<1) continue;
+                if(gene_len<1)  continue;
                 double val=d;
                 double bval=d;
 
@@ -267,20 +272,20 @@ void ATDPBasics::RegionsProcessing () {
                     val/=r_w_b;
                 } else                          //2
 
-                if(_s >= avd_window && _s < gene_len+avd_window ) {
-                    _s -= avd_window;
-                    double rat=(double)gene_len/(double)avd_bodysize;
-                    _idx = _s/rat+avd_bodysize;
-                    val /= rat;
-                } else                           //3
+                    if(_s >= avd_window && _s < gene_len+avd_window ) {
+                        _s -= avd_window;
+                        double rat=(double)gene_len/(double)avd_bodysize;
+                        _idx = _s/rat+avd_bodysize;
+                        val /= rat;
+                    } else                           //3
 
-                if(_s >=gene_len+avd_window && _s < gene_len+avd_window*2 ) {
-                    _s -= (gene_len+avd_window);
-                    _idx = _s/r_w_b+avd_bodysize*2;
-                    val /= r_w_b;
-                } else {
-                    continue;
-                }
+                        if(_s >=gene_len+avd_window && _s < gene_len+avd_window*2 ) {
+                            _s -= (gene_len+avd_window);
+                            _idx = _s/r_w_b+avd_bodysize*2;
+                            val /= r_w_b;
+                        } else {
+                            continue;
+                        }
                 if(exp_i->regions[i]->strand) {
                     exp_i->body_matrix[i].second[_idx/10]=exp_i->body_matrix[i].second.at(_idx/10).toDouble()+bval;
                     exp_i->avd_body[_idx]+=val;
