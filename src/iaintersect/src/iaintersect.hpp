@@ -73,6 +73,7 @@ class IAIntersect: public QObject
         quint64 promoter,upstream;
         QString db_name;
         QString an_tbl;
+        QString tbl_name;
 
         QSqlError sqlErr;
         QSqlQuery q;

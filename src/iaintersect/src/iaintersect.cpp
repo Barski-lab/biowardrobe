@@ -78,8 +78,15 @@ void IAIntersect::fillUpAnnotation( ) {
 
 void IAIntersect::getRecordInfo() {
     QSqlQuery q;
-    q.prepare("select g.db,g.annottable from labdata l,genome g where l.uid=? and g.id=l.genome_id");
-    q.bindValue(0, gArgs().getArgs("uid").toString());
+    if(!gArgs().getArgs("uid").toString().isEmpty()) {
+        q.prepare("select g.db,g.annottable from labdata l,genome g where l.uid=? and g.id=l.genome_id");
+        q.bindValue(0, gArgs().getArgs("uid").toString());
+    } else
+    if(!gArgs().getArgs("guid").toString().isEmpty()) {
+        q.prepare("select g.db,g.annottable,gl.tableName from genelist gl,genome g where gl.id=? and gl.db=g.db");
+        q.bindValue(0, gArgs().getArgs("uid").toString());
+    }
+
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();
         throw "Error query to DB";
@@ -87,6 +94,9 @@ void IAIntersect::getRecordInfo() {
     q.next();
     db_name=q.value(0).toString();
     an_tbl=q.value(1).toString();
+    if(!gArgs().getArgs("guid").toString().isEmpty()) {
+        tbl_name=q.value(2).toString();
+    }
 }
 
 void IAIntersect::start()
@@ -94,9 +104,16 @@ void IAIntersect::start()
 qDebug()<<"start";
     this->getRecordInfo();
     this->fillUpAnnotation();
+    QString tableName;
 
     QSqlQuery q;
-    q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands`");
+    if(!gArgs().getArgs("uid").toString().isEmpty()) {
+        tableName=gArgs().getArgs("uid").toString()+"_islands";
+    } else
+        if(!gArgs().getArgs("guid").toString().isEmpty()) {
+            tableName=this->tbl_name;
+    }
+    q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"`");
     if(!q.exec()) {
         qDebug()<<"Cant describe "<<q.lastError().text();
         throw "Error describe";
@@ -111,7 +128,7 @@ qDebug()<<"start";
 //    }
     //Fix table if no needed column
     if(alter) {
-        if(!q.exec("ALTER TABLE `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands`"
+        if(!q.exec("ALTER TABLE `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"`"
                    "ADD COLUMN `refseq_id` VARCHAR(500) NULL FIRST,"
                    "ADD COLUMN `gene_id` VARCHAR(500) NULL AFTER `refseq_id`,"
                    "ADD COLUMN `txStart` INT NULL after gene_id,"
@@ -131,7 +148,7 @@ qDebug()<<"start";
         q.clear();
     }
     //Select Islands
-    q.prepare("select distinct chrom,start,end from `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands` order by chrom,start,end ");
+    q.prepare("select distinct chrom,start,end from `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"` order by chrom,start,end ");
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();
         throw "Error query to DB";
@@ -197,7 +214,7 @@ qDebug()<<"start";
                 refseq_name+=","+REFSEQ_NAME.value(i);
             }
             QSqlQuery _q;
-            _q.prepare("update `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands` "
+            _q.prepare("update `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"` "
                       "set refseq_id=?,gene_id=?,txStart=?,txEnd=?,strand=?,region='intergenic' where chrom=? and start=? and end=?");
             _q.bindValue(0,refseq_name);
             _q.bindValue(1,gene_name);
@@ -328,7 +345,7 @@ qDebug()<<"start";
             refseq_name+=","+REFSEQ_NAME.value(i);
         }
         QSqlQuery _q;
-        _q.prepare("update `"+gSettings().getValue("experimentsdb")+"`.`"+gArgs().getArgs("uid").toString()+"_islands` "
+        _q.prepare("update `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"` "
                   "set refseq_id=?,gene_id=?,txStart=?,txEnd=?,strand=?,region='"+region+"' where chrom=? and start=? and end=?");
         _q.bindValue(0,refseq_name);
         _q.bindValue(1,gene_name);
