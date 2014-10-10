@@ -278,8 +278,8 @@ void Arguments::argsList(void)
     Arguments::addArg("avd_sort_column","avd_sort_column","AVD/SSORTNAME",QVariant::String,"Name of the column to sort",QString(""));
     Arguments::addArg("avd_expresssion_columns","avd_expresssion_columns","AVD/EXPRESSIONCOL",QVariant::String,"Names of the columns to select",QString(""));
 
-    Arguments::addArg("uid","uid","UUID",QVariant::String,"UUID",0);
-    Arguments::addArg("guid","guid","GUUID",QVariant::String,"GUUID",0);
+    Arguments::addArg("uid","uid","UUID",QVariant::String,"UUID",QString(""));
+    Arguments::addArg("guid","guid","GUUID",QVariant::String,"GUUID",QString(""));
 
     Arguments::addArg("promoter","promoter","",QVariant::Int,"Promoter region around TSS in bp.",1000);
     Arguments::addArg("upstream","upstream","",QVariant::Int,"Upstream region before promoter in BP",20000);

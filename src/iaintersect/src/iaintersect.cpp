@@ -78,13 +78,14 @@ void IAIntersect::fillUpAnnotation( ) {
 
 void IAIntersect::getRecordInfo() {
     QSqlQuery q;
-    if(!gArgs().getArgs("uid").toString().isEmpty()) {
+    if(gArgs().getArgs("uid").toString()!="") {
         q.prepare("select g.db,g.annottable from labdata l,genome g where l.uid=? and g.id=l.genome_id");
         q.bindValue(0, gArgs().getArgs("uid").toString());
-    } else
-    if(!gArgs().getArgs("guid").toString().isEmpty()) {
+    }
+
+    if(gArgs().getArgs("guid").toString()!="") {
         q.prepare("select g.db,g.annottable,gl.tableName from genelist gl,genome g where gl.id=? and gl.db=g.db");
-        q.bindValue(0, gArgs().getArgs("uid").toString());
+        q.bindValue(0, gArgs().getArgs("guid").toString());
     }
 
     if(!q.exec()) {
@@ -107,10 +108,11 @@ qDebug()<<"start";
     QString tableName;
 
     QSqlQuery q;
-    if(!gArgs().getArgs("uid").toString().isEmpty()) {
+    if(gArgs().getArgs("uid").toString() != "") {
         tableName=gArgs().getArgs("uid").toString()+"_islands";
-    } else
-        if(!gArgs().getArgs("guid").toString().isEmpty()) {
+    }
+
+    if(gArgs().getArgs("guid").toString() !="") {
             tableName=this->tbl_name;
     }
     q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"`");
