@@ -34,6 +34,8 @@ check_val($id);
 
 $con = def_connect();
 $EDB = $settings->settings['experimentsdb']['value'];
+$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
+$BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
 
 //$con->select_db($db_name_experiments);
 
@@ -44,6 +46,29 @@ if (!$record)
 $tablename = $record[0]['tableName'];
 $gblink = $record[0]['gblink'];
 $db=$record[0]['db'];
+$type=$record[0]['type'];
+
+if(isset($type) && intval($type)==103) {
+    $promoter = 0;
+    if (isset($_REQUEST['promoter']))
+        $promoter = $_REQUEST['promoter'];
+
+    $describe = selectSQL("describe `{$EDB}`.`{$tablename}`", array());
+
+    if ($describe[0]['Field'] != "refseq_id" || $promoter) {
+        if (!$promoter) $promoter = 1000;
+        ignore_user_abort(true);
+        set_time_limit(600);
+        $command = "{$BIN}/iaintersect -guid=\"{$id}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
+        exec($command, $output, $retval);
+        logmsg($command,$output,$retval);
+        if ($retval != 0) {
+            $response->print_error("Cant execute command " . print_r($output, true));
+        }
+    }
+
+}
+
 
 $total = selectSQL("SELECT COUNT(*) as count FROM `{$EDB}`.`$tablename` $where", array())[0]['count'];
 
