@@ -107,9 +107,9 @@ Ext.Loader.setConfig({
 /******************************************************************
  ******************************************************************/
 
-Ext.require('Chart.ux.Highcharts');
-Ext.require('Chart.ux.Highcharts.Serie');
-Ext.require('Chart.ux.Highcharts.HeatmapSerie');
+//Ext.require('Chart.ux.Highcharts');
+//Ext.require('Chart.ux.Highcharts.Serie');
+//Ext.require('Chart.ux.Highcharts.HeatmapSerie');
 
 
     //http://stackoverflow.com/questions/15834689/extjs-4-2-tooltips-not-wide-enough-to-see-contents

@@ -228,6 +228,17 @@ for ($i = 0; $i < $tbpairlen; $i++) {
                 array("siisiiddd", $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8]), true);
         }
         fclose($handle);
+
+        $promoter = 1000;
+        ignore_user_abort(true);
+        set_time_limit(600);
+        $command = "{$BIN}/iaintersect -guid=\"{$UUID}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
+        exec($command, $output, $retval);
+        if ($retval != 0) {
+            logmsg($output);
+            //$response->print_error("Cant execute command " . print_r($output, true));
+        }
+
     } else {
         $response->print_error("Cant find MANorm output. "); #.print_r($output,true)
     }
@@ -239,6 +250,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     if (!$con->commit()) {
         $response->print_error("Cant commit");
     }
+/*
     //promoter intersection
 
     $UUID1 = guid();
@@ -293,6 +305,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     if (!$con->commit()) {
         $response->print_error("Cant commit");
     }
+*/
 
 }
 //for?
