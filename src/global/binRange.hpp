@@ -76,7 +76,7 @@ struct binKeeperCookie
     struct binElement *nextBel; /* next binElement */
     };
 
-#ifdef FALSE
+#if 0
 struct binKeeper *binKeeperNew(int minPos, int maxPos);
 /* Create new binKeeper that can cover range. */
 

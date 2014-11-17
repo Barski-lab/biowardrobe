@@ -119,7 +119,7 @@ else
     return binFromRangeExtended(start, end);
 }
 
-#ifdef FALSE
+#if 0
 static int binFromRangeBinKeeperExtended(int start, int end)
 /* This is just like binFromRangeExtended() above, but it doesn't limit
  * the answers to the range from _binOffsetOldToExtended and up.
