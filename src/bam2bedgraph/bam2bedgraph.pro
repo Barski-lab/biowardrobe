@@ -24,7 +24,7 @@ DEFINES     += _WARDROBE_    \
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
 LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
-#QMAKE_CXXFLAGS += -Werror 
+#QMAKE_CXXFLAGS += -Werror
 #-std=c++0x
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE)
@@ -48,7 +48,7 @@ QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
 DEPENDPATH +=  . \
                src \
                ../../thirdparty/bamtools \
-               ../global 
+               ../global
 
 INCLUDEPATH += . \
                ./src \
@@ -59,7 +59,8 @@ HEADERS +=     ../global/Arguments.hpp \
                ../global/Reads.hpp \
                src/Bam2Bedgraph.hpp \
                ../global/BEDHandler.hpp \
-               ../global/Settings.hpp
+               ../global/Settings.hpp \
+    ../global/binRange.hpp
 
 # Input
 SOURCES +=     src/main.cpp \
@@ -67,7 +68,8 @@ SOURCES +=     src/main.cpp \
                src/Bam2Bedgraph.cpp \
                ../global/Arguments.cpp \
                ../global/BEDHandler.cpp \
-               ../global/Settings.cpp
+               ../global/Settings.cpp \
+    ../global/binRange.cpp
 
 
 QMAKE_CLEAN += $${TARGET} logfile.log *~ ./src/*~ *.txt ../global/*~

@@ -25,6 +25,7 @@
 
 #include <config.hpp>
 #include <Reads.hpp>
+#include <binRange.hpp>
 
 #if 0
 GLOBALCALL{

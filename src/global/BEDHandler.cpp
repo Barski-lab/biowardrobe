@@ -81,11 +81,15 @@ void BEDHandler::init(Storage& sam)
         case 4:
             if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+
                        "( "
-                       "bin smallint(5) unsigned NOT NULL, "
+                       "bin int(7) unsigned NOT NULL, "
                        "chrom varchar(255) NOT NULL, "
                        "chromStart int(10) unsigned NOT NULL, "
                        "chromEnd int(10) unsigned NOT NULL, "
-                       "name varchar(255) NOT NULL "
+                       "name varchar(255) NOT NULL, "
+                       "INDEX bin_idx (bin) using btree,"
+                       "INDEX chrom_idx (chrom) using btree,"
+                       "INDEX chrom_start_idx (chromStart) using btree,"
+                       "INDEX chrom_end_idx (chromEnd) using btree"
                        ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
             {
                 qWarning()<<qPrintable("Create table error. "+q.lastError().text());
@@ -96,13 +100,17 @@ void BEDHandler::init(Storage& sam)
         case 8:
             if(!q.exec("CREATE TABLE "+gArgs().getArgs("sql_table").toString()+
                        "( "
-                       "bin smallint(5) unsigned NOT NULL,"
+                       "bin int(7) unsigned NOT NULL,"
                        "chrom varchar(255) NOT NULL,"
                        "chromStart int(10) unsigned NOT NULL,"
                        "chromEnd int(10) unsigned NOT NULL,"
                        "name varchar(255) NOT NULL,"
                        "score int(5) not null,"
-                       "strand char not null"
+                       "strand char not null,"
+                       "INDEX bin_idx (bin) using btree,"
+                       "INDEX chrom_idx (chrom) using btree,"
+                       "INDEX chrom_start_idx (chromStart) using btree,"
+                       "INDEX chrom_end_idx (chromEnd) using btree"
                        ") ENGINE=MyISAM DEFAULT CHARSET=utf8"))
             {
                 qWarning()<<qPrintable("Create 1 query error. "+q.lastError().text());
@@ -170,15 +178,17 @@ void BEDHandler::Load()
 void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& chrom, QChar const& strand) {
     QString appe;
     quint64 begin=0;
+    int binw=aligned/10+2;
+    int bins=0;
     int sql_groupping=0;
     int old=0;
-
+    float valm=0;
 
     switch(gArgs().getArgs("bed_format").toInt()) {
         case 4:
             for(qint64 i=0;i<cover.size();i++) {
-                if(cover[i] == old) continue;
-                if(old == 0) { old=cover[i]; begin=i; continue; }
+                if(cover[i] == old) {bins++; continue;}
+                if(old == 0) { old=cover[i]; begin=i; bins=0; continue; }
 
                 float val;
                 if(normalize) {
@@ -186,14 +196,20 @@ void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& c
                 } else {
                     val=old;
                 }
+                valm=qMax(val,valm);
 
+                if(bins<binw && cover[i]!=0) {
+                    bins++;
+                    old=cover[i];
+                    continue;
+                }
                 if(!create_file)
                     _outFile.write(QString(chrom+"\t%1\t%2\t%3\n").arg(begin-1).arg(i-1).arg(val).toLocal8Bit());
 
                 if(!no_sql_upload) {
                     sql_groupping++;
 
-                    appe+=QString(" (0,'%1',%2,%3,%4),").arg(chrom).arg(begin-1).arg(i-1).arg(val);
+                    appe+=QString(" (%1,'%2',%3,%4,%5),").arg(binFromRange(begin-1,i-1)).arg(chrom).arg(begin-1).arg(i-1).arg(val);
                     if(sql_groupping==MAX_GRP) {
                         sql_groupping=0;
                         appe.chop(1);
@@ -204,12 +220,13 @@ void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& c
                 }
                 begin=i;
                 old=cover[i];
+                bins=0;
             }
         break;
         case 8:
             for(qint64 i=0;i<cover.size();i++) {
-                if(cover[i] == old) continue;
-                if(old == 0) { old=cover[i]; begin=i; continue; }
+                if(cover[i] == old) {bins++; continue;}
+                if(old == 0) { old=cover[i]; begin=i; bins=0; continue; }
 
                 float val;
                 if(normalize) {
@@ -218,12 +235,20 @@ void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& c
                     val=old;
                 }
 
+                valm=qMax(val,valm);
+
+                if(bins<binw && cover[i]!=0) {
+                    bins++;
+                    old=cover[i];
+                    continue;
+                }
+
                 if(!create_file)
                     _outFile.write(QString(chrom+"\t%1\t%2\t"+"+strand+"+"%3\t0\t"+strand+"\n").arg(begin-1).arg(i-1).arg(val).toLocal8Bit());
 
                 if(!no_sql_upload) {
                     sql_groupping++;
-                    appe+=QString(" (0,'%1',%2,%3,%4%5,0,'%6'),").arg(chrom).arg(begin-1).arg(i-1).arg(strand).arg(val).arg(strand);
+                    appe+=QString(" (%1,'%2',%3,%4,%5%6,0,'%7'),").arg(binFromRange(begin-1,i-1)).arg(chrom).arg(begin-1).arg(i-1).arg(strand).arg(val).arg(strand);
                     if(sql_groupping==MAX_GRP) {
                         sql_groupping=0;
                         appe.chop(1);
@@ -234,6 +259,7 @@ void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& c
                 }
                 begin=i;
                 old=cover[i];
+                bins=0;
             }
         break;
     }//switch
