@@ -29,6 +29,7 @@
 ##
 
 import os
+import sys
 import Settings
 import requests
 import re
@@ -104,7 +105,10 @@ def decompress(fname, ofname, pair=False):
     cmd = ""
     ft = ftype(fname)
     if ft == 'gz':
-        cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
+        if sys.platform == "darwin":
+            cmd = 'gzcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
+        else:
+            cmd = 'zcat "' + ofname + '.gz" >>' + ofname + '; rm -f ' + ofname + '.gz'
         ofname += '.gz'
     elif ft == "bz2":
         cmd = 'bzcat "' + ofname + '.bz2" >>' + ofname + '; rm -f ' + ofname + '.bz2'
