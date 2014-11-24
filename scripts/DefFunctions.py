@@ -98,6 +98,8 @@ def upload_macsdata(conn, infile, dbexp, db):
     gb_table_name = db + '.`' + string.replace(infile, "-", "_") + '_islands`'
 
     cursor.execute("DROP TABLE IF EXISTS " + table_name)
+    cursor.execute("DROP TABLE IF EXISTS " + gb_table_name)
+
     cursor.execute(""" CREATE TABLE """ + table_name + """
         ( chrom VARCHAR(255) NOT NULL,
     start INT(10) UNSIGNED NOT NULL,
@@ -114,11 +116,26 @@ def upload_macsdata(conn, infile, dbexp, db):
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
     conn.commit()
 
-    cursor.execute("""CREATE OR REPLACE VIEW """ + gb_table_name +
-                   """ AS select 0 as bin, chrom, start as chromStart, end as chromEnd,
-                   max(log10p) as name, max(log10q) as score
-                   from """ + table_name + """ group by chrom,start,end; """)
+    cursor.execute(""" CREATE TABLE """ + gb_table_name + """
+        (
+    bin int(7) unsigned NOT NULL,
+    chrom varchar(255) NOT NULL,
+    chromStart int(10) unsigned NOT NULL,
+    chromEnd int(10) unsigned NOT NULL,
+    name varchar(255) NOT NULL,
+    score int(5) not null,
+    INDEX bin_idx (bin) using btree,
+    INDEX chrom_idx (chrom) using btree,
+    INDEX chrom_start_idx (chromStart) using btree,
+    INDEX chrom_end_idx (chromEnd) using btree
+    ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
     conn.commit()
+
+    # cursor.execute("""CREATE OR REPLACE VIEW """ + gb_table_name +
+    # """ AS select 0 as bin, chrom, start as chromStart, end as chromEnd,
+    #                max(log10p) as name, max(log10q) as score
+    #                from """ + table_name + """ group by chrom,start,end; """)
+    # conn.commit()
 
     SQL = "INSERT INTO " + table_name + " (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
     SQLB = "INSERT INTO " + table_name + " (chrom,start,end,length,pileup,log10p,foldenrich,log10q) VALUES"
@@ -146,6 +163,13 @@ def upload_macsdata(conn, infile, dbexp, db):
             conn.commit()
         except Exception, e:
             return ['Error', line + ":" + str(e)]
+    cursor.execute("""insert into  """ + gb_table_name +
+                   """ (bin, chrom, chromStart, chromEnd, name, score)
+                    select 0 as bin, chrom, start as chromStart, end as chromEnd,
+                    max(log10p) as name, max(log10q) as score
+                    from """ + table_name + """ group by chrom,start,end; """)
+    conn.commit()
+
     return ['Success', islands]
 
 
@@ -167,7 +191,7 @@ def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False,
     if len(file_exist('.', infile + '_macs_peaks', 'xls')) == 1:
         return ['Success', ' Macs analyzes done ']
 
-    #samtools view -H b4f4ede6-e866-11e3-9546-ac162d784858.bam |grep 'SQ'| awk -F'LN:' '{print $2}'|paste -sd+ | bc
+    # samtools view -H b4f4ede6-e866-11e3-9546-ac162d784858.bam |grep 'SQ'| awk -F'LN:' '{print $2}'|paste -sd+ | bc
     G = 'hs'
     if 'mm' in db:
         G = 'mm'
@@ -259,7 +283,7 @@ def run_fence(infile, pair, bzip=False, force=False):
     cmd = ''
 
     def outp(inf):
-        return ' -o "' + inf + '.' + ext+'"'
+        return ' -o "' + inf + '.' + ext + '"'
 
     def bzipped(inf):
         return 'bzcat "' + inf + '.fastq.bz2"| fastx_quality_stats ' + outp(inf)
@@ -269,9 +293,9 @@ def run_fence(infile, pair, bzip=False, force=False):
 
     if pair:
         if bzip:
-            cmd = bzipped(infile)+';'+bzipped(infile+'_2')
+            cmd = bzipped(infile) + ';' + bzipped(infile + '_2')
         else:
-            cmd = common(infile)+';'+common(infile+'_2')
+            cmd = common(infile) + ';' + common(infile + '_2')
     else:
         if bzip:
             cmd = bzipped(infile)

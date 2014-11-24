@@ -126,6 +126,7 @@ while True:
     settings.cursor.execute("SELECT DISTINCT db FROM genome;")
     for DB in settings.cursor.fetchall():
         settings.cursor.execute("DROP TABLE IF EXISTS `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_wtrack`;")
+        settings.cursor.execute("drop table if exists `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_islands`;")
         settings.cursor.execute("drop view if exists `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_islands`;")
 
     settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_islands`;")
