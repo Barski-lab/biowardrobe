@@ -181,7 +181,6 @@ while True:
     broad = (int(row[10]) == 2)
     rmdup = (int(row[11]) == 1)
 
-    BEDFORMAT = '4'
     FRAGMENT = 0
 
     settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11,forcerun=0 where uid=%s", (UID,))
@@ -246,7 +245,7 @@ while True:
         if check_error(run_island_intersect(UID), UID):
             continue
 
-    if check_error(d.run_bedgraph(UID, BEDFORMAT, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
+    if check_error(d.run_bedgraph(UID, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
     a = get_stat(UID,rmdup)

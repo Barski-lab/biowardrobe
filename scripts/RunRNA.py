@@ -267,12 +267,12 @@ while True:
     left = int(row[8])
     right = int(row[9])
 
-    BEDFORMAT = '4'
-    #ADD_TOPHAT = " -T "
+    # BEDFORMAT = '4'
+    # ADD_TOPHAT = " -T "
 
-    if DUTP:
-        #ADD_TOPHAT = " --library-type fr-firststrand "  # DUTP
-        BEDFORMAT = '8'
+    # if DUTP:
+    #     #ADD_TOPHAT = " --library-type fr-firststrand "  # DUTP
+    #     BEDFORMAT = '8'
 
     # if PAIR:
     #     ADD_TOPHAT = " --no-mixed --no-discordant " + ADD_TOPHAT
@@ -345,7 +345,7 @@ while True:
     rnadutp = 1
     if DUTP:
         rnadutp = 2
-    a = d.run_bedgraph(UID, BEDFORMAT, DB, 150, rnadutp, PAIR, forcerun)
+    a = d.run_bedgraph(UID, DB, 150, rnadutp, PAIR, forcerun)
     if 'Error' in a[0]:
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
                                 (a[0] + ": " + a[1], UID))

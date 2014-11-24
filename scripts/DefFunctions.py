@@ -218,7 +218,7 @@ def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False,
         return ['Error', str(e)]
 
 
-def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
+def run_bedgraph(infile, db, fragment, isRNA, pair, force=None):
     FL = file_exist('.', infile, 'log')
 
     if force and len(FL) == 1:
@@ -227,15 +227,16 @@ def run_bedgraph(infile, bedformat, db, fragment, isRNA, pair, force=None):
     if len(file_exist('.', infile, 'log')) == 1:
         return ['Success', ' Bedgraph uploaded']
 
-    cmd = 'bam2bedgraph -sql_table="\`' + db + '\`.\`' + string.replace(infile, "-",
-                                                                        "_") + '_wtrack\`" -in="' + infile + '.bam" -out="'
-    cmd += infile + '.out" -log="' + infile + '.log"' + ' -bed_format=' + bedformat + ' -no-bed-file '
+    cmd = 'bam2bedgraph -sql_table="\`' + db + '\`.\`' + string.replace(infile, "-", "_") \
+          + '_wtrack\`" -in="' + infile + '.bam" -out="'
+    cmd += infile + '.out" -log="' + infile + '.log"' + ' -no-bed-file '
 
     if isRNA == 1:
-        cmd += ' -bed_type=2 -rna_seq="RNA" '
+        cmd += ' -bed_type=2 -rna_seq="RNA" -bed_format=4 '
     elif isRNA == 2:
-        cmd += ' -bed_type=2 -rna_seq="dUTP" '
+        cmd += ' -bed_type=2 -rna_seq="dUTP" -bed_format=8 '
     else:
+        cmd += ' -bed_format=4 '
         if pair:
             cmd += ' -bed_type=2 '
         else:
