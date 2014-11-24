@@ -184,11 +184,14 @@ void BEDHandler::cover_save(QList<int>& cover,QString& sql_prep,QString const& c
     int old=0;
     float valm=0;
 
+    binw=(binw>10)?10:binw;
+    if(!gArgs().getArgs("bed_autoresolution").toBool())
+        binw=1;
     switch(gArgs().getArgs("bed_format").toInt()) {
         case 4:
             for(qint64 i=0;i<cover.size();i++) {
                 if(cover[i] == old) {bins++; continue;}
-                if(old == 0) { old=cover[i]; begin=i; bins=0; continue; }
+                if(old == 0) { old=cover[i]; begin=i; bins=1; continue; }
 
                 float val;
                 if(normalize) {

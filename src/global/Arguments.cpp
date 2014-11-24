@@ -243,11 +243,11 @@ void Arguments::argsList(void)
     Arguments::addArg("bed_window","bed_window","BED/WINDOW",QVariant::Int,"Window for counting ",20);
     Arguments::addArg("bed_siteshift","bed_siteshift","BED/SITESHIFT",QVariant::Int,"Bed graph reads shifting",0);
     Arguments::addArg("bed_format","bed_format","BED/FORMAT",QVariant::Int,"Plus/minus =8, just barplot =4",4);
-    Arguments::addArg("bed_type","bed_type","BED/type",QVariant::Int,"How to count reads: just starts =0, middle of fragments =1,whole read =2",0);
+    Arguments::addArg("bed_type","bed_type","BED/type",QVariant::Int,"How to count reads: just starts =0, middle of fragments =1,whole read cover =2, window cover =3",0);
     Arguments::addArg("bed_separatestrand","bed_separatestrand","BED/SEPARATESTRAND",QVariant::Bool,"",false);
     Arguments::addArg("bed_HeaderString","bed_HeaderString","BED/HEADERSTRING",QVariant::String,"",QString("track type=bedGraph name=%1"));
-    Arguments::addArg("bed_trackname","bed_trackname","BED/TRACKNAME",QVariant::String,"Track name which will appear in genome browser","");
     Arguments::addArg("bed_normalize","bed_normalize","",QVariant::Bool,"",false);
+    Arguments::addArg("bed_autoresolution","bed_autoresolution","",QVariant::Bool,"Scales a resolution from 1 to 10 ",true);
 
     Arguments::addArg("no-bed-file","no-bed-file","",QVariant::Bool,"Do not create bed file",false);
     Arguments::addArg("no-file","no-file","",QVariant::Bool,"Do not produce file output",false);
