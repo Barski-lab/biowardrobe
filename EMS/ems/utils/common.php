@@ -76,7 +76,7 @@ function guid()
             . substr($charid, 16, 4) . $hyphen
             . substr($charid, 20, 12);
     }
-    $uuid[0]=$possible{rand(0,strlen($possible))};
+    $uuid[0]=$possible{rand(0,strlen($possible)-1)};
     return $uuid;
 }
 

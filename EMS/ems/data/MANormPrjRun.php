@@ -31,7 +31,7 @@ try {
 } catch (Exception $e) {
     $response->print_error("Cant read input" . $e);
 }
-logmsg(print_r($data, true));
+//logmsg(print_r($data, true));
 $count = 0;
 
 
@@ -228,6 +228,9 @@ for ($i = 0; $i < $tbpairlen; $i++) {
                 array("siisiiddd", $data[0], $data[1], $data[2], $data[3], $data[4], $data[5], $data[6], $data[7], $data[8]), true);
         }
         fclose($handle);
+        if (!$con->commit()) {
+            $response->print_error("Cant commit");
+        }
 
         $promoter = 1000;
         ignore_user_abort(true);

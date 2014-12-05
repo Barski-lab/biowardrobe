@@ -61,7 +61,7 @@ if(isset($type) && intval($type)==103) {
         set_time_limit(600);
         $command = "{$BIN}/iaintersect -guid=\"{$id}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
         exec($command, $output, $retval);
-        logmsg($command,$output,$retval);
+//        logmsg($command,$output,$retval);
         if ($retval != 0) {
             $response->print_error("Cant execute command " . print_r($output, true));
         }
