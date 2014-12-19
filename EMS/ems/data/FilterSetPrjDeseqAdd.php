@@ -176,7 +176,7 @@ $SQL = "CREATE VIEW `{$EDB}`.`{$tbname}` AS " .
 
 //logmsg($SQL);
 execSQL($con, $SQL, array(), true);
-execSQL($con, "insert into " . $db_name_ems . ".genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
+execSQL($con, "insert into genelist (id,name,project_id,leaf,db,`type`,tableName,gblink,conditions,rtype_id) values(?,?,?,1,?,2,?,?,?,?)",
     array("sssssssi", $UUID, $V->name, $project_id, $DB, $tbname, $gblink, $READABLE, $EXT['id']), true);
 
 if (!$con->commit()) {

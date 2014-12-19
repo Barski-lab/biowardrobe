@@ -153,6 +153,20 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         $response->print_error("Cant execute R."); #.print_r($output,true)
         //logmsg(print_r($output,true));
     }
+    execSQL($con,
+        "ALTER TABLE `{$EDB}`.`" . $TNAME . "` " .
+        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(1000) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(500) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `txStart` `txStart` INT(11) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `txEnd` `txEnd` INT(11) NULL DEFAULT NULL" .
+        ", CHANGE COLUMN `strand` `strand` VARCHAR(1) NULL DEFAULT NULL" .
+        ", ADD INDEX `index1` USING HASH (`refseq_id`(150) ASC)" .
+        ", ADD INDEX `index2` USING HASH (`gene_id`(150) ASC)" .
+        ", ADD INDEX `index3` USING HASH (`chrom` ASC)" .
+        ", ADD INDEX `index4` USING HASH (`strand` ASC)" .
+        ", ADD INDEX `index5` USING BTREE (`txStart` ASC)" .
+        ", ADD INDEX `index6` USING BTREE (`txEnd` ASC);", array(), true);
 
     $RNAME = $NAME;
     if ($tbpairlen != 1) {
@@ -172,25 +186,6 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     if (!$con->commit()) {
         $response->print_error("Cant commit");
     }
-
-}
-
-for ($i = 0; $i < count($TNAMES); $i++) {
-    execSQL($con,
-        "ALTER TABLE `{$EDB}`.`" . $TNAMES[$i] . "` " .
-        "  CHANGE COLUMN `refseq_id` `refseq_id` VARCHAR(1000) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `gene_id` `gene_id` VARCHAR(500) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `chrom` `chrom` VARCHAR(45) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `txStart` `txStart` INT(11) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `txEnd` `txEnd` INT(11) NULL DEFAULT NULL" .
-        ", CHANGE COLUMN `strand` `strand` VARCHAR(1) NULL DEFAULT NULL" .
-        ", ADD INDEX `''index1` USING HASH (`refseq_id`(150) ASC)" .
-        ", ADD INDEX `index2` USING HASH (`gene_id`(150) ASC)" .
-        ", ADD INDEX `index3` USING HASH (`chrom` ASC)" .
-        ", ADD INDEX `index4` USING HASH (`strand` ASC)" .
-        ", ADD INDEX `index5` USING BTREE (`txStart` ASC)" .
-        ", ADD INDEX `index6` USING BTREE (`txEnd` ASC);", array(), true);
-
 }
 
 if (!$con->commit()) {
