@@ -8,7 +8,8 @@ Ext.define('EMS.controller.Login', {
     ],
 
     views: [
-        'Login'
+        'Login',
+        'News'
         //        'authentication.CapsLockTooltip'
     ],
 
@@ -55,8 +56,8 @@ Ext.define('EMS.controller.Login', {
 
     },
     onShow: function (window) {
-        window.down('textfield[name=username]').focus(false, 100, function () {
-//            console.log('focus');
+        window.down('textfield[name=username]').focus(false, 200, function () {
+                        //console.log('focus');
         });
     },
 
@@ -65,6 +66,7 @@ Ext.define('EMS.controller.Login', {
                 login = button.up('login'),
                 user = formPanel.down('textfield[name=username]').getValue(),
                 pass = formPanel.down('textfield[name=password]').getValue();
+        var me=this;
 
         if (formPanel.getForm().isValid()) {
 
@@ -83,6 +85,11 @@ Ext.define('EMS.controller.Login', {
                      var result = EMS.util.Util.decodeJSON(conn.responseText);
                      if (result.success) {
                          login.close();
+                         try {
+                             Ext.ComponentQuery.query('news')[0].close();
+                         } catch(e) {
+                             console.log(e);
+                         }
                          Ext.create('EMS.view.EMSViewport');
                      } else {
                          EMS.util.Util.showErrorMsg(result.message);

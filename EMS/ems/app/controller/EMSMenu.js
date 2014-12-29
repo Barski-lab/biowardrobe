@@ -130,6 +130,12 @@ Ext.define('EMS.controller.EMSMenu', {
             case "CrossType":
                 me.createWindow(menuitem.action, 'EMS.view.Catalogs.Crosslink', {});
                 break;
+            case "About":
+                me.createWindow(menuitem.action, 'EMS.view.About', {});
+                break;
+            case "Help":
+                me.createWindow(menuitem.action, 'EMS.view.Help', {});
+                break;
             case "":
                 break;
         }
@@ -145,9 +151,6 @@ Ext.define('EMS.controller.EMSMenu', {
         }
         if (menuitem.action === "GenomeType") {
             me.createWindow(menuitem.action, 'EMS.view.Genome.Genome', {});
-        }
-        if (menuitem.action === "Help") {
-            // me.createWindow(menuitem.action,'EMS.view.Project.Filter',{ahead_id: 0, analysis_id:129});
         }
     }
 });

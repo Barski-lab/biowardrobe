@@ -30,87 +30,8 @@ Ext.Loader.setConfig({
                          }
                      });
 
-//var LocalStorage = (function () {
-//    return {
-//        FILTER_STORAGE: 1,
-//        PARAMS_STORAGE: 2,
-//        DESEQ_STORAGE: 3,
-//        FILTER_DESEQ: 4,
-//        ATDP_STORAGE: 5,
-//        MANORM_STORAGE: 6,
-//
-//        init: function () {
-//            var me = this;
-//            if (!me.store) {
-//                me.store = Ext.getStore('EMSLocalStorage');
-//                me.store.load(/*{callback: function(){console.log('loaded',arguments,me.store);}}*/);
-//            }
-//            return me.store;
-//        },
-//
-//        createData: function (id, json) {
-//            var me = this;
-//            me.init();
-//            var rec = me.findRecord(id);
-//            if (rec) {
-//                rec.data.data = json;
-//                rec.save();
-//            } else {
-//                rec = Ext.create('EMS.model.EMSLocalStorage', { 'internalid': id, 'data': json });
-//                rec.save({
-//                             success: function () {
-//                                 me.store.add(rec);
-//                             },
-//                             failure: function () {
-//                                 console.log('create fail:', arguments);
-//                             }
-//                         });
-//            }
-//        },
-//        findRecord: function (id) {
-//            var me = this;
-//            me.init();
-//            var index = me.store.findExact('internalid', id);
-//            if (index >= 0)
-//                return me.store.getAt(index);
-//            return undefined;
-//        },
-//        findData: function (id) {
-//            var me = this;
-//            var record = me.findRecord(id);
-//            if (typeof record !== 'undefined') {
-//                return Ext.decode(record.data.data);
-//            }
-//            return undefined;
-//        },
-//        setParam: function (id, param, val) {
-//            var me = this;
-//            var data = me.findData(id);
-//            if (typeof data === 'undefined') {
-//                data = {};
-//            }
-//            data[param] = val;
-//            me.createData(id, Ext.encode(data));
-//        },
-//        getParam: function (id, param) {
-//            var me = this;
-//            var data = me.findData(id);
-//            if (typeof data === 'undefined') {
-//                return undefined;
-//            }
-//            return data[param];
-//        }
-//    };
-//})();
-
-
 /******************************************************************
  ******************************************************************/
-
-//Ext.require('Chart.ux.Highcharts');
-//Ext.require('Chart.ux.Highcharts.Serie');
-//Ext.require('Chart.ux.Highcharts.HeatmapSerie');
-
 
     //http://stackoverflow.com/questions/15834689/extjs-4-2-tooltips-not-wide-enough-to-see-contents
 delete Ext.tip.Tip.prototype.minWidth;
@@ -130,7 +51,8 @@ Ext.application
 
      views: [
          'EMSViewport',
-         'Login'
+         'Login',
+         'News',
      ],
 
      init: function () {
@@ -150,6 +72,7 @@ Ext.application
                       listeners: {
                           afteranimate: function (el, startTime, eOpts) {
                               if (me.login) {
+                                  Ext.widget('news');
                                   Ext.widget('login');
                               } else {
                                   Ext.create('EMS.view.EMSViewport');

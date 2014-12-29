@@ -34,22 +34,7 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
                 { text: 'Folders', action: 'ExperimentGroups', tooltip: 'Experiment groupping', iconCls: 'magazine-folder' }
             ],
             iconCls: 'form-blue'
-        } /* { xtype: 'button',
-         text:'Genome Browsers',
-         tooltip:'Genome browsers',
-         menu: [
-         { text: 'UCSC Genome browser', action: 'GenomeBrowser', tooltip: '',iconCls: 'genome-browser' }
-         ],
-         iconCls:'genome-browser'
-         },
-         { xtype: 'button',
-         text:'Patients',
-         tooltip:'Patient\'s data',
-         menu: [
-         { text: 'EGID Patients', action: 'EGIDPatients', tooltip: '',iconCls: 'users3' }
-         ],
-         iconCls:'users3'
-         }*/,
+        } ,
         {
             text: 'Catalogs',
             tooltip: '',
@@ -83,8 +68,8 @@ Ext.define('EMS.view.toolbar.EMSMenu', {
             text: 'Help',
             tooltip: '',
             menu: [
-                { text: 'Help', action: 'Help', tooltip: '', iconCls: 'help' },
-                { text: 'About', action: 'About', tooltip: '', iconCls: 'about' }
+                { text: 'Help', action: 'Help', tooltip: 'Wardrobe Help', iconCls: 'help' },
+                { text: 'About', action: 'About', tooltip: 'About', iconCls: 'about' }
             ],
             iconCls: 'question_and_answer'
         }

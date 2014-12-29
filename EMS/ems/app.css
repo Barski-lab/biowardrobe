@@ -128,6 +128,19 @@
     font-style: italic;
 }
 
+.news-text {
+    margin-top: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding: 0;
+    text-align: justify;
+    line-height: 1.5em;
+    color: #04408C;
+    font-style: italic;
+    /*border-top-style: dotted;*/
+    /*border-top-width: 1px;*/
+}
+
 .blue {
     color: blue;
 }
