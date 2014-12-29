@@ -140,6 +140,20 @@
     /*border-top-style: dotted;*/
     /*border-top-width: 1px;*/
 }
+.news-text-big {
+    margin-top: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
+    padding: 0;
+    font-size: 150%;
+    text-align: justify;
+    line-height: 1.5em;
+    color: #04408C;
+    text-decoration: none;
+    font-style: normal;
+    /*border-top-style: dotted;*/
+    /*border-top-width: 1px;*/
+}
 
 .blue {
     color: blue;
@@ -764,6 +778,12 @@
 
 .view {
     background-image: url(images/view.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
+.news {
+    background-image: url(images/news.png) !important;
     width: 16px;
     height: 16px;
 }

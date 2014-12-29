@@ -8,8 +8,9 @@ Ext.define('EMS.view.News', {
     layout: {
         type: 'fit'
     },
-    iconCls: '',
-    title: 'Welcome to Wardrobe!',
+    //iconCls: 'news',
+    //title: 'Latest News',
+    header: false,
     closeAction: 'hide',
     closable: false,
     resizable: true,
