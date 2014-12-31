@@ -91,9 +91,6 @@ def upload_macsdata(conn, infile, dbexp, db):
     warnings.filterwarnings('ignore', category=MySQLdb.Warning)
     cursor = conn.cursor()
 
-    if len(file_exist('.', infile + '_macs_peaks', 'xls')) != 1:
-        return ['Error', ' MACS peak file does not exist']
-
     table_name = dbexp + '.`' + infile + '_islands`'
     gb_table_name = db + '.`' + string.replace(infile, "-", "_") + '_islands`'
 
@@ -130,6 +127,9 @@ def upload_macsdata(conn, infile, dbexp, db):
     INDEX chrom_end_idx (chromEnd) using btree
     ) ENGINE=MyISAM DEFAULT CHARSET=utf8 """)
     conn.commit()
+
+    if len(file_exist('.', infile + '_macs_peaks', 'xls')) != 1:
+        return ['Error', ' MACS peak file does not exist']
 
     # cursor.execute("""CREATE OR REPLACE VIEW """ + gb_table_name +
     # """ AS select 0 as bin, chrom, start as chromStart, end as chromEnd,

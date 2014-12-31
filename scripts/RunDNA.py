@@ -239,11 +239,11 @@ while True:
                             (FRAGMENT, FRAGMENTE, ISLANDS, UID))
     settings.conn.commit()
 
-    if not MACSER:
-        if check_error(d.upload_macsdata(settings.conn, UID, EDB, DB), UID):
+    if check_error(d.upload_macsdata(settings.conn, UID, EDB, DB), UID):
+        if not MACSER:
             continue
-        if check_error(run_island_intersect(UID), UID):
-            continue
+    if check_error(run_island_intersect(UID), UID):
+        continue
 
     if check_error(d.run_bedgraph(UID, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
