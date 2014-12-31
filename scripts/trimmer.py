@@ -52,9 +52,18 @@ if left == 0 and right == 0:
 
 b = 0
 for line in sys.stdin:
-    line = line.strip()
+    if b == 0:
+	line1 = line.strip()
+    elif b == 1:
+	line2 = line.strip()
+    elif b == 2:
+	line3 = line.strip()
+    elif b == 3:
+	line4 = line.strip()
+	b=-1
+	if left+right+25 < len(line2):
+    	    print line1
+    	    print line2[left:len(line2)-right]
+    	    print line3
+    	    print line4[left:len(line4)-right]
     b += 1
-    if b % 2 == 0:
-        print line[left:len(line)-right]
-    else:
-        print line
