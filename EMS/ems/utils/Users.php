@@ -104,7 +104,8 @@ class Worker
     function journal_login()
     {
         global $settings;
-        execSQL($settings->connection,"insert into login_journal (login) value(?)",array("s",$this->worker['lname'] . ", " . $this->worker['fname']),true);
+        execSQL($settings->connection,"insert into login_journal (login) value(?)",
+            array("s",$this->worker['lname'] . ", " . $this->worker['fname'].";".$_SERVER['REMOTE_ADDR']),true);
     }
 
     public function check_pass($passwd)

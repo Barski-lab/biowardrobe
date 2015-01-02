@@ -21,17 +21,18 @@ echo "StepI: clean input"
 mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$7),end+$7 from \`$1\` where chrom not like 'chrM'" ${10} >peak1.bed
 mysql -ureadonly -hlocalhost -P3306 -preadonly --disable-column-names -e "select chrom,greatest(0,cast(start as signed)-$8),end+$8 from \`$2\` where chrom not like 'chrM'" ${10} >peak2.bed
 
+#removed $1~/chr/ && because of xenTro
 bamToBed -i $3 |sed 's/\s$//g' | awk -v var=$5 'BEGIN {OFS="\t"}
-     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/  && $2>0 && $3>0)
+     {if ($1 !="chrM" && $6=="+" && $1 !~/random/  && $2>0 && $3>0)
           print $1,$2+var,$3+var>"read1.bed";
-      else if ($1~/chr/  && $1 !="chrM" && $6=="-" && $1 !~/random/   && $2>var && $3>var)
+      else if ($1 !="chrM" && $6=="-" && $1 !~/random/   && $2>var && $3>var)
           print $1,$2-var,$3-var>"read1.bed";
       else 
           print $0 > "/dev/null"}' &
 bamToBed -i $4 |sed 's/\s$//g' | awk -v var=$6 'BEGIN {OFS="\t"}
-     {if ($1~/chr/ && $1 !="chrM" && $6=="+" && $1 !~/random/   && $2>0 && $3>0)
+     {if ($1 !="chrM" && $6=="+" && $1 !~/random/   && $2>0 && $3>0)
           print $1,$2+var,$3+var>"read2.bed";
-      else if ($1~/chr/  && $1 !="chrM" && $6=="-" && $1 !~/random/   && $2>var && $3>var)
+      else if ($1 !="chrM" && $6=="-" && $1 !~/random/   && $2>var && $3>var)
           print $1,$2-var,$3-var>"read2.bed";
       else 
           print $0 > "/dev/null"}' &
