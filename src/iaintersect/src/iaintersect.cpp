@@ -79,7 +79,7 @@ void IAIntersect::fillUpAnnotation( ) {
 void IAIntersect::getRecordInfo() {
     QSqlQuery q;
     if(gArgs().getArgs("uid").toString()!="") {
-        q.prepare("select g.db,g.annottable from labdata l,genome g where l.uid=? and g.id=l.genome_id");
+        q.prepare("select g.db,g.annottable,CONCAT(l.uid,'_islands') from labdata l,genome g where l.uid=? and g.id=l.genome_id");
         q.bindValue(0, gArgs().getArgs("uid").toString());
     }
 
@@ -95,30 +95,17 @@ void IAIntersect::getRecordInfo() {
     q.next();
     db_name=q.value(0).toString();
     an_tbl=q.value(1).toString();
-    if(!gArgs().getArgs("guid").toString().isEmpty()) {
-        tbl_name=q.value(2).toString();
-    }
+    tbl_name=q.value(2).toString();
 }
 
 void IAIntersect::start()
 {
-qDebug()<<"start";
     this->getRecordInfo();
     this->fillUpAnnotation();
     QString tableName;
 
     QSqlQuery q;
-    if(gArgs().getArgs("uid").toString() != "") {
-        tableName=gArgs().getArgs("uid").toString()+"_islands";
-    }
-
-    if(gArgs().getArgs("guid").toString() !="") {
-        if(!this->tbl_name.isEmpty()) {
-            tableName=this->tbl_name;
-        } else {
-            tableName=gArgs().getArgs("guid").toString();
-        }
-    }
+    tableName=this->tbl_name;
     q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"`");
     if(!q.exec()) {
         qDebug()<<"Cant describe "<<q.lastError().text();
@@ -367,6 +354,5 @@ qDebug()<<"start";
         }
 
     }
-    qDebug()<<"end";
     emit finished();
 }
