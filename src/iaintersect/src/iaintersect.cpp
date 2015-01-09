@@ -113,7 +113,11 @@ qDebug()<<"start";
     }
 
     if(gArgs().getArgs("guid").toString() !="") {
+        if(!this->tbl_name.isEmpty()) {
             tableName=this->tbl_name;
+        } else {
+            tableName=gArgs().getArgs("guid").toString();
+        }
     }
     q.prepare("describe `"+gSettings().getValue("experimentsdb")+"`.`"+tableName+"`");
     if(!q.exec()) {
