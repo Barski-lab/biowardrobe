@@ -231,7 +231,13 @@ for ($i = 0; $i < $tbpairlen; $i++) {
         if (!$con->commit()) {
             $response->print_error("Cant commit");
         }
+        execSQL($con,
+            "insert into genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,200,?,?,?,?)",
+            array("sssssssi", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $atypeid), true);
 
+        if (!$con->commit()) {
+            $response->print_error("Cant commit");
+        }
         $promoter = 1000;
         ignore_user_abort(true);
         set_time_limit(600);
@@ -242,74 +248,22 @@ for ($i = 0; $i < $tbpairlen; $i++) {
             //$response->print_error("Cant execute command " . print_r($output, true));
         }
 
+        execSQL($con, "update genelist set `type`=103 where id=?", array("s",$UUID),true);
+        if (!$con->commit()) {
+            $response->print_error("Cant commit");
+        }
+
     } else {
         $response->print_error("Cant find MANorm output. "); #.print_r($output,true)
     }
 
-    execSQL($con,
-        "insert into genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
-        array("sssssssi", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $atypeid), true);
-
-    if (!$con->commit()) {
-        $response->print_error("Cant commit");
-    }
-/*
-    //promoter intersection
-
-    $UUID1 = guid();
-    $TNAME1 = $UUID1;//str_replace("-", "", $UUID1);
-    $PROMOTER_LEN = "1000";
-
-    execSQL($con,
-        "create table {$EDB}.`{$TNAME1}` (" .
-        "`refseq_id` VARCHAR(300) NOT NULL," .
-        "`gene_id` VARCHAR(300) NOT NULL," .
-        "`chrom` VARCHAR(45) NOT NULL," .
-        "`start` INT NULL ," .
-        "`end` INT NULL ," .
-        "`strand` varchar(2) NOT NULL default '+'," .
-        "`description` varchar(100)," .
-        "`raw_read1` INT," .
-        "`raw_read2` INT," .
-        "`M_value_rescaled` float," .
-        "`A_value_rescaled` float," .
-        "`log10_p_value` float," .
-        "INDEX chr_idx (chrom) using btree," .
-        "INDEX start_idx (start) using btree," .
-        "INDEX end_idx (end) using btree" .
-        ")" .
-        "ENGINE = MyISAM " .
-        "COMMENT = 'created by manorm';",
-        array(), true);
-
-    execSQL($con,
-        "insert into {$EDB} .`{$TNAME1}` " .
-        "select distinct t.name as refseq_id, t.name2 as gene_id, t.chrom, t.start+" . $PROMOTER_LEN . " as start,t.end-" . $PROMOTER_LEN . " as end,t.strand,e.description," .
-        "max(e.`raw_read1`),max(e.`raw_read2`),max(e.`M_value_rescaled`), max(e.`A_value_rescaled`), max(e.`log10_p_value`) " .
-        "from {$EDB}.`{$TNAME}` e," .
-        "(" .
-        "select chrom,txStart-" . $PROMOTER_LEN . " as start,txStart+" . $PROMOTER_LEN . " as end,'+' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
-        "group_concat(distinct name order by name separator ',') as name " .
-        "from " . $DB . "." . $ANNOT . " where strand='+' and txStart>" . $PROMOTER_LEN . " group by chrom,txStart " .
-        " union " .
-        "select chrom,txEnd-" . $PROMOTER_LEN . " as start,txEnd+" . $PROMOTER_LEN . " as end,'-' as strand,group_concat(distinct name2 order by name2 separator ',') as name2," .
-        "group_concat(distinct name order by name separator ',') as name " .
-        "from " . $DB . "." . $ANNOT . " where strand='-' and txEnd>" . $PROMOTER_LEN . " group by chrom,txEnd " .
-        "order by chrom,start " .
-        ") t " .
-        "where e.chrom=t.chrom and  (e.start between t.start and t.end or e.end between t.start and t.end) " .
-        "group by t.name, t.name2,e.description ",
-        array(), true);
-
-    execSQL($con,
-        "insert into genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
-        array("sssssssi", $UUID1, $RNAME . " vs promoters", $projectid, $DB, $TNAME1, $gblink, $READABLE . "<br>Intersected with list of promoters (TSS +/- 1000)", $atypeid), true);
-
-    if (!$con->commit()) {
-        $response->print_error("Cant commit");
-    }
-*/
-
+//    execSQL($con,
+//        "insert into genelist (id, name, project_id, leaf, db, `type`, tableName, gblink, conditions, atype_id) values(?,?,?,1,?,103,?,?,?,?)",
+//        array("sssssssi", $UUID, $RNAME, $projectid, $DB, $TNAME, $gblink, $READABLE, $atypeid), true);
+//
+//    if (!$con->commit()) {
+//        $response->print_error("Cant commit");
+//    }
 }
 //for?
 
