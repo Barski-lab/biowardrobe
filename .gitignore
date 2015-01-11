@@ -9,3 +9,8 @@ RUN*
 boost
 .idea
 .DS_Store
+*.pro.user*
+*.vcxproj*
+*.bam
+*.bam.bai
+*.log
