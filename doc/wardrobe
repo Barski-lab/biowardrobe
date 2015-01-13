@@ -1,19 +1,20 @@
-#MySQL host to connect
+#Do not remove comments they are usefull for some scripts
+#MariaDB/MySQL host to connect
 localhost
 
-#MySQL User
+#MariaDB/MySQL User
 wardrobe
 
-#MySQL password
+#MariaDB/MySQL password
 mypassword
 
 #Wardrobe DB
 ems
 
-#MySQL port
+#MariaDB/MySQL port
 3306
 
 #C++ variables
-#MySQL Qt Driver
+#MariaDB/MySQL Qt5 Driver
 QMYSQL
 

@@ -663,9 +663,51 @@ INSERT INTO `atype` VALUES
 /*!40000 ALTER TABLE `atype` ENABLE KEYS */;
 UNLOCK TABLES;
 
+LOCK TABLES `info` WRITE;
+/*!40000 ALTER TABLE `info` DISABLE KEYS */;
+INSERT INTO `info` VALUES (1,''),(2,'');
+/*!40000 ALTER TABLE `info` ENABLE KEYS */;
+UNLOCK TABLES;
+
+
+-- PATCH p1
+
 ALTER TABLE `ems`.`labdata` 
 ADD COLUMN `peaks` VARCHAR(45) NULL DEFAULT NULL AFTER `antibodycode`,
 ADD COLUMN `trim3` INT(5) NULL DEFAULT 0 AFTER `peaks`,
 ADD COLUMN `trim5` INT(5) NULL DEFAULT 0 AFTER `trim3`;
 
 INSERT INTO `ems`.`rtype` VALUES (1,'RPKM isoforms'),(2,'RPKM genes'),(3,'RPKM common tss'),(4,'CHIP islands');
+
+ALTER TABLE `ems`.`antibody` 
+ADD COLUMN `properties` INT(6) UNSIGNED NOT NULL DEFAULT 0 AFTER `description`;
+
+ALTER TABLE `ems`.`labdata` 
+DROP FOREIGN KEY `labdata_ibfk_5`,
+DROP FOREIGN KEY `labdata_ifbk_9`;
+
+ALTER TABLE `ems`.`labdata` 
+DROP COLUMN `peaks`;
+-- CHANGE COLUMN `antibody_id` `antibody_id` VARCHAR(36) NOT NULL ,
+-- CHANGE COLUMN `laboratory_id` `laboratory_id` VARCHAR(36) NOT NULL ,
+-- CHANGE COLUMN `download_id` `download_id` INT(3) NOT NULL ;
+
+ALTER TABLE `ems`.`labdata` 
+ADD CONSTRAINT `labdata_ibfk_5`
+  FOREIGN KEY (`antibody_id`)
+  REFERENCES `ems`.`antibody` (`id`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `labdata_ifbk_9`
+  FOREIGN KEY (`laboratory_id`)
+  REFERENCES `ems`.`laboratory` (`id`);
+
+
+ALTER TABLE `ems`.`labdata` 
+ADD COLUMN `tagssuppressed` INT(11) NULL DEFAULT '0' AFTER `tagsmapped`,
+ADD COLUMN `datedel` DATE NULL AFTER `dateadd`,
+ADD COLUMN `rmdup` INT(1) NULL DEFAULT '0' AFTER `forcerun`;
+
+ALTER TABLE `ems`.`labdata` 
+ADD COLUMN `tagsused` INT(11) NULL DEFAULT '0' AFTER `tagssuppressed`;
+

@@ -8,28 +8,14 @@ qmake -v >/dev/null 2>&1
 mysql --version >/dev/null 2>&1
 [ $? -ne 0 ] && echo "No mysql client tools installed" && exit
 
->./output.log
+. $(pwd)/scripts/functions.sh
 
-echo "Please type mysql root password"
-read PASS
-echo "Please type mysql wardrobe password"
-read WPASS
-
-#think twice
-exit 
-#think twice
-mysql -hlocalhost -p${PASS} -uroot < ./sql/wardrobe.sql >>./output.log 2>&1
-
-mysql -hlocalhost -p${PASS} -uroot -N -e "DROP USER 'wardrobe'@'localhost';" 
-mysql -hlocalhost -p${PASS} -uroot -N -e "CREATE USER 'wardrobe'@'localhost' IDENTIFIED BY '${WPASS}';"
-##GRANT USAGE ON *.* TO 'wardrobe'@'localhost' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0;
-mysql -hlocalhost -p${PASS} -uroot -N -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE VIEW, SHOW VIEW, EXECUTE ON *.* TO 'wardrobe'@'localhost';"
-mysql -hlocalhost -p${PASS} -uroot -N -e "REVOKE GRANT OPTION, CREATE TEMPORARY TABLES, LOCK TABLES, EVENT,ALTER ROUTINE, CREATE ROUTINE, TRIGGER ON *.* FROM 'wardrobe'@'localhost';"
-mysql -hlocalhost -p${PASS} -uroot -N -e "FLUSH PRIVILEGES;"
+get_db_credentials
 
 #mysql settings
-BINS=$(mysql -hlocalhost -p${PASS} -uroot -N -e "select group_concat(\`value\` order by \`key\` desc separator '/') from ems.settings where \`key\` in ('wardrobe','bin')")
+BINS=$(mysql -h${HOST} -p${PASSWD} -u${USER} -N -e "select group_concat(\`value\` order by \`key\` desc separator '/') from ems.settings where \`key\` in ('wardrobe','bin')")
 #"
+
 
 echo "Compile bamtools lib"
 cd ./thirdparty/bamtools
