@@ -10,7 +10,6 @@ qmake -v >/dev/null 2>&1
 mysql --version >/dev/null 2>&1
 [ $? -ne 0 ] && echo "No mysql client tools installed" && exit
 
->${BASEDIR}/tmp/install.log
 
 echo "Please type mariadb/mysql host name"
 read HOST
@@ -26,6 +25,8 @@ mkdir -p $BASEDIR/indices/gtf
 mkdir -p $BASEDIR/STAR/gtf
 mkdir -p $BASEDIR/tmp
 mkdir -p $BASEDIR/upload
+
+>${BASEDIR}/tmp/install.log
 
 cd $BASEDIR/src
 
@@ -75,7 +76,15 @@ chmod 0755 $BASEDIR
 chmod 0775 $BASEDIR/RAW-DATA
 chmod 0777 $BASEDIR/tmp
 
-${BASEDIR}/src/assemble
+${BASEDIR}/src/assemble.sh
+
+cd ./scripts/
+
+for i in *.py; do 
+ln -sf $(pwd)/${i} $BASEDIR/bin/${i}
+done
+
+cd ..
 
 echo "Setting rights"
 if [ z"`uname`" == "zDarwin" ]; then
@@ -101,6 +110,10 @@ crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}
 crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunDNA.py >> ${BASEDIR}/tmp/RunDNA.log 2>&1"; } | crontab -
 crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunRNA.py >> ${BASEDIR}/tmp/RunRNA.log 2>&1"; } | crontab -
 crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/ForceRun.py >> ${BASEDIR}/tmp/ForceRun.log 2>&1"; } | crontab -
+
+sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
+
+[ -f /etc/apache2/vhosts.d/wardrobe.conf ] || cp $BASEDIR/src/doc/wardrobe.conf /etc/apache2/vhosts.d/wardrobe.conf
 
 fi
 

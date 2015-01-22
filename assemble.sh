@@ -60,9 +60,4 @@ ln -sf $(pwd)/atdp $BINS/atdp
 echo "Assemble complete"
 cd ../../
 
-cd ./scripts/
-
-for i in *.py; do 
-ln -sf $(pwd)/${i} $BINS/${i}
-done
 
