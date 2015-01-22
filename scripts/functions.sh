@@ -11,7 +11,6 @@ while read row; do
 if [ z"$row" == "z" ] || [[ "$row" == "#*" ]]; then 
 continue
 fi
-echo $row
 case $re in
   1)
     USER=$row
