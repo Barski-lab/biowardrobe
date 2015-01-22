@@ -19,6 +19,7 @@ echo "Please type mariadb/mysql wardrobe password"
 read WPASS
 
 mkdir -p $BASEDIR/src
+mkdir -p $BASEDIR/ems
 mkdir -p $BASEDIR/RAW-DATA
 mkdir -p $BASEDIR/bin
 mkdir -p $BASEDIR/indices/gtf
@@ -114,6 +115,8 @@ crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}
 sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
 
 [ -f /etc/apache2/vhosts.d/wardrobe.conf ] || cp $BASEDIR/src/doc/wardrobe.conf /etc/apache2/vhosts.d/wardrobe.conf
+
+cp -R $BASEDIR/src/EMS/* $BASEDIR/ems
 
 fi
 
