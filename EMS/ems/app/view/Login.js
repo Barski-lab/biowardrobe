@@ -19,6 +19,16 @@ Ext.define('EMS.view.Login', {
             xtype: 'form',
             frame: false,
             bodyPadding: 15,
+
+            autoEl: {
+                tag: 'form',
+                method: 'POST',
+                action: 'news.html',
+                target: 'submitTarget',
+                style: {
+                    margin: 0
+                }
+            },
             layout: {
                 type: 'vbox',
                 align: 'stretch'
@@ -37,7 +47,10 @@ Ext.define('EMS.view.Login', {
                     name: 'username',
                     vtype: 'alphanum',
                     tabIndex:0,
-                    maxLength: 25
+                    maxLength: 25,
+                    'inputAttrTpl': [
+                        'autocomplete="on"'
+                    ]
                 },
                 {
                     inputType: 'password',
@@ -45,7 +58,17 @@ Ext.define('EMS.view.Login', {
                     fieldLabel: 'Password',
                     enableKeyEvents: true,
                     maxLength: 30,
-                    msgTarget: 'side'
+                    msgTarget: 'side',
+                    'inputAttrTpl': [
+                        'autocomplete="on"'
+                    ]
+                },
+                {
+                    xtype: 'component',
+                    html: '<iframe id="submitTarget" name="submitTarget" style="display:none"></iframe>'
+                }, {
+                    xtype: 'component',
+                    html: '<input type="submit" id="submitButton" style="display:none" />'
                 }
             ],
             dockedItems: [

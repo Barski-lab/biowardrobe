@@ -54,18 +54,19 @@ Class Settings
                     continue;
                 if (strlen($line) === 0)
                     continue;
+
                 if ($this->db_host === "") {
                     $this->db_host = $line;
-                } else
-                    if ($this->db_user === "") {
-                        $this->db_user = $line;
-                    } else
-                        if ($this->db_pass === "") {
-                            $this->db_pass = $line;
-                        } else
-                            if ($this->db_name === "") {
-                                $this->db_name = $line;
-                            }
+
+                } else if ($this->db_user === "") {
+                    $this->db_user = $line;
+
+                } else if ($this->db_pass === "") {
+                    $this->db_pass = $line;
+
+                } else if ($this->db_name === "") {
+                    $this->db_name = $line;
+                }
             }
         } else {
             $response->print_error("Cant open file: " . print_r(error_get_last(), true));
@@ -95,7 +96,7 @@ Class Settings
         foreach ($query as $val) {
             $this->settings[$val[$this->fields[0]]] = array();
             for ($i = 1; $i < count($this->fields); $i++) {
-                if(!isset($val[$this->fields[$i]])) continue;
+                if (!isset($val[$this->fields[$i]])) continue;
                 $this->settings[$val[$this->fields[0]]][$this->fields[$i]] = $val[$this->fields[$i]];
             }
         }
@@ -120,7 +121,8 @@ Class Settings
     }
 
 }
-if(session_status() !== PHP_SESSION_ACTIVE)
+
+if (session_status() !== PHP_SESSION_ACTIVE)
     session_start();
 require_once('utils/attempt.php');
 $settings = new Settings();

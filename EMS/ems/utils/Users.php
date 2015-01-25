@@ -36,6 +36,7 @@ class Worker
             $this->response->print_error("Authorization required!");
         }
         if (!isset($_SESSION["userinfo"])) {
+            //Check if .$_SERVER['REMOTE_ADDR'] - address remote or local and add where clause to SQL
             $query = selectSQL("SELECT * from worker where worker=? and passwd is not NULL", array("s", $worker));
             if (count($query) != 1)
                 $this->response->print_error("Cant select worker!");
