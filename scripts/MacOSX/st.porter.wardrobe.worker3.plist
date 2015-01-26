@@ -32,7 +32,5 @@
 	<integer>300</integer>
 	<key>Umask</key>
 	<integer>2</integer>
-	<key>UserName</key>
-	<string>porter</string>
 </dict>
 </plist>

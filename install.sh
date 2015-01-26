@@ -2,8 +2,29 @@
 
 BASEDIR="/wardrobe"
 
+QMAKE="qmake-qt5"
+PACKAGE="rpm -qa|grep "
+if [ z"`uname`" == "zDarwin" ]; then
+QMAKE="qmake"
+PACKAGE="brew info "
+fi
+
+#If any questions please send versions.txt to wardrobe@porter.st
+>./versions.txt
+uname -a >>./versions.txt
+echo "qt5 list:" >>./versions.txt
+eval ${PACKAGE}qt5 >>./versions.txt
+echo "boost list:" >>./versions.txt
+eval ${PACKAGE}boost >>./versions.txt
+echo "mariadb list:" >>./versions.txt
+eval ${PACKAGE}mariadb >>./versions.txt
+echo "mariadb list:" >>./versions.txt
+eval ${PACKAGE}MariaDB >>./versions.txt
+echo "mysql list:" >>./versions.txt
+eval ${PACKAGE}mysql >>./versions.txt
+
 #check Qt
-qmake -v >/dev/null 2>&1
+${QMAKE} -v >/dev/null 2>&1
 [ $? -ne 0 ] && echo "Qt developer tool is not installed" && exit
 
 #check mysql
@@ -92,6 +113,18 @@ if [ z"`uname`" == "zDarwin" ]; then
 chown _www /etc/wardrobe/wardrobe
 chown _www $BASEDIR/RAW-DATA
 chown _www $BASEDIR/tmp
+cp $BASEDIR/src/scripts/MacOSX/wardrobeworker.sh /usr/local/libexec/wardrobeworker.sh
+chmod +x /usr/local/libexec/wardrobeworker.sh
+cp $BASEDIR/src/scripts/MacOSX/st.porter.wardrobe.worker* /Library/LaunchDaemons/
+
+launchctl enable /Library/LaunchDaemons/st.porter.wardrobe.worker1.plist
+launchctl enable /Library/LaunchDaemons/st.porter.wardrobe.worker2.plist
+launchctl enable /Library/LaunchDaemons/st.porter.wardrobe.worker3.plist
+
+launchctl load /Library/LaunchDaemons/st.porter.wardrobe.worker1.plist
+launchctl load /Library/LaunchDaemons/st.porter.wardrobe.worker2.plist
+launchctl load /Library/LaunchDaemons/st.porter.wardrobe.worker3.plist
+
 fi
 
 if [ z"`head -n 1 /etc/SuSE-release 2>/dev/null`" == "zopenSUSE 13.2 (x86_64)" ]; then
