@@ -53,7 +53,7 @@ mkdir -p /etc/wardrobe
 
 cd $BASEDIR/src
 
-echo "Creating dtabase structure ems/experiments"
+echo "Creating database structure ems/experiments"
 mysql -h${HOST} -p${PASS} -uroot < ${BASEDIR}/src/sql/wardrobe.sql >>${BASEDIR}/tmp/install.log 2>&1
 mysql -h${HOST} -p${PASS} -uroot -N -e "DROP USER 'wardrobe'@'localhost';" 
 mysql -h${HOST} -p${PASS} -uroot -N -e "CREATE USER 'wardrobe'@'localhost' IDENTIFIED BY '${WPASS}';"
