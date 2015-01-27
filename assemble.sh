@@ -70,8 +70,5 @@ ln -sf $(pwd)/atdp $BINS/atdp
 
 echo "Assemble complete"
 cd ../../
-<<<<<<< HEAD
-=======
 
 exit 0
->>>>>>> 8d3e5ee1852814a0e3b32b70c29232d523e58dd6
