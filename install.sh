@@ -157,7 +157,7 @@ crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}
 
 [ -f /etc/apache2/vhosts.d/wardrobe.conf ] || cp $BASEDIR/src/doc/wardrobe.conf /etc/apache2/vhosts.d/wardrobe.conf
 
-cp -R $BASEDIR/src/EMS/* $BASEDIR/ems
+cp -R $BASEDIR/src/EMS/ems/* $BASEDIR/ems
 
 fi
 
