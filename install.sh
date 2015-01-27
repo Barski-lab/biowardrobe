@@ -139,15 +139,21 @@ setfacl -m "default:group::rwx" $BASEDIR/RAW-DATA
 chmod g+s $BASEDIR/tmp
 setfacl -m "default:group::rwx" $BASEDIR/tmp
 
+mkdir -p /usr/local/lib64/python2.7/site-packages/
 ln -s ${BASEDIR}/src/scripts/DefFunctions.py /usr/local/lib64/python2.7/site-packages/DefFunctions.py
 ln -s ${BASEDIR}/src/scripts/Settings.py /usr/local/lib64/python2.7/site-packages/Settings.py
 
-crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/DownloadRequests.py >> ${BASEDIR}/tmp/Download.log 2>&1"; } | crontab -
-crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunDNA.py >> ${BASEDIR}/tmp/RunDNA.log 2>&1"; } | crontab -
-crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunRNA.py >> ${BASEDIR}/tmp/RunRNA.log 2>&1"; } | crontab -
-crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/ForceRun.py >> ${BASEDIR}/tmp/ForceRun.log 2>&1"; } | crontab -
+crontab -l -u wardrobe >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/DownloadRequests.py >> ${BASEDIR}/tmp/Download.log 2>&1"  | crontab - -u wardrobe
+else 
+crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/DownloadRequests.py >> ${BASEDIR}/tmp/Download.log 2>&1"; } | crontab - -u wardrobe
+fi 
+crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunDNA.py >> ${BASEDIR}/tmp/RunDNA.log 2>&1"; } | crontab - -u wardrobe
+crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunRNA.py >> ${BASEDIR}/tmp/RunRNA.log 2>&1"; } | crontab - -u wardrobe
+crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/ForceRun.py >> ${BASEDIR}/tmp/ForceRun.log 2>&1"; } | crontab - -u wardrobe
 
-sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
+#sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
 
 [ -f /etc/apache2/vhosts.d/wardrobe.conf ] || cp $BASEDIR/src/doc/wardrobe.conf /etc/apache2/vhosts.d/wardrobe.conf
 
