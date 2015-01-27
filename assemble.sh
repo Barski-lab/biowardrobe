@@ -54,14 +54,12 @@ assemble
 [ $? -ne 0 ] && echo "Cant compile bam2bedgraph" && exit
 ln -sf $(pwd)/bam2bedgraph $BINS/bam2bedgraph
 
-
 cd ../../
 echo "Compile reads-counting"
 cd src/reads-counting
 assemble
 [ $? -ne 0 ] && echo "Cant compile reads-counting" && exit
 ln -sf $(pwd)/ReadsCounting $BINS/ReadsCounting
-
 
 cd ../../
 echo "Compile averagetagdensity"
@@ -72,4 +70,3 @@ ln -sf $(pwd)/atdp $BINS/atdp
 
 echo "Assemble complete"
 cd ../../
-
