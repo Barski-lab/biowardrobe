@@ -47,6 +47,7 @@ mkdir -p $BASEDIR/indices/gtf
 mkdir -p $BASEDIR/STAR/gtf
 mkdir -p $BASEDIR/tmp
 mkdir -p $BASEDIR/upload
+mkdir -p /etc/wardrobe
 
 >${BASEDIR}/tmp/install.log
 
@@ -99,6 +100,7 @@ chmod 0775 $BASEDIR/RAW-DATA
 chmod 0777 $BASEDIR/tmp
 
 ${BASEDIR}/src/assemble.sh
+[ $? -ne 0 ] && echo "Cant compile sources" && exit
 
 cd ./scripts/
 
