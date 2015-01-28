@@ -465,34 +465,41 @@ void FSTM::CreateTablesViews(void)
             RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
         }
 
-        QString CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2_isoforms`;"
-                                     "CREATE TABLE `%3`.`%4_isoforms` ( "
-                                     "`refseq_id` VARCHAR(100) NOT NULL ,"
-                                     "`gene_id` VARCHAR(100) NOT NULL ,"
-                                     "`chrom` VARCHAR(45) NOT NULL,"
-                                     "`txStart` INT NULL ,"
-                                     "`txEnd` INT NULL ,"
-                                     "`strand` char(1),"
-                                     "TOT_R_0   float,"
-                                     "RPKM_0   float,"
-                                     "%5 "
-                                     "INDEX refseq_id_idx (refseq_id) using btree,"
-                                     "INDEX gene_id_idx (gene_id) using btree,"
-                                     "INDEX chr_idx (chrom) using btree,"
-                                     "INDEX txStart_idx (txStart) using btree,"
-                                     "INDEX txEnd_idx (txEnd) using btree"
-                                     ")"
-                                     "ENGINE = MyISAM "
-                                     "COMMENT = 'created by readscounting';").
-                             arg(gSettings().getValue("experimentsdb")).
-                             arg(gArgs().getArgs("sql_table").toString()).
-                             arg(gSettings().getValue("experimentsdb")).
-                             arg(gArgs().getArgs("sql_table").toString()).
-                             arg(RPKM_FIELDS);
+        QString CREATE_TABLE="";
+        QString suffix[3];
+        suffix[0]="_isoforms";
+        suffix[1]="_genes";
+        suffix[2]="_common_tss";
+        for(int i=0;i<3;i++){
+            CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
+                                 "CREATE TABLE `%3`.`%4` ( "
+                                 "`refseq_id` VARCHAR(100) NOT NULL ,"
+                                 "`gene_id` VARCHAR(100) NOT NULL ,"
+                                 "`chrom` VARCHAR(45) NOT NULL,"
+                                 "`txStart` INT NULL ,"
+                                 "`txEnd` INT NULL ,"
+                                 "`strand` char(1),"
+                                 "TOT_R_0   float,"
+                                 "RPKM_0   float,"
+                                 "%5 "
+                                 "INDEX refseq_id_idx (refseq_id) using btree,"
+                                 "INDEX gene_id_idx (gene_id) using btree,"
+                                 "INDEX chr_idx (chrom) using btree,"
+                                 "INDEX txStart_idx (txStart) using btree,"
+                                 "INDEX txEnd_idx (txEnd) using btree"
+                                 ")"
+                                 "ENGINE = MyISAM "
+                                 "COMMENT = 'created by readscounting';").
+                         arg(gSettings().getValue("experimentsdb")).
+                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
+                         arg(gSettings().getValue("experimentsdb")).
+                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
+                         arg(RPKM_FIELDS);
 
-        if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
+            if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
+            {
+                qDebug()<<"Query error: "<<q.lastError().text();
+            }
         }
 
         RPKM_FIELDS="";
@@ -504,20 +511,24 @@ void FSTM::CreateTablesViews(void)
 
 
         CREATE_TABLE=QString(
-                         "CREATE VIEW `%1`.`%2_common_tss` AS "
-                         "select "
-                         "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
-                         "group_concat(distinct gene_id   order by gene_id   separator ',') AS gene_id,"
-                         "chrom AS chrom,"
-                         "txStart AS txStart,"
-                         "max(txEnd) AS txEnd,"
-                         "strand AS strand,"
-                         "coalesce(sum(TOT_R_0),0) AS TOT_R_0, "
-                         "coalesce(sum(RPKM_0),0) AS RPKM_0 "
-                         "%3 "
-                         "from `%4`.`%5_isoforms` "
-                         "where strand = '+' "
-                         "group by chrom,txStart,strand ").
+                         " INSERT INTO `%1`.`%2_common_tss`"
+                         " SELECT"
+                         "    GROUP_CONCAT(DISTINCT refseq_id"
+                         "        ORDER BY refseq_id"
+                         "        SEPARATOR ',') AS refseq_id,"
+                         "    GROUP_CONCAT(DISTINCT gene_id"
+                         "        ORDER BY gene_id"
+                         "        SEPARATOR ',') AS gene_id,"
+                         "    chrom AS chrom,"
+                         "    txStart AS txStart,"
+                         "    MAX(txEnd) AS txEnd,"
+                         "    strand AS strand,"
+                         "    COALESCE(SUM(TOT_R_0), 0) AS TOT_R_0,"
+                         "    COALESCE(SUM(RPKM_0), 0) AS RPKM_0 "
+                         " %3 "
+                         " from `%4`.`%5_isoforms` "
+                         " where strand = '+' "
+                         " GROUP BY chrom , txStart , strand" ).
                      arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString()).
                      arg(RPKM_FIELDS).
@@ -547,7 +558,7 @@ void FSTM::CreateTablesViews(void)
         }
 
         CREATE_TABLE=QString(
-                         "CREATE VIEW `%1`.`%2_genes` AS "
+                         "INSERT INTO `%1`.`%2_genes`"
                          "select "
                          "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
                          "gene_id,"
