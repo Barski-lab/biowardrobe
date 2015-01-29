@@ -36,7 +36,7 @@ if (!isset($_REQUEST['node'])) {
     $response->print_error("Not enough arguments.");
 }
 
-function make_array($qr)
+function make_array($qr,$leaf=false,$type=0,$icon='folder-into')
 {
     $data = array();
     if (!$qr) return $data;
@@ -45,34 +45,13 @@ function make_array($qr)
             'id' => $val['id'],
             'worker_id' => $val['worker_id'],
             'text' => $val['name'],
-            'leaf' => false,
-            'type' => 0,
+            'leaf' => $leaf,
+            'type' => $type,
             'description' => $val['description'],
             'article' => $val['article'],
             'dateadd' => $val['dateadd'],
             'expanded' => false,
-            'iconCls' => 'folder-into');
-    }
-    return $data;
-}
-
-function make_array_admin($qr)
-{
-    $data = array();
-    if (!$qr) return $data;
-
-    foreach ($qr as $key => $val) {
-        $data[] = array(
-            'id' => $val['id'],
-            'worker_id' => $val['worker_id'],
-            'text' => $val['name'],
-            'leaf' => true,
-            'type' => 0,
-            'description' => $val['description'],
-            'article' => $val['article'],
-            'dateadd' => $val['dateadd'],
-            'expanded' => true,
-            'iconCls' => 'folder');
+            'iconCls' => $icon);
     }
     return $data;
 }
@@ -83,26 +62,39 @@ if ($_REQUEST['node'] != 'root') {
     if ($worker->isAdmin() && strpos($_REQUEST['node'],'wrk_id_') !== false) {
         $wid=intval(substr($_REQUEST['node'],7));
         $qr = selectSQL("select * from project2 where worker_id=$wid order by name", array());
-        $data=make_array_admin($qr);
+        $data=make_array($qr,true,0,'folder');
     }
 } else {
     if ($worker->isAdmin()) {
         //$qr = selectSQL("select * from project2 order by worker_id,name", array());
         $qr = selectSQL("select concat('wrk_id_',id) as id,id as worker_id,concat(lname,', ',fname) as name,'' as description,'' as article,'' as dateadd from worker order by lname,fname", array());
+        $data[] = array(
+            'text' => 'Owned',
+            'type' => 1,
+            'id' => 'own',
+            'expanded' => true,
+            'data' => make_array($qr,false,1)
+        );
     } else {
         $qr = selectSQL("select * from project2 where worker_id=?", array("i", $user_id));
+        $data[] = array(
+            'text' => 'Owned',
+            'type' => 1,
+            'id' => 'own',
+            'expanded' => true,
+            'data' => make_array($qr,true)
+        );
     }
 
-    $data[] = array(
-        'text' => 'Owned',
-        'type' => 1,
-        'id' => 'own',
-        'expanded' => true,
-        'data' => make_array($qr)
-    );
-
     if (!$worker->isAdmin()) {
-        $qr = selectSQL("select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?", array("i", $user_id));
+        if($worker->isLocalAdmin()) {
+            $qr = selectSQL("select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?
+            union
+            select * from project2 where worker_id in (select id from worker where laboratory_id in (select laboratory_id from worker where id=?))
+            ", array("ii", $user_id,$user_id));
+        } else {
+            $qr = selectSQL("select p.* from project2 p,project2_share ps where p.id=ps.project_id and ps.worker_id=?", array("i", $user_id));
+        }
 
         $data[] = //array($data,
             array(
@@ -110,7 +102,7 @@ if ($_REQUEST['node'] != 'root') {
                 'expanded' => true,
                 'type' => 1,
                 'id' => 'share',
-                'data' => make_array($qr)
+                'data' => make_array($qr,true,0)
             );
     }
 }
