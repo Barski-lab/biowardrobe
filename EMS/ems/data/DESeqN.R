@@ -4,6 +4,8 @@ args <- commandArgs(trailingOnly = TRUE)
 
 library(DBI)
 library(RMySQL)
+library(BiocParallel)
+register(MulticoreParam(4))
 
 DRV <- dbDriver("MySQL")
 con <- dbConnect(DRV, user=args[1], password=args[2],dbname=args[3],host=args[4],client.flag = CLIENT_MULTI_STATEMENTS) #MySQL()
@@ -160,7 +162,7 @@ if(DESeqA==2) {
         dsq <- DESeq(dse)
     }
 
-    DESeqRes<-as.data.frame(results(dsq)[,c(2,4,5)])
+    DESeqRes<-as.data.frame(results(dsq)[,c(2,5,6)])
     DESeqRes$log2FoldChange[is.na(DESeqRes$log2FoldChange)]<-0;
     DESeqRes[is.na(DESeqRes)]<-1;
 } else {
