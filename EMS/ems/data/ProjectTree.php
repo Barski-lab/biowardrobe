@@ -36,9 +36,10 @@ if (!isset($_REQUEST['node'])) {
     $response->print_error("Not enough arguments.");
 }
 
-function make_array($qr) {
-    $data=array();
-    if(!$qr) return $data;
+function make_array($qr)
+{
+    $data = array();
+    if (!$qr) return $data;
     foreach ($qr as $key => $val) {
         $data[] = array(
             'id' => $val['id'],
@@ -55,12 +56,39 @@ function make_array($qr) {
     return $data;
 }
 
+function make_array_admin($qr)
+{
+    $data = array();
+    if (!$qr) return $data;
+
+    foreach ($qr as $key => $val) {
+        $data[] = array(
+            'id' => $val['id'],
+            'worker_id' => $val['worker_id'],
+            'text' => $val['name'],
+            'leaf' => true,
+            'type' => 0,
+            'description' => $val['description'],
+            'article' => $val['article'],
+            'dateadd' => $val['dateadd'],
+            'expanded' => true,
+            'iconCls' => 'folder');
+    }
+    return $data;
+}
+
 check_val($_REQUEST['node']);
 
 if ($_REQUEST['node'] != 'root') {
+    if ($worker->isAdmin() && strpos($_REQUEST['node'],'wrk_id_') !== false) {
+        $wid=intval(substr($_REQUEST['node'],7));
+        $qr = selectSQL("select * from project2 where worker_id=$wid order by name", array());
+        $data=make_array_admin($qr);
+    }
 } else {
     if ($worker->isAdmin()) {
-        $qr = selectSQL("select * from project2", array());
+        //$qr = selectSQL("select * from project2 order by worker_id,name", array());
+        $qr = selectSQL("select concat('wrk_id_',id) as id,id as worker_id,concat(lname,', ',fname) as name,'' as description,'' as article,'' as dateadd from worker order by lname,fname", array());
     } else {
         $qr = selectSQL("select * from project2 where worker_id=?", array("i", $user_id));
     }
@@ -90,6 +118,6 @@ if ($_REQUEST['node'] != 'root') {
 echo json_encode(array(
     'text' => '.',
     'data' => $data
-    ));
+));
 
 ?>
