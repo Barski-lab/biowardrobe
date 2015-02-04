@@ -48,7 +48,7 @@ else
 check_val($findex);
 
 if( !($findex=='hg19' || $findex=='mm10') )
-    $res->print_error('Genome not supported');
+    $res->print_error('Genome is not supported');
 
 
 if(isset($_REQUEST['shift']))
@@ -62,9 +62,11 @@ if($shift<1)
 $query_array=array();
 
 
+$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
+$indices = $settings->settings['wardrobe']['value'].'/'.$settings->settings['indices']['value'];;
 
 
-$fn = tempnam ('/tmp', 'seqcut-');
+$fn = tempnam ("{$TMP}", "seqcut-");
 if ($fn) {
     $temp = fopen ($fn, 'w+');
     if (!$temp) {
@@ -79,7 +81,7 @@ for($i=0;$i<=strlen($sequence)-$cutlen;$i+=$shift) {
     fwrite($temp,$str."\n");
 }
 
-$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 30 --suppress 2,3,4,5,6 --quiet $gpath/$findex - ");
+$output=shell_exec("cat $fn |bowtie -f -v 0 -p 7 -M 30 --suppress 2,3,4,5,6 --quiet {$indices}/$findex - ");
 
 if(!$output) {
     $res->print_error('Cant run bowtie');
