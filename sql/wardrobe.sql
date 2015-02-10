@@ -654,12 +654,12 @@ UNLOCK TABLES;
 LOCK TABLES `atype` WRITE;
 /*!40000 ALTER TABLE `atype` DISABLE KEYS */;
 INSERT INTO `atype` VALUES 
-(1,'DESeq','To produce differentially expressed gene lists use this function. You can use it to compare groups of treated and untreated\nexperiments and also when you need differences in series of experiments.','/ems/images/index_view_big.png',2,1),
-(2,'PCA','PCA stands for Principle Component Analysis it can help to see similarities between all experimental data.','/ems/images/shopping_cart_big.png',5,0),
-(3,'DESeq2','Estimate variance-mean dependence in count data from high-throughput sequencing assays and test for\ndifferential expression based on a model using the negative binomial distribution.','/ems/images/index_view_big.png',999,1),
-(4,'ATP & filter','ATP is Average Tag Density Profile plot which shows modification level (enrichment) for particular gene list.\nYou can combine all gene list created in \"Genes Lists\" or \"DESeq\" analysis and all DNA-Seq experiments in one plot.','/ems/images/chart_line_big.png',2,1),
-(5,'MANorm','MANorm is a simple and effective method, for quantitative comparison of \nChIP-Seq data sets describing transcription factor binding sites and epigenetic modifications.','/ems/images/documents_preferences_b.png',999,1),
-(6,'Genes Lists','This function allows you to organize and manage genes lists (grouping, filtering) for future analysis. All lists can be saved in excel like format. If you dont know where to start, start from here.','/ems/images/notebook3_big.png',1,1);
+(1,'DESeq 1/2','Use DESeq to identify differentially expressed genes between samples or groups of samples or different conditions. System will automatically choose DESeq or DESeq2.','images/index_view_big.png',2,1),
+(2,'PCA','PCA stands for Principle Component Analysis it can help to see similarities between all experimental data.','images/shopping_cart_big.png',5,0),
+(3,'DESeq 1/2','Use DESeq to identify differentially expressed genes between samples or groups of samples or different conditions. System will automatically choose DESeq or DESeq2.','images/index_view_big.png',999,0),
+(4,'ATP & filter','ATP is Average Tag Density Profile plot which shows modification level (enrichment) for particular gene list.\nYou can combine all gene list created in \"Genes Lists\" or \"DESeq\" analysis and all DNA-Seq experiments in one plot.','images/chart_line_big.png',2,1),
+(5,'MANorm','MANorm is a simple and effective method, for quantitative comparison of \nChIP-Seq data sets describing transcription factor binding sites and epigenetic modifications.','images/documents_preferences_b.png',999,1),
+(6,'Genes Lists','This function allows you to organize and manage genes lists (grouping, filtering) for future analysis. All lists can be saved in excel like format. If you dont know where to start, start from here.','images/notebook3_big.png',1,1);
 /*!40000 ALTER TABLE `atype` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -711,3 +711,22 @@ ADD COLUMN `rmdup` INT(1) NULL DEFAULT '0' AFTER `forcerun`;
 ALTER TABLE `ems`.`labdata` 
 ADD COLUMN `tagsused` INT(11) NULL DEFAULT '0' AFTER `tagssuppressed`;
 
+-- PATCH genome size
+
+ALTER TABLE `ems`.`genome` 
+ADD COLUMN `gsize` VARCHAR(20) NULL AFTER `annottable`;
+
+update `ems`.`genome` set gsize="2.35e9" where db like 'hg19';
+update `ems`.`genome` set gsize="2.0e9" where db like 'mm10';
+update `ems`.`genome` set gsize="2.18e9" where db like 'rn5';
+-- update `ems`.`genome` set gsize="1.2e8" where db like 'dm3';
+-- update `ems`.`genome` set gsize="1.13e9" where db like 'xenTro3';
+
+ALTER TABLE `ems`.`genome` 
+CHANGE COLUMN `gsize` `gsize` VARCHAR(20) NOT NULL DEFAULT '2e9' ;
+
+-- PATCH experiment as a control
+
+ALTER TABLE `ems`.`labdata` 
+ADD COLUMN `control` INT(1) NULL AFTER `trim5`,
+ADD COLUMN `control_id` VARCHAR(36) NULL AFTER `control`;
