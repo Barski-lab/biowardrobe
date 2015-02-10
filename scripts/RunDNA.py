@@ -156,13 +156,13 @@ settings.cursor.execute(
 while True:
     settings.cursor.execute(
         "select e.etype,g.db,g.findex,g.annotation,l.uid,fragmentsizeexp,fragmentsizeforceuse,forcerun, "
-        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.properties,0), COALESCE(l.rmdup,0) "
+        "COALESCE(l.trim5,0), COALESCE(l.trim3,0),COALESCE(a.properties,0), COALESCE(l.rmdup,0),g.gsize, COALESCE(control,0), COALESCE(control_id,'') "
         "from labdata l "
         "inner join (experimenttype e,genome g ) ON (e.id=experimenttype_id and g.id=genome_id) "
         "LEFT JOIN (antibody a) ON (l.antibody_id=a.id) "
         "where e.etype like 'DNA%' and libstatus in (10,1010) "
         "and deleted=0 and COALESCE(egroup_id,'') <> '' and COALESCE(name4browser,'') <> '' "
-        " order by dateadd limit 1")
+        " order by control DESC,dateadd limit 1")
     row = settings.cursor.fetchone()
     if not row:
         break
@@ -180,6 +180,19 @@ while True:
     right = int(row[9])
     broad = (int(row[10]) == 2)
     rmdup = (int(row[11]) == 1)
+    gsize = row[12]
+
+    isControl = (int(row[13]) == 1)
+    control_id = row[14]
+
+    if control_id != "":
+            settings.cursor.execute("select libstatus from labdata where uid=%s",(control_id,))
+            crow = settings.cursor.fetchone()
+            if int(crow[0]) < 12 or int(crow[0]) > 100:
+                settings.cursor.execute("update labdata set libstatustxt='control dataset has not been analyzed',libstatus=2 where uid=%s", (UID,))
+                settings.conn.commit()
+                continue
+
 
     FRAGMENT = 0
 
@@ -216,7 +229,7 @@ while True:
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
     MACSER = False
-    if check_error(d.run_macs(UID, DB, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN), UID):
+    if check_error(d.run_macs(UID, gsize, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN, control_id), UID):
         MACSER = True
         FRAGMENTE = FRAGEXP
         FRAGMENT = FRAGMENTE
@@ -228,7 +241,7 @@ while True:
         FRAGMENT = a[0]
 
     if MACSER or (FRAGMENTE < 80 and not FRAGFRC):
-        if check_error(d.run_macs(UID, DB, FRAGEXP, True, PAIR, broad, True, BIN), UID):
+        if check_error(d.run_macs(UID, gsize, FRAGEXP, True, PAIR, broad, True, BIN, control_id), UID):
             MACSER = True
         else:
             a = d.macs_data(UID)
@@ -248,7 +261,7 @@ while True:
     if check_error(d.run_bedgraph(UID, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
 
-    a = get_stat(UID,rmdup)
+    a = get_stat(UID, rmdup)
     if type(a[0]) is str and check_error(a, UID):
         continue
 
