@@ -37,6 +37,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         'Experiment.Experiment.QualityControl',
         'Experiment.Experiment.Islands',
         'Experiment.Experiment.RPKM',
+        'Experiment.Experiment.R'
     ],
 
     requires: [
@@ -74,6 +75,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
          });
         this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
         this.EGroupsStore.load();
+
     },//init
     /****************************
      * Init window functions
@@ -92,6 +94,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         this.getSpikeinsStore().load();
         this.getController('Experiment.Islands');
         this.getController('Experiment.RPKM');
+        this.getController('Experiment.R');
+
         Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].bindStore(this.EGroupsStore);
 
         var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
@@ -150,6 +154,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts > 11) {
             this.addQC(maintabpanel, record);
             this.addGB(maintabpanel);
+            this.addR(maintabpanel);
         }
 
         if (sts > 11 && !this.isRNA) {
@@ -471,6 +476,15 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                            }
                        }
                    });
+    },
+    /***********************************************************************
+     * Add R tab
+     ***********************************************************************/
+    addR: function (tab, bn) {
+        var me = this;
+        me.Rtab = Ext.create("EMS.view.Experiment.Experiment.R", {UID:this.UID});
+        var tabadded = tab.add(me.Rtab);
+        //var icon = me.Rtab.iconCls;
     },
     /***********************************************************************
      ***********************************************************************/

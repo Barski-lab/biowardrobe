@@ -114,7 +114,7 @@ wardrobe.getPreliminary<-function (id="",settings=""){
     IF(etype LIKE '%RNA%', 1, 0) as isRNA,
     IF(etype LIKE '%pair%', 1, 0) as isPair,
     etype,upper(author) as author,
-    ge.db as db,ge.annottable as annotation 
+    ge.db as db,ge.annottable as annotation, name4browser as alias 
     from labdata l
     left join (experimenttype e,genome ge)
     on (l.genome_id=ge.id and l.experimenttype_id=e.id)

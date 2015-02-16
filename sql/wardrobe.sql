@@ -1,8 +1,3 @@
--- MySQL dump 10.13  Distrib 5.6.19, for osx10.9 (x86_64)
---
--- Host: localhost    Database: ems
--- ------------------------------------------------------
--- Server version	5.6.19-log
 
 DROP DATABASE IF EXISTS `experiments`;
 DROP DATABASE IF EXISTS `ems`;
@@ -278,11 +273,10 @@ CREATE TABLE `labdata` (
   `notes` text,
   `protocol` text,
   `filename` varchar(40) DEFAULT NULL,
-  `filenameold` varchar(2000) DEFAULT '',
   `dateadd` date NOT NULL,
   `libstatus` int(11) DEFAULT '0',
   `libstatustxt` varchar(2000) DEFAULT 'created',
-  `url` varchar(2000) DEFAULT NULL COMMENT 'direct link for a file',
+  `url` varchar(2000) DEFAULT NULL COMMENT 'direct link to a file',
   `name4browser` varchar(300) DEFAULT NULL,
   `browsergrp` varchar(150) DEFAULT '',
   `browsershare` int(1) DEFAULT '1',
@@ -673,11 +667,10 @@ UNLOCK TABLES;
 -- PATCH p1
 
 ALTER TABLE `ems`.`labdata` 
-ADD COLUMN `peaks` VARCHAR(45) NULL DEFAULT NULL AFTER `antibodycode`,
-ADD COLUMN `trim3` INT(5) NULL DEFAULT 0 AFTER `peaks`,
+ADD COLUMN `trim3` INT(5) NULL DEFAULT 0 AFTER `antibodycode`,
 ADD COLUMN `trim5` INT(5) NULL DEFAULT 0 AFTER `trim3`;
 
-INSERT INTO `ems`.`rtype` VALUES (1,'RPKM isoforms'),(2,'RPKM genes'),(3,'RPKM common tss'),(4,'CHIP islands');
+INSERT INTO `ems`.`rtype` VALUES (1,'RPKM isoforms'),(2,'RPKM genes'),(3,'RPKM common tss'),(4,'ChIP islands');
 
 ALTER TABLE `ems`.`antibody` 
 ADD COLUMN `properties` INT(6) UNSIGNED NOT NULL DEFAULT 0 AFTER `description`;
@@ -686,8 +679,7 @@ ALTER TABLE `ems`.`labdata`
 DROP FOREIGN KEY `labdata_ibfk_5`,
 DROP FOREIGN KEY `labdata_ifbk_9`;
 
-ALTER TABLE `ems`.`labdata` 
-DROP COLUMN `peaks`;
+-- ALTER TABLE `ems`.`labdata` 
 -- CHANGE COLUMN `antibody_id` `antibody_id` VARCHAR(36) NOT NULL ,
 -- CHANGE COLUMN `laboratory_id` `laboratory_id` VARCHAR(36) NOT NULL ,
 -- CHANGE COLUMN `download_id` `download_id` INT(3) NOT NULL ;

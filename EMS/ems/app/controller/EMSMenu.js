@@ -136,15 +136,15 @@ Ext.define('EMS.controller.EMSMenu', {
             case "Help":
                 me.createWindow(menuitem.action, 'EMS.view.Help', {});
                 break;
+            case "SeqCut":
+                me.createWindow(menuitem.action, 'EMS.view.SequenceCutter.MainWindow', {});
+                break;
             case "":
                 break;
         }
 
         if (menuitem.action === "FragmentType") {
             me.createWindow(menuitem.action, 'EMS.view.Fragmentation.Fragmentation', {});
-        }
-        if (menuitem.action === "SeqCut") {
-            me.createWindow(menuitem.action, 'EMS.view.SequenceCutter.MainWindow', {});
         }
         if (menuitem.action === "ExpType") {
             me.createWindow(menuitem.action, 'EMS.view.ExperimentType.ExperimentType', {});

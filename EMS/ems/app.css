@@ -794,8 +794,20 @@
     height: 16px;
 }
 
+.document-ok {
+    background-image: url(images/document_ok.png) !important;
+    width: 16px;
+    height: 16px;
+}
+
 .svg-logo {
     background-image: url(images/svg_logo.png) !important;
+    max-width: 16px;
+    max-height: 16px;
+}
+
+.r-logo {
+    background-image: url(images/rlogo_s.png) !important;
     max-width: 16px;
     max-height: 16px;
 }
@@ -811,8 +823,6 @@
     max-width: 16px;
     max-height: 16px;
 }
-
-
 
 .groupstopic {
     padding: 2px 0 0 20px;
@@ -885,7 +895,7 @@
     white-space: normal;
     display: table-cell;
     vertical-align: middle;
-    text-align: middle;
+    text-align: center;
     horizontal-align: middle;
 }
 

@@ -57,6 +57,9 @@ $SQL_STR = $SQL_STR . " order by priority DESC, name";
 
 $query_array = selectSQL($SQL_STR, $PARAMS);
 
+if($query_array == 0)
+    $query_array=array();
+
 $result = array_merge($array_prepend, $query_array);
 
 $response->success = true;

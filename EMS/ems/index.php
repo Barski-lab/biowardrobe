@@ -33,6 +33,7 @@
 
 
     <script type="text/javascript" src="HtmlEditor/imageUpload.js"></script>
+    <script type="text/javascript" src="syntax/ace/ace.js"></script>
 
 <!--    <script type="text/javascript" src="jquery.min.js"></script>-->
 <!--    <script type="text/javascript" src="highcharts/highcharts-all.js"></script>-->

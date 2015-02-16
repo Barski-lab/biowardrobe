@@ -467,10 +467,7 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                         type: 'vbox',
                                         align: 'stretch'
                                     },
-
                                     items: [
-
-
                                         {
                                             xtype: 'fieldcontainer',
                                             layout: 'hbox',
