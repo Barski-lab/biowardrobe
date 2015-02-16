@@ -173,12 +173,9 @@ def upload_macsdata(conn, infile, dbexp, db):
     return ['Success', islands]
 
 
-def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
-    format = "BAM"
-    shiftsize = int(fragsize / 2)
+def run_macs(infile, gsize="2.35e9", fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin", control=""):
 
-    if pair:
-        format = "BAMPE"
+    shiftsize = int(fragsize / 2)
 
     if len(file_exist('.', infile, 'bam')) != 1:
         return ['Error', 'Bam file does not exist']
@@ -192,24 +189,30 @@ def run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False,
         return ['Success', ' Macs analyzes done ']
 
     # samtools view -H b4f4ede6-e866-11e3-9546-ac162d784858.bam |grep 'SQ'| awk -F'LN:' '{print $2}'|paste -sd+ | bc
-    G = 'hs'
-    if 'mm' in db:
-        G = 'mm'
-
-    ADPAR = ""
-    if fragforce:
-        ADPAR += " --nomodel "
+    # at least macs 2.1
+    cmd = bin + '/macs callpeak -t ' + infile + '.bam'
+    if control != "":
+        cmd += " -c "+control
     else:
-        ADPAR += " --bw " + str(fragsize)
+        cmd += " --nolambda "
+    cmd += ' -n ' + infile + '_macs -g ' + gsize + ' -m 4 40  --verbose 3 '
+
+    if pair:
+        cmd += ' -f BAMPE '
+    else:
+        cmd += ' -f BAM '
+
+    if fragforce:
+        cmd += ' --nomodel --extsize ' + str(fragsize) # + ' --shift ' + str(shiftsize)
+    else:
+        cmd += " --bw " + str(fragsize)
 
     if broad:
-        ADPAR += " --broad "
+        cmd += " --broad "
     else:
-        ADPAR += " --call-summits "
+        cmd += " --call-summits "
 
-    cmd = bin + '/macs callpeak -t ' + infile + '.bam -n ' + infile + '_macs -g ' + G
-    cmd += ' --format ' + format + ' -m 3 60  --verbose 3 --shiftsize=' + str(
-        shiftsize) + ' -q 0.01 --nolambda ' + ADPAR + ' >./' + infile + '_macs.log 2>&1'
+    cmd += ' --keep-dup auto -q 0.05  >./' + infile + '_macs.log 2>&1'
 
     try:
         s.check_output(cmd, shell=True)
