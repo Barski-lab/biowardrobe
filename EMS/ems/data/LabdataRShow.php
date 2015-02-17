@@ -75,12 +75,12 @@ $labdata_r = selectSQL("SELECT rscript,lastmodified FROM `labdata_r` where id = 
 $rscript = $labdata_r['rscript'];
 $lastmodified = strtotime($labdata_r['lastmodified']);
 
-$refresh = 0;
+$refresh = 1;
 
 if (file_exists($rfile)) {
     $filemodified = filemtime($rfile);
-    if ($filemodified - $lastmodified < 0)
-        $refresh = 1;
+    if ($filemodified - $lastmodified > 0)
+        $refresh = 0;
 }
 
 if ($refresh) {
