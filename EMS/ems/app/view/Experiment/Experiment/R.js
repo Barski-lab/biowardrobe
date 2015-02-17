@@ -29,7 +29,7 @@ Ext.define('EMS.view.Experiment.Experiment.R', {
     border: false,
     plain: true,
     layout: 'fit',
-    title: 'R',
+    title: 'Run R',
     iconCls: 'r-logo',
 
     items: [{

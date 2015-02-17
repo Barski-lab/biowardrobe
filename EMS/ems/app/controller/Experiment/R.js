@@ -111,7 +111,8 @@ Ext.define('EMS.controller.Experiment.R', {
             autoScroll: true,
             loader: {
                 url: 'data/LabdataRShow.php?UID='+me.UID,
-                autoLoad: true
+                autoLoad: true,
+                loadMask: true
             },
         });
         maintabpanel.setActiveTab(0);
@@ -128,7 +129,15 @@ Ext.define('EMS.controller.Experiment.R', {
         var record = store.getAt(0);
         record.set("rscript", rscript);
         record.setDirty();
-        store.sync();
+        store.sync({
+                       callback: function () {
+                           console.log('synced');
+                           var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
+                           maintabpanel.items.getAt(0).getLoader().load();
+                           maintabpanel.items.getAt(0).update();
+                       }
+                   });
+
     },
 
     /***********************************************************************
