@@ -15,3 +15,4 @@ boost
 *.bam.bai
 *.log
 .qmake.stash
+.Rproj.user

@@ -104,12 +104,12 @@ if ($refresh) {
     $rcode = "
         args <- commandArgs(trailingOnly = TRUE)
         options(warn=-1)
-        suppressMessages(library(RMySQL))
+        suppressMessages(library(wardrobe))
         suppressMessages(library(BiocParallel))
         register(MulticoreParam(4))
-        source('/wardrobe/src/scripts/R/wardrobe.R')
         experiment<-wardrobe(args[1])[[1]]
-        detach(\"package:RMySQL\", unload=TRUE)
+        #detach(\"package:wardrobe\", unload=TRUE)
+        #detach(\"package:RMySQL\", unload=TRUE)
         png(filename='{$svgfile}')
         " . $rscript ."
         ". $mscript."
