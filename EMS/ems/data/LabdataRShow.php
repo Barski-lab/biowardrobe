@@ -105,9 +105,7 @@ if ($refresh) {
         args <- commandArgs(trailingOnly = TRUE)
         options(warn=-1)
         suppressMessages(library(wardrobe))
-        suppressMessages(library(BiocParallel))
         register(MulticoreParam(4))
-        experiment<-wardrobe(args[1])[[1]]
         #detach(\"package:wardrobe\", unload=TRUE)
         #detach(\"package:RMySQL\", unload=TRUE)
         png(filename='{$svgfile}')
