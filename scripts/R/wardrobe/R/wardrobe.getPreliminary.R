@@ -23,6 +23,8 @@ function (id="",settings=""){
    select uid,COALESCE(fragmentsize,0) as fragmentsize,
     IF(etype LIKE '%RNA%', 1, 0) as isRNA,
     IF(etype LIKE '%pair%', 1, 0) as isPair,
+    IF(etype LIKE '%dUTP%', 1, 0) as isDUTP,
+    l.tagsmapped,
     etype,upper(author) as author,
     ge.db as db,ge.annottable as annotation, name4browser as alias 
     from labdata l

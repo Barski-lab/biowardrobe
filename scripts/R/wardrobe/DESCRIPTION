@@ -1,11 +1,11 @@
 Package: wardrobe
 Type: Package
 Title: Wardrobe package provides tools to access datasets
-Version: 1.0
+Version: 1.0.1
 Date: 2015-02-17
 Author: Andrey Kartashov
 Maintainer: Andrey Kartashov <porter@porter.st>
-Depends: DBI, RMySQL
+Depends: DBI, RMySQL, Rsamtools, BiocParallel, GenomicAlignments
 Description: Wardrobe package
 License: MIT
 URL: https://wardrobe.porter.st/, https://biowardrobe.com/

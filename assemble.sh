@@ -28,10 +28,10 @@ exit -1
 fi
 
 function assemble() {
-make clean >>../../output.log 2>/dev/null
-make distclean >>../../output.log 2>/dev/null
-${QMAKE} >>../../output.log 2>&1
-make >>../../output.log 2>&1
+make clean >>./output.log 2>/dev/null
+make distclean >>./output.log 2>/dev/null
+${QMAKE} >>./output.log 2>&1
+make >>./output.log 2>&1
 return $?
 }
 

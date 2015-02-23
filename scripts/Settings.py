@@ -27,6 +27,10 @@ import sys
 from optparse import OptionParser
 import MySQLdb
 
+class WardrobeOptionParser(OptionParser):
+    def error(self, msg):
+        pass
+
 ##
 ## Class Settings provides some common functions and definitions of 
 ## command line parameters
@@ -40,7 +44,7 @@ class Settings:
     
     def __init__(self):
         self.argv=sys.argv
-        self.parser = OptionParser()
+        self.parser = WardrobeOptionParser()
         self.parser.add_option("", "--wardrobe", action="store", type="string",
                   dest="wardrobe", help="Wardrobe config file", metavar="<file>")
         (self.opt, args) = self.parser.parse_args(self.argv)
