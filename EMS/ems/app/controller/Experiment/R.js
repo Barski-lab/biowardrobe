@@ -107,15 +107,27 @@ Ext.define('EMS.controller.Experiment.R', {
         var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
         maintabpanel.insert
         (0,{
-            title: 'Result(s)',
+            title: 'Default Result(s)',
             autoScroll: true,
             loader: {
-                url: 'data/LabdataRShow.php?UID='+me.UID,
-                autoLoad: true,
+                url: 'data/LabdataRShow.php?default=1&UID='+me.UID,
+                loadMask: true
+            },
+        });
+        maintabpanel.insert
+        (1,{
+            title: 'Custom Result(s)',
+            autoScroll: true,
+            loader: {
+                url: 'data/LabdataRShow.php?default=0&UID='+me.UID,
                 loadMask: true
             },
         });
         maintabpanel.setActiveTab(0);
+        maintabpanel.items.getAt(0).getLoader().load();
+        maintabpanel.items.getAt(0).update();
+        maintabpanel.items.getAt(1).getLoader().load();
+        maintabpanel.items.getAt(1).update();
     },
     /***********************************************************************
      ***********************************************************************/
@@ -133,8 +145,13 @@ Ext.define('EMS.controller.Experiment.R', {
                        callback: function () {
                            console.log('synced');
                            var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
-                           maintabpanel.items.getAt(0).getLoader().load();
-                           maintabpanel.items.getAt(0).update();
+                           if(combov == 1) {
+                               maintabpanel.items.getAt(0).getLoader().load();
+                               maintabpanel.items.getAt(0).update();
+                           } else {
+                               maintabpanel.items.getAt(1).getLoader().load();
+                               maintabpanel.items.getAt(1).update();
+                           }
                        }
                    });
 

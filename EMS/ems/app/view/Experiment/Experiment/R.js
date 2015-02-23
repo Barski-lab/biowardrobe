@@ -66,12 +66,12 @@ Ext.define('EMS.view.Experiment.Experiment.R', {
                                   labelWidth: 80,
                                   minWidth: 230,
                                   valueField: 'id',
-                                  value: "1",
+                                  value: "2",
                                   store: Ext.create('Ext.data.Store', {
                                       fields: ['id', 'name'],
                                       data: [
                                           {"id": "1", "name": "Default"},
-                                          {"id": "2", "name": "This record"}
+                                          {"id": "2", "name": "Custom"}
                                       ]
                                   }),
                                   margin: "5 5 5 20"

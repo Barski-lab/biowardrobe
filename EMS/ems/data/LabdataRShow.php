@@ -23,6 +23,10 @@
 
 require_once('../settings.php');
 
+ignore_user_abort(true);
+set_time_limit(600);
+
+
 /**
  *
  */
@@ -41,11 +45,21 @@ function macs_parse($filename) {
     return $script;
 }
 
+/*
+ *
+ *
+ *
+ */
 $UID = "";
 if (isset($_REQUEST['UID']) && $_REQUEST['UID'] != "") {
     $UID = $_REQUEST['UID'];
     check_val($UID);
 }
+$isCustom = false;
+if (isset($_REQUEST['default']) && $_REQUEST['default'] != "") {
+    $isCustom = intval($_REQUEST['default']) != 1;
+}
+
 
 if (!$worker->isAdmin()) {
     $SQL_QUERY .= "and (laboratory_id=? or (egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) ) or egroup_id in (select id from egroup where laboratory_id=?) )";
@@ -59,19 +73,28 @@ if (count($LabdataRec) == 0) {
     $response->print_error("Insufficient privileges");
 }
 
+$fsuffix = "default";
+if ($isCustom)
+    $fsuffix = "custom";
 
 $path = $settings->settings['wardrobe']['value'] . $settings->settings['preliminary']['value'];
 
 $path_no_ext = $path . '/' . $UID . '/' . $UID;
-$rfile = $path_no_ext . "_default.r";
+$rfile = $path_no_ext . "_{$fsuffix}.r";
 
-$svgfile = $path_no_ext . "_default_%03d.png";
-$svgmask = $path_no_ext . "_*.png";
+$svgfile = $path_no_ext . "_{$fsuffix}_%03d.png";
+$svgmask = $path_no_ext . "_{$fsuffix}_*.png";
 
-$outfile = $path_no_ext . "_default.txt";
-$errfile = $path_no_ext . "_default_error.txt";
+$outfile = $path_no_ext . "_{$fsuffix}.txt";
+$errfile = $path_no_ext . "_{$fsuffix}_error.txt";
 
-$labdata_r = selectSQL("SELECT rscript,lastmodified FROM `labdata_r` where id = 'default0-0000-0000-0000-000000000001'", array())[0];
+if ($isCustom) {
+    $labdata_r = selectSQL("SELECT rscript,lastmodified FROM `labdata_r` where id = ?", array("s",$UID))[0];
+} else {
+    $labdata_r = selectSQL("SELECT rscript,lastmodified FROM `labdata_r` where id = 'default0-0000-0000-0000-000000000001'", array())[0];
+}
+if(!$labdata_r)
+    exit(0);
 $rscript = $labdata_r['rscript'];
 $lastmodified = strtotime($labdata_r['lastmodified']);
 
@@ -82,10 +105,14 @@ if (file_exists($rfile)) {
     if ($filemodified - $lastmodified > 0)
         $refresh = 0;
 }
-
+$MACS = false;
+if (file_exists($path_no_ext . "_macs_model.r") && !$isCustom) {
+    $MACS = true;
+}
 if ($refresh) {
 
-    $mscript=macs_parse($path_no_ext . "_macs_model.r");
+    if ($MACS)
+        $mscript = macs_parse($path_no_ext . "_macs_model.r");
 
     $svgfiles = glob($svgmask);
     foreach ($svgfiles as $line_num => $line) {
@@ -105,12 +132,12 @@ if ($refresh) {
         args <- commandArgs(trailingOnly = TRUE)
         options(warn=-1)
         suppressMessages(library(wardrobe))
-        register(MulticoreParam(4))
+        experiment<-wardrobe(args[1])[[1]]
         #detach(\"package:wardrobe\", unload=TRUE)
         #detach(\"package:RMySQL\", unload=TRUE)
         png(filename='{$svgfile}')
-        " . $rscript ."
-        ". $mscript."
+        " . $rscript . "
+        " . $mscript . "
         graphics.off()
         ";
 
@@ -126,11 +153,17 @@ $outstring = file($outfile);
 $errstring = file($errfile);
 
 $svgfiles = glob($svgmask);
+$br = 0;
 foreach ($svgfiles as $line_num => $line) {
-    if ($line_num > 0 && $line_num % 2 == 0) {
+    if ($br > 0 && $br % 2 == 0) {
         echo "<br>";
     }
-    echo "<img src=\"" . str_replace($settings->settings['wardrobe']['value'], '', $line) . "?".hash("md5",rand(1,1000))."\" />";
+    $br += 1;
+    if ($MACS && count($svgfiles) - 2 == $line_num) {
+        echo "<div style=\"text-align: center; font-size: 200%; color:#04408C;\"> Plots produced by MACS:</div><br>";
+        $br = 0;
+    }
+    echo "<img src=\"" . str_replace($settings->settings['wardrobe']['value'], '', $line) . "?" . hash("md5", rand(1, 1000)) . "\" />";
 }
 
 if (count($outstring) > 0) {

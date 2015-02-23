@@ -40,7 +40,29 @@ $rscript="";
 if($UID != "" && $codetype == 2) {
     $query = selectSQL("SELECT * FROM `labdata_r` where id = ?", array('s', $UID));
     if($query[0]['rscript']=="") {
-        $query=array("id"=>$UID,"rscript"=>"");
+        $query=array("id"=>$UID,"rscript"=>"#
+#  If you have any questions do not hesitate to ask email: Andrey Kartashov <porter@porter.st>
+#
+#  You can find full documentation at https://wardrobe.porter.st/projects/wardrobe/wiki/Devel_R_Wardrobe_Library
+#  This script goes into 'Rscript' command. All the output can be found in \"Custom Result(s)\" tab
+#
+#  Variable 'experiment' is injected into the script and it contains current experiment data
+#  experiment<-wardrobe(current_experiment_id)[[1]]
+#
+#  Quick 'experiment' - description:
+#	experiment\$alias   - experiment's short name
+#	experiment\$isRNA   - T/F, TRUE if experiment's type is RNA-Seq
+#	experiment\$db      - UCSC genome browser database name hg19/mm10/rn5/xenTro3/...
+#     ChIP Specific:
+#	    experiment\$dataset  - MACS table, column names can be found in Islands tab: refseq_id,gene_id... experiment\$dataset\$pileup
+#     RNA  Specific:
+#	    experiment\$dataseti - RPKM isoform table, column names can be found in \"RPKM list\" tab: refseq_id,gene_id... experiment\$dataset\$TOT_R_0
+#
+
+
+# Type any code here
+# Examples can be found in `default` script
+");
     }
 } else if ($codetype == 1) {
     $query = selectSQL("SELECT * FROM `labdata_r` where id like 'default0-0000-0000-0000-000000000001'", array());
