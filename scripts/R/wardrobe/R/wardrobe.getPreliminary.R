@@ -39,7 +39,7 @@ function (id="",settings=""){
   
   set<-c(set,
          bamfile=paste(settings$preliminary,'/',set$uid,'/',set$uid,'.bam',sep=""),
-         fastgz=paste(settings$preliminary,'/',set$uid,'/',set$uid,'.fastgz',sep="")
+         fastgz=paste(settings$preliminary,'/',set$uid,'/',set$uid,'.fastq.bz2',sep="")
          )
   
   sql<-""

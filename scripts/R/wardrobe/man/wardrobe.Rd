@@ -10,7 +10,7 @@
 \usage{
 wardrobe(id, lazzy = T)
 }
-%- maybe also 'usage' for other objects documented here.
+
 \arguments{
   \item{id}{ experiment ID from preliminary analysis.
 %%     ~~Describe \code{id} here~~
@@ -23,6 +23,23 @@ wardrobe(id, lazzy = T)
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
+\item{uid}{experiment internal UID - string}
+\item{isRNA}{numeric 1/0, if 1 it is a RNA-Seq experiment}
+\item{fragmentsize}{numeric - ChIP-Seq library fragment size which was used in calculations}
+\item{isPair}{1/0 - 1 if it is pair-end experiment}
+\item{isDUTP}{1/0 - 1 if it is dUTP experiment}
+\item{tagsmapped}{integer - the number of tags mapped to the reference genome}
+\item{db}{string - UCSC database name mm10/hg19/rn5/xenTro3/...}
+\item{annotation}{string - UCSC annotation table, for instance "refGene", one can select data from experiment$db.experiment$annotation to view an annotation for the reference genome}
+\item{alias}{string - a short experiment name}
+\item{bamfile}{string - whole path to the bam file}
+\item{fastgz}{string - whole path to the fastq bzipped file}
+RNA-Seq specific
+\item{dataseti}{'data.frame' - table with RPKM values counted against isoforms}
+\item{datasetg}{'data.frame' - table with RPKM values counted against genes}
+\item{datasetc}{'data.frame' - table with RPKM values counted against common transcription start sites}
+DNA-Seq specific
+\item{dataset}{'data.frame' - MACS output table}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -42,13 +59,15 @@ wardrobe(id, lazzy = T)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{
+ \code{\link[wardrobe:wardrobe-package]{wardrobe-package}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 \dontrun{
-  library(wardrobe)
-  
-  experiment <- wardrobe(id=1000)
+
+  library(wardrobe)  
+  experiment <- wardrobe(id=1000)[[1]]
+  str(experiment)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
