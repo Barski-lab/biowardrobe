@@ -24,13 +24,15 @@
 $DATABSE_CONNECTION_FILE = "/etc/wardrobe/wardrobe";
 
 require_once('utils/response.php');
+
+$response = new Response();
+$res = &$response;
+
 require_once('utils/def_vars.php');
 
 require_once('utils/common.php');
 require_once('utils/Users.php');
 
-$response = new Response();
-$res = &$response;
 
 Class Settings
 {

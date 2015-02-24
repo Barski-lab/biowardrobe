@@ -30,7 +30,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
 
     models: ['Preferences', 'EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'ATDPHeat'],
-    stores: ['Preferences', 'EGroups', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins', 'ATDPHeat'],
+    stores: ['Preferences', 'EGroups','EControls', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins', 'ATDPHeat'],
 
     views: [//'Experiment.Experiment.MainWindow',
         //'Experiment.Experiment.EditForm',
@@ -92,6 +92,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         this.worker = this.getWorkerStore().getAt(0);
         this.getDownloadStore().load();
         this.getSpikeinsStore().load();
+        this.getEControlsStore().load();
         this.getController('Experiment.Islands');
         this.getController('Experiment.RPKM');
         this.getController('Experiment.R');
@@ -123,6 +124,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
         this.showChipSeq();
         this.showSpike();
+        this.showControled();
 
         var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
         var record = form.getRecord();
@@ -287,6 +289,18 @@ Ext.define('EMS.controller.Experiment.Experiment', {
             }
 
             //            Ext.getCmp('browser-grp-edit').disable();
+        }
+    },
+    //-----------------------------------------------------------------------
+    // Disabling/enabling control and controled
+    //
+    //-----------------------------------------------------------------------
+    showControled: function () {
+        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+        if(form.findField('control').getValue()) {
+            form.findField('control_id').setReadOnly(true);
+        } else {
+            form.findField('control_id').setReadOnly(false);
         }
     },
 

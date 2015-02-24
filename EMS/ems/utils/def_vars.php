@@ -2,9 +2,9 @@
 
 function check_val($val)
 {
-    global $res;
+    global $response;
     if (!preg_match('/^[a-zA-Z0-9-_]+$/', $val))
-        $res->print_error('Incorrect required parameters.');
+        $response->print_error('Incorrect required parameters.');
 }
 
 if (isset($_REQUEST['start']))
@@ -47,7 +47,7 @@ if (isset($filter)) {
         check_val($val->field);
         if ($val->type == 'date') {
             if (!preg_match('/^[0-9\/]+$/', $val->value))
-                $res->print_error('Incorrect required parameters.');
+                $response->print_error('Incorrect required parameters.');
             if ($val->comparison == 'lt') {
                 $where = $where . " and `$val->field` < str_to_date('$val->value','%m/%d/%Y') ";
             }

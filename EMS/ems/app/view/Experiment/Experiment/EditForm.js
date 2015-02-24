@@ -184,51 +184,111 @@ Ext.define('EMS.view.Experiment.Experiment.EditForm', {
                                     defaults: {
                                         labelWidth: 120,
                                         labelAlign: 'top',
-                                        margin: '10 0 0 0'
+                                        margin: '5 0 0 0'
                                     },
                                     itemId: 'dnasupp',
                                     hidden: true,
-                                    layout: 'hbox',
-                                    items: [
-                                        {
-                                            xtype: 'combobox',
-                                            displayField: 'crosslink',
-                                            name: 'crosslink_id',
-                                            fieldLabel: 'Crosslink',
-                                            store: 'Crosslinking',
-                                            typeAhead: false,
-                                            editable: false,
-                                            valueField: 'id',
-                                            triggerAction: 'all',
-                                            queryMode: 'local',
-                                            flex: 1
-                                        },
-                                        {
-                                            xtype: 'splitter'
-                                        },
-                                        {
-                                            xtype: 'combobox',
-                                            name: 'antibody_id',
-                                            displayField: 'antibody',
-                                            fieldLabel: 'Antibody',
-                                            store: 'Antibodies',
-                                            typeAhead: false,
-                                            editable: false,
-                                            valueField: 'id',
-                                            triggerAction: 'all',
-                                            queryMode: 'local',
-                                            flex: 1
-                                        },
-                                        {
-                                            xtype: 'splitter'
-                                        },
-                                        {
-                                            xtype: 'textfield',
-                                            name: 'antibodycode',
-                                            fieldLabel: 'Catalog #',
-                                            flex: 1
-                                        }
-                                    ]
+                                    layout: {
+                                        type: 'vbox',
+                                        align: 'stretch'
+                                    },
+
+                                    items: [{
+                                                //crosslink antibody
+                                                xtype: 'fieldcontainer',
+                                                defaults: {
+                                                    labelWidth: 120,
+                                                    labelAlign: 'top',
+                                                    margin: '5 0 0 0'
+                                                },
+                                                //hidden: true,
+                                                layout: 'hbox',
+                                                items: [{
+                                                            xtype: 'combobox',
+                                                            displayField: 'crosslink',
+                                                            name: 'crosslink_id',
+                                                            fieldLabel: 'Crosslink',
+                                                            store: 'Crosslinking',
+                                                            typeAhead: false,
+                                                            editable: false,
+                                                            valueField: 'id',
+                                                            triggerAction: 'all',
+                                                            queryMode: 'local',
+                                                            flex: 1
+                                                        },
+                                                        {
+                                                            xtype: 'splitter'
+                                                        },
+                                                        {
+                                                            xtype: 'combobox',
+                                                            name: 'antibody_id',
+                                                            displayField: 'antibody',
+                                                            fieldLabel: 'Antibody',
+                                                            store: 'Antibodies',
+                                                            typeAhead: false,
+                                                            editable: false,
+                                                            valueField: 'id',
+                                                            triggerAction: 'all',
+                                                            queryMode: 'local',
+                                                            flex: 1
+                                                        },
+                                                        {
+                                                            xtype: 'splitter'
+                                                        },
+                                                        {
+                                                            xtype: 'textfield',
+                                                            name: 'antibodycode',
+                                                            fieldLabel: 'Catalog #',
+                                                            flex: 1
+                                                        }]
+                                            }, {
+                                                //control
+                                                xtype: 'fieldcontainer',
+                                                defaults: {
+                                                    labelWidth: 140,
+                                                    labelAlign: 'top',
+                                                    margin: '5 0 0 0'
+                                                },
+                                                //hidden: true,
+                                                layout: 'hbox',
+                                                items: [
+                                                    {
+                                                        xtype: 'combobox',
+                                                        name: 'control_id',
+                                                        tpl: '<tpl for="."><div class="x-boundlist-item" ><b>{name4browser}, {id}</b><div style="display: block; text-align: justify; line-height:100%; font-size:80%; color: #449;"> {cells}</div></div></tpl>',
+                                                        labelWidth: 110,
+                                                        minWidth: 300,
+                                                        displayField: 'name4browser',
+                                                        fieldLabel: 'Choose sample as a control',
+                                                        //afterLabelTextTpl: EMS.util.Util.required,
+                                                        valueField: 'uid',
+                                                        store: 'EControls',
+                                                        triggerAction: 'all',
+                                                        queryMode: 'local',
+                                                        flex: 1,
+                                                        forceSelection: true,
+                                                        editable: false
+                                                    }, {
+                                                        xtype: 'splitter'
+                                                    }, {
+                                                        xtype: 'checkboxfield',
+                                                        name: 'control',
+                                                        labelAlign: 'left',
+                                                        boxLabelAlign: 'before',
+                                                        inputValue: true,
+                                                        fieldLabel: 'Is this a control sample?',
+                                                        margin: '23 0 0 10',
+                                                        flex: 1
+                                                    }, {
+                                                        xtype: 'splitter'
+                                                    }, {
+                                                        xtype: 'label',
+                                                        html: '',
+                                                        flex: 1
+                                                    }
+                                                ]
+
+                                            }]
                                 },
                                 {
                                     xtype: 'fieldcontainer',

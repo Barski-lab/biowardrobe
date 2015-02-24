@@ -33,8 +33,12 @@ if (isset($_REQUEST['laboratory_id']))
     $lab_id = $_REQUEST['laboratory_id'];
 if (isset($_REQUEST['egroup_id']))
     $egroup_id = $_REQUEST['egroup_id'];
+$controls="";
+if (isset($_REQUEST['control']))
+    $controls = " and control = 1 ";
 
-$SQL_QUERY = "FROM labdata $where and deleted=0 ";
+
+$SQL_QUERY = "FROM labdata $where and deleted=0 $controls ";
 $PARAMS = array();
 
 if ($worker->isAdmin()) {
