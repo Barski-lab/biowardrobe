@@ -48,7 +48,7 @@ if (!isset($data))
 $rscript = $data->rscript;
 $luid = $data->id;
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 //check if ID exist in labdata
 $r = execSQL(def_connect(), "insert into `labdata_r` (id,rscript) values(?,?)

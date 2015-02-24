@@ -111,21 +111,27 @@ Ext.define('EMS.controller.Experiment.R', {
             autoScroll: true,
             loader: {
                 url: 'data/LabdataRShow.php?default=1&UID='+me.UID,
-                loadMask: true
+                loadMask: true,
+                ajaxOptions: {
+                    timeout: 600000
+                }
             },
         });
+        maintabpanel.setActiveTab(0);
+        maintabpanel.items.getAt(0).getLoader().load();
+        maintabpanel.items.getAt(0).update();
         maintabpanel.insert
         (1,{
             title: 'Custom Result(s)',
             autoScroll: true,
             loader: {
                 url: 'data/LabdataRShow.php?default=0&UID='+me.UID,
-                loadMask: true
+                loadMask: true,
+                ajaxOptions: {
+                    timeout: 600000
+                }
             },
         });
-        maintabpanel.setActiveTab(0);
-        maintabpanel.items.getAt(0).getLoader().load();
-        maintabpanel.items.getAt(0).update();
         maintabpanel.items.getAt(1).getLoader().load();
         maintabpanel.items.getAt(1).update();
     },
@@ -145,13 +151,8 @@ Ext.define('EMS.controller.Experiment.R', {
                        callback: function () {
                            console.log('synced');
                            var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
-                           if(combov == 1) {
-                               maintabpanel.items.getAt(0).getLoader().load();
-                               maintabpanel.items.getAt(0).update();
-                           } else {
-                               maintabpanel.items.getAt(1).getLoader().load();
-                               maintabpanel.items.getAt(1).update();
-                           }
+                               maintabpanel.items.getAt(combov-1).getLoader().load();
+                               maintabpanel.items.getAt(combov-1).update();
                        }
                    });
 
