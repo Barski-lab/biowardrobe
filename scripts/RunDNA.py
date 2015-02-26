@@ -3,8 +3,8 @@
 # /****************************************************************************
 # **
 # ** Copyright (C) 2011-2014 Andrey Kartashov .
-#  ** All rights reserved.
-#  ** Contact: Andrey Kartashov (porter@porter.st)
+# ** All rights reserved.
+# ** Contact: Andrey Kartashov (porter@porter.st)
 #  **
 #  ** This file is part of the EMS web interface module of the genome-tools.
 #  **
@@ -55,7 +55,6 @@ d.check_running(pidfile)
 
 
 def run_bowtie(infile, findex, pair, left=0, right=0):
-
     if len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', 'Bam file exists']
 
@@ -83,12 +82,12 @@ def run_rmdup(infile, pair):
         return ['Error', 'Bam file does not exist']
 
     if pair:
-        cmd = 'samtools rmdup '+infile+'.bam '+infile+'.r.bam >'+infile+'.rmdup 2>&1;'
+        cmd = 'samtools rmdup ' + infile + '.bam ' + infile + '.r.bam >' + infile + '.rmdup 2>&1;'
     else:
-        cmd = 'samtools rmdup -s '+infile+'.bam '+infile+'.r.bam >'+infile+'.rmdup 2>&1;'
+        cmd = 'samtools rmdup -s ' + infile + '.bam ' + infile + '.r.bam >' + infile + '.rmdup 2>&1;'
 
     cmd += 'rm -f "' + infile + '.bam";rm -f "' + infile + '.bam.bai";'
-    cmd += 'samtools sort '+infile+'.r.bam ' + infile + ' 2>/dev/null;'
+    cmd += 'samtools sort ' + infile + '.r.bam ' + infile + ' 2>/dev/null;'
     cmd += 'samtools index "' + infile + '.bam"; rm -f "' + infile + '.r.bam"'
 
     try:
@@ -129,7 +128,7 @@ def get_stat(infile, rmdup=False):
     if rmdup and len(d.file_exist('.', infile, 'rmdup')) == 1:
         for line in open(infile + '.rmdup'):
             splt = line.split('/')
-            USED = int((splt[1].split('='))[0].strip())-int((splt[0].split(']'))[1].strip())
+            USED = int((splt[1].split('='))[0].strip()) - int((splt[0].split(']'))[1].strip())
 
     fp = open('./' + infile + '.stat', 'w+')
     fp.write(str((TOTAL, ALIGNED, SUPRESSED, USED)))
@@ -186,13 +185,14 @@ while True:
     control_id = row[14]
 
     if control_id != "":
-            settings.cursor.execute("select libstatus from labdata where uid=%s",(control_id,))
-            crow = settings.cursor.fetchone()
-            if int(crow[0]) < 12 or int(crow[0]) > 100:
-                settings.cursor.execute("update labdata set libstatustxt='control dataset has not been analyzed',libstatus=2 where uid=%s", (UID,))
-                settings.conn.commit()
-                continue
-
+        settings.cursor.execute("select libstatus from labdata where uid=%s", (control_id,))
+        crow = settings.cursor.fetchone()
+        if int(crow[0]) < 12 or int(crow[0]) > 100:
+            settings.cursor.execute(
+                "update labdata set libstatustxt='control dataset has not been analyzed',libstatus=2 where uid=%s",
+                (UID,))
+            settings.conn.commit()
+            continue
 
     FRAGMENT = 0
 
@@ -201,6 +201,10 @@ while True:
 
     basedir = PRELIMINARYDATA + '/' + UID
     os.chdir(basedir)
+
+    controlfile = ""
+    if control_id != "":
+        controlfile = PRELIMINARYDATA + '/' + control_id + '/' + control_id + '.bam'
 
     OK = True
     if len(d.file_exist('.', UID, 'fastq')) != 1:  # and len(d.file_exist('.', UID+"_trimmed", 'fastq')) != 1:
@@ -229,7 +233,7 @@ while True:
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
     MACSER = False
-    if check_error(d.run_macs(UID, gsize, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN, control_id), UID):
+    if check_error(d.run_macs(UID, gsize, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN, controlfile), UID):
         MACSER = True
         FRAGMENTE = FRAGEXP
         FRAGMENT = FRAGMENTE
@@ -241,7 +245,7 @@ while True:
         FRAGMENT = a[0]
 
     if MACSER or (FRAGMENTE < 80 and not FRAGFRC):
-        if check_error(d.run_macs(UID, gsize, FRAGEXP, True, PAIR, broad, True, BIN, control_id), UID):
+        if check_error(d.run_macs(UID, gsize, FRAGEXP, True, PAIR, broad, True, BIN, controlfile), UID):
             MACSER = True
         else:
             a = d.macs_data(UID)
@@ -266,7 +270,7 @@ while True:
         continue
 
     settings.cursor.execute(
-            "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s,tagssuppressed=%s,tagsused=%s where uid=%s",
+        "update labdata set libstatustxt='ATDP Running',libstatus=11,tagstotal=%s,tagsmapped=%s,tagsribo=%s,tagssuppressed=%s,tagsused=%s where uid=%s",
         (a[0], a[1], a[2], a[2], a[3], UID))
     settings.conn.commit()
 
