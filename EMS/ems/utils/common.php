@@ -222,9 +222,9 @@ abstract class AbstractTableDataProcessing
             $this->SQL_STR .= "{$field}{$value}";
         } else {
             if ($value == NULL)
-                $this->SQL_STR .= "{$field}=null,";
+                $this->SQL_STR .= "`{$field}`=null,";
             else {
-                $this->SQL_STR .= "{$field}=?,";
+                $this->SQL_STR .= "`{$field}`=?,";
                 $this->PARAMS[] = $value;
                 $this->PARAMS[0] .= $this->types[$field];
             }
@@ -262,7 +262,7 @@ abstract class AbstractTableDataProcessing
                 $this->PARAMS[] = $d;
                 $this->PARAMS[0] .= $this->types[$f];
             }
-            $this->SQL_STR .= " $f,";
+            $this->SQL_STR .= " `$f`,";
             $this->VARIABLES .= "?,";
         }
 
@@ -296,7 +296,7 @@ abstract class AbstractTableDataProcessing
             }
 
             if (strrpos($f, "_id") !== false && (($this->types[$f] == "i" && intVal($d) == 0) || ($this->types[$f] == "s" && strlen($d) == 0))) {
-                $this->SQL_STR .= " $f=null,";
+                $this->SQL_STR .= " `$f`=null,";
                 continue;
             }
 
@@ -313,9 +313,10 @@ abstract class AbstractTableDataProcessing
                 $this->PARAMS[] = $d;
                 $this->PARAMS[0] .= $this->types[$f];
             }
-            $this->SQL_STR .= " $f=?,";
+            $this->SQL_STR .= " `$f`=?,";
         }
 
+        $this->where("", "");
 
         $this->SQL_STR = substr_replace($this->SQL_STR, "", -1);
 

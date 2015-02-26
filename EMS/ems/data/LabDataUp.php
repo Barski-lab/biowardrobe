@@ -62,8 +62,8 @@ class UpLabData extends AbstractTableDataProcessing
         global $worker;
         if ($worker->isAdmin())
             return false;
-        if ($field == "laboratory_id") {
-            $this->setwhere($field, $worker->worker['laboratory_id'], " and {$field}=? ");
+        if ($field == "") {
+            $this->setwhere("laboratory_id", $worker->worker['laboratory_id'], " and laboratory_id=? ");
             return true;
         }
         return false;

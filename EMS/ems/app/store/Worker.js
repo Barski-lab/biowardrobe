@@ -29,7 +29,14 @@ Ext.define('EMS.store.Worker', {
                'EMS.proxy.StandardProxy'
     ],
     model: 'EMS.model.Worker',
+
     proxy: {
+        writer: {
+            type: 'json',
+            root: 'data',
+            writeAllFields: false,
+            encode: true
+        },
         type: 'standardproxy',
         api: {
             read: 'data/Worker.php',

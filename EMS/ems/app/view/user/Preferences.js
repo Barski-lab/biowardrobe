@@ -164,6 +164,7 @@ Ext.define('EMS.view.user.Preferences', {
                                     xtype: 'checkbox',
                                     name: 'notify',
                                     boxLabel: 'Notify if experiment\'s status changed?',
+                                    inputValue: 1,
                                     margin: '17 0 0 6',
                                     flex: 3
                                 }

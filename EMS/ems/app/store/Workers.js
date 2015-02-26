@@ -31,6 +31,12 @@ Ext.define('EMS.store.Workers', {
     model: 'EMS.model.Worker',
     proxy: {
         type: 'standardproxy',
+        writer: {
+            type: 'json',
+            root: 'data',
+            writeAllFields: false,
+            encode: true
+        },
         extraParams: {
             workers:  true
         },

@@ -47,9 +47,9 @@ Ext.define('EMS.controller.User.Preferences', {
         this.worker = this.getWorkerStore().getAt(0);
         Ext.apply(Ext.form.field.VTypes, {
             customPass: function(val, field) {
-                return /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,50})/.test(val);
+                return 1;///^((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50})/.test(val);
             },
-            customPassText: 'Not a valid password.  Length must be at least 6 characters and maximum of 20 Password must contain one digit, one letter lowercase, one letter uppercase'
+            customPassText: 'Not a valid password.  Length must be at least 8 characters and maximum of 20 Password must contain one digit, one letter lowercase, one letter uppercase'
         });
     },
     /*********************************
@@ -60,7 +60,8 @@ Ext.define('EMS.controller.User.Preferences', {
     onShow: function (window) {
         this.userForm = window.down('form');
         this.userForm.getForm().loadRecord(this.worker);
-
+        this.userForm.down('textfield[name="passwd"]').setValue("");
+        this.userForm.down('textfield[name="newpass"]').setValue("");
     },
     /*********************************
      * Fires when add button cliked
@@ -68,6 +69,9 @@ Ext.define('EMS.controller.User.Preferences', {
     onSaveClick: function (button) {
         var record = this.userForm.getRecord();
         var values = this.userForm.getValues();
+        var me = this;
+
+        values.notify = this.userForm.down('checkbox[name="notify"]').getValue() ? 1 : 0;
 
         if (values.passwd === '') {
             Ext.Msg.show({
@@ -96,9 +100,17 @@ Ext.define('EMS.controller.User.Preferences', {
         }
 
         if (this.userForm.getForm().isValid()) {
+            //values.set("worker",values.worker);
             this.worker.set(values);
+            this.worker.modified['worker']="";
             //this.worker.setDirty();
-            this.getWorkerStore().sync();
+            this.getWorkerStore().sync
+                    ({
+                         success: function () {
+                            //me.getWorkerStore().load();
+                             button.up('window').close();
+                        }
+                    });
         } else {
             Ext.Msg.show({
                              title: 'ERROR',
@@ -107,7 +119,6 @@ Ext.define('EMS.controller.User.Preferences', {
                              buttons: Ext.Msg.OK });
             return false;
         }
-            button.up('window').close();
     },
     /*********************************
      * Fires when  button cliked

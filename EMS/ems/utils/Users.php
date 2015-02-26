@@ -21,21 +21,26 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-class Worker
-{
+class Worker {
     private $response;
     public $worker, $group, $groups, $fields;
 
-    function __construct($worker = "", $pass = "")
-    {
+    function __construct($worker = "", $pass = "") {
         global $response;
         global $settings;
 
-        $this->response = & $response;
+        $this->response = &$response;
         if (!isset($_SESSION["userinfo"]) && ($worker === "" || $pass === "")) {
             $this->response->print_error("Authorization required!");
         }
-        if (!isset($_SESSION["userinfo"])) {
+        $this->fetch_data($worker, $pass);
+    }
+
+    function fetch_data($worker, $pass, $force = false) {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+
+        if (!isset($_SESSION["userinfo"]) || $force) {
             //Check if .$_SERVER['REMOTE_ADDR'] - address remote or local and add where clause to SQL
             $query = selectSQL("SELECT * from worker where worker=? and passwd is not NULL", array("s", $worker));
             if (count($query) != 1)
@@ -63,8 +68,7 @@ class Worker
         $this->worker['isla'] = $this->isLocalAdmin();
     }
 
-    function primary_group()
-    {
+    function primary_group() {
         if (!isset($_SESSION["userinfo"]["group"])) {
             $query = selectSQL("SELECT * from laboratory where id=?", array("s", $this->worker['laboratory_id']));
             $_SESSION["userinfo"]["group"] = $query[0];
@@ -73,8 +77,7 @@ class Worker
         return $this->group;
     }
 
-    function groups()
-    {
+    function groups() {
         if (!isset($_SESSION["userinfo"]["groups"])) {
             $SQL_STR = "SELECT distinct l.id,l.name, l.description FROM laboratory l, egroup e, egrouprights er where (er.laboratory_id=? and egroup_id=e.id and e.laboratory_id=l.id) order by name";
             $query = selectSQL($SQL_STR, array("s", $this->worker['laboratory_id']));
@@ -87,30 +90,25 @@ class Worker
         return $this->groups;
     }
 
-    public function allgroups()
-    {
+    public function allgroups() {
         return array_merge(array($this->group), $this->groups);
     }
 
-    public function isAdmin()
-    {
+    public function isAdmin() {
         return ($this->group['id'] === 'laborato-ry00-0000-0000-000000000001');
     }
 
-    public function isLocalAdmin()
-    {
+    public function isLocalAdmin() {
         return ($this->worker['admin'] === 1);
     }
 
-    function journal_login()
-    {
+    function journal_login() {
         global $settings;
-        execSQL($settings->connection,"insert into login_journal (login) value(?)",
-            array("s",$this->worker['lname'] . ", " . $this->worker['fname'].";".$_SERVER['REMOTE_ADDR']),true);
+        execSQL($settings->connection, "insert into login_journal (login) value(?)",
+            array("s", $this->worker['lname'] . ", " . $this->worker['fname'] . ";" . $_SERVER['REMOTE_ADDR']), true);
     }
 
-    public function check_pass($passwd)
-    {
+    public function check_pass($passwd) {
         $salt = $this->salt_pass(substr($this->worker['passwd'], 0, 64), $passwd);
         if ($salt != $this->worker['passwd']) {
             $this->response->print_error("Incorrect user name or password");
@@ -119,8 +117,7 @@ class Worker
         return true;
     }
 
-    function salt_pass($salt, $P)
-    {
+    function salt_pass($salt, $P) {
         $hash = $salt . $P;
         for ($i = 0; $i < 100000; $i++) {
             $hash = hash('sha256', $hash);
@@ -129,14 +126,12 @@ class Worker
         return $hash;
     }
 
-    public function crypt_pass($U, $P)
-    {
+    public function crypt_pass($U, $P) {
         $salt = hash('sha256', uniqid(mt_rand(), true) . strtolower($U));
         return $this->salt_pass($salt, $P);
     }
 
-    public function tojson()
-    {
+    public function tojson() {
         $line = array();
         for ($i = 0; $i < count($this->fields); $i++) {
 //            switch($this->fields[$i]) {
@@ -144,8 +139,14 @@ class Worker
 //                case "dnapass":
 //                    break;
 //            }
-            if ($this->fields[$i] === "passwd" || $this->fields[$i] === "dnapass")
+            if ($this->fields[$i] === "passwd")
                 $line[$this->fields[$i]] = "";
+            else if ($this->fields[$i] === "dnapass")
+                if ($this->worker[$this->fields[$i]] != "")
+                    $line[$this->fields[$i]] = "*****";
+                else
+                    $line[$this->fields[$i]] = "";
+
             else
                 $line[$this->fields[$i]] = $this->worker[$this->fields[$i]];
         }
