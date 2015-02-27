@@ -33,16 +33,16 @@ else
     $res->print_error('Not enough required parameters.');
 check_val($uid);
 
-$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
-$BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
+$TMP = $settings->settings['wardrobe']['value'] . '/' . $settings->settings['temp']['value'];;
+$BIN = $settings->settings['wardrobe']['value'] . '/' . $settings->settings['bin']['value'];;
 
 
 $command = "{$BIN}/atdp --avd_guid=\"{$uid}\" -log=\"{$TMP}/atdpheat.log\" --avd_heat_window=\"200\" -sam_twicechr=\"chrX chrY\" -sam_ignorechr=\"chrM\" -avd_window=5000 -avd_bsmooth=40 -avd_smooth=200 ";
 
-$output=shell_exec("$command 2 >>{$TMP}/atdpheatERROR.log");
+$output = shell_exec("$command 2>>{$TMP}/atdpheatERROR.log");
 
-if(strlen($output)==0)
-    $output=shell_exec("cat ./jsons/datad.json 2 >>{$TMP}/atdpheatERROR.log");
+if (strlen($output) == 0)
+    $output = shell_exec("cat ./jsons/datad.json 2>>{$TMP}/atdpheatERROR.log");
 
 print_r($output);
 
