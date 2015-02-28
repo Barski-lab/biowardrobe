@@ -35,59 +35,39 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                    position: 'right'
                },
                store: 'IslandsDistribution',
-               items: [
+               //items: [],
+               series: [
                    {
-                       type: 'text',
-                       text: 'Upstream is [TSS-20k,TSS-1k]',
-                       font: '12px Arial',
-                       fill: 'green',
-                       width: 100,
-                       height: 20,
-                       x: 40,
-                       y: 20
-                   },
-                   {
-                       type: 'text',
-                       text: 'Promoter is [TSS-1k,TSS+1k]',
-                       font: '12px Arial',
-                       fill: 'blue',
-                       width: 100,
-                       height: 20,
-                       x: 40,
-                       y: 39
-                   }
-               ], series: [
-               {
-                   type: 'bar',
-                   axis: 'bottom',
-                   gutter: 80,
-                   xField: 'name',
-                   yField: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                   stacked: true,
-                   yPadding: {
-                       top: 200,
-                       bottom: 100
-                   },
-                   //                               tips: {
-                   //                                   trackMouse: true,
-                   //                                   width: 100,
-                   //                                   height: 40,
-                   //                                   renderer: function (storeItem, item) {
-                   //                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
-                   //                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
-                   //                                   }
-                   //                               },
-                   label: {
-                       display: 'insideEnd',
-                       field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
-                       renderer: function (val, item, storeItem) {
-                           var percent = ((val / storeItem.data.Total) * 100);
-                           return String(val) + ', ' + String(percent.toFixed(2)) + '%';
+                       type: 'bar',
+                       axis: 'bottom',
+                       gutter: 80,
+                       xField: 'name',
+                       yField: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
+                       stacked: true,
+                       yPadding: {
+                           top: 200,
+                           bottom: 100
                        },
-                       contrast: true
+                       //                               tips: {
+                       //                                   trackMouse: true,
+                       //                                   width: 100,
+                       //                                   height: 40,
+                       //                                   renderer: function (storeItem, item) {
+                       //                                       var percent = ((item.value[1] / storeItem.data.Total) * 100);
+                       //                                       this.setTitle(String(item.value[1]) + '<br>' + String(percent.toFixed(2)) + '%');
+                       //                                   }
+                       //                               },
+                       label: {
+                           display: 'insideEnd',
+                           field: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
+                           renderer: function (val, item, storeItem) {
+                               var percent = ((val / storeItem.data.Total) * 100);
+                               return String(val) + ', ' + String(percent.toFixed(2)) + '%';
+                           },
+                           contrast: true
+                       }
                    }
-               }
-           ],
+               ],
 
                axes: [
                    {
@@ -95,7 +75,7 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                        position: 'bottom',
                        fields: ['Upstream', 'Promoter', 'Exon', 'Intron', 'Intergenic'],
                        title: 'Islands count'
-                   } ,
+                   },
                    {
                        type: 'Category',
                        position: 'left',
@@ -114,11 +94,31 @@ Ext.define('EMS.view.charts.IslandsDistribution',
                initComponent: function () {
                    var me = this;
 
-
-
-                   Ext.applyIf(me, {
-                   });
-
+                   var store=Ext.data.StoreManager.lookup(me.getStore());
+                   var promoter = 1000;
+                   if(store) {
+                       promoter=parseInt(store.getAt(0).get('promoter'));
+                   }
+                   me.items=[ {
+                                   type: 'text',
+                                   text: 'Upstream is [TSS-20000,TSS-'+promoter+']',
+                                   font: '12px Arial',
+                                   fill: 'green',
+                                   width: 100,
+                                   height: 20,
+                                   x: 40,
+                                   y: 20
+                               },
+                               {
+                                   type: 'text',
+                                   text: 'Promoter is [TSS-'+promoter+',TSS+'+promoter+']',
+                                   font: '12px Arial',
+                                   fill: 'blue',
+                                   width: 100,
+                                   height: 20,
+                                   x: 40,
+                                   y: 39
+                               }];
                    me.callParent(arguments);
                }
            });

@@ -87,6 +87,24 @@ function get_table_info($val)
     return $qr;
 }
 
+function get_preliminary_table_info($uid)
+{
+    return selectSQL("
+    select uid,COALESCE(fragmentsize,0) as fragmentsize,
+    IF(etype LIKE '%RNA%', 1, 0) as isRNA,
+    IF(etype LIKE '%pair%', 1, 0) as isPair,
+    IF(etype LIKE '%dUTP%', 1, 0) as isDUTP,
+    l.tagsmapped,
+    l.params,
+    etype,upper(author) as author,
+    ge.db as db,ge.annottable as annotation, name4browser as alias
+    from labdata l
+    left join (experimenttype e,genome ge)
+    on (l.genome_id=ge.id and l.experimenttype_id=e.id)
+    where l.uid=?
+    ", array("s", $uid), false)[0];
+}
+
 function recreate_rna_views($id, $parentid, $add = true)
 {
     global $settings;//$db_name_ems, $db_name_experiments;

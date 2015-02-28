@@ -24,7 +24,7 @@
 Ext.define('EMS.view.Experiment.Experiment.Islands', {
     extend: 'Ext.Panel',
     alias: 'widget.experimentislands',
-    frame: true,
+    frame: false,
     border: false,
     plain: true,
     layout: 'fit',
@@ -52,30 +52,59 @@ Ext.define('EMS.view.Experiment.Experiment.Islands', {
                 }
             ],
             columns: [
-                {   header: 'refseq_id', sortable: true, filterable: true, width: 80, dataIndex: 'refseq_id'},
-                {   header: 'gene_id', sortable: true, filterable: true, width: 85, dataIndex: 'gene_id'},
+                {header: 'refseq_id', sortable: true, filterable: true, width: 80, dataIndex: 'refseq_id'},
+                {header: 'gene_id', sortable: true, filterable: true, width: 85, dataIndex: 'gene_id'},
 
-                {   header: 'txStart', sortable: true, filterable: true, width: 80, dataIndex: 'txStart', align: 'right' },
-                {   header: 'txEnd', sortable: true, filterable: true, width: 85, dataIndex: 'txEnd', align: 'right'   },
-                {   header: 'strand', sortable: true, filterable: true, width: 40, dataIndex: 'strand', align: 'center' },
-                {   header: 'region', sortable: true, filterable: true, width: 85, dataIndex: 'region'},
+                {header: 'txStart', sortable: true, filterable: true, width: 80, dataIndex: 'txStart', align: 'right'},
+                {header: 'txEnd', sortable: true, filterable: true, width: 85, dataIndex: 'txEnd', align: 'right'},
+                {header: 'strand', sortable: true, filterable: true, width: 40, dataIndex: 'strand', align: 'center'},
+                {header: 'region', sortable: true, filterable: true, width: 85, dataIndex: 'region'},
 
-                {   header: 'chrom', sortable: true, filterable: true, width: 60, dataIndex: 'chrom'  },
-                {   header: 'start', sortable: true, filterable: true, width: 80, dataIndex: 'start', align: 'right' },
-                {   header: 'end', sortable: true, filterable: true, width: 85, dataIndex: 'end', align: 'right'   },
-                {   header: 'length', sortable: true, filterable: true, width: 85, dataIndex: 'length', align: 'right', hidden: true   },
-                {   header: 'pileup', sortable: true, filterable: true, width: 85, dataIndex: 'pileup', align: 'right', hidden: true },
-                {   header: 'abssummit', sortable: true, filterable: true, width: 85, dataIndex: 'abssummit', align: 'right' },
-                {   header: 'log10p', sortable: true, filterable: true, width: 85, dataIndex: 'log10p', align: 'right' },
-                {   header: 'foldenrich', sortable: true, filterable: true, width: 85, dataIndex: 'foldenrich', align: 'right' },
-                {   header: 'log10q', sortable: true, filterable: true, width: 85, dataIndex: 'log10q', align: 'right' }
+                {header: 'chrom', sortable: true, filterable: true, width: 60, dataIndex: 'chrom'},
+                {header: 'start', sortable: true, filterable: true, width: 80, dataIndex: 'start', align: 'right'},
+                {header: 'end', sortable: true, filterable: true, width: 85, dataIndex: 'end', align: 'right'},
+                {
+                    header: 'length',
+                    sortable: true,
+                    filterable: true,
+                    width: 85,
+                    dataIndex: 'length',
+                    align: 'right',
+                    hidden: true
+                },
+                {
+                    header: 'pileup',
+                    sortable: true,
+                    filterable: true,
+                    width: 85,
+                    dataIndex: 'pileup',
+                    align: 'right',
+                    hidden: true
+                },
+                {
+                    header: 'abssummit',
+                    sortable: true,
+                    filterable: true,
+                    width: 85,
+                    dataIndex: 'abssummit',
+                    align: 'right'
+                },
+                {header: 'log10p', sortable: true, filterable: true, width: 85, dataIndex: 'log10p', align: 'right'},
+                {
+                    header: 'foldenrich',
+                    sortable: true,
+                    filterable: true,
+                    width: 85,
+                    dataIndex: 'foldenrich',
+                    align: 'right'
+                },
+                {header: 'log10q', sortable: true, filterable: true, width: 85, dataIndex: 'log10q', align: 'right'}
             ],
-
-            tbar: [
+            bbar: [
                 {
                     xtype: 'pagingtoolbar',
                     store: 'Islands',
-                    margin: '5 10 5 5',
+                    margin: '0 5 0 5',
                     displayInfo: true
                 },
                 {
@@ -84,15 +113,15 @@ Ext.define('EMS.view.Experiment.Experiment.Islands', {
                     boxLabelAlign: 'before',
                     inputValue: true,
                     fieldLabel: 'Show uniq islands?',
-                    margin: '5 10 5 5',
+                    margin: '0 10 0 5',
                     //margin: '21 0 0 8',
-                },
-                '-' ,
+                }
+            ],
+            tbar: [
                 {
                     xtype: 'fieldcontainer',
                     layout: 'hbox',
-                    labelWidth: 90,
-                    margin: '5 10 5 10',
+                    margin: 0,
 
                     items: [
                         {
@@ -100,26 +129,48 @@ Ext.define('EMS.view.Experiment.Experiment.Islands', {
                             itemId: 'promoter',
                             value: 1000,
                             minValue: 0,
+                            labelWidth: '',
                             labelAlign: 'left',
-                            maxWidth: 170,
+                            labelStyle: 'white-space: nowrap;',
+                            maxWidth: 150,
                             boxLabelAlign: 'before',
                             fieldLabel: 'Promoter Size',
-                            margin: '5 10 5 5'
+                            margin: '0 10 0 5',
+                            listeners: {
+                                afterrender: function(c){
+                                    var tip = Ext.create('Ext.tip.ToolTip', {
+                                        target: c.id,
+                                        dismissDelay: 10000,
+                                        html: '<div style="text-align: left; font-size: 110%; font-weight: bold; color:#04408C;">' +
+                                              'Promoter size - the number of BP up to and down from TSS. <br> ' +
+                                              'Press apply.</div>'
+                                    });
+                                }
+                            }
                         },
                         {
                             xtype: 'button',
                             text: 'apply',
                             itemId: 'promoterapply',
-                            width: 80,
+                            width: 70,
                             submitValue: false,
-                            iconCls: '',
+                            iconCls: 'document-ok',
                             iconAlign: 'left',
-                            margin: '5 0 0 0'
+                            margin: '0 10 0 5'
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'jump',
+                            itemId: 'browser-jump-islands',
+                            width: 70,
+                            submitValue: false,
+                            iconCls: 'genome-browser',
+                            iconAlign: 'left',
+                            margin: '0 10 0 5'
                         }
                     ]
                 },
-
-                '-' ,
+                '->',
                 {
                     xtype: 'fieldcontainer',
                     layout: 'hbox',
@@ -127,24 +178,58 @@ Ext.define('EMS.view.Experiment.Experiment.Islands', {
                     items: [
                         {
                             xtype: 'button',
-                            text: 'jump',
-                            itemId: 'browser-jump-islands',
-                            width: 80,
+                            text: 'retain filter',
+                            itemId: 'retain',
+                            width: 100,
                             submitValue: false,
-                            iconCls: 'genome-browser',
+                            iconCls: 'funnel-add',
                             iconAlign: 'left',
-                            margin: '5 10 5 10'
-                        } ,
+                            margin: '0 10 0 5'
+                        },{
+                            xtype: 'numberfield',
+                            itemId: 'fasta',
+                            value: 50,
+                            minValue: 0,
+                            labelWidth: '',
+                            labelStyle: 'white-space: nowrap;',
+                            labelAlign: 'left',
+                            maxWidth: 130,
+                            boxLabelAlign: 'before',
+                            fieldLabel: 'Fasta region',
+                            margin: '0 10 0 15',
+                            listeners: {
+                                afterrender: function(c){
+                                    var tip = Ext.create('Ext.tip.ToolTip', {
+                                        target: c.id,
+                                        dismissDelay: 10000,
+                                        html: '<div style="text-align: left; font-size: 110%; font-weight: bold; color:#04408C;">' +
+                                              'Filter data in the table and save it with "retain" button. <br> ' +
+                                              'Decide the region around summit and put it here, if the number is 0 whole island will be used.<br>' +
+                                              'Press "get fasta".</div>'
+                                    });
+                                }
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            text: 'get fasta',
+                            itemId: 'getfasta',
+                            width: 70,
+                            submitValue: false,
+                            iconCls: 'disk',
+                            iconAlign: 'left',
+                            margin: '0 5 0 5'
+                        },
                         {
                             xtype: 'button',
                             store: 'Islands',
                             text: 'save',
                             href: '',
                             itemId: 'islands-save',
-                            width: 80,
+                            width: 70,
                             submitValue: false,
                             iconCls: 'disk',
-                            margin: '5 10 5 10'
+                            margin: '0 10 0 15'
                         }
                     ]
                 }

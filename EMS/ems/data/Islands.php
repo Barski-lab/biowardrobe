@@ -23,30 +23,41 @@
 
 require_once('../settings.php');
 
+logmsg($_REQUEST);
+
 if (isset($_REQUEST['uid']))
     $uid = $_REQUEST['uid'];
 else
     $res->print_error('Not enough required parameters.');
 check_val($uid);
 
-$uniqislands = false;
-if (isset($_REQUEST['uniqislands']))
-    $uniqislands = $_REQUEST['uniqislands'];
-
-$promoter = 0;
-if (isset($_REQUEST['promoter']))
-    $promoter = $_REQUEST['promoter'];
-
 $EDB = $settings->settings['experimentsdb']['value'];
-$TMP = $settings->settings['wardrobe']['value'].'/'.$settings->settings['temp']['value'];;
-$BIN = $settings->settings['wardrobe']['value'].'/'.$settings->settings['bin']['value'];;
+$TMP = $settings->settings['wardrobe']['value'] . '/' . $settings->settings['temp']['value'];;
+$BIN = $settings->settings['wardrobe']['value'] . '/' . $settings->settings['bin']['value'];;
 
 
 $tablename = "{$uid}_islands";
 $describe = selectSQL("describe `{$EDB}`.`{$tablename}`", array());
 
-if ($describe[0]['Field'] != "refseq_id" || $promoter) {
-    if (!$promoter) $promoter = 1000;
+$experiment = get_preliminary_table_info($uid);
+$eparams = json_decode($experiment ['params']);
+
+if (isset($_REQUEST['promoter'])) {
+    $promoter = intval($_REQUEST['promoter']);
+    if ($promoter == $eparams->promoter) {
+        $promoter = -1;
+    } else {
+        $eparams->promoter = $promoter;
+    }
+} else {
+    $promoter = -1;
+}
+
+if ($describe[0]['Field'] != "refseq_id" || $promoter != -1) {
+    if ($promoter == -1) {
+        $promoter = 1000;
+        $eparams['promoter'] = $promoter;
+    }
     ignore_user_abort(true);
     set_time_limit(600);
     $command = "{$BIN}/iaintersect -uid=\"{$uid}\" -log=\"{$TMP}/iaintersect.log\" -promoter={$promoter}";
@@ -55,9 +66,30 @@ if ($describe[0]['Field'] != "refseq_id" || $promoter) {
         $response->print_error("Cant execute command " . print_r($output, true));
 }
 
+if (isset($_REQUEST['retainfilter'])) {
+    $eparams->filter = $filter;
+    $eparams->sort = $sort;
+}
 
-if ($uniqislands == "true") {
-    $SQL = "select distinct refseq_id,gene_id,txStart,txEnd,strand,region,chrom,start,end,length,max(log10p) as log10p,max(foldenrich) as foldenrich ,max(log10q) as log10q from `{$EDB}`.`{$tablename}` $where group by start,end,length $order $limit";
+
+if (isset($_REQUEST['uniqislands']) && $_REQUEST['uniqislands'] == "true") {
+    $eparams->uniqislands = true;
+} else if (isset($_REQUEST['uniqislands']) && $_REQUEST['uniqislands'] == "false") {
+    $eparams->uniqislands = false;
+}
+
+if (isset($_REQUEST['csv'])) {
+
+    $where = parse_where_global($eparams->filter);
+    if ($where != "")
+        $where = " where 0=0 " . $where;
+    $order = parse_sort_global($eparams->sort);
+    if($order!="")
+        $order = "order by " . $order;
+}
+
+if ($eparams->uniqislands) {
+    $SQL = "select distinct refseq_id,gene_id,txStart,txEnd,strand,chrom,start,end,length,max(log10p) as log10p,max(foldenrich) as foldenrich ,max(log10q) as log10q, region from `{$EDB}`.`{$tablename}` $where group by start,end,length $order $limit";
     $total = selectSQL("SELECT COUNT(distinct start) as count FROM `{$EDB}`.`{$tablename}` $where")[0]['count'];
     $query_array = selectSQL($SQL, array());
 } else {
@@ -65,11 +97,31 @@ if ($uniqislands == "true") {
     $query_array = selectSQL("SELECT * FROM `{$EDB}`.`{$tablename}` $where $order $limit", array());
 }
 
+if (execSQL($settings->connection, "update labdata set params=? where uid=?", array("ss", json_encode($eparams), $uid), true) == 0) {
 
-$res->success = true;
-$res->message = "Data loaded";
-$res->total = $total;
-$res->data = $query_array;
-print_r($res->to_json());
+}
 
+if (isset($_REQUEST['csv'])) {
+    $outstream = fopen("php://output", 'w');
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=" . $experiment['alias'] . ".csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+    $HEAD = array();
+    foreach ($describe as $d => $v) {
+        if($eparams->uniqislands && $v['Field'] == "abssummit")
+            continue;
+        $HEAD[$v['Field']] = $v['Field'];
+    }
+    fputcsv($outstream, $HEAD, ',', '"');
+    foreach ($query_array as $d => $v) {
+        fputcsv($outstream, $v, ',', '"');
+    }
+} else {
+    $res->success = true;
+    $res->message = "Data loaded";
+    $res->total = $total;
+    $res->data = $query_array;
+    print_r($res->to_json());
+}
 ?>

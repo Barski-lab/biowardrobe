@@ -83,6 +83,7 @@ Ext.define( 'EMS.model.LabData', {
                    { name: 'experimenttype_id', type: 'int' },
                    { name: 'laboratory_id', type: 'string' },
                    { name: 'egroup_id', type: 'string' },
+                   { name: 'params', type: 'auto' },
 
                    { name: 'tagsunmapped', mapping: null, type: 'int', persist: false,
                        convert: function(value, record) {

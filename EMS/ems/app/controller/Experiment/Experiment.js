@@ -30,7 +30,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
 
     models: ['Preferences', 'EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'ATDPHeat'],
-    stores: ['Preferences', 'EGroups','EControls', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins', 'ATDPHeat'],
+    stores: ['Preferences', 'EGroups', 'EControls', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins', 'ATDPHeat'],
 
     views: [//'Experiment.Experiment.MainWindow',
         //'Experiment.Experiment.EditForm',
@@ -134,6 +134,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var tmp = (Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue();
         this.isRNA = (tmp.indexOf('RNA') !== -1);
         this.isPAIR = (tmp.indexOf('pair') !== -1);
+        this.RecordData = record.data;
 
         if (this.worker.data['laboratory_id'] != record.data['laboratory_id'] && !this.worker.data.isa)
             this.readOnlyAll(form);
@@ -297,7 +298,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     //-----------------------------------------------------------------------
     showControled: function () {
         var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
-        if(form.findField('control').getValue()) {
+        if (form.findField('control').getValue()) {
             form.findField('control_id').setReadOnly(true);
         } else {
             form.findField('control_id').setReadOnly(false);
@@ -327,15 +328,15 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     addQC: function (tab, record) {
         this.getFenceStore().load({params: {recordid: record.get('uid')}});
 
-        var atab=tab.add({
-                             xtype: 'experimentqualitycontrol',
-                             iconCls: 'chart',
-                         });
+        var atab = tab.add({
+                               xtype: 'experimentqualitycontrol',
+                               iconCls: 'chart',
+                           });
 
         if (this.isPAIR) {
             var store = Ext.create('EMS.store.Fence', {storeId: Ext.id()});//, autoDestroy: true
-            store.load({params: {recordid: record.get('uid'),pair: true}});
-            var qctabs=atab.down('#experimentqcwindowtabpanel');
+            store.load({params: {recordid: record.get('uid'), pair: true}});
+            var qctabs = atab.down('#experimentqcwindowtabpanel');
 
             qctabs.add({
                            title: 'Base frequency plot Pair',
@@ -496,7 +497,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addR: function (tab, bn) {
         var me = this;
-        me.Rtab = Ext.create("EMS.view.Experiment.Experiment.R", {UID:this.UID});
+        me.Rtab = Ext.create("EMS.view.Experiment.Experiment.R", {UID: this.UID});
         var tabadded = tab.add(me.Rtab);
         //var icon = me.Rtab.iconCls;
     },
@@ -505,17 +506,46 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     addIslandsList: function (tab) {
         var stor = this.getIslandsStore();
         stor.getProxy().setExtraParam('uid', this.UID);
+
+        tab.add({
+                    xtype: 'experimentislands'
+                });
+
         var me = this;
-        stor.load({
-                      callback: function (records, operation, success) {
-                          if (success) {
-                              tab.add({
-                                          xtype: 'experimentislands'
-                                      });
-                              me.addIslandsDistributionChart(tab);
-                          }
-                      }
-                  });
+        var params = Ext.decode(me.RecordData['params']);
+
+        var gridFilter = Ext.ComponentQuery.query('experimentislands grid')[0].filters;
+        var check = Ext.ComponentQuery.query('experimentislands checkboxfield')[0];
+        if(params['uniqislands'] == true || params['uniqislands'] == "true")
+            check.setValue(true);
+        var obj = {};
+        var l = true;
+        if (params.filter) {
+            for (var j = 0; j < params.filter.length; j++) {
+                var f = gridFilter.getFilter(params.filter[j].field);
+                if (!f) continue;
+                if (params.filter[j].type == "numeric") {
+                    if (!obj[params.filter[j].field])
+                        obj[params.filter[j].field] = {};
+                    obj[params.filter[j].field][params.filter[j].comparison] = params.filter[j].value;
+                    f.setValue(obj[params.filter[j].field]);
+                }
+                if (params.filter[j].type == "string") {
+                    f.setValue(params.filter[j].value);
+                }
+                l = false;
+                f.setActive(true);
+            }
+        }
+        Ext.ComponentQuery.query('experimentislands #promoter')[0].setValue(params['promoter']);
+
+        stor.on('load', function (records, operation, success) {
+            if (success) {
+                me.addIslandsDistributionChart(tab);
+            }
+        },this,{single: true});
+        if (l)
+            stor.load();
     },
     /***********************************************************************
      ***********************************************************************/

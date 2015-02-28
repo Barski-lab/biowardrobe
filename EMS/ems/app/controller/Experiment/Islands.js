@@ -24,7 +24,7 @@ Ext.define('EMS.controller.Experiment.Islands', {
     extend: 'Ext.app.Controller',
 
     models: ['Islands'],
-    stores: ['Islands'],
+    stores: ['Islands','IslandsDistribution'],
 
     views: [
         'Experiment.Experiment.Islands'
@@ -50,6 +50,12 @@ Ext.define('EMS.controller.Experiment.Islands', {
              'experimentislands button#promoterapply': {
                  click: this.onApplyPromoter
              },
+             'experimentislands button#retain': {
+                 click: this.onRetainFilter
+             },
+             'experimentislands button#getfasta': {
+                 click: this.onGetFasta
+             },
              'experimentislands button#islands-save': {
                  click: this.onIslandsSave
              }
@@ -58,9 +64,12 @@ Ext.define('EMS.controller.Experiment.Islands', {
     },//init
 
     uniqIslands: function (check, val) {
-        this.getIslandsStore().getProxy().setExtraParam('uniqislands', val);
-        var pgbar = Ext.ComponentQuery.query('experimentislands pagingtoolbar')[0];
-        pgbar.moveFirst();
+        //this.getIslandsStore().getProxy().setExtraParam('uniqislands', val);
+        //var pgbar = Ext.ComponentQuery.query('experimentislands pagingtoolbar')[0];
+        //pgbar.moveFirst();
+        this.loadIStore({
+                            'uniqislands': val
+                        });
     },
     /***********************************************************************
      ***********************************************************************/
@@ -86,21 +95,46 @@ Ext.define('EMS.controller.Experiment.Islands', {
      ***********************************************************************/
     onApplyPromoter: function (button) {
         var promoter = Ext.ComponentQuery.query('experimentislands #promoter')[0].getValue();
-        this.getIslandsStore().load
-        ({
-             params: {
-                 'promoter': promoter
-             }
-         });
+        this.loadIStore({
+                            'promoter': promoter
+                        });
+    },
+    /***********************************************************************
+     ***********************************************************************/
+    onRetainFilter: function (button) {
+        this.loadIStore({
+            'retainfilter': true
+        });
+    },
+    /***********************************************************************
+     ***********************************************************************/
+    onGetFasta: function (btn) {
+        var fasta = Ext.ComponentQuery.query('experimentislands #fasta')[0].getValue();
+        var form = btn.up('window').down('form').getForm();
+        var record = form.getRecord();
+        var tblname = record.data['uid'];
+        window.location = "data/fasta.php?uid="+tblname+"&fasta="+fasta+"&_dc="+Math.random() * 10;
     },
     /***********************************************************************
      ***********************************************************************/
     onIslandsSave: function (btn) {
         var form = btn.up('window').down('form').getForm();
         var record = form.getRecord();
-        var tblname = record.data['uid'];
-        window.location = "data/csv.php?tablename=" + tblname + "_islands";
+        var uid = record.data['uid'];
+        window.location = "data/islands.php?uid=" + uid + "&csv=true&_dc="+Math.random() * 10;
     },
-
+    /***********************************************************************
+     ***********************************************************************/
+    loadIStore: function (params) {
+        var me=this;
+        this.getIslandsStore().load
+        ({
+             params: params,
+             scope: me,
+             callback: function() {
+                 me.getIslandsDistributionStore().load();
+             }
+         });
+    }
 
 });//Ext.define

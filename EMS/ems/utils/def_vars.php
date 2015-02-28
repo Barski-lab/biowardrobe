@@ -1,9 +1,8 @@
 <?php
 
-function check_val($val)
-{
+function check_val($val) {
     global $response;
-    if (!preg_match('/^[a-zA-Z0-9-_]+$/', $val))
+    if (!preg_match('/^[a-zA-Z0-9-_\ \/]+$/', $val))
         $response->print_error('Incorrect required parameters.');
 }
 
@@ -25,23 +24,24 @@ if ($offset > 0 || $llimit > 0) {
 if (isset($_REQUEST['sort']))
     $sort = json_decode($_REQUEST['sort']);
 
-$order = "";
-if (isset($sort)) {
-    $order = "order by ";
+function parse_sort_global($sort) {
+    $order="";
     foreach ($sort as $val) {
         check_val($val->property);
         if ($val->direction == "ASC" || $val->direction == "DESC")
             $order = $order . "`$val->property` $val->direction,";
     }
     $order = substr($order, 0, -1);
+    return $order;
 }
 
-if (isset($_REQUEST['filter']))
-    $filter = json_decode($_REQUEST['filter']);
+$order = "";
+if (isset($sort)) {
+    $order = "order by ".parse_sort_global($sort);
+}
 
-$where = " where 0 = 0 ";
-if (isset($filter)) {
-
+function parse_where_global($filter) {
+    $where="";
     foreach ($filter as $val) {
         check_val($val->type);
         check_val($val->field);
@@ -79,15 +79,23 @@ if (isset($filter)) {
             $value = intVal($val->value);
             if (strstr($val->value, ',')) {
                 $fi = explode(',', $val->value);
-                for ($q=0;$q<count($fi);$q++){
+                for ($q = 0; $q < count($fi); $q++) {
                     $fi[$q] = intVal($fi[$q]);
                 }
                 $value = implode(',', $fi);
             }
             $where .= " AND " . $val->field . " IN (" . $value . ")";
         }
-        //logmsg($where);
     }
+    return $where;
 }
+
+$where = " where 0 = 0 ";
+if (isset($_REQUEST['filter'])) {
+    $filter = json_decode($_REQUEST['filter']);
+    $where .= parse_where_global($filter);
+}
+
+
 
 ?>

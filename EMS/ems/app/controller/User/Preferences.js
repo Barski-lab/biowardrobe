@@ -47,7 +47,7 @@ Ext.define('EMS.controller.User.Preferences', {
         this.worker = this.getWorkerStore().getAt(0);
         Ext.apply(Ext.form.field.VTypes, {
             customPass: function(val, field) {
-                return 1;///^((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50})/.test(val);
+                return /^((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,50})/.test(val);
             },
             customPassText: 'Not a valid password.  Length must be at least 8 characters and maximum of 20 Password must contain one digit, one letter lowercase, one letter uppercase'
         });

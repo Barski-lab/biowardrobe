@@ -12,11 +12,13 @@ else
 
 check_val($uid);
 
-$query_array = selectSQL("SELECT name4browser from labdata where uid=?", array("s", $uid));
-$filename = $query_array[0]['name4browser'];
+$experiment = selectSQL("select * from labdata where uid=?", array("s", $uid))[0];
+$eparams = json_decode($experiment ['params']);
 
-if ($filename == "")
-    $response->print_error('Cant find file name');
+$alias = $experiment['name4browser'];
+
+if ($alias == "")
+    $response->print_error('Cant find alias');
 
 $EDB = $settings->settings['experimentsdb']['value'];
 
@@ -34,10 +36,21 @@ for ($i = 0; $i < 100; $i++) {
     }
 }
 
-$output = selectSQL("select region,count(region) as count from `{$EDB}`.`{$tablename}` where region is not null group by region order by region;", array());
+$where=parse_where_global($eparams->filter);
+
+if ($eparams->uniqislands) {
+    $output = selectSQL("select t.region as region,sum(t.count) as count from
+    (select distinct region,1 as count,chrom,start,end,length from `{$EDB}`.`{$tablename}` where region is not null {$where}
+    group by chrom,start,end,length) as t group by t.region order by t.region;", array());
+} else {
+    $output = selectSQL("select region,count(region) as count from `{$EDB}`.`{$tablename}` where region is not null {$where} group by region order by region;", array());
+}
+
+
 
 $DATA = array(
-    'name' => $filename,
+    'name' => $alias,
+    'promoter' => $eparams->promoter,
     'Upstream' => $output[4]['count'],
     'Promoter' => $output[3]['count'],
     'Exon' => $output[0]['count'],
@@ -50,6 +63,10 @@ $fields = array(
     array(
         "name" => "name",
         "type" => "string"
+    ),
+    array(
+        "name" => "promoter",
+        "type" => "int"
     ),
     array(
         "name" => "Upstream",
