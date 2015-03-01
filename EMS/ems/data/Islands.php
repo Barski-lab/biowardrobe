@@ -23,7 +23,7 @@
 
 require_once('../settings.php');
 
-logmsg($_REQUEST);
+//logmsg($_REQUEST);
 
 if (isset($_REQUEST['uid']))
     $uid = $_REQUEST['uid'];
@@ -89,7 +89,10 @@ if (isset($_REQUEST['csv'])) {
 }
 
 if ($eparams->uniqislands) {
-    $SQL = "select distinct refseq_id,gene_id,txStart,txEnd,strand,chrom,start,end,length,max(log10p) as log10p,max(foldenrich) as foldenrich ,max(log10q) as log10q, region from `{$EDB}`.`{$tablename}` $where group by start,end,length $order $limit";
+    $SQL = "select distinct refseq_id,gene_id,txStart,txEnd,strand,chrom,start,end,max(length),
+    max(log10p) as log10p,
+    max(foldenrich) as foldenrich ,
+    max(log10q) as log10q, region from `{$EDB}`.`{$tablename}` $where group by chrom,start,end $order $limit";
     $total = selectSQL("SELECT COUNT(distinct start) as count FROM `{$EDB}`.`{$tablename}` $where")[0]['count'];
     $query_array = selectSQL($SQL, array());
 } else {

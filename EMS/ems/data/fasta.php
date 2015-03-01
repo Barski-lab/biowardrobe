@@ -28,6 +28,7 @@ if (isset($_REQUEST['uid']))
 else
     $response->print_error('Not enough required parameters.');
 
+$fasta = 0;
 if (isset($_REQUEST['fasta']))
     $fasta = intval($_REQUEST['fasta']);
 else
@@ -38,11 +39,6 @@ check_val($uid);
 $EDB = $settings->settings['experimentsdb']['value'];
 $BASE = $settings->settings['wardrobe']['value'];
 $TMP = $BASE . "/" . $settings->settings['temp']['value'];
-
-//if($tablename!="labdata") {
-//    $settings->connection->select_db($EDB);
-//}
-$tablename = "${uid}_islands";
 
 $tablename = "{$uid}_islands";
 $describe = selectSQL("describe `{$EDB}`.`{$tablename}`", array());
@@ -57,27 +53,40 @@ foreach ($describe as $d => $v)
 
 $experiment = get_preliminary_table_info($uid);
 $eparams = json_decode($experiment ['params']);
+
 $where = parse_where_global($eparams->filter);
+$order = parse_sort_global($eparams->sort);
 
 header("Content-type: text/plain");
 header("Content-Disposition: attachment; filename=" . $experiment['alias'] . ".txt");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-
-$i = 0;
 $outstream = fopen("php://output", 'w');
 
-if ($eparams->uniqislands) {
-//    $SQL = "select distinct refseq_id,gene_id,txStart,txEnd,strand,region,chrom,start,end,length,max(log10p) as log10p,max(foldenrich) as foldenrich ,max(log10q) as log10q
-// from `{$EDB}`.`{$tablename}` where 0=0 $where group by start,end,length $order";
-//    $query_array = selectSQL($SQL, array());
+$sislands = "start,end ";
+$mislands = "start+length/2-{$fasta},end-length/2+{$fasta} ";
+$sregions = "abssummit-{$fasta},abssummit+{$fasta} ";
+
+$SQL = "SELECT distinct chrom,";
+
+if ($broad || $fasta == 0) {
+    $SQL .= $sislands;
 } else {
+    $SQL .= $sregions;
 }
-$query_array = selectSQL("SELECT chrom,abssummit-{$fasta},abssummit+{$fasta} FROM `{$EDB}`.`{$tablename}` where 0=0 $where $order", array());
+
+$SQL .= " FROM `{$EDB}`.`{$tablename}` where 0=0 $where ";
+
+if ($eparams->uniqislands || $fasta == 0 || $broad) {
+    $SQL .= " group by chrom,start,end ";
+}
+
+$SQL .= " $order";
+
+$query_array = selectSQL($SQL, array());
 
 $tmpb = tempnam($TMP, "bed");
-//$tmpfa = tempnam($TMP, "fasta");
 
 $handle = fopen($tmpb, "w");
 foreach ($query_array as $dum => $val)
@@ -86,11 +95,9 @@ fclose($handle);
 
 $GENOME = $experiment['db'];
 
-
 $command = "bedtools getfasta -fi \"{$BASE}/indices/${GENOME}.fa\" -bed {$tmpb} -fo - ";
-logmsg("broad=", $broad,$command);
 $exec_result = shell_exec($command);
 fwrite($outstream, $exec_result);
-
+unlink($tmpb);
 //$outstream->close();
 ?>
