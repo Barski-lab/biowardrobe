@@ -512,33 +512,34 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                 });
 
         var me = this;
-        var params = Ext.decode(me.RecordData['params']);
-
-        var gridFilter = Ext.ComponentQuery.query('experimentislands grid')[0].filters;
-        var check = Ext.ComponentQuery.query('experimentislands checkboxfield')[0];
-        if(params['uniqislands'] == true || params['uniqislands'] == "true")
-            check.setValue(true);
-        var obj = {};
+        var params = Ext.decode(me.RecordData['params'],true);
         var l = true;
-        if (params.filter) {
-            for (var j = 0; j < params.filter.length; j++) {
-                var f = gridFilter.getFilter(params.filter[j].field);
-                if (!f) continue;
-                if (params.filter[j].type == "numeric") {
-                    if (!obj[params.filter[j].field])
-                        obj[params.filter[j].field] = {};
-                    obj[params.filter[j].field][params.filter[j].comparison] = params.filter[j].value;
-                    f.setValue(obj[params.filter[j].field]);
-                }
-                if (params.filter[j].type == "string") {
-                    f.setValue(params.filter[j].value);
-                }
-                l = false;
-                f.setActive(true);
-            }
-        }
-        Ext.ComponentQuery.query('experimentislands #promoter')[0].setValue(params['promoter']);
 
+        if(params) {
+            var gridFilter = Ext.ComponentQuery.query('experimentislands grid')[0].filters;
+            var check = Ext.ComponentQuery.query('experimentislands checkboxfield')[0];
+            if (params['uniqislands'] == true || params['uniqislands'] == "true")
+                check.setValue(true);
+            var obj = {};
+            if (params.filter) {
+                for (var j = 0; j < params.filter.length; j++) {
+                    var f = gridFilter.getFilter(params.filter[j].field);
+                    if (!f) continue;
+                    if (params.filter[j].type == "numeric") {
+                        if (!obj[params.filter[j].field])
+                            obj[params.filter[j].field] = {};
+                        obj[params.filter[j].field][params.filter[j].comparison] = params.filter[j].value;
+                        f.setValue(obj[params.filter[j].field]);
+                    }
+                    if (params.filter[j].type == "string") {
+                        f.setValue(params.filter[j].value);
+                    }
+                    l = false;
+                    f.setActive(true);
+                }
+            }
+            Ext.ComponentQuery.query('experimentislands #promoter')[0].setValue(params['promoter']);
+        }
         stor.on('load', function (records, operation, success) {
             if (success) {
                 me.addIslandsDistributionChart(tab);
