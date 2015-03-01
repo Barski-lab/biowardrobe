@@ -82,7 +82,8 @@ if ($eparams->uniqislands || $fasta == 0 || $broad) {
     $SQL .= " group by chrom,start,end ";
 }
 
-$SQL .= " $order";
+if ($order != "")
+    $SQL .= " order by $order";
 
 $query_array = selectSQL($SQL, array());
 
