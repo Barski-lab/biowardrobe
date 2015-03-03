@@ -99,28 +99,36 @@ while True:
     if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
         continue
 
-    safe_del(basedir + '/' + UID + '.Log.out')
-    safe_del(basedir + '/' + UID + '.Log.progress.out')
-    safe_del(basedir + '/' + UID + '.Log.std.out')
-    safe_del(basedir + '/' + UID + '.Log.final.out')
-    safe_del(basedir + '/' + UID + '.SJ.out.tab')
-    safe_del(basedir + '/' + UID + '_trimmed.fastq')
-    safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
-    safe_del(basedir + '/' + UID + '_trimmed.fastq.bz2')
-    safe_del(basedir + '/' + UID + '_trimmed_2.fastq.bz2')
-    safe_del(basedir + '/' + UID + '.bam')
-    safe_del(basedir + '/' + UID + '.bam.bai')
-    safe_del(basedir + '/' + UID + '.log')
-    safe_del(basedir + '/' + UID + '.fence')
-    safe_del(basedir + '/' + UID + '.fastxstat')
-    safe_del(basedir + '/' + UID + '.bw')
-    safe_del(basedir + '/' + UID + '.stat')
-    safe_del(basedir + '/' + UID + '_macs_peaks.xls')
-    safe_del(basedir + '/' + UID + '_macs.log')
-    safe_del(basedir + '/' + UID + '_macs_model.r')
-    safe_del(basedir + '/' + UID + '.ribo')
-    safe_del(basedir + '/' + UID + '_rpkm.log')
-    safe_del(basedir + '/' + UID + '_rpkm_error.log')
+    for root, dirs, files in os.walk("./", topdown=False):
+        for name in files:
+            if "fastq" in name:
+                continue
+            os.remove(os.path.join(root, name))
+        # for name in dirs:
+        #     os.rmdir(os.path.join(root, name))
+
+    # safe_del(basedir + '/' + UID + '.Log.out')
+    # safe_del(basedir + '/' + UID + '.Log.progress.out')
+    # safe_del(basedir + '/' + UID + '.Log.std.out')
+    # safe_del(basedir + '/' + UID + '.Log.final.out')
+    # safe_del(basedir + '/' + UID + '.SJ.out.tab')
+    # safe_del(basedir + '/' + UID + '_trimmed.fastq')
+    # safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
+    # safe_del(basedir + '/' + UID + '_trimmed.fastq.bz2')
+    # safe_del(basedir + '/' + UID + '_trimmed_2.fastq.bz2')
+    # safe_del(basedir + '/' + UID + '.bam')
+    # safe_del(basedir + '/' + UID + '.bam.bai')
+    # safe_del(basedir + '/' + UID + '.log')
+    # safe_del(basedir + '/' + UID + '.fence')
+    # safe_del(basedir + '/' + UID + '.fastxstat')
+    # safe_del(basedir + '/' + UID + '.bw')
+    # safe_del(basedir + '/' + UID + '.stat')
+    # safe_del(basedir + '/' + UID + '_macs_peaks.xls')
+    # safe_del(basedir + '/' + UID + '_macs.log')
+    # safe_del(basedir + '/' + UID + '_macs_model.r')
+    # safe_del(basedir + '/' + UID + '.ribo')
+    # safe_del(basedir + '/' + UID + '_rpkm.log')
+    # safe_del(basedir + '/' + UID + '_rpkm_error.log')
     shutil.rmtree(basedir + '/tophat', True)
 
     settings.cursor.execute("SELECT DISTINCT db FROM genome;")
@@ -133,6 +141,8 @@ while True:
     settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_atdp`;")
     settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_atdph`;")
     settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_isoforms`;")
+    settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_genes`;")
+    settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_common_tss`;")
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_genes`;")
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_common_tss`;")
 
