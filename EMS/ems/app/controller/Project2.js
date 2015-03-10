@@ -23,8 +23,8 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA'],
-    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA','AdvancedR'],
+    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA','AdvancedR'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP', 'Project2.TableViewWindow', 'Project2.TableView'],
     requires: ['EMS.util.Util'],
     worker: {},
@@ -40,6 +40,12 @@ Ext.define('EMS.controller.Project2', {
                        },
                        'TableView': {
                            gbjump: me.ongbjump
+                       },
+                       '#Project2R': {
+                           Back: me.onBack,
+                           revent: me.runR,
+                           editr: me.editR,
+                           //rview: me.ATDPWindow
                        },
                        '#Project2GenesLists': {
                            Back: me.onBack,
@@ -69,7 +75,7 @@ Ext.define('EMS.controller.Project2', {
                        '#project-worker-changed': {
                            select: me.onComboboxWorkerSelect
                        },
-                       'project2genelists #egroups': {
+                       '#egroups': {
                            select: me.onComboboxEGroupSelect
                        },
                        '#projectgenelisttree': {
@@ -87,6 +93,7 @@ Ext.define('EMS.controller.Project2', {
         this.worker = this.getWorkerStore().getAt(0);
     }, //init
     onProjectDesignerWindowRendered: function (view) {
+        this.getController('Project.R');
     },
     /*************************************************************
      *************************************************************/
@@ -217,7 +224,9 @@ Ext.define('EMS.controller.Project2', {
             labStore.load();
         }
 
-        if (data.atypeid === 1 || data.atypeid === 3) {
+        if(data.atypeid === 1) {
+            viewName = 'EMS.view.Project2.R';
+        }  else if (data.atypeid === 3) {
             viewName = 'EMS.view.Project2.DESeq';
         } else if (data.atypeid == 6) {
             viewName = 'EMS.view.Project2.GenesLists';
@@ -348,6 +357,72 @@ Ext.define('EMS.controller.Project2', {
         grpname.allowBlank = true;
         grpname.setValue(undefined);
     },
+    /*************************************************************
+     *************************************************************/
+    runR: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var me = this;
+        this.getAdvancedRStore().load();
+        var filterForm = Ext.create('EMS.view.Project2.RRun', {
+            modal: true,
+            item_id: record.data.item_id,
+            atypeid: atypeid,
+            tables: me.getGeneListStore().getRootNode(),
+            onSubmit: function () {
+                me.RSubmit(filterForm, record, atypeid);
+            }
+        }).show();
+    },
+    RSubmit: function (form, record, atypeid) {
+        var me = this;
+        var formData = form.getFormJson();
+        Ext.Ajax.request({
+                             url: 'data/RPrjRun.php',
+                             method: 'POST',
+                             timeout: 600000, //600 sec
+                             success: function (response) {
+                                 var json = Ext.decode(response.responseText);
+                                 var store = me.getGeneListStore();
+                                 store.load({node: store.getRootNode().getChildAt(1)});
+                                 if (!json.success) {
+                                     EMS.util.Util.Logger.log("Cant run R, error: " + json.message);
+                                     Ext.MessageBox.show({
+                                                             title: 'For you information',
+                                                             msg: 'There was an error with R script.You have to rerun it.<br>Do you want dialog for R to be shown?<br>' + json.message,
+                                                             icon: Ext.MessageBox.ERROR,
+                                                             fn: function (buttonId) {
+                                                                 if (buttonId === "yes") {
+                                                                     form.show();
+                                                                 } else {
+                                                                     form.close();
+                                                                 }
+                                                             },
+                                                             buttons: Ext.Msg.YESNO
+                                                         });
+                                 } else {
+                                     form.close();
+                                 }
+                             },
+                             failure: function () {
+                                 EMS.util.Util.Logger.log("Cant run R, error");
+                                 form.close();
+                             },
+                             jsonData: Ext.encode({
+                                                      "project_id": me.projectid,
+                                                      "atype_id": atypeid,
+                                                      "R": formData
+                                                  })
+                         });
+        form.hide();
+
+    },
+    editR: function () {
+        var me = this;
+        var form = Ext.create('EMS.view.Project2.RSrc', {
+            modal: false,
+        });
+        form.show();
+    },
+
     /*************************************************************
      *************************************************************/
     runATDP: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {

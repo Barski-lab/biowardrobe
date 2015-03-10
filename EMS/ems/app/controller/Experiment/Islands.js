@@ -121,7 +121,7 @@ Ext.define('EMS.controller.Experiment.Islands', {
         var form = btn.up('window').down('form').getForm();
         var record = form.getRecord();
         var uid = record.data['uid'];
-        window.location = "data/islands.php?uid=" + uid + "&csv=true&_dc="+Math.random() * 10;
+        window.location = "data/Islands.php?uid=" + uid + "&csv=true&_dc="+Math.random() * 10;
     },
     /***********************************************************************
      ***********************************************************************/
