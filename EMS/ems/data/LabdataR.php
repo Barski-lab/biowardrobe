@@ -43,7 +43,7 @@ if($UID != "" && $codetype == 2) {
         $query=array("id"=>$UID,"rscript"=>"#
 #  If you have any questions do not hesitate to ask email: Andrey Kartashov <porter@porter.st>
 #
-#  You can find full documentation at https://wardrobe.porter.st/projects/wardrobe/wiki/Devel_R_Wardrobe_Library
+#  You can find full documentation at https://biowardrobe.com/projects/wardrobe/wiki/Devel_R_Wardrobe_Library
 #  This script goes into 'Rscript' command. All the output can be found in \"Custom Result(s)\" tab
 #
 #  Variable 'experiment' is injected into the script and it contains current experiment data

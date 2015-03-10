@@ -1,3 +1,4 @@
+<?php
 /****************************************************************************
  **
  ** Copyright (C) 2011-2015 Andrey Kartashov .
@@ -20,32 +21,37 @@
  **
  ****************************************************************************/
 
+require_once('../settings.php');
 
-Ext.define('EMS.store.LabdataR', {
-    extend: 'Ext.data.Store',
+//logmsg($_REQUEST);
+//if (!$worker->isAdmin()) {
+//    $response->print_error("Insufficient privileges");
+//}
 
-    requires: ['EMS.model.LabdataR',
-               'EMS.proxy.StandardProxy'],
-    model: 'EMS.model.LabdataR',
-    storeId: 'LabdataR',
-    autoLoad: false,
-    singleton: true,
-    remoteSort: false,
-    remoteFilter: false,
-    listeners: {
-        load: function (store, records, successful, eOpts) {
-        }
-    },
-    proxy: {
-        type: 'standardproxy',
-        api: {
-            read: 'data/LabdataR.php',
-            update: 'data/LabdataRUP.php',
-            create: '',
-            destroy: ''
-        }
-    }
 
-});
+if (!isset($_REQUEST['data']) || $_REQUEST['data'] == "") {
+    $response->print_error("Data is not set");
+}
 
+
+$data = json_decode($_REQUEST['data']);
+if (!isset($data))
+    $response->print_error("Data is not set");
+
+$rscript = $data->rscript;
+$luid = $data->id;
+$name = $data->name;
+
+$r = execSQL(def_connect(), "insert into `advanced_r` (id,name,rscript) values(?,?,?)
+    ON DUPLICATE KEY UPDATE id=VALUES(id), rscript=VALUES(rscript);",
+    array("sss", $luid, $name, $rscript), true);
+if ($r > 2) {
+    $response->print_error("Error in database");
+}
+
+$response->success = true;
+$response->message = "Data updated";
+$response->total = 1;
+print_r($response->to_json());
+?>
 

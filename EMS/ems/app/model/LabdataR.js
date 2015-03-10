@@ -25,7 +25,7 @@ Ext.define( 'EMS.model.LabdataR', {
 
                fields: [
                    { name: 'id', type: 'string' },
-                   { name: 'record_id', type: 'string' },
+                   { name: 'name', type: 'string' },
                    { name: 'rscript', type: 'string' }
                ]
            });

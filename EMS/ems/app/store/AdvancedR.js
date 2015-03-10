@@ -24,10 +24,10 @@
 Ext.define('EMS.store.LabdataR', {
     extend: 'Ext.data.Store',
 
-    requires: ['EMS.model.LabdataR',
+    requires: ['EMS.model.AdvancedR',
                'EMS.proxy.StandardProxy'],
-    model: 'EMS.model.LabdataR',
-    storeId: 'LabdataR',
+    model: 'EMS.model.AdvancedR',
+    storeId: 'AdvancedR',
     autoLoad: false,
     singleton: true,
     remoteSort: false,
@@ -39,9 +39,9 @@ Ext.define('EMS.store.LabdataR', {
     proxy: {
         type: 'standardproxy',
         api: {
-            read: 'data/LabdataR.php',
-            update: 'data/LabdataRUP.php',
-            create: '',
+            read: 'data/AdvancedR.php',
+            update: 'data/AdvancedRUP.php',
+            create: 'data/AdvancedRAdd.php',
             destroy: ''
         }
     }

@@ -348,7 +348,13 @@ abstract class AbstractTableDataProcessing
     public function exec()
     {
         global $settings;
-        return execSQL($settings->connection, $this->SQL_STR, $this->PARAMS, true);
+        $res = execSQL($settings->connection, $this->SQL_STR, $this->PARAMS, true);
+        $this->PARAMS = array("",);
+        $this->wherep = array("",);
+        $this->VARIABLES = "";
+        $this->SQL_STR = "";
+        #$settings->connection
+        return $res;
     }
 }
 

@@ -46,6 +46,7 @@ if (!isset($_REQUEST['node'])) {
     $response->print_error("Not enough arguments.");
 }
 $node = $_REQUEST['node'];
+check_val($node);
 
 
 function make_array($qr)
@@ -86,14 +87,14 @@ function get_by_id($parentid)
  * @param int $type
  * @return array
  */
-function get_raw_list($prjid, $type = 1)
+function get_raw_list($prjid, $type = 1,$expanded=true)
 {
     $qr = selectSQL( "select * from genelist where project_id like ? and `type` = ? and parent_id is null order by leaf,name", array("si", $prjid, $type));
     return array(
         'id' => 'gd',
         'name' => 'Raw Data',
         'leaf' => false,
-        'expanded' => true,
+        'expanded' => $expanded,
         'parent_id' => 'root',
         'data' => make_array($qr));
 }
@@ -123,12 +124,22 @@ $ListDescription = array(
      'gl' => array(2,'Gene List'),
      'de' => array(3,'DESeq results'),
      'ar' => array(102,'ATDP results'),
-     'ma' => array(103,'MANorm results')
+     'ma' => array(103,'MANorm results'),
+     'rr' => array(300,'R results')
 );
 
 if ($node == 'root') {
     switch ($atypeid) {
         case 1: //deseq
+            $rd = array_merge(get_raw_list($prjid, 1, false),get_raw_list($prjid, 101, false));
+            $rr = get_list_by_type($prjid, 300, 'rr', 'R results');
+            echo json_encode(array(
+                'text' => '.',
+                'expanded' => false,
+                'data' => array($rd,$rr)
+            ));
+
+            break;
         case 3: //deseq2
         case 6: //filters
             $gl = get_list_by_type($prjid, 2, 'gl', 'Gene List');
@@ -171,6 +182,17 @@ if ($node == 'root') {
     }
 }
 
+
+if ($node == 'rr') {
+    $lst = get_list_by_type($prjid,$ListDescription[$node][0], $node, $ListDescription[$node][1]);
+    echo json_encode(array(
+        'text' => '.',
+        'expanded' => true,
+        'data' => $lst['data']
+    ));
+}
+
+
 if ($node == 'de') {
     $de=get_list_by_type($prjid, 3, 'de', 'DESeq results');
     echo json_encode(array(
@@ -198,7 +220,7 @@ if ($node == 'ma') {
     ));
 }
 
-if(!in_array($node,array('root','gd','gl','de','ar','ma'))) {
+if(!in_array($node,array('root','gd','gl','de','ar','ma','rr'))) {
     echo json_encode(array(
         'text' => '.',
         'expanded' => true,
