@@ -267,7 +267,7 @@ void FSTM::WriteResult()
         outFile.write(QString("\n").toLocal8Bit());
     }
 
-    this->CreateTablesViews();
+    this->CreateTables();
 
     QString SQL_QUERY_BASE=QString("insert into `%1`.`%2_isoforms` values ").
                            arg(gSettings().getValue("experimentsdb")).
@@ -325,6 +325,9 @@ void FSTM::WriteResult()
             qDebug()<<"Query error: "<<q.lastError().text();
         }
     }
+
+    this->InsertData();//update rest of the tables Genes Common_TSS
+
     if(wrtFile)
         outFile.close();
 
@@ -443,66 +446,24 @@ void FSTM::WriteResult()
 //------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------
 
-void FSTM::CreateTablesViews(void)
-{
+void FSTM::InsertData(void){
     if(!gArgs().getArgs("no-sql-upload").toBool())
     {
-
-        QString DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_common_tss`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
-        if(!q.exec(DROP_TBL))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
-        }
-        DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_genes`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
-        if(!q.exec(DROP_TBL))
-        {
-            qDebug()<<"Query error: "<<q.lastError().text();
-        }
-
         QString RPKM_FIELDS="";
-        for(int i=1;i<m_ThreadNum;i++) {
-            RPKM_FIELDS+=QString("TOT_R_%1 float,").arg(i);
-            RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
-        }
+//        for(int i=1;i<m_ThreadNum;i++) {
+//            RPKM_FIELDS+=QString("TOT_R_%1 float,").arg(i);
+//            RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
+//        }
 
-        QString CREATE_TABLE="";
-        QString suffix[3];
-        suffix[0]="_isoforms";
-        suffix[1]="_genes";
-        suffix[2]="_common_tss";
-        for(int i=0;i<3;i++){
-            CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
-                                 "CREATE TABLE `%3`.`%4` ( "
-                                 "`refseq_id` VARCHAR(100) NOT NULL ,"
-                                 "`gene_id` VARCHAR(100) NOT NULL ,"
-                                 "`chrom` VARCHAR(45) NOT NULL,"
-                                 "`txStart` INT NULL ,"
-                                 "`txEnd` INT NULL ,"
-                                 "`strand` char(1),"
-                                 "TOT_R_0   float,"
-                                 "RPKM_0   float,"
-                                 "%5 "
-                                 "INDEX refseq_id_idx (refseq_id) using btree,"
-                                 "INDEX gene_id_idx (gene_id) using btree,"
-                                 "INDEX chr_idx (chrom) using btree,"
-                                 "INDEX txStart_idx (txStart) using btree,"
-                                 "INDEX txEnd_idx (txEnd) using btree"
-                                 ")"
-                                 "ENGINE = MyISAM "
-                                 "COMMENT = 'created by readscounting';").
-                         arg(gSettings().getValue("experimentsdb")).
-                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
-                         arg(gSettings().getValue("experimentsdb")).
-                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
-                         arg(RPKM_FIELDS);
+        QString INSERT_SQL="";
+//        QString suffix[3];
+//        suffix[0]="_isoforms";
+//        suffix[1]="_genes";
+//        suffix[2]="_common_tss";
+//        for(int i=1;i<3;i++){
+//        }
 
-            if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
-            {
-                qDebug()<<"Query error: "<<q.lastError().text();
-            }
-        }
-
-        RPKM_FIELDS="";
+//        RPKM_FIELDS="";
         for(int i=1;i<m_ThreadNum;i++)
         {
             RPKM_FIELDS+=QString(",coalesce(sum(TOT_R_%1),0) AS TOT_R_%2 ").arg(i).arg(i);
@@ -510,7 +471,7 @@ void FSTM::CreateTablesViews(void)
         }
 
 
-        CREATE_TABLE=QString(
+        INSERT_SQL=QString(
                          " INSERT INTO `%1`.`%2_common_tss`"
                          " SELECT"
                          "    GROUP_CONCAT(DISTINCT refseq_id"
@@ -552,12 +513,12 @@ void FSTM::CreateTablesViews(void)
                      arg(RPKM_FIELDS).
                      arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString());
-        if(!q.exec(CREATE_TABLE))
+        if(!q.exec(INSERT_SQL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
 
-        CREATE_TABLE=QString(
+        INSERT_SQL=QString(
                          "INSERT INTO `%1`.`%2_genes`"
                          "select "
                          "group_concat(distinct refseq_id order by refseq_id separator ',') AS refseq_id,"
@@ -577,11 +538,72 @@ void FSTM::CreateTablesViews(void)
                      arg(gSettings().getValue("experimentsdb")).
                      arg(gArgs().getArgs("sql_table").toString());
 
-        if(!q.exec(CREATE_TABLE))
+        if(!q.exec(INSERT_SQL))
         {
             qDebug()<<"Query error: "<<q.lastError().text();
         }
 
+    }
+}
+
+void FSTM::CreateTables(void)
+{
+    if(!gArgs().getArgs("no-sql-upload").toBool())
+    {
+
+        QString DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_common_tss`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
+        if(!q.exec(DROP_TBL))
+        {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+        DROP_TBL= QString("DROP VIEW IF EXISTS `%1`.`%2_genes`;").arg(gSettings().getValue("experimentsdb")).arg(gArgs().getArgs("sql_table").toString());
+        if(!q.exec(DROP_TBL))
+        {
+            qDebug()<<"Query error: "<<q.lastError().text();
+        }
+
+        QString RPKM_FIELDS="";
+        for(int i=1;i<m_ThreadNum;i++) {
+            RPKM_FIELDS+=QString("TOT_R_%1 float,").arg(i);
+            RPKM_FIELDS+=QString("RPKM_%1 float,").arg(i);
+        }
+
+        QString CREATE_TABLE="";
+        QString suffix[3];
+        suffix[0]="_isoforms";
+        suffix[1]="_genes";
+        suffix[2]="_common_tss";
+        for(int i=0;i<1;i++) {
+            CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
+                                 "CREATE TABLE `%3`.`%4` ( "
+                                 "`refseq_id` VARCHAR(100) NOT NULL ,"
+                                 "`gene_id` VARCHAR(100) NOT NULL ,"
+                                 "`chrom` VARCHAR(45) NOT NULL,"
+                                 "`txStart` INT NULL ,"
+                                 "`txEnd` INT NULL ,"
+                                 "`strand` char(1),"
+                                 "TOT_R_0   float,"
+                                 "RPKM_0   float,"
+                                 "%5 "
+                                 "INDEX refseq_id_idx (refseq_id) using btree,"
+                                 "INDEX gene_id_idx (gene_id) using btree,"
+                                 "INDEX chr_idx (chrom) using btree,"
+                                 "INDEX txStart_idx (txStart) using btree,"
+                                 "INDEX txEnd_idx (txEnd) using btree"
+                                 ")"
+                                 "ENGINE = MyISAM "
+                                 "COMMENT = 'created by readscounting';").
+                         arg(gSettings().getValue("experimentsdb")).
+                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
+                         arg(gSettings().getValue("experimentsdb")).
+                         arg(gArgs().getArgs("sql_table").toString()+suffix[i]).
+                         arg(RPKM_FIELDS);
+
+            if(!gArgs().getArgs("no-sql-upload").toBool() && !q.exec(CREATE_TABLE))
+            {
+                qDebug()<<"Query error: "<<q.lastError().text();
+            }
+        }
     }
 
 }
