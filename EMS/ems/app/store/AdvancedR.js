@@ -21,7 +21,7 @@
  ****************************************************************************/
 
 
-Ext.define('EMS.store.LabdataR', {
+Ext.define('EMS.store.AdvancedR', {
     extend: 'Ext.data.Store',
 
     requires: ['EMS.model.AdvancedR',
