@@ -574,6 +574,7 @@ void FSTM::CreateTables(void)
         suffix[1]="_genes";
         suffix[2]="_common_tss";
         for(int i=0;i<3;i++) {
+
             CREATE_TABLE=QString("DROP TABLE IF EXISTS `%1`.`%2`;"
                                  "CREATE TABLE `%3`.`%4` ( "
                                  "`refseq_id` VARCHAR(100) NOT NULL ,"
