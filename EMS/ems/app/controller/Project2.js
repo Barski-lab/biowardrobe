@@ -23,8 +23,8 @@
 
 Ext.define('EMS.controller.Project2', {
     extend: 'Ext.app.Controller',
-    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA','AdvancedR'],
-    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA','AdvancedR'],
+    models: ['ProjectLabData', 'Worker', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA', 'AdvancedR'],
+    stores: ['ProjectLabData', 'Worker', 'Workers', 'RPKM', 'RType', 'AType', 'ProjectTree', 'GeneList', 'PCAChart', 'ATDPChart', 'ATDP', 'TableView', 'ATDPHeatA', 'AdvancedR'],
     views: ['Project2.ProjectDesigner', 'Project2.GenesLists', 'Project2.Filter', 'Project2.DESeq', 'charts.ATP', 'Project2.TableViewWindow', 'Project2.TableView'],
     requires: ['EMS.util.Util'],
     worker: {},
@@ -45,7 +45,7 @@ Ext.define('EMS.controller.Project2', {
                            Back: me.onBack,
                            revent: me.runR,
                            editr: me.editR,
-                           //rview: me.ATDPWindow
+                           rview: me.viewR
                        },
                        '#Project2GenesLists': {
                            Back: me.onBack,
@@ -224,9 +224,9 @@ Ext.define('EMS.controller.Project2', {
             labStore.load();
         }
 
-        if(data.atypeid === 1) {
+        if (data.atypeid === 1) {
             viewName = 'EMS.view.Project2.R';
-        }  else if (data.atypeid === 3) {
+        } else if (data.atypeid === 3) {
             viewName = 'EMS.view.Project2.DESeq';
         } else if (data.atypeid == 6) {
             viewName = 'EMS.view.Project2.GenesLists';
@@ -361,16 +361,22 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     runR: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var me = this;
-        this.getAdvancedRStore().load();
-        var filterForm = Ext.create('EMS.view.Project2.RRun', {
-            modal: true,
-            item_id: record.data.item_id,
-            atypeid: atypeid,
-            tables: me.getGeneListStore().getRootNode(),
-            onSubmit: function () {
-                me.RSubmit(filterForm, record, atypeid);
-            }
-        }).show();
+        this.getAdvancedRStore().
+                load({
+                         callback: function (records, operation, success) {
+                             if (success) {
+                                 var filterForm = Ext.create('EMS.view.Project2.RRun', {
+                                     modal: true,
+                                     item_id: record.data.item_id,
+                                     atypeid: atypeid,
+                                     tables: me.getGeneListStore().getRootNode(),
+                                     onSubmit: function () {
+                                         me.RSubmit(filterForm, record, atypeid);
+                                     }
+                                 }).show();
+                             }
+                         }
+                     });
     },
     RSubmit: function (form, record, atypeid) {
         var me = this;
@@ -419,6 +425,22 @@ Ext.define('EMS.controller.Project2', {
         var me = this;
         var form = Ext.create('EMS.view.Project2.RSrc', {
             modal: false,
+        });
+        form.show();
+    },
+    viewR: function ( grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
+        var me = this;
+        var form = Ext.create('EMS.view.Project2.RView', {
+            modal: false,
+            loader: {
+                url: 'data/AdvancedRShow.php?UID=' + record.data.id,
+                loadMask: true,
+                autoLoad: true,
+                ajaxOptions: {
+                    timeout: 60000
+                }
+            }
+
         });
         form.show();
     },
@@ -806,7 +828,7 @@ Ext.define('EMS.controller.Project2', {
         }
 
         var w = chart.getWidth() - 250;
-        console.log('widths:', w, chart.getWidth(), 'chart', chart,'sel=',selection);
+        console.log('widths:', w, chart.getWidth(), 'chart', chart, 'sel=', selection);
         var step = 200;
         var msg = "";
         var type = 1;
@@ -976,7 +998,7 @@ Ext.define('EMS.controller.Project2', {
             k = mapped / kdiv;
 
             var marray = [];
-            var sarray=[];
+            var sarray = [];
             if (type == 1) {
                 marray = stordata.get('array');
                 sarray = marray.map(function (d) {
@@ -988,49 +1010,50 @@ Ext.define('EMS.controller.Project2', {
             } else if (type == 2) {
                 marray = stordata.get('bodyarray');
                 var glengths = stordata.get('glengths');
-                var rg=[100,200,300];
-                var seg=[l,r];
-                var mer=[];
-                var body_segments=[];
-                var rgl= 0,segl=0;
-                var current_gene_length=0;
-                var current_gene_coeff=0;
+                var rg = [100, 200, 300];
+                var seg = [l, r];
+                var mer = [];
+                var body_segments = [];
+                var rgl = 0, segl = 0;
+                var current_gene_length = 0;
+                var current_gene_coeff = 0;
 
-                while(rgl<rg.length && segl<seg.length) {
+                while (rgl < rg.length && segl < seg.length) {
 
-                    if(rg[rgl]<seg[segl] && segl==0) {
+                    if (rg[rgl] < seg[segl] && segl == 0) {
                         rgl++;
                         continue;
                     }
 
-                    if(rg[rgl]<seg[segl]) {
+                    if (rg[rgl] < seg[segl]) {
                         mer.push(rg[rgl]);
                         rgl++;
-                    } else if (seg[segl]<rg[rgl]) {
+                    } else if (seg[segl] < rg[rgl]) {
                         mer.push(seg[segl]);
                         segl++;
                     } else {
                         mer.push(seg[segl]);
-                        segl++;rgl++;
+                        segl++;
+                        rgl++;
                     }
-                    if(mer.length>1) {
-                        var d=mer[mer.length-1]-mer[mer.length-2];
-                        if(mer[mer.length-1]>100 && mer[mer.length-1]<201) {
-                            current_gene_coeff=d/100;
+                    if (mer.length > 1) {
+                        var d = mer[mer.length - 1] - mer[mer.length - 2];
+                        if (mer[mer.length - 1] > 100 && mer[mer.length - 1] < 201) {
+                            current_gene_coeff = d / 100;
                         } else {
-                            current_gene_length+=(50*d);
+                            current_gene_length += (50 * d);
                         }
                         //body_segments.push({'i':mer.length-1,'l':mer[mer.length-2],'r':mer[mer.length-1]});
                     }
                 }
-                console.log('coeff & len=',current_gene_coeff,current_gene_length,'mer=',mer);
+                console.log('coeff & len=', current_gene_coeff, current_gene_length, 'mer=', mer);
 
-                sarray = marray.map(function (d,j) {
+                sarray = marray.map(function (d, j) {
                     var s = 0.0;
-                    var r=0;
+                    var r = 0;
                     for (var i = nl; i < nr; i++)
                         s += d[i];
-                    return (s/k )/(current_gene_length+glengths[j]*current_gene_coeff);
+                    return (s / k ) / (current_gene_length + glengths[j] * current_gene_coeff);
                 }).sort(d3.ascending);
                 //continue;
             }

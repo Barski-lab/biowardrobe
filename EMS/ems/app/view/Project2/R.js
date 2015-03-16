@@ -151,7 +151,7 @@ Ext.define('EMS.view.Project2.R', {
                     text: 'Run R',
                     iconCls: 'r-logo',
                     handler: function () {
-                        me.fireEvent('revent', null, null, null, null, null, {data:{item_id:null}}, null, me.atypeid);
+                        me.fireEvent('revent', null, null, null, null, null, {data: {item_id: null}}, null, me.atypeid);
                     }
                 },
                 {
@@ -234,57 +234,57 @@ Ext.define('EMS.view.Project2.R', {
                             sortable: false,
                             items: [
                                 {
-                                    //isDisabled: function (view, rowIndex, colIndex, item, record) {
-                                    //    if (record.data.root === true || record.data.parentId === 'root' || record.data.parentId !== 'gd')
-                                    //        return true;
-                                    //    return false;
-                                    //},
-                                    getClass: function (v, meta, record) {
-                                        //if (record.data.root === true || record.data.parentId === 'root' || record.data.parentId !== 'gd') {
-                                        //    meta.css = 'x-hide-display';
-                                        //    return;
-                                        //}
-                                        this.items[0].text = 'Run R';
-                                        this.items[0].tooltip = 'Run R Script';
-                                        this.items[0].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                    text: 'Run R',
+                                    tooltip: 'Run R Script',
+                                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        if (record.data.parentId === 'gd') {
                                             me.fireEvent('revent', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
-                                        };
-                                        return 'r-logo';
-                                    }
-                                },
-                                {
+                                        }
+                                    },
+                                    isDisabled: function (view, rowIndex, colIndex, item, record) {
+                                        if (record.data.root === true || record.data.parentId === 'root')
+                                            return true;
+                                        return false;
+                                    },
                                     getClass: function (v, meta, record) {
-                                        console.log(record.data);
                                         if (record.data.root === true || record.data.parentId === 'root') {
                                             meta.css = 'x-hide-display';
                                             return;
                                         }
-
-                                        this.items[1].tooltip = 'view';
-                                        this.items[1].handler = function (grid, rowIndex, colIndex, actionItem, event, record, row) {
-                                            if (record.data.parentId !== 'rr') {
-                                                window.location = "data/csvgl.php?id=" + record.data['id'] + "&grp=" + !record.data['leaf'];
-                                            } else {
-                                                me.fireEvent('rview', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
-                                            }
+                                        if (record.data.parentId === 'gd') {
+                                            return 'r-logo';
+                                        } else {
+                                            return;
                                         }
-                                        return 'disk';
-                                        if (record.data.parentId !== 'rr')
-                                            return 'disk';
-                                        else if (record.data.type === 200)
-                                            return 'loading';
-                                        else
-                                            return 'view';
-
-
                                     }
                                 },
                                 {
-                                    //isDisabled: function (view, rowIndex, colIndex, item, record) {
-                                    //    if (record.data.tableName === "" && record.data.parentId === "rr")
-                                    //        return true;
-                                    //    return false;
-                                    //},
+                                    tooltip: 'view',
+                                    handler: function (grid, rowIndex, colIndex, actionItem, event, record, row) {
+                                        if (record.data.parentId !== 'rr') {
+                                            window.location = "data/csvgl.php?id=" + record.data['id'] + "&grp=" + !record.data['leaf'];
+                                        } else {
+                                            if (record.data.type != 200) {
+                                                me.fireEvent('rview', grid, rowIndex, colIndex, actionItem, event, record, row, me.atypeid);
+                                            }
+                                        }
+                                    },
+                                    isDisabled: function (view, rowIndex, colIndex, item, record) {
+                                        if ((record.data.tableName === "" || record.data.type == 200) && record.data.parentId === "rr")
+                                            return true;
+                                        return false;
+                                    },
+
+                                    getClass: function (v, meta, record) {
+                                        if (record.data.parentId !== 'rr')
+                                            return 'disk';
+                                        else if (record.data.type == 200)
+                                            return 'loading';
+                                        else
+                                            return 'view';
+                                    }
+                                },
+                                {
                                     getClass: function (v, meta, rec) {
                                         if (rec.data.root === true || rec.data.parentId === 'root')
                                             return;

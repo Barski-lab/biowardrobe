@@ -195,9 +195,11 @@ Ext.define('EMS.view.Project2.RRun', {
                                 margin: '0 5 0 5',
                                 allowBlank: false,
                                 listeners: {
-                                    'render': function (combo, records) {
-                                        var store = combo.getStore();
-                                        combo.setValue(store.first().data.id);
+                                    'afterrender': function (combo, records) {
+                                        try {
+                                            var store = combo.getStore();
+                                            combo.setValue(store.first().data.id);
+                                        }catch (e) {}
                                     }
                                 },
                                 store: 'AdvancedR',

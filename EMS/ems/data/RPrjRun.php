@@ -140,8 +140,8 @@ fclose($fp);
 
 $exec_result = shell_exec($command);
 
-$outstring = file($outfile);
-$errstring = file($errfile);
+//$outstring = file($outfile);
+//$errstring = file($errfile);
 
 $malength = count($R);
 

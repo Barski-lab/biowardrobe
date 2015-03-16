@@ -23,11 +23,7 @@
 
 require_once('../settings.php');
 
-//logmsg(__FILE__);
-//logmsg(print_r($_REQUEST,true));
-
 $data = json_decode($_REQUEST['data']);
-
 if (!isset($data))
     $response->print_error("no data");
 //logmsg(print_r($data,true));

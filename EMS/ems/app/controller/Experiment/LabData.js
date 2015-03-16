@@ -228,7 +228,7 @@ Ext.define('EMS.controller.Experiment.LabData', {
      ****************************/
     onExperimentShow: function (grid, record) {
         //var me = this;
-        var LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {modal: true, UID: record.data['uid'] });
+        var LabDataEdit = Ext.create('EMS.view.Experiment.Experiment.MainWindow', {modal: false /*temporary*/, UID: record.data['uid'] });
         LabDataEdit.down('experimenteditform').getForm().loadRecord(record);
         LabDataEdit.show({
                              scope: this,

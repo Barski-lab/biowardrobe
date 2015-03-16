@@ -353,7 +353,7 @@ abstract class AbstractTableDataProcessing
         $this->wherep = array("",);
         $this->VARIABLES = "";
         $this->SQL_STR = "";
-        #$settings->connection
+        //$settings->connection
         return $res;
     }
 }
