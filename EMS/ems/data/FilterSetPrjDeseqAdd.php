@@ -31,8 +31,8 @@ try {
 } catch (Exception $e) {
     $response->print_error("Cant read input" . $e);
 }
-//logmsg(print_r($_REQUEST,true));
-//logmsg(print_r($data, true));
+//logmsg($_REQUEST);
+//logmsg($data);
 
 
 $V = $data->filters[0];
@@ -118,8 +118,8 @@ foreach ($V->conditions as $k2 => $val) {
             $WHEREC = $WHEREC . " and a" . ($c - 1) . ".strand=a" . $c . ".strand";
             $FROM .= ",`{$EDB}`.`{$tablenames[$val->table]['table']}` " . $tablenames[$val->table]['alias'];
 
-            $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . " as `" . $c . $tablenames[$val->table]['RPKM1'] ."`".
-                "," . $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . " as `" . $c . $tablenames[$val->table]['RPKM2'] ."`".
+            $FIELDS = $FIELDS . "," . $tablenames[$val->table]['alias'] . ".`" . $tablenames[$val->table]['RPKM1'] . "` as `" . $c . $tablenames[$val->table]['RPKM1'] ."`".
+                "," . $tablenames[$val->table]['alias'] . ".`" . $tablenames[$val->table]['RPKM2'] . "` as `" . $c . $tablenames[$val->table]['RPKM2'] ."`".
                 "," . $tablenames[$val->table]['alias'] . "." . "LOGR as `LOG2R " . $tablenames[$val->table]['name'] . "`" .
                 "," . $tablenames[$val->table]['alias'] . "." . "pvalue as `pvalue " . $tablenames[$val->table]['name'] . "`" .
                 "," . $tablenames[$val->table]['alias'] . "." . "padj as `padj " . $tablenames[$val->table]['name'] . "`";
@@ -128,8 +128,8 @@ foreach ($V->conditions as $k2 => $val) {
             $gblink = $gblink . "&" . $tn[0]['gblink'];
         } else {
             $FROM = "`{$EDB}`.`{$tablenames[$val->table]['table']}` " . $tablenames[$val->table]['alias'];
-            $FIELDS = $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM1'] . "," .
-                $tablenames[$val->table]['alias'] . "." . $tablenames[$val->table]['RPKM2'] . "," .
+            $FIELDS = $tablenames[$val->table]['alias'] . ".`" . $tablenames[$val->table]['RPKM1'] . "`," .
+                $tablenames[$val->table]['alias'] . ".`" . $tablenames[$val->table]['RPKM2'] . "`," .
                 $tablenames[$val->table]['alias'] . "." . "LOGR as `LOG2R " . $tablenames[$val->table]['name'] . "`," .
                 $tablenames[$val->table]['alias'] . "." . "pvalue as `pvalue " . $tablenames[$val->table]['name'] . "`," .
                 $tablenames[$val->table]['alias'] . "." . "padj as `padj " . $tablenames[$val->table]['name'] . "`";
@@ -156,7 +156,7 @@ foreach ($V->conditions as $k2 => $val) {
         } else {
             $WHERE = $WHERE . " $op " . $val->bracketl . $tablenames[$val->table]['alias'] . "." . $field['field'] . " " . $exp['exp'] . " " . floatval($val->value) . "" . $val->bracketr;
         }
-        $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . floatval($val->value) . "$val->bracketr<br>\n";
+        $READABLE = $READABLE . " $op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . floatval($val->value) . "$val->bracketr<br>\n";
     }
 
 }
