@@ -28,9 +28,9 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
     maximizable: true,
     maximized: true,
     //closeAction: 'hide',
-    constrain: true,
-    minWidth: 900,
-    minHeight: 500,
+    //constrain: true,
+    minWidth: 500,
+    minHeight: 200,
     iconCls: 'table2',
     layout: 'fit',
     requires: [

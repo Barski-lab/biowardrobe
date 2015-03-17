@@ -33,8 +33,8 @@ Ext.define('EMS.view.Experiment.Experiment.MainWindow', {
     //constrain: true,
 
     plain: true,
-    height: 800,
-    width: 1100,
+    height: 700,
+    width: 1000,
     border: false,
     focusOnToFront: true,
     UID: "",
