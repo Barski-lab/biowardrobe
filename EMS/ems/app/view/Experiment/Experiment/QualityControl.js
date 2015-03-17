@@ -51,7 +51,7 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
                             '<tr><td class="experiment-descr-1">Cell type:</td><td colspan=2 class="experiment-descr-2">{cells}</td></tr>',
                             '<tr><td class="experiment-descr-1">Conditions:</td><td colspan=2 class="experiment-descr-2">{conditions}</td></tr>',
                             '<tr><td class="experiment-descr-1">Tags total:</td><td class="experiment-descr-2">{[this.numformat(values.tagstotal)]}</td>',
-                            '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3"><div id="experiment-qc-chart"></div></td></tr>',
+                            '<td rowspan={[this.rowspan(values.tagsribo)]} class="experiment-descr-3"><div id="{[values.chartid]}"></div></td></tr>',
                             '<tr><td class="experiment-descr-1">Tags mapped:</td><td class="experiment-descr-2">{[this.numformat(values.tagsused)]}</td></tr>',
                             '<tr><td class="experiment-descr-1">Tags mapped %:</td><td class="experiment-descr-2">{tagsuniqpercent}</td></tr>',
                             '<tr><td class="experiment-descr-1">Multi-mapped reads:</td><td class="experiment-descr-2">{[this.numformat(values.tagssuppressed)]}</td></tr>',

@@ -87,7 +87,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (!this.getLabDataStore().isLoading())
             this.getLabDataStore().rejectChanges();
     },
-    onWindowRendered: function (form) {
+    onWindowRendered: function (f) {
         var me = this;
         this.worker = this.getWorkerStore().getAt(0);
         this.getDownloadStore().load();
@@ -97,20 +97,22 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         this.getController('Experiment.RPKM');
         this.getController('Experiment.R');
 
-        Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].bindStore(this.EGroupsStore);
+        var form = f.down('experimenteditform');
+        form.down('combobox[name=egroup_id]').bindStore(this.EGroupsStore);
 
-        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
-        var record = form.getRecord();
+        var record = form.getForm().getRecord();
 
         this.UID = record.data['uid'];
-        this.tblname = record.data['filename'].split(';')[0];
+        //this.tblname = record.data['filename'].split(';')[0];
         var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
         this.spike = (gdata.genome.indexOf('spike') !== -1);
         this.db = gdata.db;
 
+        form.down("#protocol").UID = this.UID;;
+        form.down("#notes").UID = this.UID;;
 
-        Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID = this.UID;
-        Ext.ComponentQuery.query('experimenteditform #notes')[0].UID = this.UID;
+        //Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID = this.UID;
+        //Ext.ComponentQuery.query('experimenteditform #notes')[0].UID = this.UID;
 
     },
     /******************************
@@ -119,19 +121,18 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      *
      *
      ******************************/
-    onWindowShow: function (form) {
+    onWindowShow: function (w) {
         var me = this;
 
-        this.showChipSeq();
-        this.showSpike();
-        this.showControled();
+        this.showChipSeq(w);
+        this.showSpike(w);
+        this.showControled(w);
 
-        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+        var form = w.down('experimenteditform').getForm();
         var record = form.getRecord();
-        var maintabpanel = Ext.ComponentQuery.query('experimentmainwindow > tabpanel')[0];
-        Ext.ComponentQuery.query('experimenteditform combobox[name=egroup_id]')[0].setValue(record.data['egroup_id']);
-
-        var tmp = (Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0]).getRawValue();
+        var maintabpanel = w.down('tabpanel');
+        w.down('experimenteditform combobox[name=egroup_id]').setValue(record.data['egroup_id']);
+        var tmp = (w.down('experimenteditform combobox[name=experimenttype_id]')).getRawValue();
         this.isRNA = (tmp.indexOf('RNA') !== -1);
         this.isPAIR = (tmp.indexOf('pair') !== -1);
         this.RecordData = record.data;
@@ -152,7 +153,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts < 11)
             return;
 
-        this.setDisabledByStatus(sts);
+        this.setDisabledByStatus(sts,w);
 
         if (sts > 11) {
             this.addQC(maintabpanel, record);
@@ -182,33 +183,33 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     /****************************
      *
      ****************************/
-    onExperimentTypeChange: function () {
-        this.showChipSeq();
+    onExperimentTypeChange: function (c) {
+        this.showChipSeq(c.up('window'));
     },
 
     /****************************
      *
      ****************************/
-    onGenomeChange: function () {
-        this.showSpike();
+    onGenomeChange: function (c) {
+        this.showSpike(c.up('window'));
     },
 
     /****************************
      *  Save and Cancel experiment
      ****************************/
-    onExperimentCancelClick: function () {
-        Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+    onExperimentCancelClick: function (button) {
+        button.up('window').close();
     },
 
     onExperimentSaveClick: function (button) {
         var me = this;
-        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
-
+        var win = button.up('window');
+        var f = win.down('experimenteditform');
+        var form = f.getForm();
         var record = form.getRecord();
         var values = form.getValues();
 
-        var checkboxs = Ext.ComponentQuery.query('experimenteditform checkboxfield');
-
+        var checkboxs = f.query('checkboxfield');
         checkboxs.forEach(function (item) {
             values[item.name] = item.getValue();
         });
@@ -224,11 +225,11 @@ Ext.define('EMS.controller.Experiment.Experiment', {
             ({
                  callback: function () {
                      me.getLabDataStore().load();
-                     Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+                     win.close();
                  }
              });
         } else {
-            Ext.ComponentQuery.query('experimentmainwindow')[0].close();
+            win.close();
         }
     },
 
@@ -245,27 +246,26 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         form.getFields().each(function (field) {
             field.setReadOnly(true);
         });
-        //            Ext.getCmp('browser-grp-edit').disable();
     },
 
     //-----------------------------------------------------------------------
     // Disabling/enabling antibody and fragmentation comboboxes
     //
     //-----------------------------------------------------------------------
-    showChipSeq: function () {
-        var combo = Ext.ComponentQuery.query('experimenteditform combobox[name=experimenttype_id]')[0];
+    showChipSeq: function (w) {
+        var combo = w.down('experimenteditform combobox[name=experimenttype_id]');
         if (combo.getRawValue().indexOf('DNA') !== -1) {
-            Ext.ComponentQuery.query('experimenteditform #dnasupp')[0].show();
+            w.down('experimenteditform #dnasupp').show();
         } else {
-            Ext.ComponentQuery.query('experimenteditform #dnasupp')[0].hide();
+            w.down('experimenteditform #dnasupp').hide();
         }
     },
     //-----------------------------------------------------------------------
     // Disabling/enabling antibody and fragmentation comboboxes
     //
     //-----------------------------------------------------------------------
-    setDisabledByStatus: function (sts) {
-        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+    setDisabledByStatus: function (sts,w) {
+        var form = w.down('experimenteditform').getForm();
         if (sts >= 1) {
             form.findField('url').setReadOnly(true);
             form.findField('download_id').setReadOnly(true);
@@ -296,8 +296,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     // Disabling/enabling control and controled
     //
     //-----------------------------------------------------------------------
-    showControled: function () {
-        var form = Ext.ComponentQuery.query('experimenteditform')[0].getForm();
+    showControled: function (w) {
+        var form = w.down('experimenteditform').getForm();
         if (form.findField('control').getValue()) {
             form.findField('control_id').setReadOnly(true);
         } else {
@@ -309,13 +309,13 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     // Disabling/enabling spikeins field
     //
     //-----------------------------------------------------------------------
-    showSpike: function () {
-        var combo = Ext.ComponentQuery.query('experimenteditform combobox[name=genome_id]')[0];
+    showSpike: function (w) {
+        var combo = w.down('experimenteditform combobox[name=genome_id]');
 
         if (combo.getRawValue().indexOf('spike') !== -1) {
-            Ext.ComponentQuery.query('experimenteditform #spikeinsupp')[0].show();
+            w.down('experimenteditform #spikeinsupp').show();
         } else {
-            Ext.ComponentQuery.query('experimenteditform #spikeinsupp')[0].hide();
+            w.down('experimenteditform #spikeinsupp').hide();
         }
     },
 
@@ -352,10 +352,11 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                        });
         }
 
-        var panelD = Ext.ComponentQuery.query('experimentqualitycontrol panel#experiment-description')[0];
+        var panelD = tab.query('experimentqualitycontrol panel#experiment-description')[0];
         panelD.on('afterrender', function () {
             var basename = EMS.util.Util.Settings('preliminary') + '/' + this.UID;
-            panelD.tpl.overwrite(panelD.body, Ext.apply(record.data, {isRNA: this.isRNA, basename: basename}));
+            var chartid=Ext.id();
+            panelD.tpl.overwrite(panelD.body, Ext.apply(record.data, {isRNA: this.isRNA, basename: basename, chartid: chartid}));
 
 
             var store = Ext.create('Ext.data.ArrayStore', {
@@ -374,7 +375,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
             this.piechart = Ext.create('Ext.chart.Chart', {
                 animate: false,
-                renderTo: 'experiment-qc-chart',
+                renderTo: chartid,
                 height: 160,
                 width: 160,
                 padding: 0,
@@ -406,8 +407,6 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     }
                 ]
             });
-
-
             tab.setActiveTab(1);
         }, this);
 
@@ -516,8 +515,8 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var l = true;
 
         if(params) {
-            var gridFilter = Ext.ComponentQuery.query('experimentislands grid')[0].filters;
-            var check = Ext.ComponentQuery.query('experimentislands checkboxfield')[0];
+            var gridFilter = tab.down('experimentislands grid').filters;//Ext.ComponentQuery.query('experimentislands grid')[0].filters;
+            var check = tab.down('experimentislands checkboxfield');
             if (params['uniqislands'] == true || params['uniqislands'] == "true")
                 check.setValue(true);
             var obj = {};
@@ -538,7 +537,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     f.setActive(true);
                 }
             }
-            Ext.ComponentQuery.query('experimentislands #promoter')[0].setValue(params['promoter']);
+            tab.down('experimentislands #promoter').setValue(params['promoter']);
         }
         stor.on('load', function (records, operation, success) {
             if (success) {
