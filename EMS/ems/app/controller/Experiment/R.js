@@ -104,7 +104,7 @@ Ext.define('EMS.controller.Experiment.R', {
     onTabRender: function (form) {
         var me = this;
         this.UID = form.UID;
-        var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
+        var maintabpanel = form.up('window').down('experimentR > tabpanel');
         maintabpanel.insert
         (0,{
             title: 'Default Result(s)',
@@ -139,7 +139,7 @@ Ext.define('EMS.controller.Experiment.R', {
      ***********************************************************************/
     onApply: function (button) {
         var me = this;
-        var combov = Ext.ComponentQuery.query('experimentR #codetype')[0].getValue();
+        var combov = button.up('window').down('experimentR #codetype').getValue();
         var rscript = me.editorform.getValue();
 
         var store = this.getLabdataRStore();
@@ -149,8 +149,7 @@ Ext.define('EMS.controller.Experiment.R', {
         record.setDirty();
         store.sync({
                        callback: function () {
-                           console.log('synced');
-                           var maintabpanel = Ext.ComponentQuery.query('experimentR > tabpanel')[0];
+                           var maintabpanel = button.up('window').down('experimentR > tabpanel')[0];
                                maintabpanel.items.getAt(combov-1).getLoader().load();
                                maintabpanel.items.getAt(combov-1).update();
                        }
