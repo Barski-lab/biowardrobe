@@ -30,7 +30,7 @@ Ext.define('EMS.view.Experiment.Experiment.MainWindow', {
     iconCls: 'table2',
     buttonAlign: 'center',
     maximizable: true,
-    constrain: true,
+    //constrain: true,
 
     plain: true,
     height: 800,

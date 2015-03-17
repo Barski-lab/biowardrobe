@@ -221,9 +221,11 @@ Ext.define('Ext.ux.form.HtmlEditor.imageUpload', {
         me.imageButton = imageButton;
 
         me.cmp.getToolbar().add(imageButton);
+        if(!this.saveurl)
+            this.saveurl=this.submitUrl;
 
-        this.submitUrl=this.submitUrl+'?UID='+me.cmp.UID;
-        this.managerUrl=this.managerUrl+'?UID='+me.cmp.UID;
+        this.submitUrl=this.saveurl+'?UID='+me.cmp.UID;
+        this.managerUrl=this.saveurl+'?UID='+me.cmp.UID;
     },
 
     //private

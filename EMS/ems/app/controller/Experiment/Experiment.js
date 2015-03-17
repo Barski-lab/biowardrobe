@@ -101,15 +101,15 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         form.down('combobox[name=egroup_id]').bindStore(this.EGroupsStore);
 
         var record = form.getForm().getRecord();
-
-        this.UID = record.data['uid'];
+        var uid = record.data['uid'];
+        this.UID = uid;
         //this.tblname = record.data['filename'].split(';')[0];
         var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
         this.spike = (gdata.genome.indexOf('spike') !== -1);
         this.db = gdata.db;
 
-        form.down("#protocol").UID = this.UID;;
-        form.down("#notes").UID = this.UID;;
+        form.down("#protocol").UID = uid;
+        form.down("#notes").UID = uid;
 
         //Ext.ComponentQuery.query('experimenteditform #protocol')[0].UID = this.UID;
         //Ext.ComponentQuery.query('experimenteditform #notes')[0].UID = this.UID;
