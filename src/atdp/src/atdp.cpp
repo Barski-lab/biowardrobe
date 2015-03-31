@@ -202,12 +202,14 @@ void ATDP::start() {
         columns_name[columns_name.count()-1]=QString("+%1k").arg(avd_window/1000);
         columns_name[columns_name.count()/2]=QString("TSS");
 
-        QJsonArray data_array;
+        //QJsonArray data_array;
+        QList<QJsonObject*> data_array_obj;
 
         outFile.write(out.toLocal8Bit());
         foreach(QString key,experiment_info.keys()){
             exp_i=&experiment_info[key];
-            QJsonObject data;
+            QJsonObject *s_data = new QJsonObject();
+            QJsonObject &data = (*s_data);
             data["cols"]=columns_name;
             data["tbl1_id"]=exp_i->tbl1_id;
             data["tbl2_id"]=exp_i->tbl2_id;
@@ -237,7 +239,6 @@ void ATDP::start() {
             for(int j=0; j<exp_i->body_matrix.size();j++) {
                 body_matrix.append(exp_i->body_matrix[j].second);
             }
-
 
 
 
@@ -276,10 +277,16 @@ void ATDP::start() {
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
             data["genebody"]=gene_body;
-            data_array.append(data);
+            //data_array.append(data);
+            data_array_obj<<s_data;
         }//foreach trough experiments
-        header["data"]=data_array;
-        outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
+        //header["data"]=data_array;
+        //
+        foreach (QJsonObject *d, data_array_obj) {
+            outFile.write(QJsonDocument(*d).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
+            outFile.write("\n\n");
+        }
+        //outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
         outFile.close();
     }
 
