@@ -186,14 +186,10 @@ void ATDP::start() {
 
     } else { // Advanced Analyses
 
-        QFile outFile;
-        QString out;
-        QJsonObject header;
-        outFile.open(stdout,QIODevice::WriteOnly);
 
-        header["success"]=true;
-        header["message"]="Data populated";
-        header["total"]=experiment_info.size();
+        //header["success"]=true;
+        //header["message"]="Data populated";
+        //header["total"]=experiment_info.size();
 
         QJsonArray columns_name;
         for(int col=-avd_window;col<avd_window;col+=avd_heat_window)
@@ -205,7 +201,6 @@ void ATDP::start() {
         //QJsonArray data_array;
         QList<QJsonObject*> data_array_obj;
 
-        outFile.write(out.toLocal8Bit());
         foreach(QString key,experiment_info.keys()){
             exp_i=&experiment_info[key];
             QJsonObject *s_data = new QJsonObject();
@@ -281,12 +276,21 @@ void ATDP::start() {
             data_array_obj<<s_data;
         }//foreach trough experiments
         //header["data"]=data_array;
-        //
+
+        QFile outFile;
+        QString out="{\"message\":\"Data populated\",\"success\":true,\"total\":";
+        //QJsonObject header;
+        outFile.open(stdout,QIODevice::WriteOnly);
+        out+=QString("%1,\"data:\"").arg(experiment_info.size());
+        outFile.write(out.toLocal8Bit());
+
         foreach (QJsonObject *d, data_array_obj) {
+            outFile.write("\n[");
             outFile.write(QJsonDocument(*d).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
-            outFile.write("\n\n");
+            outFile.write("]\n");
         }
         //outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
+        outFile.write("}\n");
         outFile.close();
     }
 
