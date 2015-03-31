@@ -281,16 +281,16 @@ void ATDP::start() {
         QString out="{\"message\":\"Data populated\",\"success\":true,\"total\":";
         //QJsonObject header;
         outFile.open(stdout,QIODevice::WriteOnly);
-        out+=QString("%1,\"data\":").arg(experiment_info.size());
+        out+=QString("%1,\"data\":[").arg(experiment_info.size());
         outFile.write(out.toLocal8Bit());
 
         foreach (QJsonObject *d, data_array_obj) {
-            outFile.write("\n[");
+            //outFile.write("\n[");
             outFile.write(QJsonDocument(*d).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
-            outFile.write("]\n");
+            //outFile.write("]\n");
         }
         //outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
-        outFile.write("}\n");
+        outFile.write("]}\n");
         outFile.close();
     }
 
