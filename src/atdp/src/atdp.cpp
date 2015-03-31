@@ -186,11 +186,6 @@ void ATDP::start() {
 
     } else { // Advanced Analyses
 
-
-        //header["success"]=true;
-        //header["message"]="Data populated";
-        //header["total"]=experiment_info.size();
-
         QJsonArray columns_name;
         for(int col=-avd_window;col<avd_window;col+=avd_heat_window)
             columns_name.append(QString(""));
@@ -247,7 +242,6 @@ void ATDP::start() {
                 for(int c=0; c<exp_i->avd_matrix[j].second.size();c++) {
                     max_line=qMax<double>(exp_i->avd_matrix[j].second[c],max_line);//maximum value in a row
                     row.append(exp_i->avd_matrix[j].second[c]);
-                    //out+=QString("%1 ").arg(exp_i->avd_matrix[j].second[c]);
                 }
 
                 max<<max_line;
@@ -272,24 +266,20 @@ void ATDP::start() {
             data["rpkmarray"]=rpkm_matrix;
             data["rpkmcols"]=exp_i->rpkmnames;
             data["genebody"]=gene_body;
-            //data_array.append(data);
             data_array_obj<<s_data;
         }//foreach trough experiments
-        //header["data"]=data_array;
 
         QFile outFile;
         QString out="{\"message\":\"Data populated\",\"success\":true,\"total\":";
-        //QJsonObject header;
         outFile.open(stdout,QIODevice::WriteOnly);
         out+=QString("%1,\"data\":[").arg(experiment_info.size());
         outFile.write(out.toLocal8Bit());
 
-        foreach (QJsonObject *d, data_array_obj) {
-            //outFile.write("\n[");
-            outFile.write(QJsonDocument(*d).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
-            //outFile.write("]\n");
+        for(int ii=0;ii<data_array_obj.size(); ii++) {
+            outFile.write(QJsonDocument(*(data_array_obj.at(ii))).toJson(QJsonDocument::Compact));
+            if(ii<data_array_obj.size()-1)
+                outFile.write(",\n");
         }
-        //outFile.write(QJsonDocument(header).toJson(QJsonDocument::Compact));//; QJsonDocument::Compact))Indented
         outFile.write("]}\n");
         outFile.close();
     }
