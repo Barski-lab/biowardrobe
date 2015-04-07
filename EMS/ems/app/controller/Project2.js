@@ -361,10 +361,10 @@ Ext.define('EMS.controller.Project2', {
      *************************************************************/
     runR: function (grid, rowIndex, colIndex, actionItem, event, record, row, atypeid) {
         var me = this;
-        this.getAdvancedRStore().
-                load({
-                         callback: function (records, operation, success) {
-                             if (success) {
+        //this.getAdvancedRStore().
+        //        load({
+        //                 callback: function (records, operation, success) {
+        //                     if (success) {
                                  var filterForm = Ext.create('EMS.view.Project2.RRun', {
                                      modal: true,
                                      item_id: record.data.item_id,
@@ -374,9 +374,9 @@ Ext.define('EMS.controller.Project2', {
                                          me.RSubmit(filterForm, record, atypeid);
                                      }
                                  }).show();
-                             }
-                         }
-                     });
+                     //        }
+                     //    }
+                     //});
     },
     RSubmit: function (form, record, atypeid) {
         var me = this;

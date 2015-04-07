@@ -3,9 +3,8 @@ function (uid="",settings=""){
   #if(nchar(uid)!=36)
   #  return(paste("Error with uid:",uid,' l:',nchar(uid)))
   if(class(uid) == "numeric") {
-   return();
+   return()
   }
-    print(class(uid))
   config<-wardrobe.getConfig()
   con <- dbConnect(dbDriver("MySQL"), 
                    user=config$user, 
@@ -31,6 +30,11 @@ function (uid="",settings=""){
     tmp<-list(overload="")
     tmp$overload<-list(data.frame(set[,c(1,2)]))
     set<-set[1,]
+  }
+  d<-wardrobe.getPreliminary(set$tableName,settings)
+  if(!is.null(d)) {
+    dbDisconnect(con)
+    return(d)
   }
   
   set<-c(set,dataset="",tmp)

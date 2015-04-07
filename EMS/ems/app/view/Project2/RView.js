@@ -27,6 +27,7 @@ Ext.define('EMS.view.Project2.RView', {
     frame: true,
     border: false,
     plain: false,
+    autoScroll: true,
     maximizable: true,
     collapsible: true,
     //constrain: true,

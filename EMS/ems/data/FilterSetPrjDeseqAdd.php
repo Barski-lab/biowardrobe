@@ -51,7 +51,7 @@ function get_field($f)
         case 2:
             return array("name" => "Log2 Ratio", "field" => "LOGR");
         case 3:
-            return array("name" => "P-adjasted", "field" => "padj");
+            return array("name" => "P-adjsted", "field" => "padj");
         case 4:
             return array("name" => "RPKM1", "field" => "RPKM");
         case 5:
@@ -148,6 +148,7 @@ foreach ($V->conditions as $k2 => $val) {
     $f=1;
 
     if ($field['field'] == "chrom") { //chrom
+        check_val($val->value);
         $WHERE = $WHERE . " $op " . $val->bracketl . $tablenames[$val->table]['alias'] . "." . $field['field'] . " " . $exp['exp'] . " '" . $val->value . "'" . $val->bracketr; //replace potentioal injection !
         $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . $val->value . "$val->bracketr<br>\n";
     } else {

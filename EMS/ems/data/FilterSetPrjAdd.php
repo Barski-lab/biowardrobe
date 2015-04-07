@@ -110,6 +110,7 @@ foreach ($V->conditions as $k2 => $val) {
     $op = get_operand(intval($val->operand));
 
     if (intval($val->field) == 2) { //chrom
+        check_val($val->value);
         $WHERE = $WHERE . " $op " . $val->bracketl . $tablenames[$val->table]['alias'] . "." . $field['field'] . " " . $exp['exp'] . " '" . $val->value . "'" . $val->bracketr; //replace potentioal injection !
         $READABLE = $READABLE . "$op $val->bracketl'" . $tablenames[$val->table]['name'] . "' " . $field['name'] . " " . $exp['name'] . " " . $val->value . "$val->bracketr<br>\n";
     } else {

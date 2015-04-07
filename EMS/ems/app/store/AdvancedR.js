@@ -28,7 +28,7 @@ Ext.define('EMS.store.AdvancedR', {
                'EMS.proxy.StandardProxy'],
     model: 'EMS.model.AdvancedR',
     storeId: 'AdvancedR',
-    autoLoad: false,
+    autoLoad: true,
     singleton: true,
     remoteSort: false,
     remoteFilter: false,

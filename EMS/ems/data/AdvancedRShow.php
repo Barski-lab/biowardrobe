@@ -85,7 +85,7 @@ $br = 0;
 echo "<P>All files in a directory:<br>";
 foreach ($allfiles as $line_num => $line) {
     #echo "<img src=\"" . str_replace($settings->settings['wardrobe']['value'], '', $line) . "?" . hash("md5", rand(1, 1000)) . "\" />";
-    echo "<a href=\"".str_replace($settings->settings['wardrobe']['value'], '', $line)."\">" .
+    echo "<a href=\"".str_replace($settings->settings['wardrobe']['value'], '', $line)."\" target=_blank>" .
         str_replace($path_no_ext, '', $line)."</a><br>";
 }
 

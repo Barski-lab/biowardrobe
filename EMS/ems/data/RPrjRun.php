@@ -128,7 +128,7 @@ $rcode = "
         args <- commandArgs(trailingOnly = TRUE)
         options(warn=-1)
         suppressMessages(library(wardrobe))
-        png(filename='{$svgfile}')
+        png(filename='{$svgfile}',width=800,height=800)
         " . $rscript . "
         graphics.off()
         ";

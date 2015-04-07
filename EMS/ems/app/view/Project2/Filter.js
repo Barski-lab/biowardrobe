@@ -64,7 +64,7 @@ Ext.define('EMS.view.Project2.Filter', {
             fieldsdata = [
                 {"id": 1, "name": "P-value"},
                 {"id": 2, "name": "Log2 Ratio"},
-                {"id": 3, "name": "P-adjasted"},
+                {"id": 3, "name": "P-adjusted"},
                 {"id": 4, "name": "RPKM1"},
                 {"id": 5, "name": "RPKM2"},
                 {"id": 6, "name": "Chromosome"}

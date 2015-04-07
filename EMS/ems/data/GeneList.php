@@ -130,8 +130,10 @@ $ListDescription = array(
 
 if ($node == 'root') {
     switch ($atypeid) {
-        case 1: //deseq
-            $rd = array_merge(get_raw_list($prjid, 1, false),get_raw_list($prjid, 101, false));
+        case 1: //R
+            $rd=get_raw_list($prjid, 1, false);
+            $rlc=get_raw_list($prjid, 101, false);
+            $rd['data'] = array_merge($rd['data'],$rlc['data']);
             $rr = get_list_by_type($prjid, 300, 'rr', 'R results');
             echo json_encode(array(
                 'text' => '.',
@@ -144,7 +146,7 @@ if ($node == 'root') {
         case 6: //filters
             $gl = get_list_by_type($prjid, 2, 'gl', 'Gene List');
             $rd = get_raw_list($prjid, 1);
-            if ($atypeid == 1 || $atypeid == 3) {
+            if ($atypeid == 3) {
                 $de = get_list_by_type($prjid, 3, 'de', 'DESeq results');
                 echo json_encode(array(
                     'text' => '.',

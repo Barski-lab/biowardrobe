@@ -25,7 +25,7 @@ Ext.define('EMS.view.Project2.ProjectDesigner', {
     extend: 'Ext.Window',
     alias: 'widget.ProjectDesigner',
     id: 'ProjectDesigner',
-    width: 1000,
+    width: 1100,
     height: 700,
     minWidth: 300,
     minHeight: 300,

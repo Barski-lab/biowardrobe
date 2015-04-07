@@ -56,7 +56,7 @@ Ext.define('EMS.view.Project.Filter', {
             fieldsdata = fieldsdata.concat([
                 {"id": 3, "name": "Log Ratio"},
                 {"id": 4, "name": "P-value"},
-                {"id": 5, "name": "P-adjasted"}
+                {"id": 5, "name": "P-adjusted"}
             ]);
         }
         me.fields = Ext.create('Ext.data.Store', {
