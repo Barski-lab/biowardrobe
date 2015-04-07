@@ -31,9 +31,26 @@ if (!isset($data))
 $count = 1;
 //check rights??
 
+$path = $settings->settings['wardrobe']['value'] . $settings->settings['advanced']['value'];
+
+function delete_dir($dir) {
+    #$dir = 'samples' . DIRECTORY_SEPARATOR . 'sampledirtree';
+    $it = new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS);
+    $files = new RecursiveIteratorIterator($it,
+        RecursiveIteratorIterator::CHILD_FIRST);
+    foreach($files as $file) {
+        if ($file->isDir()){
+            rmdir($file->getRealPath());
+        } else {
+            unlink($file->getRealPath());
+        }
+    }
+    rmdir($dir);
+}
+
 function delete_record($id)
 {
-    global $settings;
+    global $settings,$path;
     $EDB = $settings->settings['experimentsdb']['value'];
     $con=$settings->connection;
 
@@ -50,6 +67,17 @@ function delete_record($id)
         if ($qr[0]['type'] == 102) {
             execSQL($con, "delete from atdp where genelist_id like ?", array("s", $id), true);
         }
+
+        if($qr[0]['type'] == 300) {
+            $path_no_ext = $path . '/' . $id . '/';
+            try {
+                delete_dir($path_no_ext);
+            }catch (Exception $e) {
+                #echo 'Caught exception: ',  $e->getMessage(), "\n";
+            }
+        }
+
+
     }
     execSQL($con, "delete from genelist where id like ?", array("s", $id), true);
     if (!$qr)
