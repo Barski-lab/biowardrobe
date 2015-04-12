@@ -99,7 +99,8 @@ Ext.define('EMS.view.Experiment.Experiment.QualityControl', {
             items: [
                 {
                     title: 'Base frequency plot',
-                    xtype: 'chartfence'
+                    xtype: 'chartfence',
+                    store: 'Fence',
                },
                 {
                     xtype: 'qcboxplot',

@@ -46,7 +46,6 @@ Ext.define('EMS.view.charts.QCboxplot', {
                 layout: 'hbox',
                 items: [
                     {
-
                         xtype: 'button',
                         text: 'Save Chart',
                         iconCls: 'svg-logo',
