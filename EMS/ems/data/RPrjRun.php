@@ -81,6 +81,7 @@ $path = $settings->settings['wardrobe']['value'] . $settings->settings['advanced
 $dir = $path . '/' . $d->id;
 
 mkdir($dir, 0777);
+chdir($dir);
 
 $path_no_ext = $dir . '/' . $d->id;
 $rfile = $path_no_ext . ".r";
