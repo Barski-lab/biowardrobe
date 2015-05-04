@@ -3,8 +3,8 @@
 # /****************************************************************************
 # **
 # ** Copyright (C) 2011-2014 Andrey Kartashov .
-#  ** All rights reserved.
-#  ** Contact: Andrey Kartashov (porter@porter.st)
+# ** All rights reserved.
+# ** Contact: Andrey Kartashov (porter@porter.st)
 #  **
 #  ** This file is part of the EMS web interface module of the genome-tools.
 #  **
@@ -44,9 +44,6 @@ PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
 BIN = WARDROBEROOT + '/' + settings.settings['bin']
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
-ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
-
-#BASE_DIR=arguments.readString("BASE_DIR")
 
 pidfile = "/tmp/runForceRUN.pid"
 d.check_running(pidfile)
@@ -63,10 +60,12 @@ def safe_del(file):
     if os.path.isfile(file):
         os.unlink(file)
 
+
 while True:
-    settings.cursor.execute("SELECT e.etype,g.db,l.uid "
+    settings.cursor.execute("SELECT e.etype,g.db,l.uid,l.deleted,COALESCE(l.download_id,0) "
                             " FROM labdata l,experimenttype e,genome g "
-                            " WHERE e.id=experimenttype_id AND g.id=genome_id AND forcerun=1 AND libstatus >11 and deleted=0"
+                            " WHERE e.id=experimenttype_id AND g.id=genome_id AND "
+                            "((forcerun=1 AND libstatus >11 AND deleted=0) OR deleted=1)"
                             " ORDER BY dateadd LIMIT 1")
     row = settings.cursor.fetchone()
     if not row:
@@ -76,65 +75,54 @@ while True:
     isRNA = ('RNA' in row[0])
     DB = row[1]
     UID = row[2]
+    isCore = (int(row[4]) == 1)
+    isDeleted = (int(row[3]) != 0)
 
     basedir = PRELIMINARYDATA + '/' + UID
     os.chdir(basedir)
 
     cmd = ""
 
-    if PAIR:
-        cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
+    if not isDeleted:
+        if PAIR:
+            cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
+        else:
+            cmd = 'bunzip2 ' + UID + '.fastq.bz2'
+
+        unziperror = False
+        try:
+            s.check_output(cmd, shell=True)
+        except Exception, e:
+            error_update(str(e), UID)
+            unziperror = True
+
+        if unziperror and not os.path.isfile(UID + '.fastq'):
+            continue
+        if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
+            continue
+
+        for root, dirs, files in os.walk("./", topdown=False):
+            for name in files:
+                if "fastq" in name:
+                    continue
+                os.remove(os.path.join(root, name))
+        shutil.rmtree(basedir + '/tophat', True)
     else:
-        cmd = 'bunzip2 ' + UID + '.fastq.bz2'
+        if isCore:
+            for root, dirs, files in os.walk("./", topdown=False):
+                for name in files:
+                    if "fastq" in name:
+                        continue
+                    os.remove(os.path.join(root, name))
+            shutil.rmtree(basedir + '/tophat', True)
+        else:
+            shutil.rmtree(basedir, True)
 
-    unziperror = False
-    try:
-        s.check_output(cmd, shell=True)
-    except Exception, e:
-        error_update(str(e), UID)
-        unziperror = True
-
-    if unziperror and not os.path.isfile(UID + '.fastq'):
-        continue
-    if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
-        continue
-
-    for root, dirs, files in os.walk("./", topdown=False):
-        for name in files:
-            if "fastq" in name:
-                continue
-            os.remove(os.path.join(root, name))
-        # for name in dirs:
-        #     os.rmdir(os.path.join(root, name))
-
-    # safe_del(basedir + '/' + UID + '.Log.out')
-    # safe_del(basedir + '/' + UID + '.Log.progress.out')
-    # safe_del(basedir + '/' + UID + '.Log.std.out')
-    # safe_del(basedir + '/' + UID + '.Log.final.out')
-    # safe_del(basedir + '/' + UID + '.SJ.out.tab')
-    # safe_del(basedir + '/' + UID + '_trimmed.fastq')
-    # safe_del(basedir + '/' + UID + '_trimmed_2.fastq')
-    # safe_del(basedir + '/' + UID + '_trimmed.fastq.bz2')
-    # safe_del(basedir + '/' + UID + '_trimmed_2.fastq.bz2')
-    # safe_del(basedir + '/' + UID + '.bam')
-    # safe_del(basedir + '/' + UID + '.bam.bai')
-    # safe_del(basedir + '/' + UID + '.log')
-    # safe_del(basedir + '/' + UID + '.fence')
-    # safe_del(basedir + '/' + UID + '.fastxstat')
-    # safe_del(basedir + '/' + UID + '.bw')
-    # safe_del(basedir + '/' + UID + '.stat')
-    # safe_del(basedir + '/' + UID + '_macs_peaks.xls')
-    # safe_del(basedir + '/' + UID + '_macs.log')
-    # safe_del(basedir + '/' + UID + '_macs_model.r')
-    # safe_del(basedir + '/' + UID + '.ribo')
-    # safe_del(basedir + '/' + UID + '_rpkm.log')
-    # safe_del(basedir + '/' + UID + '_rpkm_error.log')
-    shutil.rmtree(basedir + '/tophat', True)
 
     settings.cursor.execute("SELECT DISTINCT db FROM genome;")
     for DB in settings.cursor.fetchall():
         settings.cursor.execute("DROP TABLE IF EXISTS `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_wtrack`;")
-        settings.cursor.execute("drop table if exists `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_islands`;")
+        settings.cursor.execute("DROP TABLE IF EXISTS `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_islands`;")
         settings.cursor.execute("drop view if exists `" + DB[0] + "`.`" + string.replace(UID, "-", "_") + "_islands`;")
 
     settings.cursor.execute("DROP TABLE IF EXISTS `" + EDB + "`.`" + UID + "_islands`;")
@@ -146,6 +134,12 @@ while True:
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_genes`;")
     settings.cursor.execute("drop view if exists `" + EDB + "`.`" + UID + "_common_tss`;")
 
-    settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=10,forcerun=0, tagstotal=0,tagsmapped=0,tagsribo=0,tagsused=0,tagssuppressed=0 where uid=%s",
-                            ("Ready to be reanalyzed", UID))
+    if isDeleted:
+        settings.cursor.execute(
+            "update labdata set libstatustxt=%s,deleted=2 where uid=%s",
+            ("Deleted", UID))
+    else:
+        settings.cursor.execute(
+            "update labdata set libstatustxt=%s,libstatus=10,forcerun=0, tagstotal=0,tagsmapped=0,tagsribo=0,tagsused=0,tagssuppressed=0 where uid=%s",
+            ("Ready to be reanalyzed", UID))
     settings.conn.commit()

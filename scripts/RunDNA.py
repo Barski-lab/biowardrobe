@@ -24,7 +24,7 @@
 
 ##
 ##
-## Selects and analazes data from MySQL database with respect to the current status of a project
+## Selects and analazes data from MySQL database with respect to the current status
 ##
 ##
 
@@ -41,14 +41,13 @@ import time
 settings = Settings.Settings()
 
 EDB = settings.settings['experimentsdb']
+MTH = str(settings.settings['maxthreads'])
 WARDROBEROOT = settings.settings['wardrobe']
 PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
-BIN = WARDROBEROOT + '/' + settings.settings['bin']
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
-ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
 
-#BASE_DIR=arguments.readString("BASE_DIR")
+
 
 pidfile = "/tmp/runDNA.pid"
 d.check_running(pidfile)
@@ -58,7 +57,7 @@ def run_bowtie(infile, findex, pair, left=0, right=0):
     if len(d.file_exist('.', infile, 'bam')) == 1:
         return ['Success', 'Bam file exists']
 
-    cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/' + findex + \
+    cmd = 'bowtie -q -v 3 -m 1 --best --strata -p ' + MTH + ' -S ' + BOWTIE_INDICES + '/' + findex + \
           ' -5 ' + str(left) + ' -3 ' + str(right)
 
     if pair:
@@ -98,7 +97,7 @@ def run_rmdup(infile, pair):
 
 
 def run_island_intersect(infile, promoter=1000):
-    cmd = BIN + "/iaintersect -uid=" + infile + " -log=./iaintersect.log -promoter=" + str(promoter)
+    cmd = "iaintersect -uid=" + infile + " -log=./iaintersect.log -promoter=" + str(promoter)
     try:
         s.check_output(cmd, shell=True)
         return ['Success', ' IAIntersect done']
@@ -233,7 +232,7 @@ while True:
 
     #run_macs(infile, db, fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin"):
     MACSER = False
-    if check_error(d.run_macs(UID, gsize, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, BIN, controlfile), UID):
+    if check_error(d.run_macs(UID, gsize, FRAGEXP, FRAGFRC, PAIR, broad, forcerun, controlfile), UID):
         MACSER = True
         FRAGMENTE = FRAGEXP
         FRAGMENT = FRAGMENTE
@@ -245,7 +244,7 @@ while True:
         FRAGMENT = a[0]
 
     if MACSER or (FRAGMENTE < 80 and not FRAGFRC):
-        if check_error(d.run_macs(UID, gsize, FRAGEXP, True, PAIR, broad, True, BIN, controlfile), UID):
+        if check_error(d.run_macs(UID, gsize, FRAGEXP, True, PAIR, broad, True, controlfile), UID):
             MACSER = True
         else:
             a = d.macs_data(UID)
@@ -261,6 +260,9 @@ while True:
             continue
     if check_error(run_island_intersect(UID), UID):
         continue
+    settings.cursor.execute(
+        """update labdata set params='{"promoter":1000}' where uid=%s""", (UID,))
+    settings.conn.commit()
 
     if check_error(d.run_bedgraph(UID, DB, FRAGMENT, isRNA, PAIR, forcerun), UID):
         continue
@@ -274,7 +276,7 @@ while True:
         (a[0], a[1], a[2], a[2], a[3], UID))
     settings.conn.commit()
 
-    if check_error(d.run_atp(UID, BIN), UID):
+    if check_error(d.run_atp(UID), UID):
         continue
 
     settings.cursor.execute(

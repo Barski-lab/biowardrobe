@@ -24,7 +24,7 @@
 
 ##
 ##
-## Selecting data from MySQL database with respect to the status applying RNA seq pipeline
+## Selecting data from MySQL database with respect to the status, run RNA-Seq pipeline
 ##
 ##
 
@@ -49,44 +49,12 @@ EDB = settings.settings['experimentsdb']
 WARDROBEROOT = settings.settings['wardrobe']
 PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
-BIN = WARDROBEROOT + '/' + settings.settings['bin']
+MTH = str(settings.settings['maxthreads'])
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
 
 pidfile = "/tmp/runRNA.pid"
 d.check_running(pidfile)
-
-
-def run_tophat(infile, params, pair, force=False, trimmed=False):
-    outdir = 'tophat'
-
-    if not force and len(d.file_exist('.', infile, 'bam')) == 1:
-        return ['Success', ' Bam file exists']
-
-    if trimmed:
-        if pair:
-            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '_trimmed.fastq' + ' ' + infile + '_trimmed_2.fastq >/dev/null 2>&1'
-        else:
-            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '_trimmed.fastq >/dev/null 2>&1'
-    else:
-        if pair:
-            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq' + ' ' + infile + '_2.fastq >/dev/null 2>&1'
-        else:
-            cmd = 'tophat2 -o ' + outdir + ' ' + params + ' ' + infile + '.fastq >/dev/null 2>&1'
-
-    try:
-        s.check_output(cmd, shell=True)
-        if len(d.file_exist('./' + outdir, 'accepted_hits', 'bam')) != 1:
-            return ['Error', 'accepted_hits.bam does not exist']
-        os.rename('./' + outdir + '/accepted_hits.bam', './' + infile + '.bam')
-        s.check_output('samtools sort ./' + infile + '.bam ' + infile + "_s ", shell=True)
-        os.unlink('./' + infile + '.bam')
-        os.rename('./' + infile + '_s.bam', './' + infile + '.bam')
-        s.check_output('samtools index ./' + infile + '.bam ', shell=True)
-        s.check_output('bzip2 ' + infile + '*.fastq', shell=True)
-        return ['Success', ' Tophat finished']
-    except Exception, e:
-        return ['Error', str(e)]
 
 
 def run_star(infile, db, pair, left=0, right=0, force=False):
@@ -98,7 +66,7 @@ def run_star(infile, db, pair, left=0, right=0, force=False):
     if force and len(fl) == 1:
         os.unlink(fl[0])
 
-    cmd = 'STAR --runThreadN 24 --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 '
+    cmd = 'STAR --runThreadN '+MTH+' --outFilterMultimapNmax 1 --outFilterMismatchNmax 5 '
     cmd += '--alignSJDBoverhangMin 1 --seedSearchStartLmax 15 --outStd SAM --outSAMmode Full '
     cmd += '--clip3pNbases ' + str(left) + ' --clip5pNbases ' + str(right) + ' '
     cmd += '--genomeDir ' + BOWTIE_INDICES + '/STAR/' + db + ' --readFilesIn "' + infile + '.fastq" '
@@ -134,7 +102,7 @@ def run_ribosomal(infile, db, pair, left=0, right=0, forcerun=False):
     if not forcerun and len(d.file_exist('.', infile, 'ribo')) == 1:
         return ['Success', 'Ribosomal file exist']
 
-    cmd = 'bowtie -q -v 3 -m 1 --best --strata -p 24 -S ' + BOWTIE_INDICES + '/ribo_' + suffix + \
+    cmd = 'bowtie -q -v 3 -m 1 --best --strata -p '+MTH+' -S ' + BOWTIE_INDICES + '/ribo_' + suffix + \
           ' -5 ' + str(left) + ' -3 ' + str(right)
 
     if pair:
@@ -267,36 +235,11 @@ while True:
     left = int(row[8])
     right = int(row[9])
 
-    # BEDFORMAT = '4'
-    # ADD_TOPHAT = " -T "
-
-    # if DUTP:
-    #     #ADD_TOPHAT = " --library-type fr-firststrand "  # DUTP
-    #     BEDFORMAT = '8'
-
-    # if PAIR:
-    #     ADD_TOPHAT = " --no-mixed --no-discordant " + ADD_TOPHAT
-    #
-    # ADD_TOPHAT = " -g 1 --no-novel-juncs " + ADD_TOPHAT
-    #
-    # TRANSCRIPTOME = ' --transcriptome-index ' + ANNOTATION_BASE + ANNOTATION + ' '
-    # GFT_FILE = '-G ' + ANNOTATION_BASE + ANNOTATION + '.gtf '
-    # TOPHAT_PARAM = ' --num-threads 24 ' + GFT_FILE + ADD_TOPHAT + TRANSCRIPTOME + BOWTIE_INDICES + '/' + FINDEX + ' '
-
     os.chdir(PRELIMINARYDATA + '/' + UID)
 
     settings.cursor.execute("update labdata set libstatustxt='processing',libstatus=11 where uid=%s", (UID,))
     settings.conn.commit()
 
-    # trimmed = False
-    # if left > 0 or right > 0:
-    #     a = d.do_trimm(UID, PAIR, left, right)
-    #     trimmed = True
-    #     if 'Error' in a[0]:
-    #         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2010 where uid=%s",
-    #                                 (a[0] + ": " + a[1], UID))
-    #         settings.conn.commit()
-    #         continue
 
     OK = True
     if len(d.file_exist('.', UID, 'fastq')) != 1:  # and len(d.file_exist('.', UID + "_trimmed", 'fastq')) != 1:

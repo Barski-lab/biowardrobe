@@ -21,8 +21,10 @@ easy_install pip
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 pip install mysql-python
+
 sudo ln -s /usr/local/mysql/lib/libmysqlclient.18.dylib /usr/lib/libmysqlclient.18.dylib
 install_name_tool -change libmysqlclient.18.dylib $MYSQL_LIB/libmysqlclient.18.dylib $QT_PLUGIN_PATH/sqldrivers/libqsqlmysql.dylib
+
 http://stackoverflow.com/questions/6833939/path-environment-variable-for-apache2-on-mac
 /System/Library/LaunchDaemons/org.apache.httpd.plist
 <key>EnvironmentVariables</key>

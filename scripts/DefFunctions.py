@@ -37,7 +37,7 @@ import string
 
 
 def send_mail(toaddrs, body):
-    fromaddr = 'ems@ems.chmccorp.cchmc.org'
+    fromaddr = 'biowrdrobe@biowardrobe.com'
     # Add the From: and To: headers at the start!
     msg = ("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n"
            % (fromaddr, toaddrs, body))
@@ -131,11 +131,6 @@ def upload_macsdata(conn, infile, dbexp, db):
     if len(file_exist('.', infile + '_macs_peaks', 'xls')) != 1:
         return ['Error', ' MACS peak file does not exist']
 
-    # cursor.execute("""CREATE OR REPLACE VIEW """ + gb_table_name +
-    # """ AS select 0 as bin, chrom, start as chromStart, end as chromEnd,
-    #                max(log10p) as name, max(log10q) as score
-    #                from """ + table_name + """ group by chrom,start,end; """)
-    # conn.commit()
 
     SQL = "INSERT INTO " + table_name + " (chrom,start,end,length,abssummit,pileup,log10p,foldenrich,log10q) VALUES"
     SQLB = "INSERT INTO " + table_name + " (chrom,start,end,length,pileup,log10p,foldenrich,log10q) VALUES"
@@ -173,7 +168,7 @@ def upload_macsdata(conn, infile, dbexp, db):
     return ['Success', islands]
 
 
-def run_macs(infile, gsize="2.35e9", fragsize=150, fragforce=False, pair=False, broad=False, force=None, bin="/wardrobe/bin", control=""):
+def run_macs(infile, gsize="2.35e9", fragsize=150, fragforce=False, pair=False, broad=False, force=None, control=""):
 
     shiftsize = int(fragsize / 2)
 
@@ -190,7 +185,7 @@ def run_macs(infile, gsize="2.35e9", fragsize=150, fragforce=False, pair=False, 
 
     # samtools view -H b4f4ede6-e866-11e3-9546-ac162d784858.bam |grep 'SQ'| awk -F'LN:' '{print $2}'|paste -sd+ | bc
     # at least macs 2.1
-    cmd = bin + '/macs callpeak -t ' + infile + '.bam'
+    cmd = 'macs2 callpeak -t ' + infile + '.bam'
     if control != "":
         cmd += " -c "+control
     else:
@@ -312,8 +307,8 @@ def run_fence(infile, pair, bzip=False, force=False):
         return ['Error', str(e)]
 
 
-def run_atp(lid, bin="/wardrobe/bin"):
-    cmd = bin + '/atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
+def run_atp(lid):
+    cmd = 'atdp -avd_luid="' + lid + '" -log="./AverageTagDensity.log" '
     cmd += ' -sam_twicechr="chrX chrY" -sam_ignorechr="chrM" -avd_window=5000 -avd_smooth=50 -avd_heat_window=200 '
 
     try:
