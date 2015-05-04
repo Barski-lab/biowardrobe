@@ -5,7 +5,7 @@
 # ** Copyright (C) 2011-2014 Andrey Kartashov .
 # ** All rights reserved.
 # ** Contact: Andrey Kartashov (porter@porter.st)
-#  **
+# **
 #  ** This file is part of the EMS web interface module of the genome-tools.
 #  **
 #  ** GNU Lesser General Public License Usage
@@ -79,7 +79,17 @@ while True:
     isDeleted = (int(row[3]) != 0)
 
     basedir = PRELIMINARYDATA + '/' + UID
-    os.chdir(basedir)
+    try:
+        os.chdir(basedir)
+
+        for root, dirs, files in os.walk("./", topdown=False):
+            for name in files:
+                if "fastq" in name:
+                    continue
+                os.remove(os.path.join(root, name))
+        shutil.rmtree(basedir + '/tophat', True)
+    except:
+        pass
 
     cmd = ""
 
@@ -101,23 +111,9 @@ while True:
         if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
             continue
 
-        for root, dirs, files in os.walk("./", topdown=False):
-            for name in files:
-                if "fastq" in name:
-                    continue
-                os.remove(os.path.join(root, name))
-        shutil.rmtree(basedir + '/tophat', True)
     else:
-        if isCore:
-            for root, dirs, files in os.walk("./", topdown=False):
-                for name in files:
-                    if "fastq" in name:
-                        continue
-                    os.remove(os.path.join(root, name))
-            shutil.rmtree(basedir + '/tophat', True)
-        else:
+        if not isCore:
             shutil.rmtree(basedir, True)
-
 
     settings.cursor.execute("SELECT DISTINCT db FROM genome;")
     for DB in settings.cursor.fetchall():
