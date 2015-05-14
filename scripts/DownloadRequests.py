@@ -166,7 +166,11 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
             return ['Warning', 'Sra or fastq files only']
 
         if len(fname) == 0:
-            fname = "default_fastq"
+            ext = ftype(urlparsed[2])
+            if ext != "unknown":
+                fname = "default_name." + ext
+            else:
+                fname = "default_fastq"
 
     def fdownload():
         for url in urls:
