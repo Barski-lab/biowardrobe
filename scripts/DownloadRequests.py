@@ -144,7 +144,7 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
             continue
         urlparsed = urlparse.urlparse(url)
         if ('http' not in urlparsed[0]) and ('ftp' not in urlparsed[0]):
-            return ['Warning', 'ftp and http methods are supported']
+            return ['Warning', 'Only ftp and http methods are supported']
 
         if ('@' in urlparsed[1]) and ('http' in urlparsed[0]):
             rc = check_auth(url, urlparsed[1])
@@ -156,7 +156,18 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
 
         # If the response has Content-Disposition, we take file name from it
         if r.info().has_key('Content-Disposition'):
-            fname = r.info()['Content-Disposition'].split('filename=')[1]
+            _split = ' '
+            if ';' in r.info()['Content-Disposition']:
+                _split = ';'
+            if '; ' in r.info()['Content-Disposition']:
+                _split = '; '
+
+            fn = r.info()['Content-Disposition'].split(_split)
+            for fnm in fn:
+                if 'filename=' in fnm:
+                    fname = fnm.split('filename=')[1] #r.info()['Content-Disposition'].split('filename=')[1]
+                    break
+
             if fname[0] == '"' or fname[0] == "'":
                 fname = fname[1:-1]
         else:
@@ -168,9 +179,30 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
         if len(fname) == 0:
             ext = ftype(urlparsed[2])
             if ext != "unknown":
-                fname = "default_name." + ext
+                fname = urlparsed[2]
             else:
                 fname = "default_fastq"
+
+        if not pair:
+            ofname = basedir + '/' + filename + '.' + extension
+            (cmd, ofname) = decompress(fname, ofname)
+            try:
+                with open(ofname, 'wb') as f:
+                    shutil.copyfileobj(r, f)
+            except Exception, e:
+                return ['Warning', 'Cant download from ' + url]
+            finally:
+                r.close()
+
+            try:
+                s.check_output(cmd, shell=True)
+            except Exception, e:
+                return ['Warning', 'Cant uncompress ' + ofname]
+
+            flist.append(filename)
+
+    if len(flist) != 0:
+        return flist
 
     def fdownload():
         for url in urls:
@@ -198,15 +230,16 @@ def get_file_url(urlin, basedir, filename, pair, force=False):
                 return ['Warning', 'Cant uncompress ' + ofname]
         return ['', '']
 
-    if not pair:
-        ofname = basedir + '/' + filename + '.' + extension
-        (cmd, ofname) = decompress(fname, ofname)
-        ret = fdownload()
-        if 'Warning' in ret[0]:
-            return ret
-        flist.append(filename)
-        return flist
-    else:
+    # if not pair:
+    #     ofname = basedir + '/' + filename + '.' + extension
+    #     (cmd, ofname) = decompress(fname, ofname)
+    #     ret = fdownload()
+    #     if 'Warning' in ret[0]:
+    #         return ret
+    #     flist.append(filename)
+    #     return flist
+    # else:
+    if pair:
         if ftype(fname) != "sra":
             return ['Warning', 'For pair end reads Wardrobe accepts SRA files only']
 
@@ -349,6 +382,7 @@ while True:
         a = get_file_local(basedir, url, UID, PAIR)
 
     if 'Error' in a[0]:
+        d.del_in_dir(basedir)
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=2000 where uid=%s",
                                 (a[0] + ":" + a[1], UID))
         settings.conn.commit()
@@ -357,6 +391,7 @@ while True:
             settings.conn.commit()
         continue
     if 'Warning' in a[0]:
+        d.del_in_dir(basedir)
         settings.cursor.execute("update labdata set libstatustxt=%s,libstatus=1000 where uid=%s",
                                 (a[0] + ":" + a[1], UID))
         settings.conn.commit()

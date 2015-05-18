@@ -70,6 +70,18 @@ def check_running(fname):
 def file_exist(basedir, fname, extension):
     return glob.glob(basedir + '/' + fname + '.' + extension)
 
+def del_in_dir(path, exc=""):
+    #TODO: ? do we need / protection?
+    try:
+        os.chdir(path)
+        for root, dirs, files in os.walk("./", topdown=False):
+            for name in files:
+                if exc != "" and exc in name:
+                    continue
+                os.remove(os.path.join(root, name))
+    except:
+        pass
+
 
 def macs_data(infile):
     FRAGMENT = 0
