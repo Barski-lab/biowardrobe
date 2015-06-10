@@ -23,7 +23,7 @@ BINS=$(mysql -h${HOST} -p${PASSWD} -u${USER} -N -e "select group_concat(\`value\
 #"
 
 if [ z"$BINS" == "z" ] || [ "${BINS}" == "NULL" ] ; then
-echo "Can't access Wardrobe Settings"
+echo "Can't access BioWardrobe Settings"
 exit -1
 fi
 
@@ -62,11 +62,18 @@ assemble
 ln -sf $(pwd)/ReadsCounting $BINS/ReadsCounting
 
 cd ../../
-echo "Compile averagetagdensity"
+echo "Compile atdb"
 cd src/atdp
 assemble
-[ $? -ne 0 ] && echo "Cant compile averagedensity" && exit -1
+[ $? -ne 0 ] && echo "Cant compile atdp" && exit -1
 ln -sf $(pwd)/atdp $BINS/atdp
+
+cd ../../
+echo "Compile averagetagdensity"
+cd src/averagedensity
+assemble
+[ $? -ne 0 ] && echo "Cant compile averagedensity" && exit -1
+ln -sf $(pwd)/averagedensity $BINS/averagedensity
 
 echo "Assemble complete"
 cd ../../

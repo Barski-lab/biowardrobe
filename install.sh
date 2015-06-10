@@ -42,10 +42,13 @@ read WPASS
 mkdir -p $BASEDIR/src
 mkdir -p $BASEDIR/ems
 mkdir -p $BASEDIR/RAW-DATA
+mkdir -p $BASEDIR/ANL-DATA
 mkdir -p $BASEDIR/bin
 mkdir -p $BASEDIR/indices/gtf
-mkdir -p $BASEDIR/STAR/gtf
+mkdir -p $BASEDIR/indices/STAR/
+mkdir -p $BASEDIR/indices/ribo
 mkdir -p $BASEDIR/tmp
+mkdir -p $BASEDIR/tmp/MANORM
 mkdir -p $BASEDIR/upload
 mkdir -p /etc/wardrobe
 
@@ -97,6 +100,8 @@ echo "Setting rights"
 chmod 0660 /etc/wardrobe/wardrobe
 chmod 0755 $BASEDIR
 chmod 0775 $BASEDIR/RAW-DATA
+chmod 0775 $BASEDIR/ANL-DATA
+chmod 0775 $BASEDIR/tmp/MANORM
 chmod 0777 $BASEDIR/tmp
 
 ${BASEDIR}/src/assemble.sh
@@ -114,6 +119,8 @@ echo "Setting rights"
 if [ z"`uname`" == "zDarwin" ]; then
 chown _www /etc/wardrobe/wardrobe
 chown _www $BASEDIR/RAW-DATA
+chown _www $BASEDIR/ANL-DATA
+chown _www $BASEDIR/tmp/MANORM
 chown _www $BASEDIR/tmp
 cp $BASEDIR/src/scripts/MacOSX/wardrobeworker.sh /usr/local/libexec/wardrobeworker.sh
 chmod +x /usr/local/libexec/wardrobeworker.sh
@@ -132,10 +139,16 @@ fi
 if [ z"`head -n 1 /etc/SuSE-release 2>/dev/null`" == "zopenSUSE 13.2 (x86_64)" ]; then
 useradd -U -m wardrobe
 chown wwwrun:wardrobe /etc/wardrobe/wardrobe
+chown wwwrun:wardrobe $BASEDIR/ANL-DATA
 chown wwwrun:wardrobe $BASEDIR/RAW-DATA
+chown wwwrun:wardrobe $BASEDIR/tmp/MANORM
 chown wwwrun:wardrobe $BASEDIR/tmp
 chmod g+s $BASEDIR/RAW-DATA
 setfacl -m "default:group::rwx" $BASEDIR/RAW-DATA
+chmod g+s $BASEDIR/ANL-DATA
+setfacl -m "default:group::rwx" $BASEDIR/ANL-DATA
+chmod g+s $BASEDIR/tmp/MANORM
+setfacl -m "default:group::rwx" $BASEDIR/tmp/MANORM
 chmod g+s $BASEDIR/tmp
 setfacl -m "default:group::rwx" $BASEDIR/tmp
 
@@ -153,7 +166,12 @@ crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}
 crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/RunRNA.py >> ${BASEDIR}/tmp/RunRNA.log 2>&1"; } | crontab - -u wardrobe
 crontab -l -u wardrobe | { cat; echo "*/10 * * * *    . ~/.profile && ${BASEDIR}/bin/ForceRun.py >> ${BASEDIR}/tmp/ForceRun.log 2>&1"; } | crontab - -u wardrobe
 
-#sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
+if [ -f /etc/systemd/system/apache2.service ]; then
+   sed -i '/\[Service\]/a\UMask=0002' /etc/systemd/system/apache2.service 
+ else
+   sed -i '/\[Service\]/a\UMask=0002' /usr/lib/systemd/system/apache2.service 
+   systemctl enable apache2
+fi
 
 [ -f /etc/apache2/vhosts.d/wardrobe.conf ] || cp $BASEDIR/src/doc/wardrobe.conf /etc/apache2/vhosts.d/wardrobe.conf
 
