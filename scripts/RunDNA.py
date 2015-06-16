@@ -126,8 +126,9 @@ def get_stat(infile, rmdup=False):
 
     if rmdup and len(d.file_exist('.', infile, 'rmdup')) == 1:
         for line in open(infile + '.rmdup'):
-            splt = line.split('/')
-            USED = int((splt[1].split('='))[0].strip()) - int((splt[0].split(']'))[1].strip())
+            if '/' in line:
+                splt = line.split('/')
+                USED = int((splt[1].split('='))[0].strip()) - int((splt[0].split(']'))[1].strip())
 
     fp = open('./' + infile + '.stat', 'w+')
     fp.write(str((TOTAL, ALIGNED, SUPRESSED, USED)))
