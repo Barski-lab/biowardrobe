@@ -169,7 +169,7 @@ while True:
     if not row:
         break
 
-    print "ROW: " + row
+    print "ROW: " + str(row)
 
     PAIR = ('pair' in row[0])
     isRNA = ('RNA' in row[0])

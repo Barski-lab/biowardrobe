@@ -77,7 +77,7 @@ while True:
     if not row:
         break
 
-    print "ROW:" + row
+    print "ROW:" + str(row)
 
     PAIR = ('pair' in row[0])
     isRNA = ('RNA' in row[0])
@@ -102,21 +102,16 @@ while True:
     cmd = ""
 
     if not isDeleted:
-        if PAIR:
-            cmd = 'bunzip2 ' + UID + '.fastq.bz2; bunzip2 ' + UID + '_2.fastq.bz2;'
-        else:
-            cmd = 'bunzip2 ' + UID + '.fastq.bz2'
+        cmd = 'bunzip2 ' + UID + '*.fastq.bz2'
 
-        unziperror = False
         try:
             s.check_output(cmd, shell=True)
         except Exception, e:
             error_update(str(e), UID)
-            unziperror = True
 
-        if unziperror and not os.path.isfile(UID + '.fastq'):
+        if not os.path.isfile(UID + '.fastq'):
             continue
-        if unziperror and not os.path.isfile(UID + '_2.fastq') and PAIR:
+        if not os.path.isfile(UID + '_2.fastq') and PAIR:
             continue
 
     else:
