@@ -52,7 +52,7 @@ WARDROBEROOT = settings.settings['wardrobe']
 PRELIMINARYDATA = WARDROBEROOT + '/' + settings.settings['preliminary']
 TEMP = WARDROBEROOT + '/' + settings.settings['temp']
 BIN = WARDROBEROOT + '/' + settings.settings['bin']
-UPLOAD = WARDROBEROOT + '/'  + settings.settings['upload']
+UPLOAD = WARDROBEROOT + '/' + settings.settings['upload']
 
 extension = 'fastq'
 
@@ -325,7 +325,7 @@ def get_file_local(basedir, libcode, filename, pair):
 
 ######################################################################
 
-pidfile = "/tmp/DownloadRequests.pid"
+pidfile = TEMP+"/DownloadRequests.pid"
 d.check_running(pidfile)
 
 

@@ -37,6 +37,9 @@ import glob
 import subprocess as s
 import Settings
 import time
+import datetime
+
+print str(datetime.datetime.now())
 
 settings = Settings.Settings()
 
@@ -49,7 +52,7 @@ BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 
 
 
-pidfile = "/tmp/runDNA.pid"
+pidfile = TEMP+"/runDNA.pid"
 d.check_running(pidfile)
 
 
@@ -165,6 +168,8 @@ while True:
     row = settings.cursor.fetchone()
     if not row:
         break
+
+    print "ROW: " + row
 
     PAIR = ('pair' in row[0])
     isRNA = ('RNA' in row[0])

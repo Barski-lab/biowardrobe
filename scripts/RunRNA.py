@@ -41,7 +41,7 @@ import subprocess as s
 import time
 
 
-#print str(datetime.datetime.now())
+print str(datetime.datetime.now())
 
 settings = Settings.Settings()
 
@@ -53,7 +53,7 @@ MTH = str(settings.settings['maxthreads'])
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
 
-pidfile = "/tmp/runRNA.pid"
+pidfile = TEMP + "/runRNA.pid"
 d.check_running(pidfile)
 
 
@@ -221,6 +221,8 @@ while True:
     row = settings.cursor.fetchone()
     if not row:
         break
+
+    print "ROW:" + row
 
     PAIR = ('pair' in row[0])
     DUTP = ('dUTP' in row[0])

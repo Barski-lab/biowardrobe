@@ -35,6 +35,12 @@ import shutil
 import subprocess as s
 import Settings
 import string
+import datetime
+from warnings import filterwarnings
+
+print str(datetime.datetime.now())
+
+filterwarnings('ignore', category=MySQLdb.Warning)
 
 settings = Settings.Settings()
 
@@ -45,7 +51,7 @@ TEMP = WARDROBEROOT + '/' + settings.settings['temp']
 BIN = WARDROBEROOT + '/' + settings.settings['bin']
 BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 
-pidfile = "/tmp/runForceRUN.pid"
+pidfile = TEMP+"/runForceRUN.pid"
 d.check_running(pidfile)
 
 
@@ -70,6 +76,8 @@ while True:
     row = settings.cursor.fetchone()
     if not row:
         break
+
+    print "ROW:" + row
 
     PAIR = ('pair' in row[0])
     isRNA = ('RNA' in row[0])
