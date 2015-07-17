@@ -40,9 +40,6 @@ import glob
 import subprocess as s
 import time
 
-
-print str(datetime.datetime.now())
-
 settings = Settings.Settings()
 
 EDB = settings.settings['experimentsdb']
@@ -55,6 +52,8 @@ ANNOTATION_BASE = BOWTIE_INDICES + "/gtf/"
 
 pidfile = TEMP + "/runRNA.pid"
 d.check_running(pidfile)
+
+print str(datetime.datetime.now())
 
 
 def run_star(infile, db, pair, left=0, right=0, force=False):
@@ -78,7 +77,9 @@ def run_star(infile, db, pair, left=0, right=0, force=False):
     cmd += 'samtools index ' + infile + '.bam;'
 
     try:
-        s.check_output(cmd, shell=True)
+        o = s.check_output(cmd, stderr=s.STDOUT, shell=True)
+        if not os.path.isfile('.' + infile + 'Log.final.out'):
+            return ['Error', o]
         return ['Success', ' Star finished']
     except Exception, e:
         return ['Error', str(e)]
