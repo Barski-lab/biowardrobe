@@ -224,6 +224,7 @@ while True:
         break
 
     print "ROW:" + str(row)
+    sys.stdout.flush()
 
     PAIR = ('pair' in row[0])
     DUTP = ('dUTP' in row[0])

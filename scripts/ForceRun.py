@@ -36,9 +36,9 @@ import subprocess as s
 import Settings
 import string
 import datetime
-from warnings import filterwarnings
+import sys
 
-print str(datetime.datetime.now())
+from warnings import filterwarnings
 
 filterwarnings('ignore', category=MySQLdb.Warning)
 
@@ -53,6 +53,7 @@ BOWTIE_INDICES = WARDROBEROOT + '/' + settings.settings['indices']
 
 pidfile = TEMP+"/runForceRUN.pid"
 d.check_running(pidfile)
+print str(datetime.datetime.now())
 
 
 def error_update(str, uid):
@@ -78,6 +79,7 @@ while True:
         break
 
     print "ROW:" + str(row)
+    sys.stdout.flush()
 
     PAIR = ('pair' in row[0])
     isRNA = ('RNA' in row[0])

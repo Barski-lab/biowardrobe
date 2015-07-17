@@ -43,8 +43,6 @@ import shutil
 import base64
 import string
 
-print str(datetime.datetime.now())
-
 settings = Settings.Settings()
 
 #EDB = settings.settings['experimentsdb']
@@ -327,7 +325,7 @@ def get_file_local(basedir, libcode, filename, pair):
 
 pidfile = TEMP+"/DownloadRequests.pid"
 d.check_running(pidfile)
-
+print str(datetime.datetime.now())
 
 #in future if exist stus 1 delete temporary donloaded files
 settings.cursor.execute("UPDATE labdata SET libstatus=2000 WHERE libstatus IN (1)")
