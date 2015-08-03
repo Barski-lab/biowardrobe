@@ -78,7 +78,7 @@ def run_star(infile, db, pair, left=0, right=0, force=False):
 
     try:
         o = s.check_output(cmd, stderr=s.STDOUT, shell=True)
-        if not os.path.isfile('.' + infile + 'Log.final.out'):
+        if not os.path.isfile('./' + infile + '.Log.final.out'):
             return ['Error', o]
         return ['Success', ' Star finished']
     except Exception, e:
