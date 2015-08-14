@@ -184,7 +184,8 @@ def run_rpkm(infile, db, dutp, spike, antab, force=False):
 
     cmd = 'ReadsCounting -sql_table="' + infile + '" -in="' + infile + '.bam" -out="' + infile + '.csv" -log="' + infile + '_rpkm.log" -rpkm-cutoff=0.001 -rpkm-cutoff-val=0 '
     cmd += '-sql_query1="select name,chrom,strand,txStart,txEnd,cdsStart,cdsEnd,exonCount,exonStarts,exonEnds,score,name2 from '
-    cmd += db + "." + antab + " where chrom not like '%\\_%' "
+    cmd += db + "." + antab
+    # + " where chrom not like '%\\_%' " - was a mistake to remove randome chr from hg
     if not spike:
         cmd += " and chrom not like 'control%' "
     cmd += " order by chrom,strand,txStart,txEnd"
