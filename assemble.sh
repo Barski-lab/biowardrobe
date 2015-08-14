@@ -4,6 +4,12 @@ QMAKE="qmake-qt5"
 
 if [ z"`uname`" == "zDarwin" ]; then
 QMAKE="qmake"
+else
+case `cat /proc/version` in
+*Ubuntu*)
+QMAKE="qmake"
+;;
+esac
 fi
 
 #check Qt
@@ -27,11 +33,13 @@ echo "Can't access BioWardrobe Settings"
 exit -1
 fi
 
+LOGF=$(pwd)"/output.log"
+
 function assemble() {
-make clean >>./output.log 2>/dev/null
-make distclean >>./output.log 2>/dev/null
-${QMAKE} >>./output.log 2>&1
-make >>./output.log 2>&1
+make clean >>$LOGF 2>/dev/null
+make distclean >>$LOGF 2>/dev/null
+${QMAKE} >>$LOGF 2>&1
+make >>$LOGF 2>&1
 return $?
 }
 

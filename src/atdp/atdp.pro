@@ -47,7 +47,7 @@ MOC_DIR     = GeneratedFiles
 RCC_DIR     = GeneratedFiles
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
-LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
+LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a -lz
 #QMAKE_CXXFLAGS += -Werror
 
 lib_bamtools.commands = cd ../../thirdparty/bamtools/; qmake; $(MAKE) -j 8

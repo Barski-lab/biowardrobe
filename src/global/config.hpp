@@ -50,7 +50,7 @@
 #include <QRunnable>
 #include <QThreadPool>
 #include <QtGui/QtGui>
-#include <QtSvg/QtSvg>
+//#include <QtSvg/QtSvg>
 #include <QSharedPointer>
 
 #include <Arguments.hpp>

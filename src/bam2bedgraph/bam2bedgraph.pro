@@ -23,7 +23,7 @@ DEFINES     += _WARDROBE_    \
 !win32{
 
 DEFINES        += _APPNAME=\\\"$$TARGET\\\"
-LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a
+LIBS           += -lm -lz ../../thirdparty/bamtools/libbamtools.a -lz
 #QMAKE_CXXFLAGS += -Werror
 #-std=c++0x
 
