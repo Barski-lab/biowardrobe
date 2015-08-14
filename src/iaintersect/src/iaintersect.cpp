@@ -16,7 +16,7 @@ IAIntersect::~IAIntersect()
 
 void IAIntersect::fillUpAnnotation( ) {
     QSqlQuery q;
-    q.prepare("select * from `"+db_name+"`.`"+an_tbl+"` where chrom not like '%\\_%' and chrom not like '%control%' order by chrom,txStart,txEnd");
+    q.prepare("select * from `"+db_name+"`.`"+an_tbl+"` where chrom not like '%control%' order by chrom,txStart,txEnd"); //chrom not like '%\\_%' and - random chr from hg
     if(!q.exec()) {
         qDebug()<<"Query error info: "<<q.lastError().text();
         throw "Error query to DB";
