@@ -56,7 +56,7 @@ if (isset($_REQUEST['promoter'])) {
 if ($describe[0]['Field'] != "refseq_id" || $promoter != -1) {
     if ($promoter == -1) {
         $promoter = 1000;
-        $eparams['promoter'] = $promoter;
+        $eparams->promoter = $promoter;
     }
     ignore_user_abort(true);
     set_time_limit(600);
