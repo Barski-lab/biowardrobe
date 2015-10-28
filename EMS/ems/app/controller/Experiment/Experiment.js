@@ -440,7 +440,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     addGBHUB: function (tab) {
 
         var url ='http://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
-                 this.Shadow+'/hub.txt/'+this.VID;
+                 this.Shadow+'/'+this.VID+'/hub.txt';
 
         console.log(url);
 
