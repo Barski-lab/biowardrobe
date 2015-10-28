@@ -149,7 +149,7 @@ for ($i = 0; $i < $tbpairlen; $i++) {
     exec($CMD, $output, $retval);
 
     if ($retval != 0) {
-        logmsg($output,$CMD);
+        logmsg($output,str_ireplace($settings->db_pass,"****",$CMD));
         $response->print_error("Cant execute R."); #.print_r($output,true)
         //logmsg(print_r($output,true));
     }

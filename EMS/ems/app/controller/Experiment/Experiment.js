@@ -24,11 +24,6 @@
 Ext.define('EMS.controller.Experiment.Experiment', {
     extend: 'Ext.app.Controller',
 
-    //    models: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-    //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
-    //    stores: ['LabData', 'ExperimentType', 'Worker', 'Genome', 'Antibodies', 'Crosslinking', 'Fragmentation', 'Fence',
-    //             'GenomeGroup', 'RPKM', 'Islands', 'SpikeinsChart', 'Spikeins', 'ATDPChart', 'IslandsDistribution', 'Download'],
-
     models: ['Preferences', 'EGroup', 'Laboratory', 'Worker', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'ATDPHeat'],
     stores: ['Preferences', 'EGroups', 'EControls', 'Laboratories', 'Worker', 'Workers', 'EGroupRights', 'LabData', 'ExperimentType', 'Genome', 'Download', 'Fence', 'Fragmentation', 'ATDPChart', 'Islands', 'Antibodies', 'IslandsDistribution', 'RPKM', 'Spikeins', 'ATDPHeat'],
 
@@ -103,6 +98,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var record = form.getForm().getRecord();
         var uid = record.data['uid'];
         this.UID = uid;
+        this.VID = record.data['id'];
+        this.Shadow =  this.EGroupsStore.findRecord('id', record.data['egroup_id'], 0, false, false, true).data['shadow'];
+
         //this.tblname = record.data['filename'].split(';')[0];
         var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
         this.spike = (gdata.genome.indexOf('spike') !== -1);
@@ -158,6 +156,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts > 11) {
             this.addQC(maintabpanel, record);
             this.addGB(maintabpanel);
+            this.addGBHUB(maintabpanel);
             this.addR(maintabpanel);
         }
 
@@ -434,6 +433,25 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                     src: url,
                     origUrl: url
                 });
+    },
+    /***********************************************************************
+     * Add Genome Browser Hub Tab
+     ***********************************************************************/
+    addGBHUB: function (tab) {
+
+        var url ='http://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
+                 this.Shadow+'/hub.txt/'+this.VID;
+
+        console.log(url);
+
+        tab.add({
+            title: 'UCSC Hub',
+            iconCls: 'genome-browser',
+            itemId: 'ucschub',
+            xtype: 'uxiframe',
+            src: url,
+            origUrl: url
+        });
     },
     /***********************************************************************
      * Add average tag density profile tab

@@ -29,23 +29,22 @@ $data = json_decode($_REQUEST['data']);
 if (!isset($data))
     $response->print_error("Data is not set");
 
-if($data->laboratory_id=="00000000-0000-0000-0000-000000000000" || $data->laboratory_id=="laborato-ry00-0000-0000-000000000001" ) {
+if ($data->laboratory_id == "00000000-0000-0000-0000-000000000000" || $data->laboratory_id == "laborato-ry00-0000-0000-000000000001") {
     $response->print_error("Insufficient privileges");
 }
 
-if($data->name == "" || $data->description=="")
+if ($data->name == "" || $data->description == "")
     $response->print_error("Error in receiving data");
 
 
 if ($worker->isAdmin() && $data->laboratory_id != "") {
-    $PARAMS = array("ssssss", guid(), $data->laboratory_id, "", $data->name, $data->description, $data->priority);
+    $PARAMS = array("sssssss", guid(), $data->laboratory_id, guid(), "", $data->name, $data->description, $data->priority);
 } elseif ($worker->isLocalAdmin()) {
-    $PARAMS = array("ssssss", guid(), $worker->worker['laboratory_id'], "", $data->name, $data->description, $data->priority);
-}
-else {
+    $PARAMS = array("sssssss", guid(), $worker->worker['laboratory_id'], guid(), "", $data->name, $data->description, $data->priority);
+} else {
     $response->print_error("Insufficient privileges");
 }
-$SQL_STR = "insert into egroup values(?,?,?,?,?,?)";
+$SQL_STR = "insert into egroup values(?,?,?,?,?,?,?)";
 
 if (execSQL($settings->connection, $SQL_STR, $PARAMS, true) == 0)
     $response->print_error("Cant insert");

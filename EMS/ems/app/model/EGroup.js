@@ -24,6 +24,7 @@ Ext.define( 'EMS.model.EGroup', {
 
                fields: [
                    { name: 'id', type: 'string', persist: true  },
+                   { name: 'shadow', type: 'string', persist: false },
                    { name: 'laboratory_id', type: 'string' },
                    { name: 'name', type: 'string' },
                    { name: 'description', type: 'string' },
