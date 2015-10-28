@@ -156,7 +156,6 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         if (sts > 11) {
             this.addQC(maintabpanel, record);
             this.addGB(maintabpanel);
-            this.addGBHUB(maintabpanel);
             this.addR(maintabpanel);
         }
 
@@ -176,6 +175,10 @@ Ext.define('EMS.controller.Experiment.Experiment', {
                 //this.addSpikeinChart(maintabpanel);
             }
         }//>11 and not RNA
+
+        if (sts > 11) {
+            this.addGBHUB(maintabpanel);
+        }
 
     },
 
@@ -439,7 +442,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addGBHUB: function (tab) {
 
-        var url ='http://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
+        var url ='https://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
                  this.Shadow+'/'+this.VID+'/hub.txt';
 
         console.log(url);
