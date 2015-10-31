@@ -99,7 +99,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         var uid = record.data['uid'];
         this.UID = uid;
         this.VID = record.data['id'];
-        this.Shadow =  this.EGroupsStore.findRecord('id', record.data['egroup_id'], 0, false, false, true).data['shadow'];
+        var _tmp_find=this.EGroupsStore.findRecord('id', record.data['egroup_id'], 0, false, false, true);
+        if(_tmp_find)
+            this.Shadow = _tmp_find.data['shadow'];
 
         //this.tblname = record.data['filename'].split(';')[0];
         var gdata = this.getGenomeStore().findRecord('id', record.data['genome_id'], 0, false, false, true).data;
@@ -443,7 +445,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
     addGBHUB: function (tab) {
 
         var url ='https://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
-                 this.Shadow+'/'+this.VID+'/hub.txt';
+                 this.Shadow+'/'+this.VID+'.txt';
 
         console.log(url);
 
