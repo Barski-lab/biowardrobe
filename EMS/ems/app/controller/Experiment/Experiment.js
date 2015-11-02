@@ -463,7 +463,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      * Add WUSTL Browser Hub Tab
      ***********************************************************************/
     addWUHUB: function (tab) {
-        var url ='http://epigenomegateway.wustl.edu/browser/?genome=' + this.db +
+        var url ='https://genomebrowser.research.cchmc.org/browser/?genome=' + this.db +
                  '&datahub=https://genomebrowser.research.cchmc.org/hubs/wustl/'+ this.Shadow+'/' + this.db + '/trackDb.txt';
 
         console.log(url);
