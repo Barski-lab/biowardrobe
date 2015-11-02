@@ -180,6 +180,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
 
         if (sts > 11) {
             this.addGBHUB(maintabpanel);
+            this.addWUHUB(maintabpanel);
         }
 
     },
@@ -444,7 +445,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addGBHUB: function (tab) {
 
-        var url ='https://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/'+
+        var url ='https://genome.ucsc.edu/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&hubClear=https://genomebrowser.research.cchmc.org/hubs/ucsc/'+
                  this.Shadow+'/'+this.VID+'.txt';
 
         console.log(url);
@@ -453,6 +454,24 @@ Ext.define('EMS.controller.Experiment.Experiment', {
             title: 'UCSC Hub',
             iconCls: 'genome-browser',
             itemId: 'ucschub',
+            xtype: 'uxiframe',
+            src: url,
+            origUrl: url
+        });
+    },
+    /***********************************************************************
+     * Add WUSTL Browser Hub Tab
+     ***********************************************************************/
+    addWUHUB: function (tab) {
+        var url ='http://epigenomegateway.wustl.edu/browser/?genome=' + this.db +
+                 '&datahub=https://genomebrowser.research.cchmc.org/hubs/wustl/'+ this.Shadow+'/' + this.db + '/trackDb.txt';
+
+        console.log(url);
+
+        tab.add({
+            title: 'WUSTL Hub',
+            //iconCls: 'genome-browser',
+            itemId: 'wustlhub',
             xtype: 'uxiframe',
             src: url,
             origUrl: url
