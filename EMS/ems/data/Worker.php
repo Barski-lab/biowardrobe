@@ -35,7 +35,7 @@ $PARAMS = array();
 if (isset($workers)) {
 //    $array_prepend[] = array('id' => 0, 'worker' => 'All', 'lname' => 'All');
     if ($worker->isAdmin()) {
-        $SQL_STR = "SELECT id,worker,'' as passwd,fname,lname,dnalogin,IF(dnapass IS NULL or dnapass = '', '', '*****') as dnapass,email,notify,changepass,relogin,admin,laboratory_id FROM worker ";
+        $SQL_STR = "SELECT id,worker,'' as passwd,fname,lname,dnalogin,IF(dnapass IS NULL or dnapass = '', '', '*****') as dnapass,email,notify,changepass,relogin,admin,laboratory_id,shadow FROM worker ";
         if (isset($_REQUEST['laboratory']) && $_REQUEST['laboratory'] != '00000000-0000-0000-0000-000000000000') {
             $PARAMS = array("s", $_REQUEST['laboratory']);
 //            array_push($PARAMS, $_REQUEST['laboratory']);
@@ -43,7 +43,7 @@ if (isset($workers)) {
             $SQL_STR = $SQL_STR . " where laboratory_id=?";
         }
     } elseif ($worker->isLocalAdmin()) {
-        $SQL_STR = "SELECT id,worker,'' as passwd,fname,lname,dnalogin,IF(dnapass IS NULL or dnapass = '', '', '*****') as dnapass,email,notify,admin,changepass,relogin,laboratory_id FROM worker where laboratory_id=? ";
+        $SQL_STR = "SELECT id,worker,'' as passwd,fname,lname,dnalogin,IF(dnapass IS NULL or dnapass = '', '', '*****') as dnapass,email,notify,admin,changepass,relogin,laboratory_id,shadow FROM worker where laboratory_id=? ";
         $PARAMS = array("s", $worker->worker['laboratory_id']);
     } else {
         $response->print_error("Insufficient privileges!");

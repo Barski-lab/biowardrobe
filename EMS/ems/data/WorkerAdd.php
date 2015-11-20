@@ -52,7 +52,8 @@ $data->fname = trim($data->fname, "\n\r\t");
 if (strlen($data->worker) == 0 || strlen($data->lname . $data->fname) == 0)
     $response->print_error("Wrong username,lname,fname!");
 
-$SQL_STR = "insert into worker(worker,passwd,fname,lname,dnalogin,dnapass,email,notify,changepass,relogin,admin,laboratory_id) values(?,?,?,?,?,?,?,?,?,?,?,?)";
+$SQL_STR = "insert into worker(worker,passwd,fname,lname,dnalogin,dnapass,email,notify,changepass,relogin,admin,laboratory_id,shadow)
+    values(?,?,?,?,?,?,?,?,?,?,?,?,(select replace(CONCAT(uuid(),uuid()),'-','')))";
 $PARAMS = array("sssssssiiiis", $data->worker, $worker->crypt_pass($data->worker, $data->passwd), $data->fname, $data->lname, $data->dnalogin, $data->dnapass, $data->email,
     $data->notify, $data->changepass, $data->relogin, $data->admin, $data->laboratory_id);
 
