@@ -51,10 +51,12 @@ Ext.define("EMS.ux.d3heat", {
     order: null,
 
     skip: null,
+    norm: false,
+    normalization: 1.0,
 
     makeColorScale: function () {
         this.colorScale = d3.scale.linear()
-                .domain([this.min, this.max])
+                .domain([this.min/this.normalization, this.max/this.normalization])
                 .range(this.colors);
     },
 
@@ -75,6 +77,9 @@ Ext.define("EMS.ux.d3heat", {
         }
         if (!this.plotTitle && this.data.get('pltname')) {
             this.plotTitle = this.data.get('pltname');
+        }
+        if(this.norm) {
+            this.normalization = this.data.get('mapped')/10000000.0;
         }
 
     },
@@ -161,7 +166,7 @@ Ext.define("EMS.ux.d3heat", {
                           return (j * _this.heatHeight) + _this.plotmargin.top;
                       })
                 .style('fill', function (d) {
-                           return _this.colorScale(d);
+                           return _this.colorScale(d/_this.normalization);
                        });
 
         //        _this.heatmapRow

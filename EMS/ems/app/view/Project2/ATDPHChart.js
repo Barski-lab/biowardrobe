@@ -236,7 +236,7 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
             if (!chips.hasOwnProperty(stordata.get('tbl1_id'))) {
                 chips[stordata.get('tbl1_id')]=[];
             }
-            var heat = Ext.create('EMS.ux.d3heatChIP', { data: stordata, flex: 1 });
+            var heat = Ext.create('EMS.ux.d3heatChIP', { data: stordata, flex: 1, norm: true });
             chips[stordata.get('tbl1_id')].push(heat);
             plots[genelist_id].plots.push(heat);
             plots[genelist_id].items.push(this.makeColumn(heat, this, plots[genelist_id], null));
