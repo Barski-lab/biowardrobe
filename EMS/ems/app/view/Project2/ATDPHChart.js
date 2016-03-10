@@ -151,6 +151,27 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
                             handler: this.chipSort
                         },
                         {
+                            xtype: 'numberfield',
+                            name: 'max_val',
+                            fieldLabel: '',
+                            allowBlank: true,
+                            margin: '2 0 0 10',
+                            padding: 0,
+                            text: '',
+                            value: heat.max,
+                            hideTrigger: true,
+                            minValue:0,
+                            maxHeight: 18,
+                            maxWidth: 50,
+                            chart: heat,
+                            plots: plots,
+                            original: window,
+                            listeners: {
+                                specialkey: this.maxIntensity,
+                                keyup: this.maxIntensity
+                            }
+                        },
+                        {
                             xtype: 'label',
                             margin: '4 0 0 15',
                             text: total,
@@ -344,7 +365,12 @@ Ext.define('EMS.view.Project2.ATDPHChart', {
 
         me.callParent(arguments);
     },
-
+    maxIntensity: function(b,e){
+        if (e.getKey() == e.ENTER) {
+            b.chart.max = b.value;
+            b.chart.plot();
+        }
+    },
     sortAndTakeOrder: function (index_sum, plots) {
         index_sum.sort(function (a, b) {
             if (a.sum > b.sum)
