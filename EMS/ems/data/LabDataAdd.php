@@ -42,6 +42,7 @@ class AddLabData extends AbstractTableDataProcessing
     public function fieldrule($field,$value) {
         if (in_array($field, array("id","islandcount","browsergrp")))
             return true;
+
         if($field=="cells" && strlen(trim($value))==0)
             $this->response->print_error("Cells is empty");
         if($field=="conditions" && strlen(trim($value))==0)
@@ -55,6 +56,7 @@ $data->uid = guid();
 $data->laboratory_id=$worker->worker['laboratory_id'];
 $data->author=$worker->worker['fullname'];
 $data->worker_id=$worker->worker['id'];
+$data->dateadd = date("m/d/Y");
 
 $addlabdata = new AddLabData('labdata');
 $addlabdata->addData($data);

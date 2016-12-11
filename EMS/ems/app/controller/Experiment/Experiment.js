@@ -66,6 +66,9 @@ Ext.define('EMS.controller.Experiment.Experiment', {
              'experimenteditform combobox[name=genome_id]': {
                  select: this.onGenomeChange
              },
+             'experimenteditform checkbox[name=control]': {
+                 change: this.onControlChange
+             },
              'experimenteditform': {}
          });
         this.EGroupsStore = Ext.create('EMS.store.EGroups', {storeId: Ext.id()});
@@ -96,6 +99,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         form.down('combobox[name=egroup_id]').bindStore(this.EGroupsStore);
 
         var record = form.getForm().getRecord();
+	this.record = record;
         var uid = record.data['uid'];
         this.UID = uid;
         this.VID = record.data['id'];
@@ -129,6 +133,7 @@ Ext.define('EMS.controller.Experiment.Experiment', {
         this.showControled(w);
 
         var form = w.down('experimenteditform').getForm();
+	this.MWindow = form;
         var record = form.getRecord();
         var maintabpanel = w.down('tabpanel');
         w.down('experimenteditform combobox[name=egroup_id]').setValue(record.data['egroup_id']);
@@ -197,6 +202,15 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ****************************/
     onGenomeChange: function (c) {
         this.showSpike(c.up('window'));
+    },
+
+    /****************************
+     *
+     ****************************/
+    onControlChange: function (a,b) {
+        var win = a.up('window');
+        win.down('experimenteditform combobox[name=control_id]').setValue(null);
+	this.record.set('control_id',null);
     },
 
     /****************************

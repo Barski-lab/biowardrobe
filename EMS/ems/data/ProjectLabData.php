@@ -27,6 +27,7 @@ require("../settings.php");
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));
 //logmsg(print_r($data,true));
+
 $SQL_QUERY = "";
 $lab_id = "";
 $egroup_id = "";
@@ -62,17 +63,17 @@ if ($worker->isAdmin()) {
     }
 } else {
     if ($lab_id != "" && $lab_id != "00000000-0000-0000-0000-000000000000") {
-        if($worker->worker['laboratory_id']==$lab_id) {
-            $SQL_QUERY .= " and laboratory_id=? ";
-            $PARAMS = array("s", $lab_id);
+        if ($worker->worker['laboratory_id'] == $lab_id) {
+            $SQL_QUERY .= " and (laboratory_id=? or egroup_id in (select id from egroup where laboratory_id=?))";
+            $PARAMS = array("ss", $lab_id, $lab_id);
         } else {
             $SQL_QUERY .= " and egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) and laboratory_id=? ";
-            $PARAMS = array("ss",$worker->worker['laboratory_id'], $lab_id);
+            $PARAMS = array("ss", $worker->worker['laboratory_id'], $lab_id);
         }
     } else {
 
-        $SQL_QUERY .= "and (laboratory_id=? or (egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) ) )";
-        $PARAMS = array("ss", $worker->worker['laboratory_id'],$worker->worker['laboratory_id']);
+        $SQL_QUERY .= "and (laboratory_id=? or (egroup_id in (select egroup_id from egrouprights where laboratory_id=? ) ) or egroup_id in (select id from egroup where laboratory_id=?) )";
+        $PARAMS = array("sss", $worker->worker['laboratory_id'], $worker->worker['laboratory_id'], $worker->worker['laboratory_id']);
     }
 }
 

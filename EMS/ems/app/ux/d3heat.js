@@ -56,7 +56,7 @@ Ext.define("EMS.ux.d3heat", {
 
     makeColorScale: function () {
         this.colorScale = d3.scale.linear()
-                .domain([this.min/this.normalization, this.max/this.normalization])
+                .domain([this.min, this.max])
                 .range(this.colors);
     },
 
@@ -80,6 +80,8 @@ Ext.define("EMS.ux.d3heat", {
         }
         if(this.norm) {
             this.normalization = this.data.get('mapped')/10000000.0;
+	    this.min=this.min/this.normalization;
+	    this.max=this.max/this.normalization;
         }
 
     },
@@ -91,12 +93,12 @@ Ext.define("EMS.ux.d3heat", {
         h -= (this.plotmargin.top + this.plotmargin.bottom);
         this.heatHeight = h / this.rowsName.length;
 
-        if (this.heatHeight < 0.6) {
+/*        if (this.heatHeight < 0.6) {
             this.skip = Math.floor(0.7 / this.heatHeight);
             this.heatHeight = h / (this.rowsName.length / this.skip);
-        } else {
+        } else {*/
             this.skip = 1;
-        }
+//        }
 
         var w = (this.getWidth() > this.maxHeatWidth) ? this.maxHeatWidth : this.getWidth();
         w -= (this.plotmargin.right + this.plotmargin.left);

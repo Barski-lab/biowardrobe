@@ -51,7 +51,7 @@ class UpLabData extends AbstractTableDataProcessing
             return true;
         }
 
-        if (in_array($field, array("author", "browsergrp", "uid", "islandcount", "filename", "deleted","libstatus","libstatustxt")))
+        if (in_array($field, array("author", "browsergrp", "uid", "islandcount", "filename", "deleted","libstatus","libstatustxt","dateadd")))
             return true;
 
         return false;

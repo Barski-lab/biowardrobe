@@ -23,7 +23,6 @@
 
 require_once('../settings.php');
 
-
 //logmsg(__FILE__);
 //logmsg($_REQUEST);
 

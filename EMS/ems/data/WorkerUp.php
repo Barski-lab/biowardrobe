@@ -52,7 +52,7 @@ class UpData extends AbstractTableDataProcessing {
             $this->response->print_error("Field '{$field}' is empty");
 
         if (($field == "admin" || $field == "changepass" || $field == "relogin")
-            && !($worker->isLocalAdmin() || $worker->isAdmin())
+            && !($worker->isAdmin())
         )
             $this->response->print_error("Insufficient privileges!");
 
