@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2016 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -21,41 +21,24 @@
  **
  ****************************************************************************/
 
-require_once('../auth.php');
+if (session_status() !== PHP_SESSION_ACTIVE)
+    session_start();
 
-//logmsg($_REQUEST);
+require_once __DIR__ .'/settings.php';
 
-$data = json_decode($_REQUEST['data']);
-if (!isset($data))
-    $response->print_error("Data is not set");
+require_once __DIR__ .'/utils/attempt.php';
 
-if (!$worker->isAdmin() && !$worker->isLocalAdmin())
-    $response->print_error("Insufficient privileges");
+require_once __DIR__ .'/utils/Users.php';
 
-class UpLab extends AbstractTableDataProcessing
-{
-    public function fieldrule($field, $value)
-    {
-        return false;
-    }
+$data = json_decode(file_get_contents('php://input'));
+if ($data) {
+    if (!(isset($data->username) && isset($data->password) && $data->username != '' && $data->password != ''))
+        $response->print_error('Not enough required parameters.');
 
-    protected function where($field, $value)
-    {
-        global $worker;
-        if ($field == "id" && $worker->isLocalAdmin())
-            $this->setwhere($field, $worker->worker['laboratory_id'], " and {$field}=? ");
-        return false;
-    }
+    $worker = new Worker($data->username, $data->password);
+} else {
+    $worker = new Worker();
 }
 
-$uplab = new UpLab('laboratory');
-$uplab->upData($data, 'id');
-$uplab->exec();
-
-$response->success = true;
-$response->message = "Data updated";
-$response->total = 1;
-$response->data = $data;
-print_r($response->to_json());
-
-?>
+$_SESSION["timeout"] = time();
+$_SESSION["attempt"] = 1;

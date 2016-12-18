@@ -1,7 +1,7 @@
 <?php
 /****************************************************************************
  **
- ** Copyright (C) 2011 Andrey Kartashov .
+ ** Copyright (C) 2016 Andrey Kartashov .
  ** All rights reserved.
  ** Contact: Andrey Kartashov (porter@porter.st)
  **
@@ -20,28 +20,11 @@
  ** conditions contained in a signed written agreement between you and Andrey Kartashov.
  **
  ****************************************************************************/
-session_start();
 
-$_SESSION["authorizing"] = 1;
-require_once('settings.php');
-
-$data = json_decode(file_get_contents('php://input'));
-if ($data) {
-    if (!(isset($data->username) && isset($data->password) && $data->username != '' && $data->password != ''))
-        $response->print_error('Not enough required parameters.');
-
-    $worker = new Worker($data->username, $data->password);
-} else {
-    $worker = new Worker();
-}
-
-$_SESSION["timeout"] = time();
-$_SESSION["attempt"] = 1;
-$_SESSION["authorizing"] = 0;
+require_once __DIR__ .'/auth.php';
 
 $response->success = true;
 $response->message = "auth";
 print_r($response->to_json());
 
 exit();
-?>

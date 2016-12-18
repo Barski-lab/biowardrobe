@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 
 $data = json_decode($_REQUEST['data']);
@@ -38,7 +38,7 @@ $con->autocommit(FALSE);
 
 function update_insert($val)
 {
-    global $con, $response, $db_name_ems;
+    global $con, $response, $db_name_ems, $worker;
     check_val($val->id);
 
     if ($val->parentId == "own" && intVal($val->isnew) == 1) {

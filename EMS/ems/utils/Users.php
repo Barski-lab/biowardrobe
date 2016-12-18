@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ .'/../data/vendor/autoload.php';
 
 /****************************************************************************
  **
@@ -22,7 +23,7 @@
  **
  ****************************************************************************/
 class Worker {
-    private $response;
+    private $response, $provider = null;
     public $worker, $group, $groups, $fields;
 
     function __construct($worker = "", $pass = "") {
@@ -30,10 +31,53 @@ class Worker {
         global $settings;
 
         $this->response = &$response;
-        if (!isset($_SESSION["userinfo"]) && ($worker === "" || $pass === "")) {
-            $this->response->print_error("Authorization required!");
+        if (!isset($_SESSION["userinfo"])) {
+            if($settings->oauthServer =="" && ( $worker === "" || $pass === "" )){
+                $this->response->print_error("Authorization required!");
+            } else {
+                $user = $this->oauth2();
+                $this->fetch_data2($user['email']);
+            }
+        } else {
+            $this->fetch_data($worker, $pass);
         }
-        $this->fetch_data($worker, $pass);
+    }
+
+    function fetch_data2($email, $force = false) {
+        if (session_status() !== PHP_SESSION_ACTIVE)
+            session_start();
+
+        $redirect = false;
+        if (!isset($_SESSION["userinfo"]) || $force) {
+            $redirect = true;
+            //Check if .$_SERVER['REMOTE_ADDR'] - address remote or local and add where clause to SQL
+            $query = selectSQL("SELECT * from worker where email=? and passwd is not NULL", array("s", $email));
+            if (count($query) != 1)
+                $this->response->print_error("Cant select worker!");
+
+            $this->worker = $query[0];
+            foreach ($query[0] as $k => $v) {
+                $this->fields[] = $k;
+            }
+            $this->fields[] = "fullname";
+            $this->fields[] = "isa";
+            $this->fields[] = "isla";
+            $this->journal_login();
+
+            $_SESSION["userinfo"] = $query[0];
+            $_SESSION["userinfo"]['fields'] = $this->fields;
+        }
+        $this->worker = $_SESSION["userinfo"];
+        $this->fields = $this->worker['fields'];
+        $this->primary_group();
+        $this->groups();
+        $this->worker['fullname'] = $this->worker['lname'] . ", " . $this->worker['fname'];
+        $this->worker['isa'] = $this->isAdmin();
+        $this->worker['isla'] = $this->isLocalAdmin();
+
+        if($redirect && isset($_GET['code'])) {
+           header('Location: ' . 'index.php');
+        }
     }
 
     function fetch_data($worker, $pass, $force = false) {
@@ -158,7 +202,80 @@ class Worker {
         return $this->response->to_json();
     }
 
-}
+    public function oauth2_provider(){
+        global $settings;
 
+        if(!$this->provider)
+        $this->provider = new \League\OAuth2\Client\Provider\GenericProvider([
+            'clientId'                => $settings->clientId,
+            'clientSecret'            => $settings->clientSecret,
+            'redirectUri'             => $settings->redirectUri,
+            'urlAuthorize'            => $settings->oauthServer.'/oauth/authorize',
+            'urlAccessToken'          => $settings->oauthServer.'/oauth/token',
+            'urlResourceOwnerDetails' => $settings->oauthServer.'/oauth/identity'
+        ]);
+        return $this->provider;
+    }
+
+    public function oauth2() {
+        global $settings;
+
+        $provider = $this->oauth2_provider();
+
+        // If we don't have an authorization code then get one
+        if (!isset($_GET['code'])) {
+
+            $authorizationUrl = $provider->getAuthorizationUrl();
+
+            // Get the state generated for you and store it to the session.
+            $_SESSION['oauth2state'] = $provider->getState();
+
+            // Redirect the user to the authorization URL.
+            header('Location: ' . $authorizationUrl);
+            exit;
+
+            // Check given state against previously stored one to mitigate CSRF attack
+        } elseif (empty($_GET['state']) || ($_GET['state'] !== $_SESSION['oauth2state'])) {
+            unset($_SESSION['oauth2state']);
+            exit('Invalid state');
+        } else {
+
+            try {
+
+                // Try to get an access token using the authorization code grant.
+                $accessToken = $provider->getAccessToken('authorization_code', [
+                    'code' => $_GET['code']
+                ]);
+
+                $_SESSION['oauthCode'] = $_GET['code'];
+                $_SESSION['oauthToken'] = $accessToken->getToken();
+                $_SESSION['oauthAccessToken'] = $accessToken;
+
+                //    if($accessToken->hasExpired()){
+                //        header('Location: ' . $this->provider->getAuthorizationUrl());
+                //        exit;
+                //    }
+
+                // We have an access token, which we may use in authenticated
+                // requests against the service provider's API.
+                //echo $accessToken->getToken() . "\n";
+                //echo $accessToken->getRefreshToken() . "\n";
+                //echo $accessToken->getExpires() . "\n";
+                //echo ($accessToken->hasExpired() ? 'expired' : 'not expired') . "\n";
+                $request = $provider->getAuthenticatedRequest(
+                    'POST',
+                    $settings->oauthServer.'/oauth/identity',
+                    $accessToken
+                );
+                return $provider->getResponse($request);
+
+            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+                // Failed to get the access token or user details.
+                $this->response->print_error($e->getMessage());
+            }
+        }
+        return null;
+    }
+}
 
 ?>

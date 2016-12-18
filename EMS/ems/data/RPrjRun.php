@@ -24,7 +24,7 @@
 ignore_user_abort(true);
 set_time_limit(600);
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 try {
     $data = json_decode(file_get_contents('php://input'));

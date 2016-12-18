@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require("../settings.php");
+require_once('../auth.php');
 
 if (isset($_REQUEST['uid']))
     $uid = $_REQUEST['uid'];

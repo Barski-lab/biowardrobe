@@ -202,7 +202,7 @@ Ext.define('EMS.view.Experiment.LabData.LabDataListWindow', {
                     }
                 },
 
-                {   header: "Mapped", sortable: false, width: 60, dataIndex: 'tagspercent', align: 'right', filterable: false, hidden: true},
+                {   header: "Mapped", sortable: false, width: 60, dataIndex: 'tagsmapped', align: 'right', filterable: false, hidden: true},
                 {   header: "Islands count", sortable: true, width: 60, dataIndex: 'islandcount', align: 'right', hidden: false,
                     renderer: function (value, metaData, record) {
                         if (value > 0) {

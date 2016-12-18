@@ -1,3 +1,6 @@
+<?php
+require_once __DIR__ .'/auth.php';
+?>
 <html>
 <head>
     <title>Wardrobe experiment management system</title>

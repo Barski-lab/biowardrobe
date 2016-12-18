@@ -21,6 +21,8 @@
 **
 ****************************************************************************/
 
+require_once('../auth.php');
+
 require("common.php");
 require_once('response.php');
 require_once('def_vars.php');

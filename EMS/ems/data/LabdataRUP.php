@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 if (!$worker->isAdmin()) {
     $response->print_error("Insufficient privileges");

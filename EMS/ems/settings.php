@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-$DATABSE_CONNECTION_FILE = "/etc/wardrobe/wardrobe";
+$DATABASE_CONNECTION_FILE = "/etc/wardrobe/wardrobe";
 
 require_once('utils/response.php');
 
@@ -31,7 +31,6 @@ $res = &$response;
 require_once('utils/def_vars.php');
 
 require_once('utils/common.php');
-require_once('utils/Users.php');
 
 
 Class Settings
@@ -42,14 +41,20 @@ Class Settings
 
     function __construct()
     {
-        global $response, $DATABSE_CONNECTION_FILE;
+        global $response, $DATABASE_CONNECTION_FILE;
         $this->response = &$response;
-        $handle = fopen($DATABSE_CONNECTION_FILE, "r");
+        $handle = fopen($DATABASE_CONNECTION_FILE, "r");
         if ($handle) {
             $this->db_host = "";
             $this->db_name = "";
             $this->db_user = "";
             $this->db_pass = "";
+            $this->db_port = "";
+            $this->db_drv = "";
+            $this->clientId = "";
+            $this->clientSecret = "";
+            $this->redirectUri = "";
+            $this->oauthServer = "";
             while (($line = fgets($handle)) !== false) {
                 $line = trim($line, "\n\r\t");
                 if (strpos($line, "#") === 0)
@@ -68,6 +73,21 @@ Class Settings
 
                 } else if ($this->db_name === "") {
                     $this->db_name = $line;
+
+                }else if ($this->db_port === "") {
+                    $this->db_port = $line;
+
+                }else if ($this->db_drv === "") {
+                    $this->db_drv = $line;
+
+                } else if ($this->clientId === "") {
+                    $this->clientId = $line;
+                } else if ($this->clientSecret === "") {
+                    $this->clientSecret = $line;
+                } else if ($this->redirectUri === "") {
+                    $this->redirectUri = $line;
+                } else if ($this->oauthServer === "") {
+                    $this->oauthServer = $line;
                 }
             }
         } else {
@@ -124,9 +144,6 @@ Class Settings
 
 }
 
-if (session_status() !== PHP_SESSION_ACTIVE)
-    session_start();
-require_once('utils/attempt.php');
 $settings = new Settings();
 //FIXME:remove this function later
 function def_connect()
@@ -135,11 +152,11 @@ function def_connect()
     return $settings->connection;
 }
 
-if (isset($_SESSION["authorizing"]) && $_SESSION["authorizing"] != 1) {
-    $worker = new Worker();
-    $_SESSION["attempt"] = 1;
-    session_write_close();
-}
+//if (isset($_SESSION["authorizing"]) && $_SESSION["authorizing"] != 1) {
+//    $worker = new Worker();
+//    $_SESSION["attempt"] = 1;
+//    session_write_close();
+//}
 //logmsg("settings", $settings);
 //logmsg("worker", $worker);
 ?>

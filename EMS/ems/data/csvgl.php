@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once("../settings.php");
+require_once('../auth.php');
 
 if (!isset($_REQUEST['id']))
     $response->print_error('Not enough required parameters.');

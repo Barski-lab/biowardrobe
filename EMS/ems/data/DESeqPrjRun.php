@@ -24,7 +24,7 @@
 ignore_user_abort(true);
 set_time_limit(600);
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 //logmsg(__FILE__);
 

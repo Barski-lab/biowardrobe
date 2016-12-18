@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 
 //logmsg(__FILE__);
@@ -43,7 +43,7 @@ $con->autocommit(FALSE);
 
 function update_insert($val)
 {
-    global $con, $res, $db_name_ems;
+    global $con, $res, $db_name_ems, $response;
     if (isset($val->labdata_id) && intVal($val->labdata_id) > 0)
         $lid = intVal($val->labdata_id);
     else

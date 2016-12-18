@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 ignore_user_abort(true);
 set_time_limit(600);

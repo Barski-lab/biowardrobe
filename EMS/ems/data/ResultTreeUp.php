@@ -1,5 +1,7 @@
 <?php
 
+require_once('../auth.php');
+
    require("common.php");
 require_once('response.php');
 require_once('def_vars.php');
@@ -22,7 +24,7 @@ $count=1;
 
 
 
-function insert_data($val) {
+function insert_data($val,$key="") {
     global $data,$con;
     execSQL($con,
             "insert into result(project_id,name,description,rtype_id,labdata_id,tablename) values(?,?,?,?,?,(select filename from labdata where id=?))",
@@ -51,7 +53,7 @@ if(gettype($data)=="array") {
     foreach($data as $key => $val ) {
         if(intVal($val->id) == intVal($val->item_id)) {
             if(($chk=check_data($val))==0)
-                insert_data($val);
+                insert_data($val,$key);
         } else {
             execSQL($con,
                     "update result set name=?,description=? where id=?",

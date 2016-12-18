@@ -21,7 +21,7 @@
  **
  ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 $data = json_decode($_REQUEST['data']);
 if (!isset($data))
@@ -48,7 +48,7 @@ function delete_dir($dir) {
     rmdir($dir);
 }
 
-function delete_record($id)
+function delete_record($id, $pid)
 {
     global $settings,$path;
     $EDB = $settings->settings['experimentsdb']['value'];
@@ -81,7 +81,7 @@ function delete_record($id)
     }
     execSQL($con, "delete from genelist where id like ?", array("s", $id), true);
     if (!$qr)
-        recreate_rna_views($val->item_id, $val->parentId);
+        recreate_rna_views($id, $pid);
 }
 
 $con = def_connect();
@@ -91,7 +91,7 @@ if (gettype($data) == "array") {
     foreach ($data as $key => $val) {
         if ($val->item_id == "root" || $val->item_id == "gl" || $val->item_id == "gd")
             $response->print_error("Cant delete");
-        delete_record($val->item_id);
+        delete_record($val->item_id,$val->parentId);
     }
 } else {
     $val = $data;

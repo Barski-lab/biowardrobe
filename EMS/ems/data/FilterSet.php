@@ -21,7 +21,7 @@
 **
 ****************************************************************************/
 
-require_once('../settings.php');
+require_once('../auth.php');
 
 //logmsg(__FILE__);
 //logmsg(print_r($_REQUEST,true));

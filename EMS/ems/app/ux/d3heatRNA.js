@@ -30,6 +30,7 @@ Ext.define("EMS.ux.d3heatRNA", {
     ],
 
     //colors: ["blue", "yellow", "orange", "red"],
+    //colors: ["white", "black"],
     colors: ["blue", "yellow", "red"],
     plotTitle: null,
     ChIP: false,
