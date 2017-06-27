@@ -421,11 +421,12 @@ Ext.define('EMS.controller.Experiment.Experiment', {
      ***********************************************************************/
     addGB: function (tab) {
 
-        var gtbl = this.UID.replace(/-/g, '_') + '_wtrack';
-        if (!this.isRNA) {
-            gtbl = this.UID.replace(/-/g, '_') + '_grp';
+        var wtrack_tbl = this.UID.replace(/-/g, '_') + '_wtrack';
+        var islands_tbl = this.UID.replace(/-/g, '_') + '_islands';
+        var url = EMS.util.Util.Settings('genomebrowserroot') + '/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + wtrack_tbl + '=full&' + islands_tbl + '=dense';
+        if (this.isRNA) {
+            url = EMS.util.Util.Settings('genomebrowserroot') + '/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + wtrack_tbl + '=full';
         }
-        var url = EMS.util.Util.Settings('genomebrowserroot') + '/cgi-bin/hgTracks?db=' + this.db + '&pix=1050&refGene=full&' + gtbl + '=full';
         tab.add({
                     title: 'Genome browser',
                     iconCls: 'genome-browser',
