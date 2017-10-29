@@ -8,4 +8,4 @@ PLEASE CITE OUR PAPER at [GenomeBiology](http://www.genomebiology.com/2015/16/1/
 
 ## Online demo
 
-  In this demo [https://demo.biowardrobe.com/](https://demo.biowardrobe.com/) BioWardrobe functionality has been limited due to space and computational power constraints. Unlike the full version, users can not create new accounts or folders, cannot download new datasets and cannot run new analysis. However, users can view the datasets already there and view the results of analysis described in our paper. There are 3 accounts/passwords admin/admin, user/user, guest/guest with admin/local admin/worker privileges.
+  In this demo [https://demo.biowardrobe.com/](https://demo.biowardrobe.com/) BioWardrobe functionality has been limited due to space and computational power constraints. Unlike the full version, users can not create new accounts or folders, cannot download new datasets and cannot run new analysis. However, users can view the datasets already there and view the results of analysis described in our paper. There are 3 demo accounts: admin/admin, user/user, guest/guest with admin/local admin/worker privileges.
