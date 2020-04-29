@@ -1,4 +1,4 @@
-The project is not supported anymore. We now focus on more popular and stable projects CWL-Airflow & SciDAP.
+# The project is not supported anymore. We now focus on more popular and stable projects CWL-Airflow & SciDAP.
 
 ## BioWardrobe: an integrated platform for analysis of epigenomics and transcriptomics data
 
